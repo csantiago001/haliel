@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#2563EB"/>
+<meta name="description" content="Haliel Papelería - Sistema Administrativo"/>
+<title>Haliel Papelería | Sistema Administrativo</title>
+
+<!-- PWA Manifest inline -->
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22:%22Haliel%20Papeler%C3%ADa%22,
+  %22short_name%22:%22Haliel%22,
+  %22start_url%22:%22/%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%230F172A%22,
+  %22theme_color%22:%22%232563EB%22,
+  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%232563EB' rx='32'/%3E%3Ctext x='50%25' y='55%25' font-size='100' text-anchor='middle' dominant-baseline='middle' fill='white'%3EH%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]
+}"/>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<!-- SheetJS for Excel export -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          poppins: ['Poppins','sans-serif'],
+          inter: ['Inter','sans-serif'],
+        },
+        colors: {
+          electric: '#2563EB',
+          sky: '#38BDF8',
+          violet: '#7C3AED',
+          fuchsia: '#EC4899',
+          amber: '#FACC15',
+          emerald: '#22C55E',
+          rose: '#EF4444',
+          dark: '#0F172A',
+          light: '#F8FAFC',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  /* ===== BASE STYLES ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F8FAFC;
+    color: #0F172A;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+  .dark body, html.dark body { background: #0F172A; color: #F8FAFC; }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2563EB44; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2563EB88; }
+
+  /* ===== CSS VARIABLES ===== */
+  :root {
+    --electric: #2563EB;
+    --sky: #38BDF8;
+    --violet: #7C3AED;
+    --fuchsia: #EC4899;
+    --amber: #FACC15;
+    --emerald: #22C55E;
+    --rose: #EF4444;
+    --dark: #0F172A;
+    --light: #F8FAFC;
+    --card-bg: #ffffff;
+    --card-border: rgba(37,99,235,0.1);
+    --sidebar-bg: #ffffff;
+    --text-muted: #64748b;
+    --input-bg: #f1f5f9;
+    --shadow-card: 0 4px 24px rgba(37,99,235,0.08);
+    --shadow-glow: 0 0 40px rgba(37,99,235,0.15);
+  }
+  html.dark {
+    --card-bg: #1e293b;
+    --card-border: rgba(56,189,248,0.12);
+    --sidebar-bg: #1e293b;
+    --text-muted: #94a3b8;
+    --input-bg: #0f172a;
+    --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-glow: 0 0 40px rgba(56,189,248,0.1);
+  }
+
+  /* ===== GLASSMORPHISM ===== */
+  .glass {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+  html.dark .glass {
+    background: rgba(30,41,59,0.85);
+    border: 1px solid rgba(56,189,248,0.15);
+  }
+
+  .glass-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .glass-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+
+  /* ===== LOGIN PAGE ===== */
+  #login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0F172A 0%, #1e1b4b 40%, #0F172A 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: blobFloat 8s ease-in-out infinite;
+    opacity: 0.35;
+  }
+  .blob-1 { width: 500px; height: 500px; background: #2563EB; top: -150px; left: -150px; animation-delay: 0s; }
+  .blob-2 { width: 400px; height: 400px; background: #7C3AED; top: 50%; right: -120px; animation-delay: -3s; }
+  .blob-3 { width: 300px; height: 300px; background: #EC4899; bottom: -100px; left: 30%; animation-delay: -6s; }
+  .blob-4 { width: 200px; height: 200px; background: #38BDF8; top: 20%; left: 60%; animation-delay: -2s; }
+
+  @keyframes blobFloat {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-30px) scale(1.05); }
+    66% { transform: translate(-20px,20px) scale(0.95); }
+  }
+
+  .particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    animation: particleFloat linear infinite;
+  }
+
+  @keyframes particleFloat {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== LOGIN CARD ===== */
+  .login-card {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+    animation: cardIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+    position: relative;
+    z-index: 10;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 0.75rem;
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    outline: none;
+  }
+  .login-input::placeholder { color: rgba(255,255,255,0.4); }
+  .login-input:focus {
+    border-color: #38BDF8;
+    background: rgba(56,189,248,0.1);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    border: none;
+    border-radius: 0.85rem;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+  .btn-login:hover::before { left: 100%; }
+  .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(37,99,235,0.5); }
+  .btn-login:active { transform: translateY(0); }
+
+  /* ===== LOGO ANIMATION ===== */
+  .logo-ring {
+    width: 72px; height: 72px;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, #2563EB, #7C3AED, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: white;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 8px 30px rgba(37,99,235,0.5);
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+  @keyframes logoPulse {
+    0%,100% { box-shadow: 0 8px 30px rgba(37,99,235,0.5); }
+    50% { box-shadow: 0 8px 50px rgba(124,58,237,0.6), 0 0 0 10px rgba(37,99,235,0.1); }
+  }
+
+  /* ===== MAIN APP LAYOUT ===== */
+  #app { display: none; min-height: 100vh; }
+
+  .sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--card-border);
+    box-shadow: 4px 0 24px rgba(37,99,235,0.05);
+    position: fixed;
+    left: 0; top: 0;
+    z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar.hidden-mobile { transform: translateX(-100%); }
+
+  .sidebar-logo {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--card-border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .sidebar-logo-icon {
+    width: 42px; height: 42px;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.7rem 1.25rem;
+    margin: 0.15rem 0.75rem;
+    border-radius: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    user-select: none;
+  }
+  .nav-item:hover { background: rgba(37,99,235,0.08); color: #2563EB; }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.08));
+    color: #2563EB;
+    font-weight: 600;
+  }
+  html.dark .nav-item.active { background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(124,58,237,0.1)); color: #38BDF8; }
+  .nav-item i { width: 18px; text-align: center; font-size: 0.9rem; }
+
+  .main-content {
+    margin-left: 260px;
+    min-height: 100vh;
+    transition: margin-left 0.3s;
+    padding: 1.5rem;
+  }
+  @media(max-width:768px) {
+    .main-content { margin-left: 0; padding: 1rem; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  /* ===== STAT CARDS ===== */
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: 0.06;
+    transform: translate(30px,-30px);
+  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+
+  .stat-icon {
+    width: 48px; height: 48px;
+    border-radius: 0.875rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn-primary {
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.65rem 1.25rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
+
+  .btn-secondary {
+    background: var(--input-bg);
+    color: var(--text-muted);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 0.65rem 1.25rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-secondary:hover { background: rgba(37,99,235,0.08); color: #2563EB; }
+
+  .btn-danger {
+    background: rgba(239,68,68,0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+  .btn-danger:hover { background: #EF4444; color: white; }
+
+  .btn-edit {
+    background: rgba(37,99,235,0.1);
+    color: #2563EB;
+    border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+  .btn-edit:hover { background: #2563EB; color: white; }
+
+  /* ===== TABLES ===== */
+  .premium-table { width: 100%; border-collapse: collapse; }
+  .premium-table thead th {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--card-border);
+    white-space: nowrap;
+  }
+  .premium-table tbody tr {
+    border-bottom: 1px solid var(--card-border);
+    transition: background 0.15s;
+  }
+  .premium-table tbody tr:hover { background: rgba(37,99,235,0.03); }
+  html.dark .premium-table tbody tr:hover { background: rgba(56,189,248,0.04); }
+  .premium-table tbody td {
+    padding: 0.85rem 1rem;
+    font-size: 0.875rem;
+    color: inherit;
+    vertical-align: middle;
+  }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-green { background: rgba(34,197,94,0.12); color: #16a34a; }
+  .badge-yellow { background: rgba(250,204,21,0.15); color: #ca8a04; }
+  .badge-red { background: rgba(239,68,68,0.12); color: #dc2626; }
+  .badge-blue { background: rgba(37,99,235,0.1); color: #2563EB; }
+  .badge-purple { background: rgba(124,58,237,0.1); color: #7C3AED; }
+
+  html.dark .badge-green { background: rgba(34,197,94,0.15); color: #4ade80; }
+  html.dark .badge-yellow { background: rgba(250,204,21,0.15); color: #fde047; }
+  html.dark .badge-red { background: rgba(239,68,68,0.15); color: #f87171; }
+  html.dark .badge-blue { background: rgba(56,189,248,0.12); color: #38BDF8; }
+
+  /* ===== MODALS ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-box {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  /* ===== INPUTS ===== */
+  .field-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: inherit;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .field-input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    background: var(--card-bg);
+  }
+  .field-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar { height: 8px; background: var(--input-bg); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+
+  /* ===== TOAST ===== */
+  #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toast {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    padding: 0.85rem 1.25rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-width: 260px;
+    animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    border-left: 4px solid;
+  }
+  .toast-success { border-left-color: #22C55E; }
+  .toast-error { border-left-color: #EF4444; }
+  .toast-info { border-left-color: #2563EB; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* ===== SIDEBAR OVERLAY ===== */
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+  @media(max-width:768px) { .sidebar-overlay.active { display: block; } }
+
+  /* ===== CHART CONTAINERS ===== */
+  .chart-container { position: relative; width: 100%; }
+
+  /* ===== RANKING ITEMS ===== */
+  .rank-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.875rem;
+    transition: background 0.15s;
+  }
+  .rank-item:hover { background: rgba(37,99,235,0.05); }
+  .rank-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ===== DARK MODE TOGGLE ===== */
+  .toggle-dark {
+    width: 46px; height: 26px;
+    border-radius: 99px;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s;
+    padding: 0;
+    outline: none;
+  }
+  .toggle-dark.on { background: linear-gradient(135deg, #2563EB, #7C3AED); }
+  .toggle-dot {
+    position: absolute;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .toggle-dark.on .toggle-dot { transform: translateX(20px); }
+
+  /* ===== SEARCH INPUT ===== */
+  .search-input {
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    font-size: 0.875rem;
+    color: inherit;
+    outline: none;
+    transition: all 0.2s;
+    width: 220px;
+  }
+  .search-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); width: 280px; }
+
+  /* ===== LOADING SPINNER ===== */
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== AVATAR ===== */
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  /* ===== SECTION ANIMATION ===== */
+  .section { display: none; animation: sectionIn 0.35s ease both; }
+  .section.active { display: block; }
+  @keyframes sectionIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== GRID ===== */
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
+  @media(max-width:1200px) { .grid-4 { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:900px) { .grid-3 { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:640px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* ===== MISC ===== */
+  .text-gradient {
+    background: linear-gradient(135deg, #2563EB, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .divider { height: 1px; background: var(--card-border); margin: 1rem 0; }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+  .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+
+  /* ===== NAV SECTION LABELS ===== */
+  .nav-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 1rem 2rem 0.35rem;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================= LOGIN PAGE ============================= -->
+<div id="login-page">
+  <!-- Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+
+  <!-- Particles -->
+  <div id="particles-container"></div>
+
+  <!-- Login Card -->
+  <div class="login-card">
+    <div class="logo-ring">H</div>
+
+    <div class="text-center mb-6">
+      <h1 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;color:white;letter-spacing:-0.01em;">Haliel Papelería</h1>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.25rem;">Sistema Administrativo</p>
+    </div>
+
+    <!-- Login Form -->
+    <div id="form-login">
+      <div style="margin-bottom:1rem;position:relative;">
+        <i class="fa-regular fa-envelope" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
+        <input type="email" id="login-email" class="login-input" placeholder="Correo electrónico" autocomplete="email"/>
+      </div>
+      <div style="margin-bottom:1.5rem;position:relative;">
+        <i class="fa-solid fa-lock" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
+        <input type="password" id="login-password" class="login-input" placeholder="Contraseña" autocomplete="current-password"/>
+        <button onclick="togglePwd()" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;">
+          <i class="fa-regular fa-eye" id="pwd-icon"></i>
+        </button>
+      </div>
+      <button class="btn-login" id="btn-login" onclick="doLogin()">
+        <span id="btn-login-text">Iniciar Sesión</span>
+        <span id="btn-login-spinner" style="display:none;"><span class="spinner"></span></span>
+      </button>
+      <div class="text-center mt-4">
+        <button onclick="showForgot()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:0.825rem;cursor:pointer;font-family:'Inter',sans-serif;">
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div id="form-forgot" style="display:none;">
+      <div style="margin-bottom:0.5rem;">
+        <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;text-align:center;margin-bottom:1.25rem;">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+      </div>
+      <div style="margin-bottom:1.5rem;position:relative;">
+        <i class="fa-regular fa-envelope" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
+        <input type="email" id="forgot-email" class="login-input" placeholder="Correo electrónico"/>
+      </div>
+      <button class="btn-login" onclick="doForgot()">Enviar enlace de recuperación</button>
+      <div class="text-center mt-4">
+        <button onclick="showLogin()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:0.825rem;cursor:pointer;font-family:'Inter',sans-serif;">
+          <i class="fa-solid fa-arrow-left" style="margin-right:0.3rem;"></i> Volver al login
+        </button>
+      </div>
+    </div>
+
+    <div class="divider" style="border-color:rgba(255,255,255,0.1);margin:1.5rem 0;"></div>
+    <div class="text-center" style="color:rgba(255,255,255,0.35);font-size:0.75rem;">
+      <i class="fa-solid fa-phone" style="margin-right:0.35rem;"></i> 3134194976
+      &nbsp;·&nbsp;
+      <i class="fa-regular fa-envelope" style="margin-right:0.35rem;"></i> papeleriahaliel@gmail.com
+    </div>
+  </div>
+</div>
+
+<!-- ============================= MAIN APP ============================= -->
+<div id="app">
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">H</div>
+      <div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;" id="sidebar-brand">Haliel</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">Papelería</div>
+      </div>
+      <button onclick="closeSidebar()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;display:none;" id="sidebar-close-btn">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Admin Nav -->
+    <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item active" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</div>
+      <div class="nav-item" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i> Registros</div>
+      <div class="nav-item" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i> Estadísticas</div>
+      <div class="nav-label">Gestión</div>
+      <div class="nav-item" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i> Operadores</div>
+      <div class="nav-item" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i> Sucursales</div>
+      <div class="nav-item" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i> Reportes</div>
+      <div class="nav-label">Sistema</div>
+      <div class="nav-item" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i> Auditoría</div>
+      <div class="nav-item" onclick="goSection('configuracion')"><i class="fa-solid fa-gear"></i> Configuración</div>
+    </nav>
+
+    <!-- Operator Nav -->
+    <nav id="nav-operador" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
+      <div class="nav-label">Mi espacio</div>
+      <div class="nav-item active" onclick="goSection('op-inicio')"><i class="fa-solid fa-house"></i> Inicio</div>
+      <div class="nav-item" onclick="goSection('op-registrar')"><i class="fa-solid fa-plus-circle"></i> Registrar</div>
+      <div class="nav-item" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i> Mis Registros</div>
+      <div class="nav-item" onclick="goSection('op-rendimiento')"><i class="fa-solid fa-chart-line"></i> Mi Rendimiento</div>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div style="padding:0.75rem;border-top:1px solid var(--card-border);">
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;margin-bottom:0.5rem;">
+        <span style="font-size:0.8rem;color:var(--text-muted);">Modo oscuro</span>
+        <button class="toggle-dark" id="dark-toggle" onclick="toggleDark()">
+          <span class="toggle-dot"></span>
+        </button>
+      </div>
+      <div class="nav-item" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button onclick="openSidebar()" id="menu-btn" style="display:none;background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;width:40px;height:40px;cursor:pointer;color:var(--text-muted);font-size:1.1rem;">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <h2 id="page-title" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.25rem;">Dashboard</h2>
+          <p style="font-size:0.8rem;color:var(--text-muted);" id="page-subtitle">Resumen general del sistema</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="text-align:right;display:none;" id="user-info-top" class="sm:block">
+          <div style="font-size:0.825rem;font-weight:600;" id="topbar-name">Usuario</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);" id="topbar-role">-</div>
+        </div>
+        <div class="avatar" id="topbar-avatar">U</div>
+      </div>
+    </div>
+
+    <!-- ========== SECTIONS ========== -->
+
+    <!-- ADMIN: DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <!-- Filters -->
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
+        <select id="filter-mes" class="field-input" style="width:auto;" onchange="loadDashboard()">
+          <option value="">Todos los meses</option>
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()">
+          <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
+        </select>
+        <select id="filter-sucursal-dash" class="field-input" style="width:auto;" onchange="loadDashboard()">
+          <option value="">Todas las sucursales</option>
+        </select>
+        <button class="btn-primary" onclick="loadDashboard()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid-4" style="margin-bottom:1.25rem;" id="stats-grid">
+        <!-- dynamically injected -->
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid-2" style="margin-bottom:1.25rem;">
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Movimientos Diarios</h3>
+          <div class="chart-container" style="height:220px;"><canvas id="chart-movimientos"></canvas></div>
+        </div>
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Participación por Día</h3>
+          <div class="chart-container" style="height:220px;"><canvas id="chart-participacion"></canvas></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.25rem;">
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Rendimiento por Operador</h3>
+          <div class="chart-container" style="height:220px;"><canvas id="chart-operadores"></canvas></div>
+        </div>
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Clasificación General</h3>
+          <div class="chart-container" style="height:220px;"><canvas id="chart-clasificacion"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Ranking + Metas -->
+      <div class="grid-2">
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;"><i class="fa-solid fa-trophy" style="color:#FACC15;margin-right:0.5rem;"></i>Ranking Operadores</h3>
+          <div id="ranking-list"></div>
+        </div>
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1.25rem;"><i class="fa-solid fa-bullseye" style="color:#2563EB;margin-right:0.5rem;"></i>Metas del Período</h3>
+          <div id="metas-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: REGISTROS -->
+    <div class="section" id="sec-registros">
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
+        <div style="position:relative;flex:1;min-width:200px;">
+          <i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+          <input type="text" id="registros-search" class="search-input" style="width:100%;" placeholder="Buscar..." oninput="filterRegistros()"/>
+        </div>
+        <select id="reg-filter-mes" class="field-input" style="width:auto;" onchange="loadRegistros()">
+          <option value="">Todos los meses</option>
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <select id="reg-filter-op" class="field-input" style="width:auto;" onchange="loadRegistros()">
+          <option value="">Todos los operadores</option>
+        </select>
+      </div>
+
+      <div class="glass-card" style="overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Movimientos</th>
+                <th>Participación</th>
+                <th>Clasificación</th>
+                <th>Operador</th>
+                <th>Sucursal</th>
+                <th>Creado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="registros-tbody"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-top:1px solid var(--card-border);">
+          <span style="font-size:0.8rem;color:var(--text-muted);" id="registros-count">0 registros</span>
+          <div style="display:flex;gap:0.5rem;" id="pagination-btns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: ESTADÍSTICAS -->
+    <div class="section" id="sec-estadisticas">
+      <div class="grid-2" style="margin-bottom:1.25rem;">
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Crecimiento Mensual</h3>
+          <div class="chart-container" style="height:250px;"><canvas id="chart-crecimiento"></canvas></div>
+        </div>
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Participación Mensual</h3>
+          <div class="chart-container" style="height:250px;"><canvas id="chart-participacion-mensual"></canvas></div>
+        </div>
+      </div>
+      <div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Comparación por Sucursal</h3>
+        <div class="chart-container" style="height:280px;"><canvas id="chart-sucursales"></canvas></div>
+      </div>
+      <div class="glass-card" style="padding:1.5rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Metas Cumplidas por Período</h3>
+        <div class="chart-container" style="height:240px;"><canvas id="chart-metas"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ADMIN: OPERADORES -->
+    <div class="section" id="sec-operadores">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
+        <div style="position:relative;">
+          <i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+          <input type="text" class="search-input" placeholder="Buscar operador..." oninput="filterOperadores(this.value)"/>
+        </div>
+        <button class="btn-primary" onclick="openModalOperador()"><i class="fa-solid fa-plus"></i> Nuevo Operador</button>
+      </div>
+      <div class="glass-card" style="overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Operador</th>
+                <th>Correo</th>
+                <th>Sucursal</th>
+                <th>Estado</th>
+                <th>Registrado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="operadores-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: SUCURSALES -->
+    <div class="section" id="sec-sucursales">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1.25rem;">
+        <button class="btn-primary" onclick="openModalSucursal()"><i class="fa-solid fa-plus"></i> Nueva Sucursal</button>
+      </div>
+      <div class="grid-3" id="sucursales-grid"></div>
+    </div>
+
+    <!-- ADMIN: REPORTES -->
+    <div class="section" id="sec-reportes">
+      <div class="glass-card" style="padding:2rem;max-width:600px;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.5rem;">Exportar Reportes</h3>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div>
+            <label class="field-label">Mes</label>
+            <select id="rpt-mes" class="field-input">
+              <option value="">Todos</option>
+              <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+              <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+              <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Año</label>
+            <select id="rpt-ano" class="field-input">
+              <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Operador</label>
+            <select id="rpt-op" class="field-input">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem;">
+            <button class="btn-primary" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+            <button class="btn-secondary" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: AUDITORÍA -->
+    <div class="section" id="sec-auditoria">
+      <div class="glass-card" style="overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="premium-table">
+            <thead>
+              <tr><th>Acción</th><th>Usuario</th><th>Descripción</th><th>Fecha</th></tr>
+            </thead>
+            <tbody id="auditoria-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: CONFIGURACIÓN -->
+    <div class="section" id="sec-configuracion">
+      <div class="grid-2" style="max-width:900px;">
+        <div class="glass-card" style="padding:1.75rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:1.25rem;">Metas del Sistema</h3>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+              <label class="field-label">Meta diaria (movimientos)</label>
+              <input type="number" id="cfg-meta-diaria" class="field-input" value="120" min="1"/>
+            </div>
+            <div>
+              <label class="field-label">Meta mensual (movimientos)</label>
+              <input type="number" id="cfg-meta-mensual" class="field-input" value="3600" min="1"/>
+            </div>
+            <div>
+              <label class="field-label">Umbral Óptimo (mín. movimientos)</label>
+              <input type="number" id="cfg-optimo" class="field-input" value="120" min="1"/>
+            </div>
+            <div>
+              <label class="field-label">Umbral Aceptable (mín. movimientos)</label>
+              <input type="number" id="cfg-aceptable" class="field-input" value="90" min="1"/>
+            </div>
+            <button class="btn-primary" onclick="saveConfig()"><i class="fa-solid fa-floppy-disk"></i> Guardar configuración</button>
+          </div>
+        </div>
+        <div class="glass-card" style="padding:1.75rem;">
+          <h3 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:1.25rem;">Mi perfil</h3>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+              <label class="field-label">Nombre completo</label>
+              <input type="text" id="cfg-nombre" class="field-input" placeholder="Tu nombre"/>
+            </div>
+            <div>
+              <label class="field-label">Nueva contraseña</label>
+              <input type="password" id="cfg-password" class="field-input" placeholder="Dejar en blanco para no cambiar"/>
+            </div>
+            <button class="btn-primary" onclick="saveProfile()"><i class="fa-solid fa-user-check"></i> Actualizar perfil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERADOR: INICIO -->
+    <div class="section" id="sec-op-inicio">
+      <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div class="avatar" style="width:56px;height:56px;font-size:1.2rem;" id="op-avatar-big">O</div>
+          <div>
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;" id="op-welcome">¡Bienvenido!</h2>
+            <p style="color:var(--text-muted);font-size:0.875rem;" id="op-sucursal-info">Sucursal: —</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:1.25rem;" id="op-stats-grid"></div>
+
+      <div class="glass-card" style="padding:1.5rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mis últimos registros</h3>
+        <div style="overflow-x:auto;">
+          <table class="premium-table">
+            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th></tr></thead>
+            <tbody id="op-recent-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERADOR: REGISTRAR -->
+    <div class="section" id="sec-op-registrar">
+      <div class="glass-card" style="padding:2rem;max-width:500px;margin:0 auto;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.5rem;text-align:center;">
+          <i class="fa-solid fa-plus-circle" style="color:#2563EB;margin-right:0.5rem;"></i>
+          Registrar Movimientos
+        </h3>
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+          <div>
+            <label class="field-label">Fecha</label>
+            <input type="date" id="reg-fecha" class="field-input"/>
+          </div>
+          <div>
+            <label class="field-label">Cantidad de movimientos</label>
+            <input type="number" id="reg-movimientos" class="field-input" placeholder="Ej: 135" min="0" oninput="updateClasificacion()"/>
+          </div>
+          <div>
+            <label class="field-label">Participación del día (ganancia $)</label>
+            <input type="number" id="reg-participacion" class="field-input" placeholder="Ej: 50000" min="0"/>
+          </div>
+          <!-- Clasificación preview -->
+          <div id="clasificacion-preview" style="display:none;">
+            <label class="field-label">Clasificación automática</label>
+            <div id="clasificacion-badge-preview" style="margin-top:0.25rem;"></div>
+          </div>
+          <button class="btn-primary" onclick="guardarRegistro()" style="width:100%;justify-content:center;padding:0.9rem;" id="btn-guardar-reg">
+            <i class="fa-solid fa-save"></i> Guardar Registro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERADOR: MIS REGISTROS -->
+    <div class="section" id="sec-op-mis-registros">
+      <div class="glass-card" style="overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="premium-table">
+            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Creado</th></tr></thead>
+            <tbody id="op-registros-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERADOR: RENDIMIENTO -->
+    <div class="section" id="sec-op-rendimiento">
+      <div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mis Movimientos</h3>
+        <div class="chart-container" style="height:240px;"><canvas id="chart-op-movimientos"></canvas></div>
+      </div>
+      <div class="glass-card" style="padding:1.5rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mi Participación</h3>
+        <div class="chart-container" style="height:240px;"><canvas id="chart-op-participacion"></canvas></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================= MODALS ============================= -->
+<!-- Modal: Operador -->
+<div id="modal-operador" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-op-title">Nuevo Operador</h3>
+      <button onclick="closeModal('modal-operador')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div><label class="field-label">Nombre completo</label><input type="text" id="op-nombre" class="field-input" placeholder="Nombre del operador"/></div>
+      <div><label class="field-label">Correo electrónico</label><input type="email" id="op-correo" class="field-input" placeholder="correo@ejemplo.com"/></div>
+      <div id="op-password-row"><label class="field-label">Contraseña temporal</label><input type="password" id="op-password" class="field-input" placeholder="Mínimo 6 caracteres"/></div>
+      <div><label class="field-label">Sucursal</label>
+        <select id="op-sucursal-sel" class="field-input"><option value="">Sin sucursal</option></select>
+      </div>
+      <div><label class="field-label">Estado</label>
+        <select id="op-estado" class="field-input"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select>
+      </div>
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
+        <button class="btn-secondary" onclick="closeModal('modal-operador')">Cancelar</button>
+        <button class="btn-primary" onclick="saveOperador()" id="btn-save-op"><i class="fa-solid fa-save"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Sucursal -->
+<div id="modal-sucursal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-suc-title">Nueva Sucursal</h3>
+      <button onclick="closeModal('modal-sucursal')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div><label class="field-label">Nombre de la sucursal</label><input type="text" id="suc-nombre" class="field-input" placeholder="Nombre"/></div>
+      <div><label class="field-label">Dirección</label><input type="text" id="suc-direccion" class="field-input" placeholder="Dirección"/></div>
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
+        <button class="btn-secondary" onclick="closeModal('modal-sucursal')">Cancelar</button>
+        <button class="btn-primary" onclick="saveSucursal()"><i class="fa-solid fa-save"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar Registro -->
+<div id="modal-registro" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">Editar Registro</h3>
+      <button onclick="closeModal('modal-registro')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <input type="hidden" id="edit-reg-id"/>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div><label class="field-label">Fecha</label><input type="date" id="edit-reg-fecha" class="field-input"/></div>
+      <div><label class="field-label">Movimientos</label><input type="number" id="edit-reg-movimientos" class="field-input" min="0"/></div>
+      <div><label class="field-label">Participación</label><input type="number" id="edit-reg-participacion" class="field-input" min="0"/></div>
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
+        <button class="btn-secondary" onclick="closeModal('modal-registro')">Cancelar</button>
+        <button class="btn-primary" onclick="updateRegistro()"><i class="fa-solid fa-save"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- ============================= SCRIPTS ============================= -->
+<script>
+// =====================================================
+// CONFIGURATION - UPDATE THESE VALUES
+// =====================================================
+const SUPABASE_URL = 'https://ejbkqnanjvmjykovvvos.supabase.co/rest/v1/';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYmtxbmFuanZtanlrb3Z2dm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzI1NzAsImV4cCI6MjA5NDQ0ODU3MH0.BnFrDc8CwqfITTFoPNGcp4OiJ7A4jr4FX30eJrWeRO0';
+
+// Thresholds (editable via config)
+let OPTIMO = 120;
+let ACEPTABLE = 90;
+let META_DIARIA = 120;
+let META_MENSUAL = 3600;
+
+// =====================================================
+// SUPABASE INIT
+// =====================================================
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// =====================================================
+// STATE
+// =====================================================
+let currentUser = null;
+let currentProfile = null;
+let allRegistros = [];
+let allOperadores = [];
+let allSucursales = [];
+let editingOpId = null;
+let editingSucId = null;
+let charts = {};
+let regPage = 1;
+const REG_PER_PAGE = 20;
+
+// =====================================================
+// PARTICLES (Login)
+// =====================================================
+function createParticles() {
+  const c = document.getElementById('particles-container');
+  if (!c) return;
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${Math.random()*100}%;width:${2+Math.random()*3}px;height:${2+Math.random()*3}px;animation-duration:${6+Math.random()*10}s;animation-delay:${Math.random()*10}s;`;
+    c.appendChild(p);
+  }
+}
+createParticles();
+
+// =====================================================
+// UTILS
+// =====================================================
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  const colors = { success: '#22C55E', error: '#EF4444', info: '#2563EB' };
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:1.1rem;flex-shrink:0;"></i> <span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(40px)'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+function formatCurrency(n) {
+  return '$' + (n || 0).toLocaleString('es-CO');
+}
+
+function formatDate(d) {
+  if (!d) return '-';
+  const parts = d.split('T')[0].split('-');
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function getClasificacion(mov) {
+  if (mov >= OPTIMO) return 'optimo';
+  if (mov >= ACEPTABLE) return 'aceptable';
+  return 'bajo';
+}
+
+function badgeClasificacion(cls) {
+  const map = {
+    optimo: ['badge-green', 'fa-circle-check', 'Óptimo'],
+    aceptable: ['badge-yellow', 'fa-circle-half-stroke', 'Aceptable'],
+    bajo: ['badge-red', 'fa-circle-xmark', 'Bajo'],
+  };
+  const [cls2, ico, label] = map[cls] || map['bajo'];
+  return `<span class="badge ${cls2}"><i class="fa-solid ${ico}"></i> ${label}</span>`;
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+
+// =====================================================
+// DARK MODE
+// =====================================================
+function toggleDark() {
+  const on = !document.documentElement.classList.contains('dark');
+  if (on) document.documentElement.classList.add('dark');
+  else document.documentElement.classList.remove('dark');
+  const btn = document.getElementById('dark-toggle');
+  if (on) btn.classList.add('on'); else btn.classList.remove('on');
+  localStorage.setItem('dark', on ? '1' : '0');
+  setTimeout(() => { Object.values(charts).forEach(c => c && c.update()); }, 300);
+}
+function initDark() {
+  if (localStorage.getItem('dark') === '1') {
+    document.documentElement.classList.add('dark');
+    const btn = document.getElementById('dark-toggle');
+    if (btn) btn.classList.add('on');
+  }
+}
+initDark();
+
+// =====================================================
+// RESPONSIVE SIDEBAR
+// =====================================================
+function checkMobile() {
+  const menuBtn = document.getElementById('menu-btn');
+  const closeBtn = document.getElementById('sidebar-close-btn');
+  if (window.innerWidth < 768) {
+    if (menuBtn) menuBtn.style.display = 'flex';
+    if (closeBtn) closeBtn.style.display = 'block';
+  } else {
+    if (menuBtn) menuBtn.style.display = 'none';
+    if (closeBtn) closeBtn.style.display = 'none';
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('active');
+  }
+}
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+window.addEventListener('resize', checkMobile);
+
+// =====================================================
+// AUTH
+// =====================================================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-password').value;
+  if (!email || !pwd) { toast('Completa todos los campos', 'error'); return; }
+
+  const btn = document.getElementById('btn-login');
+  document.getElementById('btn-login-text').style.display = 'none';
+  document.getElementById('btn-login-spinner').style.display = 'inline';
+  btn.disabled = true;
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+
+  document.getElementById('btn-login-text').style.display = 'inline';
+  document.getElementById('btn-login-spinner').style.display = 'none';
+  btn.disabled = false;
+
+  if (error) { toast(error.message, 'error'); return; }
+  // Session persists by default in Supabase
+  await initApp(data.user);
+}
+
+async function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { toast('Ingresa tu correo', 'error'); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href,
+  });
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Revisa tu correo para restablecer tu contraseña', 'success');
+  showLogin();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null; currentProfile = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  toast('Sesión cerrada', 'info');
+}
+
+function showForgot() {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-forgot').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('form-login').style.display = 'block';
+  document.getElementById('form-forgot').style.display = 'none';
+}
+function togglePwd() {
+  const input = document.getElementById('login-password');
+  const icon = document.getElementById('pwd-icon');
+  if (input.type === 'password') { input.type = 'text'; icon.className = 'fa-regular fa-eye-slash'; }
+  else { input.type = 'password'; icon.className = 'fa-regular fa-eye'; }
+}
+
+// Check session on load
+window.addEventListener('load', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user) {
+    await initApp(session.user);
+  }
+  checkMobile();
+
+  // Set today's date on form
+  const today = new Date().toISOString().split('T')[0];
+  const fechaInput = document.getElementById('reg-fecha');
+  if (fechaInput) fechaInput.value = today;
+});
+
+// =====================================================
+// INIT APP
+// =====================================================
+async function initApp(user) {
+  currentUser = user;
+
+  // Load profile from usuarios table
+  const { data: prof } = await sb.from('usuarios').select('*').eq('id', user.id).single();
+  currentProfile = prof;
+
+  // Hide login, show app
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Setup UI based on role
+  const role = currentProfile?.rol || 'operador';
+  const name = currentProfile?.nombre || user.email;
+  const initials = getInitials(name);
+
+  document.getElementById('topbar-name').textContent = name;
+  document.getElementById('topbar-role').textContent = role === 'administrador' ? 'Administrador' : 'Operador';
+  document.getElementById('topbar-avatar').textContent = initials;
+  document.getElementById('user-info-top').style.display = 'block';
+
+  if (role === 'administrador') {
+    document.getElementById('nav-admin').classList.remove('hidden');
+    document.getElementById('nav-operador').classList.add('hidden');
+    await loadSucursales();
+    await loadOperadores();
+    await loadDashboard();
+    goSection('dashboard');
+  } else {
+    document.getElementById('nav-admin').classList.add('hidden');
+    document.getElementById('nav-operador').classList.remove('hidden');
+    document.getElementById('op-welcome').textContent = `¡Bienvenido, ${name}!`;
+    const sucursal = currentProfile?.sucursal || 'Sin asignar';
+    document.getElementById('op-sucursal-info').textContent = `Sucursal: ${sucursal}`;
+    document.getElementById('op-avatar-big').textContent = initials;
+    await loadOpInicio();
+    goSection('op-inicio');
+  }
+
+  checkMobile();
+  loadConfig();
+}
+
+// =====================================================
+// NAVIGATION
+// =====================================================
+const sectionMap = {
+  'dashboard': { id: 'sec-dashboard', title: 'Dashboard', sub: 'Resumen general del sistema', load: () => loadDashboard() },
+  'registros': { id: 'sec-registros', title: 'Registros', sub: 'Historial completo de movimientos', load: () => loadRegistros() },
+  'estadisticas': { id: 'sec-estadisticas', title: 'Estadísticas', sub: 'Análisis y gráficas', load: () => loadEstadisticas() },
+  'operadores': { id: 'sec-operadores', title: 'Operadores', sub: 'Gestión de usuarios', load: () => renderOperadores() },
+  'sucursales': { id: 'sec-sucursales', title: 'Sucursales', sub: 'Gestión de puntos de venta', load: () => renderSucursales() },
+  'reportes': { id: 'sec-reportes', title: 'Reportes', sub: 'Exportar datos', load: () => populateReportFilters() },
+  'auditoria': { id: 'sec-auditoria', title: 'Auditoría', sub: 'Registro de actividad', load: () => loadAuditoria() },
+  'configuracion': { id: 'sec-configuracion', title: 'Configuración', sub: 'Ajustes del sistema', load: () => {} },
+  'op-inicio': { id: 'sec-op-inicio', title: 'Inicio', sub: 'Tu resumen diario', load: () => loadOpInicio() },
+  'op-registrar': { id: 'sec-op-registrar', title: 'Registrar', sub: 'Nuevo movimiento', load: () => { document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0]; } },
+  'op-mis-registros': { id: 'sec-op-mis-registros', title: 'Mis Registros', sub: 'Tu historial', load: () => loadOpMisRegistros() },
+  'op-rendimiento': { id: 'sec-op-rendimiento', title: 'Mi Rendimiento', sub: 'Estadísticas personales', load: () => loadOpRendimiento() },
+};
+
+function goSection(key) {
+  // Hide all
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  // Show target
+  const sec = sectionMap[key];
+  if (!sec) return;
+  document.getElementById(sec.id).classList.add('active');
+  document.getElementById('page-title').textContent = sec.title;
+  document.getElementById('page-subtitle').textContent = sec.sub;
+
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().includes(sec.title)) n.classList.add('active');
+  });
+
+  if (sec.load) sec.load();
+  if (window.innerWidth < 768) closeSidebar();
+}
+
+// =====================================================
+// LOAD SUCURSALES
+// =====================================================
+async function loadSucursales() {
+  const { data } = await sb.from('sucursales').select('*').order('created_at');
+  allSucursales = data || [];
+  populateSucursalSelects();
+}
+
+function populateSucursalSelects() {
+  const ids = ['filter-sucursal-dash', 'op-sucursal-sel'];
+  ids.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    // Keep first option
+    while (sel.options.length > 1) sel.remove(1);
+    allSucursales.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.nombre;
+      opt.textContent = s.nombre;
+      sel.appendChild(opt);
+    });
+    sel.value = cur;
+  });
+}
+
+function renderSucursales() {
+  const grid = document.getElementById('sucursales-grid');
+  if (!allSucursales.length) {
+    grid.innerHTML = '<div class="empty-state"><i class="fa-solid fa-store"></i><p>No hay sucursales registradas</p></div>';
+    return;
+  }
+  grid.innerHTML = allSucursales.map(s => `
+    <div class="glass-card" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:44px;height:44px;border-radius:0.875rem;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;">
+          ${s.nombre[0]}
+        </div>
+        <div>
+          <div style="font-weight:700;font-family:'Poppins',sans-serif;">${s.nombre}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">${s.direccion || 'Sin dirección'}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+        <button class="btn-edit" onclick="openModalSucursal('${s.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
+        <button class="btn-danger" onclick="deleteSucursal('${s.id}')"><i class="fa-solid fa-trash"></i> Eliminar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =====================================================
+// LOAD OPERADORES
+// =====================================================
+async function loadOperadores() {
+  const { data } = await sb.from('usuarios').select('*').eq('rol', 'operador').order('created_at', { ascending: false });
+  allOperadores = data || [];
+  renderOperadores();
+  populateOpSelects();
+}
+
+function renderOperadores(filter = '') {
+  const tbody = document.getElementById('operadores-tbody');
+  let ops = allOperadores;
+  if (filter) ops = ops.filter(o => o.nombre?.toLowerCase().includes(filter) || o.correo?.toLowerCase().includes(filter));
+  if (!ops.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-users"></i><p>No hay operadores</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = ops.map(o => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div class="avatar" style="width:32px;height:32px;font-size:0.75rem;">${getInitials(o.nombre)}</div>
+          <span style="font-weight:600;">${o.nombre || '-'}</span>
+        </div>
+      </td>
+      <td style="color:var(--text-muted);">${o.correo || o.email || '-'}</td>
+      <td>${o.sucursal ? `<span class="badge badge-blue">${o.sucursal}</span>` : '-'}</td>
+      <td>${o.estado === 'activo' ? '<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>' : '<span class="badge badge-red">Inactivo</span>'}</td>
+      <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(o.created_at)}</td>
+      <td>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterOperadores(v) { renderOperadores(v.toLowerCase()); }
+
+function populateOpSelects() {
+  const ids = ['reg-filter-op', 'rpt-op'];
+  ids.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    while (sel.options.length > 1) sel.remove(1);
+    allOperadores.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.id;
+      opt.textContent = o.nombre || o.correo;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// =====================================================
+// LOAD DASHBOARD
+// =====================================================
+async function loadDashboard() {
+  const mes = document.getElementById('filter-mes')?.value;
+  const ano = document.getElementById('filter-ano')?.value || '2025';
+  const sucFil = document.getElementById('filter-sucursal-dash')?.value;
+
+  let query = sb.from('registros').select('*').order('fecha', { ascending: true });
+  if (mes) {
+    const start = `${ano}-${mes.padStart(2,'0')}-01`;
+    const end = new Date(ano, mes, 0).toISOString().split('T')[0];
+    query = query.gte('fecha', start).lte('fecha', end);
+  } else {
+    query = query.gte('fecha', `${ano}-01-01`).lte('fecha', `${ano}-12-31`);
+  }
+  if (sucFil) query = query.eq('sucursal', sucFil);
+
+  const { data } = await query;
+  allRegistros = data || [];
+
+  renderStatCards(allRegistros);
+  renderCharts(allRegistros);
+  renderRanking(allRegistros);
+  renderMetas(allRegistros);
+}
+
+function renderStatCards(data) {
+  const totalMov = data.reduce((a, r) => a + (r.movimientos || 0), 0);
+  const totalPart = data.reduce((a, r) => a + (r.participacion || 0), 0);
+  const avgMov = data.length ? Math.round(totalMov / data.length) : 0;
+  const mejorDia = data.reduce((a, r) => r.movimientos > (a?.movimientos || 0) ? r : a, null);
+  const peorDia = data.reduce((a, r) => r.movimientos < (a?.movimientos ?? Infinity) ? r : a, null);
+
+  const cards = [
+    { label: 'Total Movimientos', value: totalMov.toLocaleString(), icon: 'fa-arrows-up-down', color: '#2563EB', bg: 'rgba(37,99,235,0.1)', sub: `${data.length} registros` },
+    { label: 'Total Participación', value: formatCurrency(totalPart), icon: 'fa-dollar-sign', color: '#22C55E', bg: 'rgba(34,197,94,0.1)', sub: `Promedio: ${formatCurrency(Math.round(totalPart / (data.length || 1)))}` },
+    { label: 'Promedio Diario', value: avgMov, icon: 'fa-chart-line', color: '#7C3AED', bg: 'rgba(124,58,237,0.1)', sub: `Meta: ${META_DIARIA} mov.` },
+    { label: 'Mejor Día', value: mejorDia ? mejorDia.movimientos : 0, icon: 'fa-trophy', color: '#FACC15', bg: 'rgba(250,204,21,0.1)', sub: mejorDia ? formatDate(mejorDia.fecha) : '-' },
+  ];
+
+  document.getElementById('stats-grid').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
+      <div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;">${c.value}</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+// =====================================================
+// CHARTS
+// =====================================================
+function destroyChart(key) {
+  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+}
+
+function isDark() { return document.documentElement.classList.contains('dark'); }
+function chartColors() {
+  return { grid: isDark() ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', text: isDark() ? '#94a3b8' : '#64748b' };
+}
+
+function renderCharts(data) {
+  const labels = data.map(r => formatDate(r.fecha));
+  const movs = data.map(r => r.movimientos || 0);
+  const parts = data.map(r => r.participacion || 0);
+  const cc = chartColors();
+
+  destroyChart('movimientos');
+  const ctxM = document.getElementById('chart-movimientos');
+  if (ctxM) {
+    charts.movimientos = new Chart(ctxM, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Movimientos',
+          data: movs,
+          backgroundColor: data.map(r => {
+            const c = getClasificacion(r.movimientos);
+            return c === 'optimo' ? 'rgba(34,197,94,0.7)' : c === 'aceptable' ? 'rgba(250,204,21,0.7)' : 'rgba(239,68,68,0.7)';
+          }),
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: chartOptions(cc, 'Movimientos')
+    });
+  }
+
+  destroyChart('participacion');
+  const ctxP = document.getElementById('chart-participacion');
+  if (ctxP) {
+    charts.participacion = new Chart(ctxP, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Participación ($)',
+          data: parts,
+          borderColor: '#38BDF8',
+          backgroundColor: 'rgba(56,189,248,0.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#38BDF8',
+          pointRadius: 3,
+        }]
+      },
+      options: chartOptions(cc, 'Participación')
+    });
+  }
+
+  // Operadores chart
+  const opMap = {};
+  data.forEach(r => {
+    if (!r.operador_nombre) return;
+    if (!opMap[r.operador_nombre]) opMap[r.operador_nombre] = 0;
+    opMap[r.operador_nombre] += r.movimientos || 0;
+  });
+  const opLabels = Object.keys(opMap);
+  const opVals = Object.values(opMap);
+  const opColors = ['#2563EB','#7C3AED','#EC4899','#38BDF8','#22C55E','#FACC15'];
+
+  destroyChart('operadores');
+  const ctxOp = document.getElementById('chart-operadores');
+  if (ctxOp && opLabels.length) {
+    charts.operadores = new Chart(ctxOp, {
+      type: 'bar',
+      data: {
+        labels: opLabels,
+        datasets: [{ label: 'Total Movimientos', data: opVals, backgroundColor: opColors.slice(0, opLabels.length), borderRadius: 8, borderSkipped: false }]
+      },
+      options: { ...chartOptions(cc), plugins: { legend: { display: false } } }
+    });
+  }
+
+  // Clasificacion donut
+  const optCnt = data.filter(r => getClasificacion(r.movimientos) === 'optimo').length;
+  const aceCnt = data.filter(r => getClasificacion(r.movimientos) === 'aceptable').length;
+  const bajCnt = data.filter(r => getClasificacion(r.movimientos) === 'bajo').length;
+
+  destroyChart('clasificacion');
+  const ctxCl = document.getElementById('chart-clasificacion');
+  if (ctxCl) {
+    charts.clasificacion = new Chart(ctxCl, {
+      type: 'doughnut',
+      data: {
+        labels: ['Óptimo', 'Aceptable', 'Bajo'],
+        datasets: [{ data: [optCnt, aceCnt, bajCnt], backgroundColor: ['rgba(34,197,94,0.8)','rgba(250,204,21,0.8)','rgba(239,68,68,0.8)'], borderWidth: 0, hoverOffset: 8 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { color: cc.text, padding: 16, font: { family: 'Inter', size: 12 } } } },
+        cutout: '68%',
+      }
+    });
+  }
+}
+
+function chartOptions(cc, label = '') {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: isDark() ? '#1e293b' : '#ffffff',
+        titleColor: isDark() ? '#f1f5f9' : '#0f172a',
+        bodyColor: isDark() ? '#94a3b8' : '#64748b',
+        borderColor: isDark() ? 'rgba(56,189,248,0.2)' : 'rgba(37,99,235,0.2)',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 10,
+      }
+    },
+    scales: {
+      x: { grid: { color: cc.grid }, ticks: { color: cc.text, font: { family: 'Inter', size: 11 }, maxTicksLimit: 10 } },
+      y: { grid: { color: cc.grid }, ticks: { color: cc.text, font: { family: 'Inter', size: 11 } } }
+    }
+  };
+}
+
+function renderRanking(data) {
+  const opMap = {};
+  data.forEach(r => {
+    if (!r.operador_nombre) return;
+    if (!opMap[r.operador_nombre]) opMap[r.operador_nombre] = { total: 0, dias: 0 };
+    opMap[r.operador_nombre].total += r.movimientos || 0;
+    opMap[r.operador_nombre].dias++;
+  });
+  const sorted = Object.entries(opMap).sort((a, b) => b[1].total - a[1].total);
+  const rankColors = ['#FACC15', '#94a3b8', '#cd7f32'];
+  const rankEmoji = ['🥇', '🥈', '🥉'];
+  const container = document.getElementById('ranking-list');
+  if (!sorted.length) { container.innerHTML = '<div class="empty-state" style="padding:1rem;"><p>Sin datos</p></div>'; return; }
+  container.innerHTML = sorted.slice(0, 5).map(([name, stats], i) => `
+    <div class="rank-item">
+      <div class="rank-num" style="background:${i < 3 ? rankColors[i] + '22' : 'var(--input-bg)'};color:${i < 3 ? rankColors[i] : 'var(--text-muted)'};">
+        ${i < 3 ? rankEmoji[i] : i + 1}
+      </div>
+      <div class="avatar" style="width:32px;height:32px;font-size:0.7rem;">${getInitials(name)}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:0.875rem;">${name}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">${stats.dias} días · Promedio: ${Math.round(stats.total / stats.dias)}</div>
+      </div>
+      <div style="font-weight:700;font-family:'Poppins',sans-serif;font-size:0.95rem;">${stats.total.toLocaleString()}</div>
+    </div>
+  `).join('');
+}
+
+function renderMetas(data) {
+  const totalMov = data.reduce((a, r) => a + (r.movimientos || 0), 0);
+  const optCnt = data.filter(r => getClasificacion(r.movimientos) === 'optimo').length;
+  const pctMensual = Math.min(100, Math.round((totalMov / META_MENSUAL) * 100));
+  const pctOptimo = data.length ? Math.round((optCnt / data.length) * 100) : 0;
+
+  document.getElementById('metas-container').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+          <span style="font-size:0.85rem;font-weight:600;">Meta Mensual (${totalMov.toLocaleString()} / ${META_MENSUAL.toLocaleString()})</span>
+          <span style="font-size:0.85rem;font-weight:700;color:${pctMensual >= 100 ? '#22C55E' : pctMensual >= 60 ? '#FACC15' : '#EF4444'}">${pctMensual}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pctMensual}%;background:${pctMensual >= 100 ? '#22C55E' : pctMensual >= 60 ? '#FACC15' : '#EF4444'};"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+          <span style="font-size:0.85rem;font-weight:600;">Días Óptimos (${optCnt} / ${data.length})</span>
+          <span style="font-size:0.85rem;font-weight:700;color:${pctOptimo >= 70 ? '#22C55E' : '#FACC15'}">${pctOptimo}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pctOptimo}%;background:${pctOptimo >= 70 ? '#22C55E' : '#FACC15'};"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+// =====================================================
+// REGISTROS (Admin)
+// =====================================================
+async function loadRegistros() {
+  const mes = document.getElementById('reg-filter-mes')?.value;
+  const opId = document.getElementById('reg-filter-op')?.value;
+  const ano = new Date().getFullYear();
+
+  let query = sb.from('registros').select('*').order('fecha', { ascending: false });
+  if (mes) {
+    const start = `${ano}-${mes.padStart(2,'0')}-01`;
+    const end = new Date(ano, mes, 0).toISOString().split('T')[0];
+    query = query.gte('fecha', start).lte('fecha', end);
+  }
+  if (opId) query = query.eq('operador_id', opId);
+
+  const { data } = await query.limit(500);
+  allRegistros = data || [];
+  regPage = 1;
+  renderRegistros();
+}
+
+function filterRegistros() {
+  regPage = 1;
+  renderRegistros();
+}
+
+function renderRegistros() {
+  const search = document.getElementById('registros-search')?.value.toLowerCase() || '';
+  let filtered = allRegistros;
+  if (search) filtered = filtered.filter(r =>
+    r.operador_nombre?.toLowerCase().includes(search) ||
+    r.sucursal?.toLowerCase().includes(search) ||
+    r.fecha?.includes(search) ||
+    String(r.movimientos).includes(search)
+  );
+
+  const total = filtered.length;
+  const pages = Math.ceil(total / REG_PER_PAGE);
+  const slice = filtered.slice((regPage - 1) * REG_PER_PAGE, regPage * REG_PER_PAGE);
+
+  document.getElementById('registros-count').textContent = `${total} registros`;
+
+  const tbody = document.getElementById('registros-tbody');
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No hay registros</p></div></td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map(r => `
+      <tr>
+        <td style="font-weight:600;">${formatDate(r.fecha)}</td>
+        <td><span style="font-weight:700;font-family:'Poppins',sans-serif;">${r.movimientos || 0}</span></td>
+        <td style="color:#22C55E;font-weight:600;">${formatCurrency(r.participacion)}</td>
+        <td>${badgeClasificacion(r.clasificacion || getClasificacion(r.movimientos))}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div class="avatar" style="width:26px;height:26px;font-size:0.65rem;">${getInitials(r.operador_nombre)}</div>
+            ${r.operador_nombre || '-'}
+          </div>
+        </td>
+        <td>${r.sucursal ? `<span class="badge badge-blue">${r.sucursal}</span>` : '-'}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${formatDate(r.created_at)}</td>
+        <td>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="btn-edit" onclick="openEditRegistro('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-danger" onclick="deleteRegistro('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Pagination
+  const pager = document.getElementById('pagination-btns');
+  pager.innerHTML = '';
+  for (let i = 1; i <= pages; i++) {
+    const btn = document.createElement('button');
+    btn.className = i === regPage ? 'btn-primary' : 'btn-secondary';
+    btn.style.cssText = 'padding:0.4rem 0.75rem;font-size:0.8rem;';
+    btn.textContent = i;
+    btn.onclick = () => { regPage = i; renderRegistros(); };
+    pager.appendChild(btn);
+  }
+}
+
+function openEditRegistro(id) {
+  const reg = allRegistros.find(r => r.id === id);
+  if (!reg) return;
+  document.getElementById('edit-reg-id').value = id;
+  document.getElementById('edit-reg-fecha').value = reg.fecha?.split('T')[0] || '';
+  document.getElementById('edit-reg-movimientos').value = reg.movimientos;
+  document.getElementById('edit-reg-participacion').value = reg.participacion;
+  openModal('modal-registro');
+}
+
+async function updateRegistro() {
+  const id = document.getElementById('edit-reg-id').value;
+  const fecha = document.getElementById('edit-reg-fecha').value;
+  const mov = parseInt(document.getElementById('edit-reg-movimientos').value);
+  const part = parseFloat(document.getElementById('edit-reg-participacion').value);
+
+  const { error } = await sb.from('registros').update({
+    fecha, movimientos: mov, participacion: part, clasificacion: getClasificacion(mov)
+  }).eq('id', id);
+
+  if (error) { toast('Error al actualizar', 'error'); return; }
+  toast('Registro actualizado', 'success');
+  closeModal('modal-registro');
+  await logAuditoria('editar', `Registro ${id} actualizado`);
+  loadRegistros();
+}
+
+async function deleteRegistro(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  const { error } = await sb.from('registros').delete().eq('id', id);
+  if (error) { toast('Error al eliminar', 'error'); return; }
+  toast('Registro eliminado', 'success');
+  await logAuditoria('eliminar', `Registro ${id} eliminado`);
+  loadRegistros();
+}
+
+// =====================================================
+// ESTADÍSTICAS (Admin)
+// =====================================================
+async function loadEstadisticas() {
+  const { data } = await sb.from('registros').select('*').order('fecha');
+  const all = data || [];
+
+  // Group by month
+  const byMonth = {};
+  all.forEach(r => {
+    const m = r.fecha?.substring(0, 7);
+    if (!m) return;
+    if (!byMonth[m]) byMonth[m] = { movimientos: 0, participacion: 0, count: 0 };
+    byMonth[m].movimientos += r.movimientos || 0;
+    byMonth[m].participacion += r.participacion || 0;
+    byMonth[m].count++;
+  });
+
+  const months = Object.keys(byMonth).sort();
+  const monthLabels = months.map(m => { const [y, mo] = m.split('-'); const names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return names[parseInt(mo)-1] + ' ' + y; });
+  const cc = chartColors();
+
+  destroyChart('crecimiento');
+  const ctxC = document.getElementById('chart-crecimiento');
+  if (ctxC) {
+    charts.crecimiento = new Chart(ctxC, {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Movimientos Totales',
+          data: months.map(m => byMonth[m].movimientos),
+          borderColor: '#2563EB',
+          backgroundColor: 'rgba(37,99,235,0.08)',
+          fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#2563EB',
+        }]
+      },
+      options: chartOptions(cc)
+    });
+  }
+
+  destroyChart('participacion-mensual');
+  const ctxPM = document.getElementById('chart-participacion-mensual');
+  if (ctxPM) {
+    charts['participacion-mensual'] = new Chart(ctxPM, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Participación ($)',
+          data: months.map(m => byMonth[m].participacion),
+          backgroundColor: 'rgba(124,58,237,0.7)',
+          borderRadius: 8, borderSkipped: false,
+        }]
+      },
+      options: chartOptions(cc)
+    });
+  }
+
+  // By Sucursal
+  const bySuc = {};
+  all.forEach(r => {
+    const s = r.sucursal || 'Sin sucursal';
+    if (!bySuc[s]) bySuc[s] = 0;
+    bySuc[s] += r.movimientos || 0;
+  });
+  const sucLabels = Object.keys(bySuc);
+  const sucColors = ['#2563EB','#7C3AED','#EC4899','#38BDF8','#22C55E'];
+
+  destroyChart('sucursales');
+  const ctxSuc = document.getElementById('chart-sucursales');
+  if (ctxSuc && sucLabels.length) {
+    charts.sucursales = new Chart(ctxSuc, {
+      type: 'bar',
+      data: {
+        labels: sucLabels,
+        datasets: [{ label: 'Movimientos', data: Object.values(bySuc), backgroundColor: sucColors, borderRadius: 8, borderSkipped: false }]
+      },
+      options: { ...chartOptions(cc), plugins: { legend: { display: false } } }
+    });
+  }
+
+  // Metas cumplidas
+  const metasCumplidas = months.map(m => {
+    const dias = all.filter(r => r.fecha?.startsWith(m));
+    const opt = dias.filter(r => getClasificacion(r.movimientos) === 'optimo').length;
+    return dias.length ? Math.round((opt / dias.length) * 100) : 0;
+  });
+
+  destroyChart('metas');
+  const ctxMet = document.getElementById('chart-metas');
+  if (ctxMet) {
+    charts.metas = new Chart(ctxMet, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: '% Días Óptimos',
+          data: metasCumplidas,
+          backgroundColor: metasCumplidas.map(v => v >= 70 ? 'rgba(34,197,94,0.7)' : v >= 40 ? 'rgba(250,204,21,0.7)' : 'rgba(239,68,68,0.7)'),
+          borderRadius: 8, borderSkipped: false,
+        }]
+      },
+      options: chartOptions(cc)
+    });
+  }
+}
+
+// =====================================================
+// OPERADORES CRUD
+// =====================================================
+function openModalOperador(id = null) {
+  editingOpId = id;
+  document.getElementById('modal-op-title').textContent = id ? 'Editar Operador' : 'Nuevo Operador';
+  document.getElementById('op-password-row').style.display = id ? 'none' : 'block';
+  if (id) {
+    const op = allOperadores.find(o => o.id === id);
+    if (op) {
+      document.getElementById('op-nombre').value = op.nombre || '';
+      document.getElementById('op-correo').value = op.correo || '';
+      document.getElementById('op-sucursal-sel').value = op.sucursal || '';
+      document.getElementById('op-estado').value = op.estado || 'activo';
+    }
+  } else {
+    document.getElementById('op-nombre').value = '';
+    document.getElementById('op-correo').value = '';
+    document.getElementById('op-password').value = '';
+    document.getElementById('op-sucursal-sel').value = '';
+    document.getElementById('op-estado').value = 'activo';
+  }
+  openModal('modal-operador');
+}
+
+async function saveOperador() {
+  const nombre = document.getElementById('op-nombre').value.trim();
+  const correo = document.getElementById('op-correo').value.trim();
+  const password = document.getElementById('op-password').value;
+  const sucursal = document.getElementById('op-sucursal-sel').value;
+  const estado = document.getElementById('op-estado').value;
+
+  if (!nombre || !correo) { toast('Nombre y correo son requeridos', 'error'); return; }
+
+  if (editingOpId) {
+    // Update profile
+    const { error } = await sb.from('usuarios').update({ nombre, sucursal, estado }).eq('id', editingOpId);
+    if (error) { toast('Error al actualizar', 'error'); return; }
+    toast('Operador actualizado', 'success');
+    await logAuditoria('editar', `Operador ${nombre} actualizado`);
+  } else {
+    if (!password || password.length < 6) { toast('La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+    // Create auth user (admin API not available client-side - use signUp)
+    const { data: authData, error: authErr } = await sb.auth.signUp({ email: correo, password });
+    if (authErr) { toast(authErr.message, 'error'); return; }
+    if (authData.user) {
+      await sb.from('usuarios').upsert({
+        id: authData.user.id,
+        nombre, correo,
+        rol: 'operador',
+        sucursal, estado,
+      });
+    }
+    toast('Operador creado', 'success');
+    await logAuditoria('crear', `Operador ${nombre} creado`);
+  }
+
+  closeModal('modal-operador');
+  await loadOperadores();
+}
+
+async function deleteOperador(id) {
+  if (!confirm('¿Eliminar este operador? Esta acción no se puede deshacer.')) return;
+  const { error } = await sb.from('usuarios').delete().eq('id', id);
+  if (error) { toast('Error al eliminar', 'error'); return; }
+  toast('Operador eliminado', 'success');
+  await logAuditoria('eliminar', `Operador ${id} eliminado`);
+  loadOperadores();
+}
+
+// =====================================================
+// SUCURSALES CRUD
+// =====================================================
+function openModalSucursal(id = null) {
+  editingSucId = id;
+  document.getElementById('modal-suc-title').textContent = id ? 'Editar Sucursal' : 'Nueva Sucursal';
+  if (id) {
+    const s = allSucursales.find(x => x.id === id);
+    if (s) { document.getElementById('suc-nombre').value = s.nombre; document.getElementById('suc-direccion').value = s.direccion || ''; }
+  } else {
+    document.getElementById('suc-nombre').value = '';
+    document.getElementById('suc-direccion').value = '';
+  }
+  openModal('modal-sucursal');
+}
+
+async function saveSucursal() {
+  const nombre = document.getElementById('suc-nombre').value.trim();
+  const direccion = document.getElementById('suc-direccion').value.trim();
+  if (!nombre) { toast('El nombre es requerido', 'error'); return; }
+
+  if (editingSucId) {
+    await sb.from('sucursales').update({ nombre, direccion }).eq('id', editingSucId);
+    toast('Sucursal actualizada', 'success');
+  } else {
+    await sb.from('sucursales').insert({ nombre, direccion });
+    toast('Sucursal creada', 'success');
+  }
+  closeModal('modal-sucursal');
+  await loadSucursales();
+  renderSucursales();
+}
+
+async function deleteSucursal(id) {
+  if (!confirm('¿Eliminar esta sucursal?')) return;
+  await sb.from('sucursales').delete().eq('id', id);
+  toast('Sucursal eliminada', 'success');
+  await loadSucursales();
+  renderSucursales();
+}
+
+// =====================================================
+// OPERADOR: GUARDAR REGISTRO
+// =====================================================
+function updateClasificacion() {
+  const mov = parseInt(document.getElementById('reg-movimientos').value);
+  const preview = document.getElementById('clasificacion-preview');
+  const badge = document.getElementById('clasificacion-badge-preview');
+  if (isNaN(mov)) { preview.style.display = 'none'; return; }
+  preview.style.display = 'block';
+  badge.innerHTML = badgeClasificacion(getClasificacion(mov));
+}
+
+async function guardarRegistro() {
+  const fecha = document.getElementById('reg-fecha').value;
+  const mov = parseInt(document.getElementById('reg-movimientos').value);
+  const part = parseFloat(document.getElementById('reg-participacion').value) || 0;
+
+  if (!fecha) { toast('Selecciona una fecha', 'error'); return; }
+  if (isNaN(mov) || mov < 0) { toast('Ingresa los movimientos', 'error'); return; }
+
+  const btn = document.getElementById('btn-guardar-reg');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Guardando...';
+
+  const { error } = await sb.from('registros').insert({
+    fecha,
+    movimientos: mov,
+    participacion: part,
+    clasificacion: getClasificacion(mov),
+    operador_id: currentUser.id,
+    operador_nombre: currentProfile?.nombre || currentUser.email,
+    sucursal: currentProfile?.sucursal || null,
+  });
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar Registro';
+
+  if (error) { toast('Error al guardar: ' + error.message, 'error'); return; }
+  toast('Registro guardado correctamente', 'success');
+
+  // Reset
+  document.getElementById('reg-movimientos').value = '';
+  document.getElementById('reg-participacion').value = '';
+  document.getElementById('clasificacion-preview').style.display = 'none';
+  document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0];
+
+  await loadOpInicio();
+}
+
+// =====================================================
+// OPERADOR: DASHBOARD
+// =====================================================
+async function loadOpInicio() {
+  const { data } = await sb.from('registros')
+    .select('*')
+    .eq('operador_id', currentUser.id)
+    .order('fecha', { ascending: false })
+    .limit(30);
+
+  const regs = data || [];
+  const totalMov = regs.reduce((a, r) => a + (r.movimientos || 0), 0);
+  const avgMov = regs.length ? Math.round(totalMov / regs.length) : 0;
+  const optDays = regs.filter(r => getClasificacion(r.movimientos) === 'optimo').length;
+
+  const cards = [
+    { label: 'Total Movimientos', value: totalMov.toLocaleString(), icon: 'fa-arrows-up-down', color: '#2563EB', bg: 'rgba(37,99,235,0.1)' },
+    { label: 'Promedio Diario', value: avgMov, icon: 'fa-chart-bar', color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' },
+    { label: 'Días Óptimos', value: `${optDays}/${regs.length}`, icon: 'fa-star', color: '#FACC15', bg: 'rgba(250,204,21,0.1)' },
+  ];
+
+  document.getElementById('op-stats-grid').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
+      <div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
+    </div>
+  `).join('');
+
+  const tbody = document.getElementById('op-recent-tbody');
+  tbody.innerHTML = regs.slice(0, 8).map(r => `
+    <tr>
+      <td style="font-weight:600;">${formatDate(r.fecha)}</td>
+      <td><span style="font-weight:700;">${r.movimientos || 0}</span></td>
+      <td style="color:#22C55E;">${formatCurrency(r.participacion)}</td>
+      <td>${badgeClasificacion(r.clasificacion || getClasificacion(r.movimientos))}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="4"><div class="empty-state" style="padding:1.5rem;"><p>Sin registros aún</p></div></td></tr>`;
+}
+
+async function loadOpMisRegistros() {
+  const { data } = await sb.from('registros').select('*').eq('operador_id', currentUser.id).order('fecha', { ascending: false });
+  const regs = data || [];
+  const tbody = document.getElementById('op-registros-tbody');
+  tbody.innerHTML = regs.map(r => `
+    <tr>
+      <td style="font-weight:600;">${formatDate(r.fecha)}</td>
+      <td><span style="font-weight:700;">${r.movimientos || 0}</span></td>
+      <td style="color:#22C55E;">${formatCurrency(r.participacion)}</td>
+      <td>${badgeClasificacion(r.clasificacion || getClasificacion(r.movimientos))}</td>
+      <td style="font-size:0.78rem;color:var(--text-muted);">${formatDate(r.created_at)}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>Sin registros</p></div></td></tr>`;
+}
+
+async function loadOpRendimiento() {
+  const { data } = await sb.from('registros').select('*').eq('operador_id', currentUser.id).order('fecha');
+  const regs = data || [];
+  const labels = regs.map(r => formatDate(r.fecha));
+  const movs = regs.map(r => r.movimientos || 0);
+  const parts = regs.map(r => r.participacion || 0);
+  const cc = chartColors();
+
+  destroyChart('op-movimientos');
+  const ctxOM = document.getElementById('chart-op-movimientos');
+  if (ctxOM) {
+    charts['op-movimientos'] = new Chart(ctxOM, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Movimientos', data: movs, backgroundColor: movs.map(v => getClasificacion(v) === 'optimo' ? 'rgba(34,197,94,0.7)' : getClasificacion(v) === 'aceptable' ? 'rgba(250,204,21,0.7)' : 'rgba(239,68,68,0.7)'), borderRadius: 8, borderSkipped: false }] },
+      options: chartOptions(cc)
+    });
+  }
+
+  destroyChart('op-participacion');
+  const ctxOP = document.getElementById('chart-op-participacion');
+  if (ctxOP) {
+    charts['op-participacion'] = new Chart(ctxOP, {
+      type: 'line',
+      data: { labels, datasets: [{ label: 'Participación ($)', data: parts, borderColor: '#EC4899', backgroundColor: 'rgba(236,72,153,0.08)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#EC4899' }] },
+      options: chartOptions(cc)
+    });
+  }
+}
+
+// =====================================================
+// AUDITORÍA
+// =====================================================
+async function logAuditoria(accion, descripcion) {
+  await sb.from('auditoria').insert({
+    accion,
+    usuario: currentProfile?.nombre || currentUser?.email || 'Sistema',
+    descripcion,
+  });
+}
+
+async function loadAuditoria() {
+  const { data } = await sb.from('auditoria').select('*').order('created_at', { ascending: false }).limit(100);
+  const tbody = document.getElementById('auditoria-tbody');
+  const logs = data || [];
+  const iconMap = { crear: 'fa-plus-circle', editar: 'fa-pen', eliminar: 'fa-trash' };
+  const colorMap = { crear: 'badge-green', editar: 'badge-blue', eliminar: 'badge-red' };
+  tbody.innerHTML = logs.map(l => `
+    <tr>
+      <td><span class="badge ${colorMap[l.accion] || 'badge-blue'}"><i class="fa-solid ${iconMap[l.accion] || 'fa-info'}"></i> ${l.accion}</span></td>
+      <td style="font-weight:600;">${l.usuario}</td>
+      <td style="color:var(--text-muted);">${l.descripcion}</td>
+      <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(l.created_at)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="4"><div class="empty-state"><i class="fa-solid fa-shield-halved"></i><p>Sin actividad</p></div></td></tr>';
+}
+
+// =====================================================
+// CONFIG
+// =====================================================
+function loadConfig() {
+  const cfg = JSON.parse(localStorage.getItem('haliel-config') || '{}');
+  if (cfg.optimo) OPTIMO = cfg.optimo;
+  if (cfg.aceptable) ACEPTABLE = cfg.aceptable;
+  if (cfg.metaDiaria) META_DIARIA = cfg.metaDiaria;
+  if (cfg.metaMensual) META_MENSUAL = cfg.metaMensual;
+
+  const elO = document.getElementById('cfg-optimo');
+  const elA = document.getElementById('cfg-aceptable');
+  const elMD = document.getElementById('cfg-meta-diaria');
+  const elMM = document.getElementById('cfg-meta-mensual');
+  if (elO) elO.value = OPTIMO;
+  if (elA) elA.value = ACEPTABLE;
+  if (elMD) elMD.value = META_DIARIA;
+  if (elMM) elMM.value = META_MENSUAL;
+}
+
+function saveConfig() {
+  OPTIMO = parseInt(document.getElementById('cfg-optimo').value);
+  ACEPTABLE = parseInt(document.getElementById('cfg-aceptable').value);
+  META_DIARIA = parseInt(document.getElementById('cfg-meta-diaria').value);
+  META_MENSUAL = parseInt(document.getElementById('cfg-meta-mensual').value);
+  localStorage.setItem('haliel-config', JSON.stringify({ optimo: OPTIMO, aceptable: ACEPTABLE, metaDiaria: META_DIARIA, metaMensual: META_MENSUAL }));
+  toast('Configuración guardada', 'success');
+}
+
+async function saveProfile() {
+  const nombre = document.getElementById('cfg-nombre').value.trim();
+  const password = document.getElementById('cfg-password').value;
+  if (nombre) {
+    await sb.from('usuarios').update({ nombre }).eq('id', currentUser.id);
+    currentProfile.nombre = nombre;
+    document.getElementById('topbar-name').textContent = nombre;
+    document.getElementById('topbar-avatar').textContent = getInitials(nombre);
+    toast('Nombre actualizado', 'success');
+  }
+  if (password) {
+    if (password.length < 6) { toast('La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+    const { error } = await sb.auth.updateUser({ password });
+    if (error) { toast(error.message, 'error'); return; }
+    toast('Contraseña actualizada', 'success');
+    document.getElementById('cfg-password').value = '';
+  }
+}
+
+// =====================================================
+// EXPORT
+// =====================================================
+function populateReportFilters() {
+  const sel = document.getElementById('rpt-op');
+  if (!sel) return;
+  while (sel.options.length > 1) sel.remove(1);
+  allOperadores.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.id; opt.textContent = o.nombre || o.correo;
+    sel.appendChild(opt);
+  });
+}
+
+async function getExportData() {
+  const mes = document.getElementById('rpt-mes')?.value;
+  const ano = document.getElementById('rpt-ano')?.value || '2025';
+  const opId = document.getElementById('rpt-op')?.value;
+
+  let query = sb.from('registros').select('*').order('fecha');
+  if (mes) {
+    const start = `${ano}-${mes.padStart(2,'0')}-01`;
+    const end = new Date(ano, mes, 0).toISOString().split('T')[0];
+    query = query.gte('fecha', start).lte('fecha', end);
+  } else {
+    query = query.gte('fecha', `${ano}-01-01`).lte('fecha', `${ano}-12-31`);
+  }
+  if (opId) query = query.eq('operador_id', opId);
+  const { data } = await query;
+  return data || [];
+}
+
+async function exportExcel() {
+  const data = await getExportData();
+  if (!data.length) { toast('No hay datos para exportar', 'info'); return; }
+  const ws = XLSX.utils.json_to_sheet(data.map(r => ({
+    Fecha: r.fecha,
+    Movimientos: r.movimientos,
+    Participación: r.participacion,
+    Clasificación: r.clasificacion,
+    Operador: r.operador_nombre,
+    Sucursal: r.sucursal,
+    'Creado en': r.created_at,
+  })));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+  XLSX.writeFile(wb, 'Haliel_Registros.xlsx');
+  toast('Excel exportado correctamente', 'success');
+}
+
+async function exportPDF() {
+  const data = await getExportData();
+  if (!data.length) { toast('No hay datos para exportar', 'info'); return; }
+  const totalMov = data.reduce((a, r) => a + (r.movimientos || 0), 0);
+  const totalPart = data.reduce((a, r) => a + (r.participacion || 0), 0);
+
+  const html = `
+    <!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <style>
+      body{font-family:Arial,sans-serif;padding:20px;color:#0f172a;}
+      h1{color:#2563EB;font-size:20px;margin-bottom:4px;}
+      p{font-size:12px;color:#64748b;margin-bottom:16px;}
+      table{width:100%;border-collapse:collapse;font-size:12px;}
+      th{background:#2563EB;color:white;padding:8px;text-align:left;}
+      td{padding:7px 8px;border-bottom:1px solid #e2e8f0;}
+      tr:nth-child(even){background:#f8fafc;}
+      .summary{background:#f1f5f9;padding:12px;border-radius:8px;margin-bottom:16px;display:flex;gap:24px;}
+      .sum-item{font-size:12px;} .sum-val{font-weight:700;font-size:16px;color:#2563EB;}
+    </style>
+    </head><body>
+    <h1>Haliel Papelería — Reporte de Registros</h1>
+    <p>Generado el ${new Date().toLocaleDateString('es-CO')} | Total registros: ${data.length}</p>
+    <div class="summary">
+      <div class="sum-item"><div class="sum-val">${totalMov.toLocaleString()}</div>Total Movimientos</div>
+      <div class="sum-item"><div class="sum-val">$${totalPart.toLocaleString('es-CO')}</div>Total Participación</div>
+      <div class="sum-item"><div class="sum-val">${data.length > 0 ? Math.round(totalMov/data.length) : 0}</div>Promedio Diario</div>
+    </div>
+    <table>
+      <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Operador</th><th>Sucursal</th></tr></thead>
+      <tbody>${data.map(r => `<tr><td>${r.fecha||''}</td><td>${r.movimientos||0}</td><td>$${(r.participacion||0).toLocaleString('es-CO')}</td><td>${r.clasificacion||''}</td><td>${r.operador_nombre||''}</td><td>${r.sucursal||''}</td></tr>`).join('')}</tbody>
+    </table>
+    </body></html>
+  `;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.print();
+  toast('PDF generado para imprimir', 'success');
+}
+
+// =====================================================
+// SERVICE WORKER (PWA)
+// =====================================================
+if ('serviceWorker' in navigator) {
+  const swContent = `
+    const CACHE = 'haliel-v1';
+    const ASSETS = ['/'];
+    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+  `;
+  const blob = new Blob([swContent], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+</script>
+
+</body>
+</html>
