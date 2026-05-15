@@ -817,7 +817,7 @@
           <div style="font-size:0.825rem;font-weight:600;" id="topbar-name">Usuario</div>
           <div style="font-size:0.75rem;color:var(--text-muted);" id="topbar-role">-</div>
         </div>
-        <div class="avatar" id="topbar-avatar">U</div>
+        <div id="topbar-avatar"></div>
       </div>
     </div>
 
@@ -1081,7 +1081,7 @@
     <div class="section" id="sec-op-inicio">
       <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-          <div class="avatar" style="width:56px;height:56px;font-size:1.2rem;" id="op-avatar-big">O</div>
+          <div style="width:56px;height:56px;font-size:1.2rem;" id="op-avatar-big"></div>
           <div>
             <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;" id="op-welcome">¡Bienvenido!</h2>
             <p style="color:var(--text-muted);font-size:0.875rem;" id="op-sucursal-info">Sucursal: —</p>
@@ -1232,7 +1232,7 @@
 // =====================================================
 // CONFIGURATION - UPDATE THESE VALUES
 // =====================================================
-const SUPABASE_URL = 'https://ejbkqnanjvmjykovvvos.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://ejbkqnanjvmjykovvvos.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYmtxbmFuanZtanlrb3Z2dm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzI1NzAsImV4cCI6MjA5NDQ0ODU3MH0.BnFrDc8CwqfITTFoPNGcp4OiJ7A4jr4FX30eJrWeRO0';
 
 // Thresholds (editable via config)
@@ -1319,6 +1319,18 @@ function badgeClasificacion(cls) {
 function getInitials(name) {
   if (!name) return '?';
   return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+}
+
+// ===== AVATAR CON FOTO O INICIALES =====
+function renderAvatar(element, user, size = '36px') {
+  const initials = getInitials(user?.nombre || user?.correo || 'U');
+  const fotoUrl = user?.foto_perfil || null;
+  
+  if (fotoUrl) {
+    element.innerHTML = `<img src="${fotoUrl}" alt="${user.nombre}" style="width:${size};height:${size};border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#2563EB,#7C3AED);"/>`;
+  } else {
+    element.innerHTML = `<div class="avatar" style="width:${size};height:${size};font-size:calc(${size} * 0.25);">${initials}</div>`;
+  }
 }
 
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -1467,6 +1479,14 @@ async function initApp(user) {
   document.getElementById('topbar-role').textContent = role === 'administrador' ? 'Administrador' : 'Operador';
   document.getElementById('topbar-avatar').textContent = initials;
   document.getElementById('user-info-top').style.display = 'block';
+  
+    // ===== RENDERIZAR AVATAR CON FOTO =====
+  if (currentProfile) {
+    renderAvatar(document.getElementById('topbar-avatar'), currentProfile, '36px');
+    
+    const opAvatar = document.getElementById('op-avatar-big');
+    if (opAvatar) renderAvatar(opAvatar, currentProfile, '56px');
+  }
 
   if (role === 'administrador') {
     document.getElementById('nav-admin').classList.remove('hidden');
