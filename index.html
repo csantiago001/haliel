@@ -2239,9 +2239,11 @@ window.addEventListener('load', async () => {
   if (session && session.user) {
     await initApp(session.user);
   }
+  
+  // ✅ NUEVO: Verificar recuperación DESPUÉS de initApp
+  checkRecoveryFlow();
+  
   checkMobile();
-
-  // Set today's date on form
   const today = new Date().toISOString().split('T')[0];
   const fechaInput = document.getElementById('reg-fecha');
   if (fechaInput) fechaInput.value = today;
@@ -2249,21 +2251,24 @@ window.addEventListener('load', async () => {
 
 // ===== DETECTAR RECUPERACIÓN DE CONTRASEÑA =====
 async function checkRecoveryFlow() {
-  const params = new URLSearchParams(window.location.search);
-  const type = params.get('type');
-  const token = params.get('token');
+  // ✅ Supabase usa HASH, no query params
+  const hash = window.location.hash.substring(1); // Quita el '#'
+  const hashParams = new URLSearchParams(hash);
+  
+  const type = hashParams.get('type');
+  const accessToken = hashParams.get('access_token');
   
   // Si viene de recuperación de Supabase
-  if (type === 'recovery' && token) {
-    // Limpiar la URL para que no se vea el token
+  if (type === 'recovery' && accessToken) {
+    // Limpiar el hash de la URL por seguridad
     window.history.replaceState({}, document.title, window.location.pathname);
     
     // Mostrar formulario de nueva contraseña
-    showResetPasswordForm(token);
+    showResetPasswordForm();
   }
 }
 
-function showResetPasswordForm(token) {
+function showResetPasswordForm() {
   // Ocultar login y forgot
   document.getElementById('form-login').style.display = 'none';
   document.getElementById('form-forgot').style.display = 'none';
@@ -2276,7 +2281,7 @@ function showResetPasswordForm(token) {
     resetForm.innerHTML = `
       <div style="margin-bottom:0.5rem;">
         <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;text-align:center;margin-bottom:1.25rem;">
-          Ingresa tu nueva contraseña para <span id="reset-email-display" style="color:#38BDF8;"></span>
+          Ingresa tu nueva contraseña
         </p>
       </div>
       <div style="margin-bottom:1.5rem;position:relative;">
@@ -2287,7 +2292,7 @@ function showResetPasswordForm(token) {
         <i class="fa-solid fa-lock" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
         <input type="password" id="reset-confirm" class="login-input" placeholder="Confirmar nueva contraseña" minlength="6"/>
       </div>
-      <button class="btn-login" onclick="submitResetPassword('${token}')">
+      <button class="btn-login" onclick="submitResetPassword()">
         <span id="btn-reset-text">Actualizar contraseña</span>
         <span id="btn-reset-spinner" style="display:none;"><span class="spinner"></span></span>
       </button>
@@ -2302,7 +2307,7 @@ function showResetPasswordForm(token) {
   resetForm.style.display = 'block';
 }
 
-async function submitResetPassword(token) {
+async function submitResetPassword() {
   const pwd = document.getElementById('reset-password').value;
   const confirm = document.getElementById('reset-confirm').value;
   
@@ -2316,13 +2321,9 @@ async function submitResetPassword(token) {
   spinner.style.display = 'inline';
   
   try {
-    // Actualizar contraseña con el token de recuperación
-    const { error } = await sb.auth.updateUser({ password: pwd }, {
-      // Esto le dice a Supabase que use el token de la URL
-      redirectTo: window.location.origin.includes('localhost') 
-        ? 'http://localhost:5500' 
-        : 'https://csantiago001.github.io/haliel/',
-    });
+    // ✅ CORRECCIÓN: updateUser() usa automáticamente la sesión del hash
+    // NO necesita token ni redirectTo para cambiar contraseña
+    const { error } = await sb.auth.updateUser({ password: pwd });
     
     if (error) throw error;
     
@@ -2341,21 +2342,6 @@ async function submitResetPassword(token) {
     spinner.style.display = 'none';
   }
 }
-
-// Ejecutar detección al cargar la página
-window.addEventListener('load', async () => {
-  // ... tu código existente de session check ...
-  const { data: { session } } = await sb.auth.getSession();
-  if (session && session.user) {
-    await initApp(session.user);
-  }
-  
-  // ✅ NUEVO: Verificar si viene de recuperación
-  checkRecoveryFlow();
-  
-  checkMobile();
-  // ... resto de tu código ...
-});
 
 // =====================================================
 // INIT APP - VERSIÓN PREMIUM CON PERFIL EMPRESARIAL
