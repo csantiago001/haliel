@@ -1268,15 +1268,22 @@ async function doForgot() {
 }
 
 async function doLogout() {
-  clearTimeout(inactivityTimer);
-  clearInterval(countdownTimer);
-  document.getElementById('inactivity-warning').classList.remove('show');
-  await sb.auth.signOut();
-  currentUser = null; currentProfile = null;
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-page').style.display='flex';
-  showLogin();
-  toast('Sesión cerrada', 'info');
+    // 👉 Cerrar modal de perfil si está abierto
+    closeModal('modal-profile');
+    closeModal('modal-change-password'); // También cierra modal de cambiar contraseña por seguridad
+    
+    clearTimeout(inactivityTimer);
+    clearInterval(countdownTimer);
+    document.getElementById('inactivity-warning').classList.remove('show');
+    
+    await sb.auth.signOut();
+    currentUser = null; 
+    currentProfile = null;
+    
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-page').style.display = 'flex';
+    showLogin();
+    toast('Sesión cerrada', 'info');
 }
 
 function showForgot() { document.getElementById('form-login').style.display='none'; document.getElementById('form-forgot').style.display='block'; document.getElementById('form-reset').style.display='none'; }
@@ -1319,37 +1326,47 @@ async function submitResetPassword() {
 // CHECK SESSION & RECOVERY ON LOAD
 // =====================================================
 window.addEventListener('load', async () => {
-  // Detectar flujo de recuperación: Supabase envía tokens en el hash
-  const hash = window.location.hash.substring(1);
-  const hashParams = new URLSearchParams(hash);
-  const type = hashParams.get('type');
-  const accessToken = hashParams.get('access_token');
-  const refreshToken = hashParams.get('refresh_token');
-
-  if ((type === 'recovery' || type === 'signup') && accessToken) {
-    // Establecer la sesión con los tokens del hash
-    const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-    // Limpiar el hash de la URL
-    window.history.replaceState({}, document.title, window.location.pathname);
-    if (!error) {
-      // Mostrar formulario de nueva contraseña en la página de login
-      document.getElementById('login-page').style.display='flex';
-      document.getElementById('app').style.display='none';
-      showReset();
-      return;
+    // Pequeño delay para asegurar que el hash esté disponible
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Parsear hash manualmente (Supabase usa #key=value&key2=value2)
+    const hash = window.location.hash.substring(1);
+    const hashParams = new URLSearchParams(hash);
+    const type = hashParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    
+    if ((type === 'recovery' || type === 'signup') && accessToken) {
+        const { error } = await sb.auth.setSession({ 
+            access_token: accessToken, 
+            refresh_token: refreshToken 
+        });
+        
+        // Limpiar hash de la URL sin recargar
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        if (!error) {
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('app').style.display = 'none';
+            showReset(); // Muestra el formulario de nueva contraseña
+            return;
+        } else {
+            console.error('Error al establecer sesión de recuperación:', error);
+            toast('Error al procesar el enlace de recuperación', 'error');
+        }
     }
-  }
-
-  // Verificar sesión existente
-  const { data: { session } } = await sb.auth.getSession();
-  if (session && session.user) {
-    await initApp(session.user);
-  }
-
-  checkMobile();
-  initSidebarState();
-  const fechaInput = document.getElementById('reg-fecha');
-  if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
+    
+    // Verificar sesión existente normal
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && session.user) {
+        await initApp(session.user);
+    }
+    
+    checkMobile();
+    initSidebarState();
+    
+    const fechaInput = document.getElementById('reg-fecha');
+    if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
 });
 
 // Escuchar cambios de auth (incluyendo recovery)
@@ -1365,70 +1382,117 @@ sb.auth.onAuthStateChange(async (event, session) => {
 // INIT APP
 // =====================================================
 async function initApp(user) {
-  currentUser = user;
-  const { data: prof } = await sb.from('usuarios').select('*').eq('id', user.id).single();
-  currentProfile = prof;
-
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('app').style.display='block';
-
-  const role = currentProfile?.rol || 'operador';
-  const name = currentProfile?.nombre || user.email;
-
-  document.getElementById('topbar-name').textContent = name;
-  document.getElementById('topbar-role').textContent = role === 'administrador' ? 'Administrador' : 'Operador';
-
-  if (currentProfile) {
-    renderAvatar(document.getElementById('topbar-avatar'), currentProfile, '36px');
-    const opAvatar = document.getElementById('op-avatar-big');
-    if (opAvatar) renderAvatar(opAvatar, currentProfile, '56px');
-  }
-
-  // Cargar plataformas (datos compartidos entre admins)
-  await loadPlataformas();
-
-  if (role === 'administrador') {
-    document.getElementById('nav-admin').classList.remove('hidden');
-    document.getElementById('nav-operador').classList.add('hidden');
-    document.getElementById('profile-config-tab').style.display='flex';
-    await loadSucursales();
-    await loadAllUsers();
-    await loadDashboard();
-    goSection('dashboard');
-  } else {
-    document.getElementById('nav-admin').classList.add('hidden');
-    document.getElementById('nav-operador').classList.remove('hidden');
-    document.getElementById('profile-config-tab').style.display='none';
-    const welcomeEl = document.getElementById('op-welcome');
-    if (welcomeEl) welcomeEl.textContent = `¡Bienvenido, ${name}!`;
-    const sucInfo = document.getElementById('op-sucursal-info');
-    if (sucInfo) sucInfo.textContent = `Sucursal: ${currentProfile?.sucursal || 'Sin asignar'}`;
-    await loadOpInicio();
-    goSection('op-inicio');
-    buildPlataformaInputs();
-  }
-
-  checkMobile();
-  loadConfig();
-  initInactivityTracking();
-  initSidebarState();
-
-  // Realtime: escuchar cambios en registros para todos los admins
-  if (role === 'administrador') {
-    sb.channel('registros-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'registros' }, () => {
-        const activeSection = document.querySelector('.section.active')?.id;
-        if (activeSection === 'sec-dashboard') loadDashboard();
-        if (activeSection === 'sec-registros') loadRegistros();
-      })
-      .subscribe();
-
-    sb.channel('usuarios-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, () => {
-        loadAllUsers();
-      })
-      .subscribe();
-  }
+    currentUser = user;
+    
+    // 👉 MEJORA: Usar maybeSingle() para evitar error si no existe el perfil
+    const { data: prof, error } = await sb.from('usuarios')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+    
+    if (error) {
+        console.warn('No se pudo cargar el perfil:', error.message);
+    }
+    
+    // 👉 MEJORA: Crear perfil mínimo de fallback si no existe en BD
+    if (!prof && user) {
+        currentProfile = {
+            id: user.id,
+            nombre: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
+            correo: user.email,
+            rol: 'operador', // Por defecto, se puede ajustar según tu lógica
+            sucursal: null,
+            estado: 'activo',
+            cedula: null,
+            telefono: null,
+            direccion: null,
+            foto_perfil: null,
+            created_at: new Date().toISOString()
+        };
+        // Opcional: Intentar guardar el perfil mínimo si las políticas RLS lo permiten
+        // await sb.from('usuarios').upsert(currentProfile);
+    } else {
+        currentProfile = prof;
+    }
+    
+    // Mostrar app y ocultar login
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    
+    // Configurar datos del usuario en la UI
+    const role = currentProfile?.rol || 'operador';
+    const name = currentProfile?.nombre || user.email;
+    
+    document.getElementById('topbar-name').textContent = name;
+    document.getElementById('topbar-role').textContent = role === 'administrador' ? 'Administrador' : 'Operador';
+    
+    // Renderizar avatar en topbar
+    if (currentProfile) {
+        renderAvatar(document.getElementById('topbar-avatar'), currentProfile, '36px');
+        
+        // Renderizar avatar grande en vista de operador
+        const opAvatar = document.getElementById('op-avatar-big');
+        if (opAvatar) {
+            renderAvatar(opAvatar, currentProfile, '56px');
+        }
+    }
+    
+    // Cargar plataformas (datos compartidos entre admins)
+    await loadPlataformas();
+    
+    // Configurar navegación según rol
+    if (role === 'administrador') {
+        document.getElementById('nav-admin').classList.remove('hidden');
+        document.getElementById('nav-operador').classList.add('hidden');
+        document.getElementById('profile-config-tab').style.display = 'flex';
+        
+        // Cargar datos adicionales para admin
+        await loadSucursales();
+        await loadAllUsers();
+        await loadDashboard();
+        goSection('dashboard');
+    } else {
+        document.getElementById('nav-admin').classList.add('hidden');
+        document.getElementById('nav-operador').classList.remove('hidden');
+        document.getElementById('profile-config-tab').style.display = 'none';
+        
+        // Personalizar bienvenida para operador
+        const welcomeEl = document.getElementById('op-welcome');
+        if (welcomeEl) {
+            welcomeEl.textContent = `¡Bienvenido, ${name}!`;
+        }
+        const sucInfo = document.getElementById('op-sucursal-info');
+        if (sucInfo) {
+            sucInfo.textContent = `Sucursal: ${currentProfile?.sucursal || 'Sin asignar'}`;
+        }
+        
+        await loadOpInicio();
+        goSection('op-inicio');
+        buildPlataformaInputs();
+    }
+    
+    // Utilidades comunes
+    checkMobile();
+    loadConfig();
+    initInactivityTracking();
+    initSidebarState();
+    
+    // 👉 Realtime subscriptions (solo para administradores)
+    if (role === 'administrador') {
+        sb.channel('registros-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'registros' }, () => {
+                const activeSection = document.querySelector('.section.active')?.id;
+                if (activeSection === 'sec-dashboard') loadDashboard();
+                if (activeSection === 'sec-registros') loadRegistros();
+            })
+            .subscribe();
+            
+        sb.channel('usuarios-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, () => {
+                loadAllUsers();
+            })
+            .subscribe();
+    }
 }
 
 // =====================================================
