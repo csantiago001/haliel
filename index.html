@@ -336,54 +336,46 @@
 <div id="app">
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-icon">
-        <img src="logo.png" alt="H" onerror="this.parentElement.innerHTML='<div class=\'sidebar-logo-icon-fallback\'>H</div>';"/>
-      </div>
-      <div class="sidebar-logo-text" id="sidebar-logo-text">
-        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;">Haliel</div>
-        <div style="font-size:0.7rem;color:var(--text-muted);">Papelería</div>
-      </div>
-      <button class="sidebar-pin-btn" id="sidebar-pin-btn" onclick="toggleSidebarPin()" title="Fijar/ocultar barra lateral" style="margin-left:auto;">
-        <i class="fa-solid fa-thumbtack" id="pin-icon"></i>
-      </button>
-    </div>
+	<!-- Sidebar -->
+	<aside class="sidebar" id="sidebar">
+	  <!-- HEADER: Logo centrado y limpio (sin texto duplicado ni botón de pin) -->
+	  <div class="sidebar-logo" style="padding: 2rem 1.5rem 1.5rem; display: flex; justify-content: center; border-bottom: none;">
+		<img src="logo.png" alt="Haliel Papelería" style="width: 100%; max-width: 700px; height: auto; object-fit: contain;"/>
+	  </div>
 
-    <!-- Admin Nav -->
-    <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
-      <div class="nav-label">Principal</div>
-      <div class="nav-item active" data-tooltip="Dashboard" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
-      <div class="nav-item" data-tooltip="Registros" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
-      <div class="nav-item" data-tooltip="Estadísticas" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
-      <div class="nav-item" data-tooltip="Top Días" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
-      <div class="nav-label">Gestión</div>
-      <div class="nav-item" data-tooltip="Operadores" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i><span class="nav-item-text"> Operadores</span></div>
-      <div class="nav-item" data-tooltip="Sucursales" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text"> Sucursales</span></div>
-      <div class="nav-item" data-tooltip="Plataformas" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text"> Plataformas</span></div>
-      <div class="nav-item" data-tooltip="Reportes" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text"> Reportes</span></div>
-      <div class="nav-label">Sistema</div>
-      <div class="nav-item" data-tooltip="Auditoría" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text"> Auditoría</span></div>
-    </nav>
+	  <!-- Admin Nav -->
+	  <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
+		<div class="nav-label">Principal</div>
+		<div class="nav-item active" data-tooltip="Dashboard" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
+		<div class="nav-item" data-tooltip="Registros" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
+		<div class="nav-item" data-tooltip="Estadísticas" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
+		<div class="nav-item" data-tooltip="Top Días" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
+		<div class="nav-label">Gestión</div>
+		<div class="nav-item" data-tooltip="Operadores" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i><span class="nav-item-text"> Operadores</span></div>
+		<div class="nav-item" data-tooltip="Sucursales" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text"> Sucursales</span></div>
+		<div class="nav-item" data-tooltip="Plataformas" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text"> Plataformas</span></div>
+		<div class="nav-item" data-tooltip="Reportes" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text"> Reportes</span></div>
+		<div class="nav-label">Sistema</div>
+		<div class="nav-item" data-tooltip="Auditoría" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text"> Auditoría</span></div>
+	  </nav>
 
-    <!-- Operator Nav -->
-    <nav id="nav-operador" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
-      <div class="nav-label">Mi espacio</div>
-      <div class="nav-item active" data-tooltip="Inicio" onclick="goSection('op-inicio')"><i class="fa-solid fa-house"></i><span class="nav-item-text"> Inicio</span></div>
-      <div class="nav-item" data-tooltip="Registrar" onclick="goSection('op-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
-      <div class="nav-item" data-tooltip="Mis Registros" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i><span class="nav-item-text"> Mis Registros</span></div>
-      <div class="nav-item" data-tooltip="Mi Rendimiento" onclick="goSection('op-rendimiento')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Mi Rendimiento</span></div>
-    </nav>
+	  <!-- Operator Nav -->
+	  <nav id="nav-operador" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
+		<div class="nav-label">Mi espacio</div>
+		<div class="nav-item active" data-tooltip="Inicio" onclick="goSection('op-inicio')"><i class="fa-solid fa-house"></i><span class="nav-item-text"> Inicio</span></div>
+		<div class="nav-item" data-tooltip="Registrar" onclick="goSection('op-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
+		<div class="nav-item" data-tooltip="Mis Registros" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i><span class="nav-item-text"> Mis Registros</span></div>
+		<div class="nav-item" data-tooltip="Mi Rendimiento" onclick="goSection('op-rendimiento')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Mi Rendimiento</span></div>
+	  </nav>
 
-    <!-- Sidebar Footer -->
-    <div class="sidebar-footer">
-      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;margin-bottom:0.25rem;" class="sidebar-footer-text">
-        <span style="font-size:0.8rem;color:var(--text-muted);">Modo oscuro</span>
-        <button class="toggle-dark" id="dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
-      </div>
-    </div>
-  </aside>
+	  <!-- Sidebar Footer -->
+	  <div class="sidebar-footer">
+		<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;margin-bottom:0.25rem;" class="sidebar-footer-text">
+		  <span style="font-size:0.8rem;color:var(--text-muted);">Modo oscuro</span>
+		  <button class="toggle-dark" id="dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
+		</div>
+	  </div>
+	</aside>
 
   <!-- Main Content -->
   <main class="main-content" id="main-content">
@@ -1147,15 +1139,17 @@ function badgeClasificacion(cls) {
 function getInitials(name) { if(!name) return '?'; return name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
 
 function renderAvatar(element, user, size='36px') {
-  if (!element) return;
-  const initials = getInitials(user?.nombre || user?.correo || 'U');
-  const fotoUrl = user?.foto_perfil || null;
-  element.style.cssText = `width:${size};height:${size};border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563EB,#7C3AED);`;
-  if (fotoUrl) {
-    element.innerHTML = `<img src="${fotoUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
-  } else {
-    element.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:calc(${size} * 0.35);">${initials}</div>`;
-  }
+    if (!element) return;
+    const fotoUrl = user?.foto_perfil || null;
+    element.style.cssText = `width:${size};height:${size};border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563EB,#7C3AED);`;
+    
+    if (fotoUrl) {
+        // Si el usuario tiene foto personalizada, la mostramos
+        element.innerHTML = `<img src="${fotoUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
+    } else {
+        // 👇 FALBACK: Si no tiene foto, mostramos profile.png de la raíz
+        element.innerHTML = `<img src="profile.png" alt="Avatar Default" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
+    }
 }
 
 function closeModal(id) { document.getElementById(id).style.display='none'; }
