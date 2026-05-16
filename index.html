@@ -253,83 +253,91 @@
 
 <!-- LOGIN -->
 <div id="login-page">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-  <div class="blob blob-4"></div>
-  <div id="particles-container"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div id="particles-container"></div>
+    
+    <div class="login-card">
+        <!-- LOGO ÚNICAMENTE (Sin texto adicional) -->
+        <div id="login-logo">
 
-  <div class="login-card">
-    <div class="logo-login" id="login-logo">
-      <img src="logo.png" alt="Haliel" onerror="this.parentElement.classList.add('logo-login-fallback');this.style.display='none';this.parentElement.innerHTML='H'"/>
-    </div>
+		<img src="logo.png"
+		alt="Haliel Papelería"
+		style="width:500px; height:auto; object-fit:contain;"/>
 
-    <div class="text-center mb-6">
-      <h1 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;color:white;letter-spacing:-0.01em;">Haliel Papelería</h1>
-      <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.25rem;">Sistema Administrativo</p>
-    </div>
+	</div>
 
-    <!-- Login -->
-    <div id="form-login">
-      <div style="margin-bottom:1rem;position:relative;">
-        <i class="fa-regular fa-envelope" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
-        <input type="email" id="login-email" class="login-input" placeholder="Correo electrónico" autocomplete="email"/>
-      </div>
-      <div style="margin-bottom:1.5rem;position:relative;">
-        <i class="fa-solid fa-lock" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
-        <input type="password" id="login-password" class="login-input" placeholder="Contraseña" autocomplete="current-password"/>
-        <button onclick="togglePwd()" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;">
-          <i class="fa-regular fa-eye" id="pwd-icon"></i>
-        </button>
-      </div>
-      <button class="btn-login" id="btn-login" onclick="doLogin()">
-        <span id="btn-login-text">Iniciar Sesión</span>
-        <span id="btn-login-spinner" style="display:none;"><span class="spinner"></span></span>
-      </button>
-      <div class="text-center mt-4">
-        <button onclick="showForgot()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:0.825rem;cursor:pointer;font-family:'Inter',sans-serif;">¿Olvidaste tu contraseña?</button>
-      </div>
-    </div>
+        <!-- Formulario Login -->
+        <div id="form-login">
+            <div style="margin-bottom:1rem; position:relative;">
+                <i class="fa-regular fa-envelope" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:0.9rem; z-index:1;"></i>
+                <input type="email" id="login-email" class="login-input" placeholder="Correo electrónico" autocomplete="email"/>
+            </div>
+            
+            <div style="margin-bottom:1.5rem; position:relative;">
+                <i class="fa-solid fa-lock" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:0.9rem; z-index:1;"></i>
+                <input type="password" id="login-password" class="login-input" placeholder="Contraseña" autocomplete="current-password"/>
+                <button onclick="togglePwd()" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer;">
+                    <i class="fa-regular fa-eye" id="pwd-icon"></i>
+                </button>
+            </div>
+            
+            <button class="btn-login" id="btn-login" onclick="doLogin()">
+                <span id="btn-login-text">Iniciar Sesión</span>
+                <span id="btn-login-spinner" style="display:none;"><span class="spinner"></span></span>
+            </button>
+            
+            <div class="text-center mt-4">
+                <button onclick="showForgot()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:0.825rem; cursor:pointer; font-family:'Inter',sans-serif;">¿Olvidaste tu contraseña?</button>
+            </div>
+        </div>
 
-    <!-- Forgot -->
-    <div id="form-forgot" style="display:none;">
-      <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;text-align:center;margin-bottom:1.25rem;">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
-      <div style="margin-bottom:1.5rem;position:relative;">
-        <i class="fa-regular fa-envelope" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
-        <input type="email" id="forgot-email" class="login-input" placeholder="Correo electrónico"/>
-      </div>
-      <button class="btn-login" onclick="doForgot()">Enviar enlace</button>
-      <div class="text-center mt-4">
-        <button onclick="showLogin()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:0.825rem;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fa-solid fa-arrow-left" style="margin-right:0.3rem;"></i> Volver</button>
-      </div>
-    </div>
+        <!-- Formulario Olvidé Contraseña -->
+        <div id="form-forgot" style="display:none;">
+            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; text-align:center; margin-bottom:1.25rem;">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+            <div style="margin-bottom:1.5rem; position:relative;">
+                <i class="fa-regular fa-envelope" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:0.9rem; z-index:1;"></i>
+                <input type="email" id="forgot-email" class="login-input" placeholder="Correo electrónico"/>
+            </div>
+            <button class="btn-login" onclick="doForgot()">Enviar enlace</button>
+            <div class="text-center mt-4">
+                <button onclick="showLogin()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:0.825rem; cursor:pointer; font-family:'Inter',sans-serif;">
+                    <i class="fa-solid fa-arrow-left" style="margin-right:0.3rem;"></i> Volver
+                </button>
+            </div>
+        </div>
 
-    <!-- Reset Password (se muestra vía JS) -->
-    <div id="form-reset" style="display:none;">
-      <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;text-align:center;margin-bottom:1.25rem;">Ingresa tu nueva contraseña</p>
-      <div style="margin-bottom:1rem;position:relative;">
-        <i class="fa-solid fa-lock" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
-        <input type="password" id="reset-password" class="login-input" placeholder="Nueva contraseña (mín. 6 caracteres)"/>
-      </div>
-      <div style="margin-bottom:1.5rem;position:relative;">
-        <i class="fa-solid fa-lock" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:0.9rem;z-index:1;"></i>
-        <input type="password" id="reset-confirm" class="login-input" placeholder="Confirmar nueva contraseña"/>
-      </div>
-      <button class="btn-login" id="btn-reset" onclick="submitResetPassword()">
-        <span id="btn-reset-text">Actualizar contraseña</span>
-        <span id="btn-reset-spinner" style="display:none;"><span class="spinner"></span></span>
-      </button>
-      <div class="text-center mt-4">
-        <button onclick="showLogin()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:0.825rem;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fa-solid fa-arrow-left" style="margin-right:0.3rem;"></i> Volver al login</button>
-      </div>
-    </div>
+        <!-- Formulario Reset Password -->
+        <div id="form-reset" style="display:none;">
+            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; text-align:center; margin-bottom:1.25rem;">Ingresa tu nueva contraseña</p>
+            <div style="margin-bottom:1rem; position:relative;">
+                <i class="fa-solid fa-lock" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:0.9rem; z-index:1;"></i>
+                <input type="password" id="reset-password" class="login-input" placeholder="Nueva contraseña (mín. 6 caracteres)"/>
+            </div>
+            <div style="margin-bottom:1.5rem; position:relative;">
+                <i class="fa-solid fa-lock" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:0.9rem; z-index:1;"></i>
+                <input type="password" id="reset-confirm" class="login-input" placeholder="Confirmar nueva contraseña"/>
+            </div>
+            <button class="btn-login" id="btn-reset" onclick="submitResetPassword()">
+                <span id="btn-reset-text">Actualizar contraseña</span>
+                <span id="btn-reset-spinner" style="display:none;"><span class="spinner"></span></span>
+            </button>
+            <div class="text-center mt-4">
+                <button onclick="showLogin()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:0.825rem; cursor:pointer; font-family:'Inter',sans-serif;">
+                    <i class="fa-solid fa-arrow-left" style="margin-right:0.3rem;"></i> Volver al login
+                </button>
+            </div>
+        </div>
 
-    <div class="divider" style="border-color:rgba(255,255,255,0.1);margin:1.5rem 0;"></div>
-    <div class="text-center" style="color:rgba(255,255,255,0.35);font-size:0.75rem;">
-      <i class="fa-solid fa-phone" style="margin-right:0.35rem;"></i> 3134194976 &nbsp;·&nbsp;
-      <i class="fa-regular fa-envelope" style="margin-right:0.35rem;"></i> papeleriahaliel@gmail.com
+        <div class="divider" style="border-color:rgba(255,255,255,0.1); margin:1.5rem 0;"></div>
+        
+        <div class="text-center" style="color:rgba(255,255,255,0.35); font-size:0.75rem;">
+            <i class="fa-solid fa-phone" style="margin-right:0.35rem;"></i> 3134194976 &nbsp;·&nbsp;
+            <i class="fa-regular fa-envelope" style="margin-right:0.35rem;"></i> papeleriahaliel@gmail.com
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- APP -->
