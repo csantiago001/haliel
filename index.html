@@ -117,7 +117,29 @@
 
   .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; margin: 0.15rem 0.75rem; border-radius: 0.85rem; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.875rem; color: var(--text-muted); text-decoration: none; user-select: none; white-space: nowrap; }
   .nav-item:hover { background: rgba(37,99,235,0.08); color: #2563EB; }
-  .nav-item.active { background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.08)); color: #2563EB; font-weight: 600; }
+	.nav-item.active {
+		background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.08));
+		color: #2563EB;
+		font-weight: 600;
+		position: relative;
+	}
+	.nav-item.active::before {
+		content: '';
+		position: absolute;
+		left: -0.75rem;
+		top: 20%;
+		height: 60%;
+		width: 3px;
+		background: linear-gradient(180deg, #2563EB, #7C3AED);
+		border-radius: 0 3px 3px 0;
+	}
+	html.dark .nav-item.active {
+		background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(124,58,237,0.1));
+		color: #38BDF8;
+	}
+	html.dark .nav-item.active::before {
+		background: linear-gradient(180deg, #38BDF8, #7C3AED);
+	}
   html.dark .nav-item.active { background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(124,58,237,0.1)); color: #38BDF8; }
   .nav-item i { width: 18px; text-align: center; font-size: 0.9rem; flex-shrink: 0; }
 
@@ -142,6 +164,14 @@
   .premium-table tbody tr:hover { background: rgba(37,99,235,0.03); }
   html.dark .premium-table tbody tr:hover { background: rgba(56,189,248,0.04); }
   .premium-table tbody td { padding: 0.85rem 1rem; font-size: 0.875rem; color: inherit; vertical-align: middle; }
+  
+  /* Mobile: Scroll horizontal con indicador */
+	@media(max-width: 768px) {
+		.premium-table { min-width: 800px; }
+		.table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+		.table-wrapper::after { content: '← Desliza para ver más →'; position: absolute; bottom: 0.5rem; right: 1rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.7; pointer-events: none; animation: fadePulse 2s infinite; }
+		@keyframes fadePulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+	}
 
   .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
   .badge-green { background: rgba(34,197,94,0.12); color: #16a34a; }
@@ -254,6 +284,85 @@
   .sidebar-footer { padding: 0.75rem; border-top: 1px solid var(--card-border); }
   .sidebar.collapsed .sidebar-footer .nav-item { justify-content: center; margin: 0.15rem 0; }
   @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .btn-loading { position: relative; pointer-events: none; opacity: 0.8; }
+  .btn-loading::after { content: ''; position: absolute; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; right: 1rem; top: 50%; transform: translateY(-50%); }
+  .field-error { border-color: #EF4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important; }
+  .error-hint { font-size: 0.7rem; color: #EF4444; margin-top: 0.25rem; display: none; }
+  .error-hint.show { display: block; animation: slideDown 0.2s ease; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes statCardIn {
+	  from { opacity:0; transform:translateY(18px) scale(0.96); }
+	  to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+	.skeleton-card-premium {
+		background: var(--card-bg);
+		border: 1px solid var(--card-border);
+		border-radius: 1.25rem;
+		padding: 1.25rem;
+		animation: skFadeIn 0.3s ease both;
+	}
+	.sk-block {
+		background: var(--input-bg);
+		position: relative;
+		overflow: hidden;
+	}
+	.sk-block::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+		animation: skShimmer 1.4s infinite;
+	}
+	html.dark .sk-block::after {
+		background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+	}
+	@keyframes skShimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
+	@keyframes skFadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+	@keyframes skRowIn  { from{opacity:0} to{opacity:1} }
+	
+	@keyframes pulseGreen {
+		0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.35); }
+		50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+	}
+	@keyframes pulseRed {
+		0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+		50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+	}
+	.badge-pulse-green { animation: pulseGreen 2.5s ease-in-out infinite; }
+	.badge-pulse-red   { animation: pulseRed 2.5s ease-in-out infinite; }
+	
+	.btn-edit, .btn-danger {
+		position: relative;
+		overflow: hidden;
+		transition: all 0.2s, min-width 0.2s;
+		min-width: 36px;
+	}
+	.btn-edit i, .btn-danger i { transition: transform 0.2s; }
+	.btn-edit:hover i { transform: rotate(-8deg) scale(1.15); }
+	.btn-danger:hover i { transform: scale(1.2); }
+	.btn-edit::after, .btn-danger::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: rgba(255,255,255,0.15);
+		transform: translateX(-100%);
+		transition: transform 0.3s;
+		pointer-events: none;
+	}
+	.btn-edit:hover::after, .btn-danger:hover::after { transform: translateX(0); }
+	.btn-danger { transition: all 0.2s; }
+	.btn-danger:hover {
+		background: #EF4444;
+		color: white;
+		box-shadow: 0 4px 14px rgba(239,68,68,0.4);
+		transform: translateY(-1px);
+	}
+	.btn-edit:hover {
+		background: #2563EB;
+		color: white;
+		box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+		transform: translateY(-1px);
+	}
 </style>
 </head>
 <body>
@@ -409,7 +518,11 @@
         </button>
         <div>
           <h2 id="page-title" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.25rem;">Dashboard</h2>
-          <p style="font-size:0.8rem;color:var(--text-muted);" id="page-subtitle">Resumen general del sistema</p>
+		<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.1rem;">
+			<span style="font-size:0.72rem;color:var(--text-muted);opacity:0.6;">Haliel Papelería</span>
+			<span style="font-size:0.72rem;color:var(--text-muted);opacity:0.4;">›</span>
+			<span style="font-size:0.72rem;color:var(--text-muted);" id="page-subtitle">Resumen general</span>
+		</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -429,7 +542,21 @@
     <!-- ADMIN: DASHBOARD -->
     <div class="section active" id="sec-dashboard">
 	   <!-- 👉 SALUDO DINÁMICO AGREGADO AQUÍ -->
-       <div id="dashboard-greeting" style="margin-bottom:1.25rem; font-size:1.15rem; font-weight:700; font-family:'Poppins',sans-serif;"></div>
+		<div id="dashboard-greeting" style="margin-bottom:1.25rem;">
+		  <div style="background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));border:1px solid rgba(37,99,235,0.12);border-radius:1rem;padding:1.1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+			<div style="display:flex;align-items:center;gap:0.85rem;">
+			  <div style="width:42px;height:42px;border-radius:0.875rem;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📅</div>
+			  <div>
+				<div id="dash-greeting-name" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;"></div>
+				<div id="dash-greeting-date" style="font-size:0.82rem;color:var(--text-muted);margin-top:0.1rem;"></div>
+			  </div>
+			</div>
+			<div style="display:flex;align-items:center;gap:0.6rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.5rem 1rem;">
+			  <i class="fa-regular fa-clock" style="color:#2563EB;font-size:0.9rem;"></i>
+			  <span id="dash-greeting-clock" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.05rem;color:#2563EB;letter-spacing:0.03em;"></span>
+			</div>
+		  </div>
+		</div>
       <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;align-items:center;">
 		  <select id="dash-vista" class="field-input" style="width:auto;" onchange="toggleDashVista()">
 			<option value="mes">Vista: por mes</option>
@@ -512,12 +639,12 @@
         </select>
       </div>
       <div class="glass-card" style="overflow:hidden;">
-        <div style="overflow-x:auto;">
-          <table class="premium-table">
-            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr></thead>
-            <tbody id="registros-tbody"></tbody>
-          </table>
-        </div>
+        <div class="table-wrapper" style="overflow-x:auto; position:relative;">
+			<table class="premium-table">
+			<thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr></thead>
+			<tbody id="registros-tbody"></tbody>
+			</table>
+		</div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-top:1px solid var(--card-border);">
           <span style="font-size:0.8rem;color:var(--text-muted);" id="registros-count">0 registros</span>
           <div style="display:flex;gap:0.5rem;" id="pagination-btns"></div>
@@ -592,9 +719,19 @@
           <input type="text" class="search-input" placeholder="Buscar operador..." oninput="filterOperadores(this.value)"/>
         </div>
         <button class="btn-primary" onclick="openModalOperador()"><i class="fa-solid fa-plus"></i> Nuevo Usuario</button>
+		<div style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;">
+			<input type="checkbox" id="select-all-ops" style="width:16px;height:16px;" onchange="toggleSelectAllOperadores()"/>
+			<label for="select-all-ops" style="font-size:0.8rem;color:var(--text-muted);cursor:pointer;">Seleccionar todos</label>
+			<button class="btn-secondary" id="btn-bulk-activate" style="display:none;padding:0.4rem 0.75rem;font-size:0.75rem;" onclick="bulkUpdateOperadores('activo')">
+				<i class="fa-solid fa-check"></i> Activar
+			</button>
+			<button class="btn-danger" id="btn-bulk-deactivate" style="display:none;padding:0.4rem 0.75rem;font-size:0.75rem;" onclick="bulkUpdateOperadores('inactivo')">
+				<i class="fa-solid fa-ban"></i> Desactivar
+			</button>
+		</div>
       </div>
       <div class="glass-card" style="overflow:hidden;">
-        <div style="overflow-x:auto;">
+        <div class="table-wrapper" style="overflow-x:auto; position:relative;">
           <table class="premium-table">
             <thead><tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Sucursal</th><th>Estado</th><th>Registrado</th><th>Acciones</th></tr></thead>
             <tbody id="operadores-tbody"></tbody>
@@ -624,40 +761,54 @@
       </div>
     </div>
 
-    <!-- ADMIN: REPORTES -->
-    <div class="section" id="sec-reportes">
-      <div class="glass-card" style="padding:2rem;max-width:600px;">
-        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.5rem;">Exportar Reportes</h3>
-        <div style="display:flex;flex-direction:column;gap:1rem;">
-          <div><label class="field-label">Mes</label>
-            <select id="rpt-mes" class="field-input">
-              <option value="">Todos</option>
-              <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-              <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-              <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-              <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-            </select>
-          </div>
-          <div><label class="field-label">Año</label>
-            <select id="rpt-ano" class="field-input">
-              <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
-            </select>
-          </div>
-          <div><label class="field-label">Operador</label>
-            <select id="rpt-op" class="field-input"><option value="">Todos</option></select>
-          </div>
-          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem;">
-            <button class="btn-primary" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
-            <button class="btn-secondary" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
-          </div>
-        </div>
-      </div>
-    </div>
+	<!-- ADMIN: REPORTES -->
+	<div class="section" id="sec-reportes">
+	<div class="glass-card" style="padding:2rem;max-width:600px;">
+		<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.5rem;">Exportar Reportes</h3>
+		<div style="display:flex;flex-direction:column;gap:1rem;">
+			
+			<!-- 👉 MEJORA 7: Rango de fechas (Reemplaza Mes/Año) -->
+			<div><label class="field-label">Rango de fechas</label>
+			<div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+				<input type="date" id="rpt-desde" class="field-input" style="width:auto;"/>
+				<span style="color:var(--text-muted);font-size:0.8rem;">hasta</span>
+				<input type="date" id="rpt-hasta" class="field-input" style="width:auto;"/>
+				<div style="display:flex;gap:0.35rem;margin-left:0.5rem;">
+					<button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.7rem;" onclick="document.getElementById('rpt-desde').value=new Date().toISOString().split('T')[0];document.getElementById('rpt-hasta').value=new Date().toISOString().split('T')[0]">Hoy</button>
+					<button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.7rem;" onclick="document.getElementById('rpt-desde').value='';document.getElementById('rpt-hasta').value=''">Todo</button>
+				</div>
+			</div></div>
+			
+			<div><label class="field-label">Operador</label>
+			<select id="rpt-op" class="field-input"><option value="">Todos</option></select>
+			</div>
+			
+			<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem;">
+				<button class="btn-primary" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+				<button class="btn-secondary" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
+			</div>
+		</div>
+	</div>
+	</div>
 
     <!-- ADMIN: AUDITORÍA -->
     <div class="section" id="sec-auditoria">
+	<div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
+		<select id="audit-filter-accion" class="field-input" style="width:auto;" onchange="loadAuditoria()">
+			<option value="">Todas las acciones</option>
+			<option value="crear">Crear</option>
+			<option value="editar">Editar</option>
+			<option value="eliminar">Eliminar</option>
+		</select>
+		<input type="date" id="audit-filter-desde" class="field-input" style="width:auto;" onchange="loadAuditoria()" placeholder="Desde"/>
+		<input type="date" id="audit-filter-hasta" class="field-input" style="width:auto;" onchange="loadAuditoria()" placeholder="Hasta"/>
+		<input type="text" id="audit-filter-usuario" class="search-input" style="width:180px;" placeholder="Buscar usuario..." oninput="loadAuditoria()"/>
+		<button class="btn-secondary" onclick="document.getElementById('audit-filter-accion').value='';document.getElementById('audit-filter-desde').value='';document.getElementById('audit-filter-hasta').value='';document.getElementById('audit-filter-usuario').value='';loadAuditoria()">
+			<i class="fa-solid fa-rotate"></i> Limpiar
+		</button>
+	</div>
       <div class="glass-card" style="overflow:hidden;">
-        <div style="overflow-x:auto;">
+        <div class="table-wrapper" style="overflow-x:auto; position:relative;">
           <table class="premium-table">
             <thead><tr><th>Acción</th><th>Usuario</th><th>Descripción</th><th>Fecha</th></tr></thead>
             <tbody id="auditoria-tbody"></tbody>
@@ -666,10 +817,10 @@
       </div>
     </div>
 
-    <!-- OPERADOR: INICIO -->
-    <div class="section" id="sec-op-inicio">
-      <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
-	  <!-- ALERTA BANNER OPERADOR (3PM) -->
+	<!-- OPERADOR: INICIO -->
+	<div class="section" id="sec-op-inicio">
+	  <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
+		<!-- ALERTA BANNER OPERADOR (3PM) -->
 		<div id="op-alert-banner" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;color:#B91C1C;">
 		  <div style="display:flex;align-items:center;gap:0.75rem;">
 			<i class="fa-solid fa-triangle-exclamation" style="font-size:1.3rem;color:#EF4444;"></i>
@@ -679,30 +830,27 @@
 			</div>
 		  </div>
 		</div>
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-          <div style="width:56px;height:56px;cursor:pointer;" id="op-avatar-big" onclick="openProfileModal()" title="Ver mi perfil"></div>
-          <div>
-            <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;" id="op-welcome">¡Bienvenido!</h2>
-            <p style="color:var(--text-muted);font-size:0.875rem;" id="op-sucursal-info">Sucursal: —</p>
-			<div id="op-alert-banner" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;color:#DC2626;">
-			  <div style="display:flex;align-items:center;gap:0.75rem;"><i class="fa-solid fa-triangle-exclamation"></i><div><div style="font-weight:700;font-size:0.9rem;">⚠️ Registro pendiente para hoy</div><div style="font-size:0.8rem;">Son las <span id="alert-time"></span>. Recuerda registrar tus movimientos.</div></div></div>
-			</div>
-			<div id="op-date-status" style="font-size:0.9rem;color:var(--text-muted);margin-top:0.5rem;font-weight:500;"></div>
-			<div id="op-date-status" style="font-size:0.9rem;color:var(--text-muted);margin-top:0.5rem;font-weight:500;"></div>
-          </div>
-        </div>
-      </div>
-      <div class="grid-3" style="margin-bottom:1.25rem;" id="op-stats-grid"></div>
-      <div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
-        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mis últimos registros</h3>
-        <div style="overflow-x:auto;">
-          <table class="premium-table">
-            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th></tr></thead>
-            <tbody id="op-recent-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+		<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+		  <div style="width:56px;height:56px;cursor:pointer;" id="op-avatar-big" onclick="openProfileModal()" title="Ver mi perfil"></div>
+		  <div>
+			<h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;" id="op-welcome">¡Bienvenido!</h2>
+			<p style="color:var(--text-muted);font-size:0.875rem;" id="op-sucursal-info">Sucursal: —</p>
+			<!-- 👉 FECHA + ESTADO (ÚNICO, SIN DUPLICAR) -->
+			<div id="op-date-status" style="margin-top:0.75rem;"></div>
+		  </div>
+		</div>
+	  </div>
+	  <div class="grid-3" style="margin-bottom:1.25rem;" id="op-stats-grid"></div>
+	  <div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
+		<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mis últimos registros</h3>
+		<div class="table-wrapper" style="overflow-x:auto; position:relative;">
+		  <table class="premium-table">
+			<thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th></tr></thead>
+			<tbody id="op-recent-tbody"></tbody>
+		  </table>
+		</div>
+	  </div>
+	</div>
 
     <!-- OPERADOR: REGISTRAR -->
     <div class="section" id="sec-op-registrar">
@@ -742,7 +890,7 @@
     <!-- OPERADOR: MIS REGISTROS -->
     <div class="section" id="sec-op-mis-registros">
       <div class="glass-card" style="overflow:hidden;">
-        <div style="overflow-x:auto;">
+        <div class="table-wrapper" style="overflow-x:auto; position:relative;">
           <table class="premium-table">
             <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th><th>Creado</th></tr></thead>
             <tbody id="op-registros-tbody"></tbody>
@@ -964,7 +1112,7 @@
       <!-- TAB: ACTIVIDAD -->
       <div id="tab-activity" class="profile-tab-content" style="display:none;">
         <h4 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:1rem;font-size:0.95rem;">Últimos movimientos registrados</h4>
-        <div style="overflow-x:auto;">
+        <div class="table-wrapper" style="overflow-x:auto; position:relative;">
           <table class="premium-table">
             <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th></tr></thead>
             <tbody id="profile-activity-tbody"></tbody>
@@ -1027,6 +1175,12 @@
         <div class="grid-2" style="gap:1.5rem;">
           <div>
             <h4 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:1rem;font-size:0.95rem;">Metas del Sistema</h4>
+			<div style="margin-bottom:1rem;">
+			<label class="field-label">Aplicar configuración a:</label>
+			<select id="cfg-sucursal-meta" class="field-input" onchange="loadConfig(this.value)">
+			<option value="global">🌐 Global (Todas las sucursales)</option>
+			</select>
+			</div>
             <div style="display:flex;flex-direction:column;gap:0.875rem;">
               <div><label class="field-label">Meta diaria (movimientos)</label><input type="number" id="cfg-meta-diaria" class="field-input" value="120" min="1"/></div>
               <div><label class="field-label">Meta mensual (movimientos)</label><input type="number" id="cfg-meta-mensual" class="field-input" value="3600" min="1"/></div>
@@ -1128,6 +1282,11 @@ let INACTIVIDAD_MINUTOS = 30;
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// 👉 FORMATO DE FECHA CONSISTENTE PARA TODA LA APP
+const DATE_FORMAT_FULL = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const DATE_FORMAT_COMPACT = { day: 'numeric', month: 'short', year: 'numeric' };
+const DATE_FORMAT_TIME = { ...DATE_FORMAT_COMPACT, hour: '2-digit', minute: '2-digit' };
+
 // =====================================================
 // STATE
 // =====================================================
@@ -1138,6 +1297,82 @@ let charts = {};
 let regPage = 1;
 const REG_PER_PAGE = 20;
 let sidebarPinned = true;
+
+// ==========================================
+// MEJORA 5: Cola Offline (Guardar sin internet)
+// ==========================================
+const offlineQueue = [];
+async function queueOfflineAction(actionName, data) {
+    offlineQueue.push({ action: actionName, data, timestamp: Date.now() });
+    localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
+    toast(`📭 ${actionName} guardado localmente. Se sincronizará al conectar.`, 'info');
+    // Simular éxito visual
+    const overlay = document.getElementById('success-overlay');
+    if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
+}
+async function syncOfflineQueue() {
+    if (offlineQueue.length === 0 || !navigator.onLine) return;
+    toast('🔄 Sincronizando datos pendientes...', 'info');
+    const pending = [...offlineQueue];
+    offlineQueue.length = 0;
+    for (const item of pending) {
+        try {
+            if (item.action === 'registro') {
+                const { error } = await sb.from('registros').insert(item.data);
+                if (error) throw error;
+            }
+        } catch (e) {
+            offlineQueue.push(item); // Re-encolar si falla
+        }
+    }
+    localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
+    if (pending.length > offlineQueue.length) {
+        toast('✅ Datos sincronizados correctamente', 'success');
+        if (document.getElementById('sec-dashboard').classList.contains('active')) loadDashboard();
+    }
+}
+// Restaurar cola al iniciar
+const savedQueue = localStorage.getItem('haliel-offline-queue');
+if (savedQueue) offlineQueue.push(...JSON.parse(savedQueue));
+window.addEventListener('online', syncOfflineQueue);
+
+// ==========================================
+// MEJORA 6: Gestión Masiva de Usuarios
+// ==========================================
+let selectedOperadores = new Set();
+function toggleSelectAllOperadores() {
+    const checked = document.getElementById('select-all-ops').checked;
+    selectedOperadores.clear();
+    if (checked) allOperadores.forEach(o => selectedOperadores.add(o.id));
+    document.querySelectorAll('.op-checkbox').forEach(cb => cb.checked = checked);
+    updateBulkButtons();
+}
+function toggleOperadorSelect(id, checked) {
+    if (checked) selectedOperadores.add(id); else selectedOperadores.delete(id);
+    updateBulkButtons();
+    document.getElementById('select-all-ops').checked = allOperadores.every(o => selectedOperadores.has(o.id));
+}
+function updateBulkButtons() {
+    const show = selectedOperadores.size > 0;
+    document.getElementById('btn-bulk-activate').style.display = show ? 'inline-flex' : 'none';
+    document.getElementById('btn-bulk-deactivate').style.display = show ? 'inline-flex' : 'none';
+}
+async function bulkUpdateOperadores(estado) {
+    if (selectedOperadores.size === 0) return;
+    if (!confirm(`¿${estado === 'activo' ? 'Activar' : 'Desactivar'} ${selectedOperadores.size} usuarios?`)) return;
+    const btn = document.getElementById(estado === 'activo' ? 'btn-bulk-activate' : 'btn-bulk-deactivate');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+    try {
+        for (const id of selectedOperadores) {
+            await sb.from('usuarios').update({ estado }).eq('id', id);
+        }
+        toast(`${selectedOperadores.size} usuarios actualizados ✅`, 'success');
+        selectedOperadores.clear();
+        document.getElementById('select-all-ops').checked = false;
+        await loadAllUsers();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+    finally { if (btn) { btn.disabled = false; btn.innerHTML = estado === 'activo' ? '<i class="fa-solid fa-check"></i> Activar' : '<i class="fa-solid fa-ban"></i> Desactivar'; } }
+}
 
 // Default platforms
 const DEFAULT_PLATAFORMAS = [
@@ -1216,18 +1451,123 @@ function toast(msg, type = 'info') {
   c.appendChild(t);
   setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(40px)'; t.style.transition='0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
 }
+function queueOfflineAction(actionFn, actionName) {
+    offlineQueue.push({ fn: actionFn, name: actionName, timestamp: Date.now() });
+    localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
+    toast(`📭 ${actionName} guardado localmente. Se sincronizará al reconectar.`, 'info');
+}
+async function syncOfflineQueue() {
+    if(isSyncing || offlineQueue.length === 0) return;
+    isSyncing = true;
+    toast('🔄 Sincronizando cambios pendientes...', 'info');
+    
+    const queue = [...offlineQueue];
+    offlineQueue.length = 0;
+    
+    for(const item of queue) {
+        try {
+            await item.fn();
+            toast(`✅ ${item.name} sincronizado`, 'success');
+        } catch(err) {
+            // Re-encolar si falla
+            offlineQueue.push(item);
+            toast(`⚠️ ${item.name} pendiente de sincronizar`, 'error');
+        }
+    }
+    
+    localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
+    isSyncing = false;
+    
+    // Recargar datos si hay cambios
+    if(currentProfile?.rol === 'administrador' && document.querySelector('.section.active')?.id === 'sec-dashboard') {
+        loadDashboard();
+    }
+}
+function showError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if(field) {
+        field.classList.add('field-error');
+        // Crear o mostrar hint de error
+        let hint = field.parentElement?.querySelector('.error-hint');
+        if(!hint) {
+            hint = document.createElement('div');
+            hint.className = 'error-hint';
+            field.parentElement?.appendChild(hint);
+        }
+        hint.textContent = message;
+        hint.classList.add('show');
+    }
+}
+function clearErrors() {
+    document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+    document.querySelectorAll('.error-hint.show').forEach(el => el.classList.remove('show'));
+}
 function showSkeletons(containerId, count=4, type='card') {
-    const c = document.getElementById(containerId); 
-    if(!c) return;
-    c.innerHTML = Array(count).fill().map(() => `<div class="skeleton skeleton-${type}"></div>`).join('');
+    const c = document.getElementById(containerId);
+    if (!c) return;
+
+    if (type === 'card') {
+        c.innerHTML = Array(count).fill().map((_, i) => `
+        <div class="skeleton-card-premium" style="animation-delay:${i*60}ms;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <div class="sk-block" style="width:40px;height:40px;border-radius:0.875rem;"></div>
+                <div class="sk-block" style="width:60px;height:20px;border-radius:99px;"></div>
+            </div>
+            <div class="sk-block" style="width:70%;height:28px;border-radius:0.5rem;margin-bottom:0.5rem;"></div>
+            <div class="sk-block" style="width:50%;height:14px;border-radius:0.375rem;"></div>
+        </div>`).join('');
+    } else if (type === 'row') {
+        c.innerHTML = Array(count).fill().map((_, i) => `
+        <tr style="animation:skRowIn 0.3s ease both;animation-delay:${i*50}ms;">
+            <td><div class="sk-block" style="width:80px;height:14px;border-radius:0.375rem;"></div></td>
+            <td><div class="sk-block" style="width:40px;height:14px;border-radius:0.375rem;"></div></td>
+            <td><div class="sk-block" style="width:70px;height:14px;border-radius:0.375rem;"></div></td>
+            <td><div class="sk-block" style="width:60px;height:22px;border-radius:99px;"></div></td>
+            <td><div class="sk-block" style="width:90px;height:14px;border-radius:0.375rem;"></div></td>
+            <td><div class="sk-block" style="width:80px;height:14px;border-radius:0.375rem;"></div></td>
+            <td><div class="sk-block" style="width:50px;height:14px;border-radius:0.375rem;"></div></td>
+            <td><div style="display:flex;gap:6px;"><div class="sk-block" style="width:32px;height:28px;border-radius:0.5rem;"></div><div class="sk-block" style="width:32px;height:28px;border-radius:0.5rem;"></div></div></td>
+        </tr>`).join('');
+    }
 }
 function formatCurrency(n) { return '$' + (n||0).toLocaleString('es-CO'); }
 function formatDate(d) { if(!d) return '-'; const p=d.split('T')[0].split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
-function getClasificacion(mov) { if(mov>=OPTIMO) return 'optimo'; if(mov>=ACEPTABLE) return 'aceptable'; return 'bajo'; }
+function emptyState(icon, title, desc, actionLabel, actionFn) {
+    const btn = actionLabel
+        ? `<button class="btn-primary" onclick="${actionFn}" style="margin-top:1rem;">${actionLabel}</button>`
+        : '';
+    return `
+    <div style="text-align:center;padding:3rem 1rem;">
+        <div style="width:72px;height:72px;border-radius:1.25rem;background:var(--input-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+            <i class="fa-solid ${icon}" style="font-size:1.75rem;color:var(--text-muted);opacity:0.5;"></i>
+        </div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.4rem;">${title}</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);max-width:280px;margin:0 auto;line-height:1.5;">${desc}</div>
+        ${btn}
+    </div>`;
+}
+function getClasificacion(mov, sucursal = null) {
+    // Si se pasa sucursal, usar sus umbrales específicos, sino usar globales
+    let opt = OPTIMO, ace = ACEPTABLE;
+    if (sucursal && sucursal !== 'global') {
+        const key = `haliel-config-${sucursal}`;
+        const cfg = JSON.parse(localStorage.getItem(key) || '{}');
+        if (cfg.optimo) opt = cfg.optimo;
+        if (cfg.aceptable) ace = cfg.aceptable;
+    }
+    if (mov >= opt) return 'optimo';
+    if (mov >= ace) return 'aceptable';
+    return 'bajo';
+}
 function badgeClasificacion(cls) {
-  const map = { optimo:['badge-green','fa-circle-check','Óptimo'], aceptable:['badge-yellow','fa-circle-half-stroke','Aceptable'], bajo:['badge-red','fa-circle-xmark','Bajo'] };
-  const [c,i,l] = map[cls]||map['bajo'];
-  return `<span class="badge ${c}"><i class="fa-solid ${i}"></i> ${l}</span>`;
+    const map = {
+        optimo:    ['badge-green',  'fa-circle-check',       'Óptimo'],
+        aceptable: ['badge-yellow', 'fa-circle-half-stroke', 'Aceptable'],
+        bajo:      ['badge-red',    'fa-circle-xmark',       'Bajo']
+    };
+    const [c, i, l] = map[cls] || map['bajo'];
+    const pulse = cls === 'optimo' ? 'badge-pulse-green' : cls === 'bajo' ? 'badge-pulse-red' : '';
+    return `<span class="badge ${c} ${pulse}"><i class="fa-solid ${i}"></i> ${l}</span>`;
 }
 function getInitials(name) { if(!name) return '?'; return name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
 
@@ -1326,22 +1666,39 @@ window.addEventListener('resize', checkMobile);
 // AUTH
 // =====================================================
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pwd = document.getElementById('login-password').value;
-  if (!email || !pwd) { toast('Completa todos los campos', 'error'); return; }
-
-  document.getElementById('btn-login-text').style.display='none';
-  document.getElementById('btn-login-spinner').style.display='inline';
-  document.getElementById('btn-login').disabled=true;
-
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
-
-  document.getElementById('btn-login-text').style.display='inline';
-  document.getElementById('btn-login-spinner').style.display='none';
-  document.getElementById('btn-login').disabled=false;
-
-  if (error) { toast(error.message, 'error'); return; }
-  await initApp(data.user);
+    clearErrors();
+    const email = document.getElementById('login-email').value.trim();
+    const pwd = document.getElementById('login-password').value;
+    
+    // 👉 Validación de campos con hints
+    if (!email) { showError('login-email', 'El correo es requerido'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('login-email', 'Formato de correo inválido'); return; }
+    if (!pwd) { showError('login-password', 'La contraseña es requerida'); return; }
+    if (pwd.length < 6) { showError('login-password', 'Mínimo 6 caracteres'); return; }
+    
+    document.getElementById('btn-login-text').style.display='none';
+    document.getElementById('btn-login-spinner').style.display='inline';
+    document.getElementById('btn-login').disabled=true;
+    
+    try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+        if (error) throw error;
+        await initApp(data.user);
+    } catch(err) {
+        // 👉 Botón reintentar en error de red
+        if(err.message.includes('Failed to fetch') || err.message.includes('Network')) {
+            toast('Error de conexión. ¿Reintentar?', 'error');
+            setTimeout(() => {
+                if(confirm('¿Intentar de nuevo?')) doLogin();
+            }, 1000);
+        } else {
+            toast(err.message, 'error');
+        }
+    } finally {
+        document.getElementById('btn-login-text').style.display='inline';
+        document.getElementById('btn-login-spinner').style.display='none';
+        document.getElementById('btn-login').disabled=false;
+    }
 }
 
 async function doForgot() {
@@ -1355,22 +1712,45 @@ async function doForgot() {
 }
 
 async function doLogout() {
-    // 👉 Cerrar modal de perfil si está abierto
+    // 👉 1. CERRAR MODALES
     closeModal('modal-profile');
-    closeModal('modal-change-password'); // También cierra modal de cambiar contraseña por seguridad
+    closeModal('modal-change-password');
     
+    // 👉 2. LIMPIAR TIMERS DE INACTIVIDAD
     clearTimeout(inactivityTimer);
     clearInterval(countdownTimer);
-    document.getElementById('inactivity-warning').classList.remove('show');
+    document.getElementById('inactivity-warning')?.classList.remove('show');
     
+    // 👉 3. DESTRUIR TODOS LOS GRÁFICOS
+    destroyAllCharts();
+    
+    // 👉 4. ✅ NUEVO: DESUSCRIBIR CANALES REALTIME DE SUPABASE
+    if (currentUser?.rol === 'administrador') {
+        // Obtener todos los canales activos y desuscribirlos
+        sb.realtime.getChannels().forEach(channel => {
+            if (channel.state === 'subscribed' || channel.state === 'joining') {
+                sb.removeChannel(channel);
+            }
+        });
+        // Esperar un breve momento para asegurar que se limpien
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // 👉 5. CERRAR SESIÓN EN SUPABASE
     await sb.auth.signOut();
-    currentUser = null; 
-    currentProfile = null;
     
+    // 👉 6. LIMPIAR ESTADO LOCAL
+    currentUser = null;
+    currentProfile = null;
+    allRegistros = [];
+    allOperadores = [];
+    
+    // 👉 7. OCULTAR APP Y MOSTRAR LOGIN
     document.getElementById('app').style.display = 'none';
     document.getElementById('login-page').style.display = 'flex';
     showLogin();
-    toast('Sesión cerrada', 'info');
+    
+    toast('Sesión cerrada correctamente', 'info');
 }
 
 function showForgot() { document.getElementById('form-login').style.display='none'; document.getElementById('form-forgot').style.display='block'; document.getElementById('form-reset').style.display='none'; }
@@ -1378,10 +1758,10 @@ function showLogin() { document.getElementById('form-login').style.display='bloc
 function showReset() { document.getElementById('form-login').style.display='none'; document.getElementById('form-forgot').style.display='none'; document.getElementById('form-reset').style.display='block'; }
 
 function togglePwd() {
-  const input = document.getElementById('login-password');
-  const icon = document.getElementById('pwd-icon');
-  if (input.type==='password') { input.type='text'; icon.className='fa-regular fa-eye-slash'; }
-  else { input.type='password'; icon.className='fa-regular fa-eye'; }
+    const input = document.getElementById('login-password');
+    const icon = document.getElementById('pwd-icon');
+    if (input.type==='password') { input.type='text'; icon.className='fa-regular fa-eye-slash'; }
+    else { input.type='password'; icon.className='fa-regular fa-eye'; }
 }
 
 async function submitResetPassword() {
@@ -1455,60 +1835,6 @@ window.addEventListener('load', async () => {
     const fechaInput = document.getElementById('reg-fecha');
     if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
 
-    // 👉 MEJORA: Fechas inteligentes y filtros dinámicos (año/mes actual)
-    const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentMonth = (now.getMonth() + 1).toString();
-    const todayISO = now.toISOString().split('T')[0];
-
-    // Establecer AÑO ACTUAL en todos los filtros de año
-    ['filter-ano','top-filter-ano','rpt-ano'].forEach(id => {
-        const el = document.getElementById(id); 
-        if(el && !el.value) el.value = currentYear;
-    });
-    // Establecer MES ACTUAL en todos los filtros de mes
-    ['filter-mes','top-filter-mes','rpt-mes'].forEach(id => {
-        const el = document.getElementById(id); 
-        if(el && !el.value) el.value = currentMonth;
-    });
-    // Fecha de hoy en filtros de día específico
-    ['filter-dia-especifico','top-filter-dia'].forEach(id => {
-        const el = document.getElementById(id); 
-        if(el && !el.value) el.value = todayISO;
-    });
-
-    // 👉 MEJORA: Favicon (si no existe ya)
-    if (!document.querySelector('link[rel="icon"]')) {
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.href = 'logo.png';
-        link.type = 'image/png';
-        document.head.appendChild(link);
-    }
-
-    // 👉 MEJORA: Banner offline (si no existe ya)
-    if (!document.getElementById('offline-banner')) {
-        const banner = document.createElement('div');
-        banner.id = 'offline-banner';
-        banner.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;background:#EF4444;color:white;text-align:center;padding:0.6rem;font-size:0.85rem;font-weight:600;z-index:10001;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
-        banner.innerHTML = '⚠️ Sin conexión — los datos pueden no estar actualizados';
-        document.body.insertBefore(banner, document.body.firstChild);
-    }
-    // Listener para conexión
-    function updateConnectionStatus() {
-        const banner = document.getElementById('offline-banner');
-        const main = document.getElementById('main-content');
-        if (!navigator.onLine) {
-            if(banner) banner.style.display = 'block';
-            if(main) main.style.paddingTop = '2.5rem';
-        } else {
-            if(banner) banner.style.display = 'none';
-            if(main) main.style.paddingTop = '1.5rem';
-        }
-    }
-    window.addEventListener('online', updateConnectionStatus);
-    window.addEventListener('offline', updateConnectionStatus);
-    updateConnectionStatus();
 });
 
 // =====================================================
@@ -1517,64 +1843,48 @@ window.addEventListener('load', async () => {
 async function initApp(user) {
     currentUser = user;
     
-    // 👉 MEJORA: Usar maybeSingle() para evitar error si no existe el perfil
+    // 👉 Cargar perfil del usuario
     const { data: prof, error } = await sb.from('usuarios')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
     
-    if (error) {
-        console.warn('No se pudo cargar el perfil:', error.message);
-    }
+    if (error) console.warn('No se pudo cargar el perfil:', error.message);
     
-    // 👉 MEJORA: Crear perfil mínimo de fallback si no existe en BD
-    if (!prof && user) {
-        currentProfile = {
-            id: user.id,
-            nombre: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
-            correo: user.email,
-            rol: 'operador', // Por defecto, se puede ajustar según tu lógica
-            sucursal: null,
-            estado: 'activo',
-            cedula: null,
-            telefono: null,
-            direccion: null,
-            foto_perfil: null,
-            created_at: new Date().toISOString()
-        };
-        // Opcional: Intentar guardar el perfil mínimo si las políticas RLS lo permiten
-        // await sb.from('usuarios').upsert(currentProfile);
-    } else {
-        currentProfile = prof;
-    }
+    currentProfile = prof || {
+        id: user.id,
+        nombre: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
+        correo: user.email,
+        rol: 'operador',
+        sucursal: null,
+        estado: 'activo',
+        cedula: null,
+        telefono: null,
+        direccion: null,
+        foto_perfil: null,
+        created_at: new Date().toISOString()
+    };
     
-    // Mostrar app y ocultar login
+    // Mostrar app
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     
-    // Configurar datos del usuario en la UI
+    // Configurar UI del usuario
     const role = currentProfile?.rol || 'operador';
     const name = currentProfile?.nombre || user.email;
-    
     document.getElementById('topbar-name').textContent = name;
     document.getElementById('topbar-role').textContent = role === 'administrador' ? 'Administrador' : 'Operador';
     
-    // Renderizar avatar en topbar
+    // Renderizar avatar
     if (currentProfile) {
         renderAvatar(document.getElementById('topbar-avatar'), currentProfile, '36px');
-        
-        // Renderizar avatar grande en vista de operador
         const opAvatar = document.getElementById('op-avatar-big');
-        if (opAvatar) {
-            renderAvatar(opAvatar, currentProfile, '56px');
-        }
+        if (opAvatar) renderAvatar(opAvatar, currentProfile, '56px');
     }
     
-    // Cargar plataformas (datos compartidos entre admins)
+    // Cargar datos compartidos
     await loadPlataformas();
-	
-	// 👉 Inicializar fechas inteligentes en tiempo real
-	initSmartDates();
+    initSmartDates();
     
     // Configurar navegación según rol
     if (role === 'administrador') {
@@ -1582,25 +1892,52 @@ async function initApp(user) {
         document.getElementById('nav-operador').classList.add('hidden');
         document.getElementById('profile-config-tab').style.display = 'flex';
         
-        // Cargar datos adicionales para admin
         await loadSucursales();
         await loadAllUsers();
         await loadDashboard();
         goSection('dashboard');
+        
+        // 👉 ✅ NUEVO: Suscribirse a realtime SOLO si no hay canales activos
+        const hasActiveChannels = sb.realtime.getChannels().some(ch => 
+            ch.topic.includes('registros') || ch.topic.includes('usuarios')
+        );
+        
+        if (!hasActiveChannels) {
+            sb.channel('registros-changes')
+                .on('postgres_changes', { 
+                    event: '*', 
+                    schema: 'public', 
+                    table: 'registros' 
+                }, () => {
+                    const activeSection = document.querySelector('.section.active')?.id;
+                    if (activeSection === 'sec-dashboard') loadDashboard();
+                    if (activeSection === 'sec-registros') loadRegistros();
+                })
+                .subscribe();
+                
+            sb.channel('usuarios-changes')
+                .on('postgres_changes', { 
+                    event: '*', 
+                    schema: 'public', 
+                    table: 'usuarios' 
+                }, () => {
+                    loadAllUsers();
+                })
+                .subscribe();
+                
+            console.log('📡 Canales realtime suscritos');
+        }
+        
     } else {
         document.getElementById('nav-admin').classList.add('hidden');
         document.getElementById('nav-operador').classList.remove('hidden');
         document.getElementById('profile-config-tab').style.display = 'none';
         
-        // Personalizar bienvenida para operador
         const welcomeEl = document.getElementById('op-welcome');
-        if (welcomeEl) {
-            welcomeEl.textContent = `¡Bienvenido, ${name}!`;
-        }
+        if (welcomeEl) welcomeEl.textContent = `¡Bienvenido, ${name}!`;
+        
         const sucInfo = document.getElementById('op-sucursal-info');
-        if (sucInfo) {
-            sucInfo.textContent = `Sucursal: ${currentProfile?.sucursal || 'Sin asignar'}`;
-        }
+        if (sucInfo) sucInfo.textContent = `Sucursal: ${currentProfile?.sucursal || 'Sin asignar'}`;
         
         await loadOpInicio();
         goSection('op-inicio');
@@ -1613,22 +1950,13 @@ async function initApp(user) {
     initInactivityTracking();
     initSidebarState();
     
-    // 👉 Realtime subscriptions (solo para administradores)
-    if (role === 'administrador') {
-        sb.channel('registros-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'registros' }, () => {
-                const activeSection = document.querySelector('.section.active')?.id;
-                if (activeSection === 'sec-dashboard') loadDashboard();
-                if (activeSection === 'sec-registros') loadRegistros();
-            })
-            .subscribe();
-            
-        sb.channel('usuarios-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, () => {
-                loadAllUsers();
-            })
-            .subscribe();
-    }
+    // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
+    setTimeout(() => {
+        initRealTimeClock();
+        if (document.getElementById('sec-dashboard')?.classList.contains('active')) {
+            updateRealTimeUI(new Date());
+        }
+    }, 150);
 }
 
 // =====================================================
@@ -1651,14 +1979,17 @@ const sectionMap = {
 };
 
 function goSection(key) {
-    // 🔒 Seguridad: Bloquear acceso a Auditoría si no es administrador
-    if (key === 'auditoria' && currentProfile?.rol !== 'administrador') {
-        toast('Acceso restringido', 'error');
-        goSection('dashboard');
-        return;
-    }
-
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  // 🔒 Seguridad + Limpieza de gráficos
+  if (key === 'auditoria' && currentProfile?.rol !== 'administrador') {
+    toast('Acceso restringido', 'error');
+    goSection('dashboard');
+    return;
+  }
+  
+  // 👉 NUEVO: Destruir todos los gráficos antes de cambiar de sección
+  destroyAllCharts();
+  
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     const sec = sectionMap[key];
     if (!sec) return;
     
@@ -1939,21 +2270,27 @@ async function loadAllUsers() {
 }
 
 function renderOperadores(filter='') {
-  const tbody = document.getElementById('operadores-tbody');
-  let ops = allOperadores;
-  if (filter) ops = ops.filter(o => o.nombre?.toLowerCase().includes(filter) || o.correo?.toLowerCase().includes(filter));
-  if (!ops.length) { tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-users"></i><p>No hay usuarios</p></div></td></tr>'; return; }
-  tbody.innerHTML = ops.map(o => `
+    const tbody = document.getElementById('operadores-tbody');
+    let ops = allOperadores;
+    if (filter) ops = ops.filter(o => o.nombre?.toLowerCase().includes(filter) || o.correo?.toLowerCase().includes(filter));
+    if (!ops.length) { tbody.innerHTML=`<tr><td colspan="8">${emptyState('fa-users','Sin usuarios','Crea el primer operador usando el botón "Nuevo Usuario".')}</td></tr>`; return; }
+    tbody.innerHTML = ops.map(o => `
     <tr>
-      <td><div style="display:flex;align-items:center;gap:0.75rem;"><div class="avatar" style="width:32px;height:32px;font-size:0.75rem;">${getInitials(o.nombre)}</div><span style="font-weight:600;">${o.nombre||'-'}</span></div></td>
-      <td style="color:var(--text-muted);">${o.correo||o.email||'-'}</td>
-      <td>${o.rol==='administrador'?'<span class="badge badge-purple"><i class="fa-solid fa-crown"></i> Admin</span>':'<span class="badge badge-blue">Operador</span>'}</td>
-      <td>${o.sucursal?`<span class="badge badge-blue">${o.sucursal}</span>`:'-'}</td>
-      <td>${o.estado==='activo'?'<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>':'<span class="badge badge-red">Inactivo</span>'}</td>
-      <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(o.created_at)}</td>
-      <td><div style="display:flex;gap:0.5rem;"><button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
+    <td style="width:40px;padding-right:0.5rem;">
+        <input type="checkbox" class="op-checkbox" data-id="${o.id}" 
+               ${selectedOperadores.has(o.id) ? 'checked' : ''}
+               onchange="toggleOperadorSelect('${o.id}', this.checked)"
+               style="width:16px;height:16px;cursor:pointer;"/>
+    </td>
+    <td><div style="display:flex;align-items:center;gap:0.75rem;"><div class="avatar" style="width:32px;height:32px;font-size:0.75rem;">${getInitials(o.nombre)}</div><span style="font-weight:600;">${o.nombre||'-'}</span></div></td>
+    <td style="color:var(--text-muted);">${o.correo||o.email||'-'}</td>
+    <td>${o.rol==='administrador'?'<span class="badge badge-purple"><i class="fa-solid fa-crown"></i> Admin</span>':'<span class="badge badge-blue">Operador</span>'}</td>
+    <td>${o.sucursal?`<span class="badge badge-blue">${o.sucursal}</span>`:'-'}</td>
+    <td>${o.estado==='activo'?'<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>':'<span class="badge badge-red">Inactivo</span>'}</td>
+    <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(o.created_at)}</td>
+    <td><div style="display:flex;gap:0.5rem;"><button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
     </tr>
-  `).join('');
+    `).join('');
 }
 
 function filterOperadores(v) { renderOperadores(v.toLowerCase()); }
@@ -1992,31 +2329,40 @@ function openModalOperador(id=null) {
 }
 
 async function saveOperador() {
-  const nombre = document.getElementById('op-nombre').value.trim();
-  const correo = document.getElementById('op-correo').value.trim();
-  const password = document.getElementById('op-password').value;
-  const rol = document.getElementById('op-rol').value;
-  const sucursal = document.getElementById('op-sucursal-sel').value;
-  const estado = document.getElementById('op-estado').value;
-  if (!nombre||!correo) { toast('Nombre y correo son requeridos','error'); return; }
+    const nombre = document.getElementById('op-nombre').value.trim();
+    const correo = document.getElementById('op-correo').value.trim();
+    const password = document.getElementById('op-password').value;
+    const rol = document.getElementById('op-rol').value;
+    const sucursal = document.getElementById('op-sucursal-sel').value;
+    const estado = document.getElementById('op-estado').value;
+    const btn = document.querySelector('#modal-operador .btn-primary');
 
-  if (editingOpId) {
-    const { error } = await sb.from('usuarios').update({ nombre, sucursal, estado, rol }).eq('id', editingOpId);
-    if (error) { toast('Error: '+error.message,'error'); return; }
-    toast('Usuario actualizado','success');
-    await logAuditoria('editar', `Usuario ${nombre} actualizado`);
-  } else {
-    if (!password||password.length<6) { toast('Mínimo 6 caracteres para la contraseña','error'); return; }
-    const { data: authData, error: authErr } = await sb.auth.signUp({ email: correo, password });
-    if (authErr) { toast(authErr.message,'error'); return; }
-    if (authData.user) {
-      await sb.from('usuarios').upsert({ id: authData.user.id, nombre, correo, rol, sucursal, estado });
+    if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
+    try {
+        if (!nombre || !correo) throw new Error('Nombre y correo son requeridos');
+        if (!editingOpId && (!password || password.length < 6)) throw new Error('Mínimo 6 caracteres para la contraseña');
+
+        if (editingOpId) {
+            const { error } = await sb.from('usuarios').update({ nombre, sucursal, estado, rol }).eq('id', editingOpId);
+            if (error) throw error;
+            await logAuditoria('editar', `Usuario ${nombre} actualizado`);
+            toast('Usuario actualizado', 'success');
+        } else {
+            const { data: authData, error: authErr } = await sb.auth.signUp({ email: correo, password });
+            if (authErr) throw authErr;
+            if (authData.user) {
+                await sb.from('usuarios').upsert({ id: authData.user.id, nombre, correo, rol, sucursal, estado });
+            }
+            await logAuditoria('crear', `Usuario ${nombre} (${rol}) creado`);
+            toast('Usuario creado', 'success');
+        }
+        closeModal('modal-operador');
+        await loadAllUsers();
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar'; }
     }
-    toast('Usuario creado','success');
-    await logAuditoria('crear', `Usuario ${nombre} (${rol}) creado`);
-  }
-  closeModal('modal-operador');
-  await loadAllUsers();
 }
 
 async function deleteOperador(id) {
@@ -2138,37 +2484,66 @@ async function loadDashboard() {
     renderPlataformasChart(allRegistros);
 }
 
+function animateCounter(el, target, duration = 900) {
+    if (!el) return;
+    const start = parseInt(el.textContent.replace(/\D/g, '')) || 0;
+    const isNum = !isNaN(target);
+    if (!isNum) { el.textContent = target; return; }
+    const startTime = performance.now();
+    const update = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (target - start) * ease);
+        el.textContent = current.toLocaleString('es-CO');
+        if (progress < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+}
+
 function renderStatCards(data, prevData = []) {
     const totalMov = data.reduce((a,r)=>a+(r.movimientos||0),0);
     const totalPart = data.reduce((a,r)=>a+(r.participacion||0),0);
     const prevMov = prevData.reduce((a,r)=>a+(r.movimientos||0),0);
     const prevPart = prevData.reduce((a,r)=>a+(r.participacion||0),0);
 
-    const movPct = prevMov > 0 ? Math.round(((totalMov - prevMov) / prevMov) * 100) : (totalMov > 0 ? 100 : 0);
-    const partPct = prevPart > 0 ? Math.round(((totalPart - prevPart) / prevPart) * 100) : (totalPart > 0 ? 100 : 0);
-    
-    const movBadge = movPct > 0 ? `<span style="color:#22C55E;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-up"></i> +${movPct}% vs mes ant.</span>` :
-                     movPct < 0 ? `<span style="color:#EF4444;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-down"></i> ${movPct}% vs mes ant.</span>` : '';
-    const partBadge = partPct > 0 ? `<span style="color:#22C55E;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-up"></i> +${partPct}% vs mes ant.</span>` :
-                      partPct < 0 ? `<span style="color:#EF4444;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-down"></i> ${partPct}% vs mes ant.</span>` : '';
+    const movPct = prevMov > 0 ? Math.round(((totalMov-prevMov)/prevMov)*100) : (totalMov>0?100:0);
+    const partPct = prevPart > 0 ? Math.round(((totalPart-prevPart)/prevPart)*100) : (totalPart>0?100:0);
+
+    const trendBadge = (pct) => pct > 0
+        ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;font-weight:600;color:#16a34a;background:rgba(34,197,94,0.1);padding:2px 7px;border-radius:99px;"><i class="fa-solid fa-arrow-trend-up" style="font-size:0.65rem;"></i> +${pct}%</span>`
+        : pct < 0
+        ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;font-weight:600;color:#dc2626;background:rgba(239,68,68,0.1);padding:2px 7px;border-radius:99px;"><i class="fa-solid fa-arrow-trend-down" style="font-size:0.65rem;"></i> ${pct}%</span>`
+        : '';
 
     const avgMov = data.length ? Math.round(totalMov/data.length) : 0;
-    const mejorDia = data.reduce((a,r)=>r.movimientos>(a?.movimientos||0)?r:a,null);
-    
+    const mejorDia = data.reduce((a,r)=>r.movimientos>(a?.movimientos||0)?r:a, null);
+
     const cards = [
-        {label:'Total Movimientos',value:totalMov.toLocaleString(),icon:'fa-arrows-up-down',color:'#2563EB',bg:'rgba(37,99,235,0.1)',sub:`${data.length} registros ${movBadge}`},
-        {label:'Total Participación',value:formatCurrency(totalPart),icon:'fa-dollar-sign',color:'#22C55E',bg:'rgba(34,197,94,0.1)',sub:`Prom: ${formatCurrency(Math.round(totalPart/(data.length||1)))} ${partBadge}`},
-        {label:'Promedio Diario',value:avgMov,icon:'fa-chart-line',color:'#7C3AED',bg:'rgba(124,58,237,0.1)',sub:`Meta: ${META_DIARIA} mov.`},
-        {label:'Mejor Día',value:mejorDia?mejorDia.movimientos:0,icon:'fa-trophy',color:'#FACC15',bg:'rgba(250,204,21,0.1)',sub:mejorDia?formatDate(mejorDia.fecha):'-'},
+        { label:'Total Movimientos', value:totalMov, display:totalMov.toLocaleString('es-CO'), icon:'fa-arrows-up-down', color:'#2563EB', bg:'rgba(37,99,235,0.1)', sub:`${data.length} registros`, badge:trendBadge(movPct), isNum:true },
+        { label:'Total Participación', value:totalPart, display:formatCurrency(totalPart), icon:'fa-dollar-sign', color:'#22C55E', bg:'rgba(34,197,94,0.1)', sub:`Prom: ${formatCurrency(Math.round(totalPart/(data.length||1)))}`, badge:trendBadge(partPct), isNum:false },
+        { label:'Promedio Diario', value:avgMov, display:avgMov.toLocaleString('es-CO'), icon:'fa-chart-line', color:'#7C3AED', bg:'rgba(124,58,237,0.1)', sub:`Meta: ${META_DIARIA} mov.`, badge:'', isNum:true },
+        { label:'Mejor Día', value:mejorDia?mejorDia.movimientos:0, display:mejorDia?mejorDia.movimientos:0, icon:'fa-trophy', color:'#FACC15', bg:'rgba(250,204,21,0.1)', sub:mejorDia?formatDate(mejorDia.fecha):'-', badge:'', isNum:true },
     ];
-    document.getElementById('stats-grid').innerHTML = cards.map(c=>`
-    <div class="stat-card">
-        <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
-        <div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;">${c.value}</div>
+
+    document.getElementById('stats-grid').innerHTML = cards.map((c,i) => `
+    <div class="stat-card" style="animation:statCardIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${i*80}ms;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+            <div class="stat-icon" style="background:${c.bg};color:${c.color};margin:0;"><i class="fa-solid ${c.icon}"></i></div>
+            ${c.badge}
+        </div>
+        <div class="stat-value-${i}" style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;">${c.isNum ? '0' : c.display}</div>
         <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${c.sub}</div>
     </div>
     `).join('');
+
+    cards.forEach((c, i) => {
+        if (c.isNum) {
+            const el = document.querySelector(`.stat-value-${i}`);
+            setTimeout(() => animateCounter(el, c.value), i * 80 + 100);
+        }
+    });
 }
 
 function renderWeeklySummary(data) {
@@ -2224,6 +2599,14 @@ function renderPlataformasChart(data) {
 // CHARTS
 // =====================================================
 function destroyChart(key) { if(charts[key]){charts[key].destroy();delete charts[key];} }
+function destroyAllCharts() {
+  Object.keys(charts).forEach(key => {
+    if (charts[key]) {
+      charts[key].destroy();
+      delete charts[key];
+    }
+  });
+}
 function isDark() { return document.documentElement.classList.contains('dark'); }
 function chartColors() { return {grid:isDark()?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)',text:isDark()?'#94a3b8':'#64748b'}; }
 
@@ -2283,11 +2666,57 @@ function renderCharts(data) {
 }
 
 function chartOptions(cc, label='') {
-  return {
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{backgroundColor:isDark()?'#1e293b':'#ffffff',titleColor:isDark()?'#f1f5f9':'#0f172a',bodyColor:isDark()?'#94a3b8':'#64748b',borderColor:isDark()?'rgba(56,189,248,0.2)':'rgba(37,99,235,0.2)',borderWidth:1,padding:12,cornerRadius:10}},
-    scales:{x:{grid:{color:cc.grid},ticks:{color:cc.text,font:{family:'Inter',size:11},maxTicksLimit:10}},y:{grid:{color:cc.grid},ticks:{color:cc.text,font:{family:'Inter',size:11}}}}
-  };
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: isDark() ? '#1e293b' : '#ffffff',
+                titleColor: isDark() ? '#f1f5f9' : '#0f172a',
+                bodyColor: isDark() ? '#94a3b8' : '#64748b',
+                borderColor: isDark() ? 'rgba(56,189,248,0.25)' : 'rgba(37,99,235,0.2)',
+                borderWidth: 1,
+                padding: 14,
+                cornerRadius: 12,
+                titleFont: { family: 'Poppins', size: 13, weight: '700' },
+                bodyFont: { family: 'Inter', size: 12 },
+                displayColors: true,
+                boxWidth: 10,
+                boxHeight: 10,
+                boxPadding: 4,
+                callbacks: {
+                    title: function(items) {
+                        const label = items[0]?.label || '';
+                        return '📅 ' + label;
+                    },
+                    label: function(item) {
+                        const val = item.parsed.y ?? item.parsed;
+                        const datasetLabel = item.dataset.label || '';
+                        if (datasetLabel.toLowerCase().includes('participación') || datasetLabel.toLowerCase().includes('participacion')) {
+                            return '  ' + datasetLabel + ': ' + formatCurrency(val);
+                        }
+                        if (typeof val === 'number') {
+                            const cls = getClasificacion(val);
+                            const clsLabel = cls === 'optimo' ? '✅ Óptimo' : cls === 'aceptable' ? '⚠️ Aceptable' : '❌ Bajo';
+                            return [`  ${datasetLabel || 'Movimientos'}: ${val.toLocaleString('es-CO')}`, `  ${clsLabel} · Meta: ${META_DIARIA}`];
+                        }
+                        return '  ' + datasetLabel + ': ' + val;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: cc.grid },
+                ticks: { color: cc.text, font: { family: 'Inter', size: 11 }, maxTicksLimit: 10 }
+            },
+            y: {
+                grid: { color: cc.grid },
+                ticks: { color: cc.text, font: { family: 'Inter', size: 11 } }
+            }
+        }
+    };
 }
 
 function renderRanking(data) {
@@ -2444,9 +2873,14 @@ function renderRegistros() {
     const total=filtered.length;
     const pages=Math.ceil(total/REG_PER_PAGE);
     const slice=filtered.slice((regPage-1)*REG_PER_PAGE,regPage*REG_PER_PAGE);
-    document.getElementById('registros-count').textContent=`${total} registros`;
+	const countEl = document.getElementById('registros-count');
+	if (countEl) {
+		countEl.innerHTML = search
+			? `<span style="font-weight:700;color:#2563EB;">${total}</span> resultados para <em>"${search}"</em>`
+			: `<span style="font-weight:700;">${total}</span> registros en total`;
+	}
     const tbody=document.getElementById('registros-tbody');
-    if (!slice.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No hay registros</p></div></td></tr>`;}
+    if (!slice.length){ tbody.innerHTML=`<tr><td colspan="9">${emptyState('fa-inbox', 'Sin registros', 'No se encontraron registros para los filtros seleccionados.', currentProfile?.rol==='administrador'?null:null)}</td></tr>`; }
     else{tbody.innerHTML=slice.map(r=>`
     <tr>
     <td style="font-weight:600;">${formatDate(r.fecha)}</td>
@@ -2562,45 +2996,66 @@ async function loadEstadisticas() {
 // OPERADOR: GUARDAR REGISTRO
 // =====================================================
 async function guardarRegistro() {
-    const fecha=document.getElementById('reg-fecha').value;
-    const part=parseFloat(document.getElementById('reg-participacion').value)||0;
-    const notas=document.getElementById('reg-notas')?.value.trim()||'';
-    const platData=getPlatData();
-    const mov=getTotalFromPlatData(platData);
-    if (!fecha){toast('Selecciona una fecha','error');return;}
-    if (mov<=0){toast('Ingresa movimientos en al menos una plataforma','error');return;}
-    
-    const btn=document.getElementById('btn-guardar-reg');
-    btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
-    
-    const {error}=await sb.from('registros').insert({
-        fecha,movimientos:mov,participacion:part,notas,
-        clasificacion:getClasificacion(mov),
-        operador_id:currentUser.id,
-        operador_nombre:currentProfile?.nombre||currentUser.email,
-        sucursal:currentProfile?.sucursal||null,
-        plataformas_data:platData,
-    });
-    
-    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-save"></i> Guardar Registro';
-    if(error){toast('Error al guardar: '+error.message,'error');return;}
-    
-    // 👉 MEJORA: Confirmación visual ✅ grande por 2s
+    const fecha = document.getElementById('reg-fecha').value;
+    const part = parseFloat(document.getElementById('reg-participacion').value) || 0;
+    const notas = document.getElementById('reg-notas')?.value.trim() || '';
+    const platData = getPlatData();
+    const mov = getTotalFromPlatData(platData);
+    const btn = document.getElementById('btn-guardar-reg');
     const overlay = document.getElementById('success-overlay');
-    if (overlay) {
-        overlay.style.display = 'flex';
-        setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+
+    // Validación de campos
+    if (!fecha) { toast('Selecciona una fecha', 'error'); return; }
+    if (mov <= 0) { toast('Ingresa movimientos en al menos una plataforma', 'error'); return; }
+
+    // UI de carga
+    if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
+    
+    const registroData = {
+        fecha, movimientos: mov, participacion: part, notas,
+        clasificacion: getClasificacion(mov),
+        operador_id: currentUser.id,
+        operador_nombre: currentProfile?.nombre || currentUser.email,
+        sucursal: currentProfile?.sucursal || null,
+        plataformas_data: platData,
+    };
+
+    try {
+        if (!navigator.onLine) throw new Error('Offline'); // Forzar cola si no hay red
+
+        const { error } = await sb.from('registros').insert(registroData);
+        if (error) throw error;
+
+        // Éxito online
+        if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
+        toast('Registro guardado correctamente ✅', 'success');
+        
+    } catch (err) {
+        // Si es error de red o offline, usar cola
+        if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
+            await queueOfflineAction('Registro del día', registroData);
+            // Reset UI aunque se guarde offline
+            allPlataformas.forEach(p => { const el = document.getElementById(`plat-input-${p.id}`); if (el) el.value = ''; });
+            document.getElementById('reg-participacion').value = '';
+            if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
+            document.getElementById('clasificacion-preview').innerHTML = '';
+            document.getElementById('total-movimientos-preview').textContent = '0';
+            document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0];
+            await loadOpInicio();
+            return; // Salir para evitar reset doble
+        }
+        toast('Error: ' + err.message, 'error');
+    } finally {
+        if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar Registro'; }
     }
-    
-    toast('Registro guardado correctamente ✅','success');
-    
-    // Reset
-    allPlataformas.forEach(p=>{const el=document.getElementById(`plat-input-${p.id}`);if(el)el.value='';});
-    document.getElementById('reg-participacion').value='';
-    if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value='';
-    document.getElementById('clasificacion-preview').innerHTML='';
-    document.getElementById('total-movimientos-preview').textContent='0';
-    document.getElementById('reg-fecha').value=new Date().toISOString().split('T')[0];
+
+    // Reset UI (Solo si fue online y exitoso)
+    allPlataformas.forEach(p => { const el = document.getElementById(`plat-input-${p.id}`); if (el) el.value = ''; });
+    document.getElementById('reg-participacion').value = '';
+    if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
+    document.getElementById('clasificacion-preview').innerHTML = '';
+    document.getElementById('total-movimientos-preview').textContent = '0';
+    document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0];
     await loadOpInicio();
 }
 
@@ -2632,7 +3087,7 @@ async function loadOpInicio() {
     const opDateStatus = document.getElementById('op-date-status');
     if (opDateStatus) {
         const now = new Date();
-        const fechaStr = now.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+        const fechaStr = now.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         const fechaCap = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
         opDateStatus.textContent = `Hoy es ${fechaCap} · ${hasTodayRecord ? 'Registro guardado ✅' : 'Sin registro hoy ⏳'}`;
     }
@@ -2708,37 +3163,80 @@ async function logAuditoria(accion,descripcion) {
 }
 
 async function loadAuditoria() {
-  const {data}=await sb.from('auditoria').select('*').order('created_at',{ascending:false}).limit(100);
-  const tbody=document.getElementById('auditoria-tbody');
-  const logs=data||[];
-  const iconMap={crear:'fa-plus-circle',editar:'fa-pen',eliminar:'fa-trash'};
-  const colorMap={crear:'badge-green',editar:'badge-blue',eliminar:'badge-red'};
-  tbody.innerHTML=logs.map(l=>`<tr><td><span class="badge ${colorMap[l.accion]||'badge-blue'}"><i class="fa-solid ${iconMap[l.accion]||'fa-info'}"></i> ${l.accion}</span></td><td style="font-weight:600;">${l.usuario}</td><td style="color:var(--text-muted);">${l.descripcion}</td><td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(l.created_at)}</td></tr>`).join('')||'<tr><td colspan="4"><div class="empty-state"><i class="fa-solid fa-shield-halved"></i><p>Sin actividad</p></div></td></tr>';
+    const accion = document.getElementById('audit-filter-accion')?.value;
+    const desde = document.getElementById('audit-filter-desde')?.value;
+    const hasta = document.getElementById('audit-filter-hasta')?.value;
+    const usuario = document.getElementById('audit-filter-usuario')?.value.toLowerCase() || '';
+    
+    let query = sb.from('auditoria').select('*').order('created_at', {ascending: false}).limit(100);
+    
+    if (accion) query = query.eq('accion', accion);
+    if (desde) query = query.gte('created_at', `${desde}T00:00:00`);
+    if (hasta) query = query.lte('created_at', `${hasta}T23:59:59`);
+    
+    const { data } = await query;
+    const logs = (data || []).filter(l => !usuario || l.usuario?.toLowerCase().includes(usuario));
+    
+    const tbody = document.getElementById('auditoria-tbody');
+    const iconMap = {crear:'fa-plus-circle', editar:'fa-pen', eliminar:'fa-trash'};
+    const colorMap = {crear:'badge-green', editar:'badge-blue', eliminar:'badge-red'};
+    
+    tbody.innerHTML = logs.length ? logs.map(l => `
+        <tr style="background:${l.accion==='eliminar'?'rgba(239,68,68,0.03)':l.accion==='editar'?'rgba(37,99,235,0.03)':'transparent'};">
+            <td><span class="badge ${colorMap[l.accion]||'badge-blue'}"><i class="fa-solid ${iconMap[l.accion]||'fa-info'}"></i> ${l.accion}</span></td>
+            <td style="font-weight:600;">${l.usuario}</td>
+            <td style="color:var(--text-muted);">${l.descripcion}</td>
+            <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(l.created_at)}</td>
+        </tr>
+    `).join('') : '<tr><td colspan="4"><div class="empty-state"><i class="fa-solid fa-shield-halved"></i><p>Sin actividad</p></div></td></tr>';
 }
 
 // =====================================================
 // CONFIG
 // =====================================================
-function loadConfig() {
-  const cfg=JSON.parse(localStorage.getItem('haliel-config')||'{}');
-  if(cfg.optimo) OPTIMO=cfg.optimo;
-  if(cfg.aceptable) ACEPTABLE=cfg.aceptable;
-  if(cfg.metaDiaria) META_DIARIA=cfg.metaDiaria;
-  if(cfg.metaMensual) META_MENSUAL=cfg.metaMensual;
-  const inac=localStorage.getItem('haliel-inactividad');
-  if(inac) INACTIVIDAD_MINUTOS=parseInt(inac);
-  ['cfg-optimo','cfg-aceptable','cfg-meta-diaria','cfg-meta-mensual'].forEach(id=>{const el=document.getElementById(id);if(!el)return;if(id==='cfg-optimo')el.value=OPTIMO;if(id==='cfg-aceptable')el.value=ACEPTABLE;if(id==='cfg-meta-diaria')el.value=META_DIARIA;if(id==='cfg-meta-mensual')el.value=META_MENSUAL;});
-  const inacSel=document.getElementById('cfg-inactividad');
-  if(inacSel)inacSel.value=String(INACTIVIDAD_MINUTOS);
+function loadConfig(sucursal = 'global') {
+    const key = sucursal === 'global' ? 'haliel-config' : `haliel-config-${sucursal}`;
+    const cfg = JSON.parse(localStorage.getItem(key) || '{}');
+    const defaults = { optimo: 120, aceptable: 90, metaDiaria: 120, metaMensual: 3600 };
+    
+    OPTIMO = cfg.optimo ?? (sucursal !== 'global' ? loadConfig('global').optimo : defaults.optimo);
+    ACEPTABLE = cfg.aceptable ?? (sucursal !== 'global' ? loadConfig('global').aceptable : defaults.aceptable);
+    META_DIARIA = cfg.metaDiaria ?? (sucursal !== 'global' ? loadConfig('global').metaDiaria : defaults.metaDiaria);
+    META_MENSUAL = cfg.metaMensual ?? (sucursal !== 'global' ? loadConfig('global').metaMensual : defaults.metaMensual);
+    const inac = localStorage.getItem('haliel-inactividad');
+    if (inac) INACTIVIDAD_MINUTOS = parseInt(inac);
+
+    ['cfg-optimo','cfg-aceptable','cfg-meta-diaria','cfg-meta-mensual'].forEach(id => {
+        const el = document.getElementById(id); if (!el) return;
+        if (id === 'cfg-optimo') el.value = OPTIMO;
+        if (id === 'cfg-aceptable') el.value = ACEPTABLE;
+        if (id === 'cfg-meta-diaria') el.value = META_DIARIA;
+        if (id === 'cfg-meta-mensual') el.value = META_MENSUAL;
+    });
+    const inacSel = document.getElementById('cfg-inactividad'); if (inacSel) inacSel.value = String(INACTIVIDAD_MINUTOS);
+}
+
+// Función auxiliar para cambiar de sucursal en la UI
+function loadConfigBySucursal() {
+    const sucursal = document.getElementById('cfg-sucursal-meta')?.value || 'global';
+    loadConfig(sucursal);
 }
 
 function saveConfig() {
-  OPTIMO=parseInt(document.getElementById('cfg-optimo').value);
-  ACEPTABLE=parseInt(document.getElementById('cfg-aceptable').value);
-  META_DIARIA=parseInt(document.getElementById('cfg-meta-diaria').value);
-  META_MENSUAL=parseInt(document.getElementById('cfg-meta-mensual').value);
-  localStorage.setItem('haliel-config',JSON.stringify({optimo:OPTIMO,aceptable:ACEPTABLE,metaDiaria:META_DIARIA,metaMensual:META_MENSUAL}));
-  toast('Configuración guardada ✅','success');
+    const sucursal = document.getElementById('cfg-sucursal-meta')?.value || 'global';
+    const key = sucursal === 'global' ? 'haliel-config' : `haliel-config-${sucursal}`;
+    
+    OPTIMO = parseInt(document.getElementById('cfg-optimo').value);
+    ACEPTABLE = parseInt(document.getElementById('cfg-aceptable').value);
+    META_DIARIA = parseInt(document.getElementById('cfg-meta-diaria').value);
+    META_MENSUAL = parseInt(document.getElementById('cfg-meta-mensual').value);
+    
+    localStorage.setItem(key, JSON.stringify({ optimo: OPTIMO, aceptable: ACEPTABLE, metaDiaria: META_DIARIA, metaMensual: META_MENSUAL, updatedAt: new Date().toISOString() }));
+    
+    if (currentProfile?.rol === 'administrador') {
+        logAuditoria('editar', `Configuración de metas ${sucursal === 'global' ? 'global' : `para sucursal ${sucursal}`} actualizada.`);
+    }
+    toast(`Configuración ${sucursal === 'global' ? 'global' : `para ${sucursal}`} guardada ✅`, 'success');
 }
 
 // =====================================================
@@ -2752,38 +3250,106 @@ function getDynamicGreeting(name) {
 
 function initSmartDates() {
     const now = new Date();
-    const currentYear = now.getFullYear().toString();
+    const currentYear  = now.getFullYear().toString();
     const currentMonth = (now.getMonth() + 1).toString();
 
-    // 1. Seleccionar automáticamente el año y mes actuales en TODOS los filtros
-    ['filter-ano','top-filter-ano','rpt-ano'].forEach(id => {
-        const el = document.getElementById(id); if(el) el.value = currentYear;
+    ['filter-ano', 'top-filter-ano', 'rpt-ano'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = currentYear;
     });
-    ['filter-mes','top-filter-mes','rpt-mes'].forEach(id => {
-        const el = document.getElementById(id); if(el) el.value = currentMonth;
+    ['filter-mes', 'top-filter-mes', 'rpt-mes'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = currentMonth;
     });
 
-    // 2. Establecer fecha de hoy en el registro del operador
     const regFecha = document.getElementById('reg-fecha');
     if (regFecha) regFecha.value = now.toISOString().split('T')[0];
 
-    // 3. Actualizar saludos con fecha real
+    // Lanzar reloj en tiempo real
     updateRealTimeUI(now);
+    initRealTimeClock();
 }
 
-function updateRealTimeUI(now) {
-    const options = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-    const fechaCompleta = now.toLocaleDateString('es-CO', options);
-    const fechaCap = fechaCompleta.charAt(0).toUpperCase() + fechaCompleta.slice(1);
-    const horaActual = now.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+// 📍 Reemplaza updateRealTimeUI() completa:
+function updateRealTimeUI(now = new Date()) {
+    try {
+        const fechaStr = now.toLocaleDateString('es-CO', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+        const fechaCap = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
+        const horaActual = now.toLocaleTimeString('es-CO', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        const horaSinSeg = now.toLocaleTimeString('es-CO', {
+            hour: '2-digit', minute: '2-digit'
+        });
 
-    // Dashboard greeting
-    const dashGreeting = document.getElementById('dashboard-greeting');
-    if (dashGreeting) dashGreeting.textContent = `📅 ${fechaCap} · ${horaActual}`;
+        // ── DASHBOARD ADMINISTRADOR ──────────────────────────────
+        const dashGreeting = document.getElementById('dashboard-greeting');
+        if (dashGreeting) {
+            const nombreEl = document.getElementById('dash-greeting-name');
+            const fechaEl  = document.getElementById('dash-greeting-date');
+            const relojEl  = document.getElementById('dash-greeting-clock');
 
-    // Operator status container (se sincroniza con loadOpInicio)
-    const opDateStatus = document.getElementById('op-date-status');
-    if (opDateStatus) opDateStatus.dataset.realDate = fechaCap;
+            if (nombreEl && !nombreEl.dataset.set) {
+                const nombre = currentProfile?.nombre || 'Administrador';
+                const h = now.getHours();
+                const saludo = h < 12 ? '☀️ Buenos días' : h < 18 ? '🌤️ Buenas tardes' : '🌙 Buenas noches';
+                nombreEl.textContent = `${saludo}, ${nombre}`;
+                nombreEl.dataset.set = '1';
+            }
+            if (fechaEl)  fechaEl.textContent  = fechaCap;
+            if (relojEl)  relojEl.textContent  = horaActual;
+        }
+
+        // ── INICIO OPERADOR ──────────────────────────────────────
+        const opDateStatus = document.getElementById('op-date-status');
+        if (opDateStatus) {
+            const today = now.toISOString().split('T')[0];
+            const hasTodayRecord = (allRegistros || []).some(r =>
+                r.fecha === today && r.operador_id === currentUser?.id
+            );
+            const estadoBadge = hasTodayRecord
+                ? `<span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(34,197,94,0.12);color:#16a34a;padding:0.25rem 0.65rem;border-radius:99px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-circle-check" style="font-size:0.6rem;"></i> Registro guardado</span>`
+                : `<span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(250,204,21,0.15);color:#ca8a04;padding:0.25rem 0.65rem;border-radius:99px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-clock" style="font-size:0.6rem;"></i> Sin registro hoy</span>`;
+
+            opDateStatus.innerHTML = `
+                <div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.12);border-radius:0.875rem;padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--text-muted);">
+                        <i class="fa-regular fa-calendar" style="color:#2563EB;"></i>
+                        <span style="font-weight:500;">${fechaCap}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                        ${estadoBadge}
+                        <span style="display:inline-flex;align-items:center;gap:0.35rem;font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;color:#2563EB;">
+                            <i class="fa-regular fa-clock" style="font-size:0.8rem;"></i>
+                            <span id="op-clock-display">${horaActual}</span>
+                        </span>
+                    </div>
+                </div>`;
+        }
+
+        // ── Reloj operador (si ya fue renderizado, solo actualizar el span) ──
+        const opClock = document.getElementById('op-clock-display');
+        if (opClock) opClock.textContent = horaActual;
+
+    } catch (e) {
+        console.warn('⚠️ Error actualizando UI tiempo real:', e);
+    }
+}
+
+// 📍 Reemplaza initRealTimeClock():
+function initRealTimeClock() {
+    if (window.halielClockInterval) {
+        clearInterval(window.halielClockInterval);
+        delete window.halielClockInterval;
+    }
+
+    // Ejecución inmediata
+    updateRealTimeUI(new Date());
+
+    // Actualiza cada segundo para el reloj en vivo
+    window.halielClockInterval = setInterval(() => {
+        if (currentUser) updateRealTimeUI(new Date());
+    }, 1000);
 }
 
 async function openProfileModal() {
@@ -2911,25 +3477,107 @@ function renderProfileTrendChart(regs) {
   const cc=chartColors();
   charts['profile-trend']=new Chart(ctx,{type:'line',data:{labels:regs.map(r=>formatDate(r.fecha).split('/')[0]),datasets:[{label:'Movimientos',data:regs.map(r=>r.movimientos||0),borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,0.1)',borderWidth:2,fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#2563EB'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:cc.text,font:{size:10}}},y:{grid:{color:cc.grid},ticks:{color:cc.text,font:{size:10}},beginAtZero:true}}}});
 }
+// 👇 PEGA AQUÍ EL BLOQUE COMPLETO DE FESTIVOS 👇
+
+// =====================================================
+// FESTIVOS COLOMBIANOS + CÁLCULO DE RACHA INTELIGENTE
+// =====================================================
+
+// 👉 FESTIVOS COLOMBIANOS OFICIALES (Ley Emiliani aplicada)
+// Formato: 'YYYY-MM-DD': 'Nombre del festivo'
+// Actualizar cada año según calendario oficial de la Secretaría del Senado
+const COLOMBIAN_HOLIDAYS = {
+  // === 2026 ===
+  '2026-01-01': 'Año Nuevo',
+  '2026-01-12': 'Reyes Magos',
+  '2026-03-23': 'San José',
+  '2026-04-02': 'Jueves Santo',
+  '2026-04-03': 'Viernes Santo',
+  '2026-05-01': 'Día del Trabajo',
+  '2026-05-18': 'Ascensión del Señor',
+  '2026-06-08': 'Corpus Christi',
+  '2026-06-29': 'Sagrado Corazón',
+  '2026-07-06': 'San Pedro y San Pablo',
+  '2026-07-20': 'Grito de Independencia',
+  '2026-08-07': 'Batalla de Boyacá',
+  '2026-08-17': 'Asunción de la Virgen',
+  '2026-10-12': 'Día de la Raza',
+  '2026-11-02': 'Todos los Santos',
+  '2026-11-16': 'Independencia de Cartagena',
+  '2026-12-08': 'Inmaculada Concepción',
+  '2026-12-25': 'Navidad',
+  
+  // === 2027 ===
+  '2027-01-01': 'Año Nuevo',
+  '2027-01-11': 'Reyes Magos',
+  '2027-03-22': 'San José',
+  '2027-03-25': 'Jueves Santo',
+  '2027-03-26': 'Viernes Santo',
+  '2027-05-01': 'Día del Trabajo',
+  '2027-05-10': 'Ascensión del Señor',
+  '2027-05-31': 'Corpus Christi',
+  '2027-06-21': 'Sagrado Corazón',
+  '2027-07-05': 'San Pedro y San Pablo',
+  '2027-07-20': 'Grito de Independencia',
+  '2027-08-07': 'Batalla de Boyacá',
+  '2027-08-16': 'Asunción de la Virgen',
+  '2027-10-11': 'Día de la Raza',
+  '2027-11-01': 'Todos los Santos',
+  '2027-11-15': 'Independencia de Cartagena',
+  '2027-12-08': 'Inmaculada Concepción',
+  '2027-12-25': 'Navidad',
+};
+
+// 👉 Función auxiliar: ¿Es festivo colombiano?
+function isColombianHoliday(dateStr) {
+  return COLOMBIAN_HOLIDAYS[dateStr] !== undefined;
+}
+
+// 👉 Función auxiliar: ¿Es día hábil para racha? (No domingo + No festivo)
+function isBusinessDay(dateStr) {
+  if (!dateStr) return false;
+  const date = new Date(dateStr + 'T00:00:00');
+  const dayOfWeek = date.getDay();
+  return dayOfWeek !== 0 && !isColombianHoliday(dateStr);
+}
 
 function calculateStreak(regs, threshold) {
-    if (!regs.length) return 0;
-    const sorted = [...regs].sort((a,b) => b.fecha.localeCompare(a.fecha)); // Descendente
-    let streak = 0;
-    let expected = new Date(sorted[0].fecha + 'T00:00:00');
-    expected.setHours(0,0,0,0);
-
-    for (const r of sorted) {
-        const rDate = new Date(r.fecha + 'T00:00:00');
-        const diff = Math.round((expected - rDate) / (1000*60*60*24));
-        if (diff === 0 && (r.movimientos||0) >= threshold) {
-            streak++;
-            expected.setDate(expected.getDate() - 1);
-        } else {
-            break; // Racha rota
-        }
+  if (!regs || !regs.length) return 0;
+  
+  // Filtrar solo registros en días hábiles (no domingos, no festivos colombianos)
+  const businessRegs = regs.filter(r => r.fecha && isBusinessDay(r.fecha));
+  if (!businessRegs.length) return 0;
+  
+  // Ordenar descendente por fecha (más reciente primero)
+  const sorted = [...businessRegs].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  let streak = 0;
+  
+  // Punto de partida: el último registro hábil registrado
+  let expectedDate = new Date(sorted[0].fecha + 'T00:00:00');
+  expectedDate.setHours(0, 0, 0, 0);
+  
+  for (const r of sorted) {
+    const rDate = new Date(r.fecha + 'T00:00:00');
+    rDate.setHours(0, 0, 0, 0);
+    
+    // Calcular diferencia en días entre lo esperado y lo registrado
+    const diffDays = Math.round((expectedDate - rDate) / (1000 * 60 * 60 * 24));
+    
+    // Si la fecha coincide con lo esperado (o está dentro de 1 día por redondeo) Y cumple la meta
+    if (Math.abs(diffDays) <= 1 && (r.movimientos || 0) >= threshold) {
+      streak++;
+      // Mover expectedDate al anterior día hábil (saltando domingos y festivos)
+      let prevDate = new Date(expectedDate);
+      do {
+        prevDate.setDate(prevDate.getDate() - 1);
+      } while (!isBusinessDay(prevDate.toISOString().split('T')[0]));
+      expectedDate = prevDate;
+    } else {
+      break; // Racha rota: hubo un día hábil sin registro óptimo
     }
-    return streak;
+  }
+  
+  return streak;
 }
 
 async function loadProfileActivity() {
@@ -2940,20 +3588,117 @@ async function loadProfileActivity() {
   tbody.innerHTML=regs.map(r=>`<tr><td style="font-weight:600;">${formatDate(r.fecha)}</td><td><span style="font-weight:700;font-family:'Poppins',sans-serif;">${r.movimientos||0}</span></td><td style="color:#22C55E;font-weight:600;">${formatCurrency(r.participacion)}</td><td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td></tr>`).join('');
 }
 
-function openChangePasswordModal() {
-  document.getElementById('chg-pwd-new').value='';
-  document.getElementById('chg-pwd-confirm').value='';
-  openModal('modal-change-password');
+// 📍 Agrega esta función auxiliar para validar el período de 30 días
+function getPwdCooldown() {
+    if (!currentUser) return { allowed: true };
+    
+    // 👉 ADMINISTRADORES: SIN RESTRICCIÓN DE 30 DÍAS
+    if (currentProfile?.rol === 'administrador') {
+        return { allowed: true };
+    }
+    
+    // 👉 OPERADORES: VALIDAR COOLDOWN DE 30 DÍAS
+    const key = `haliel-pwd-${currentUser.id}`;
+    const lastChange = localStorage.getItem(key);
+    
+    if (!lastChange) return { allowed: true };
+    
+    const daysPassed = (Date.now() - new Date(lastChange).getTime()) / (1000 * 60 * 60 * 24);
+    
+    if (daysPassed >= 30) return { allowed: true };
+    
+    return { 
+        allowed: false, 
+        remaining: Math.ceil(30 - daysPassed),
+        lastChange: new Date(lastChange).toLocaleDateString('es-CO')
+    };
 }
 
+// 📍 Reemplaza openChangePasswordModal() con esta:
+function openChangePasswordModal() {
+    const status = getPwdCooldown();
+    
+    if (!status.allowed) {
+        // Mensaje específico para operadores
+        toast(`⏳ Por políticas de seguridad, los operadores pueden cambiar su contraseña cada 30 días.\n\nÚltimo cambio: ${status.lastChange}\nFaltan: ${status.remaining} día(s)`, 'error');
+        return;
+    }
+    
+    // Limpiar campos del modal
+    document.getElementById('chg-pwd-new').value = '';
+    document.getElementById('chg-pwd-confirm').value = '';
+    
+    // Abrir modal
+    openModal('modal-change-password');
+}
+
+// 📍 Reemplaza submitPasswordChange() con esta:
 async function submitPasswordChange() {
-  const newPwd=document.getElementById('chg-pwd-new').value;
-  const confirm=document.getElementById('chg-pwd-confirm').value;
-  if(!newPwd||!confirm){toast('Completa todos los campos','error');return;}
-  if(newPwd!==confirm){toast('Las contraseñas no coinciden','error');return;}
-  if(newPwd.length<6){toast('Mínimo 6 caracteres','error');return;}
-  try{const {error}=await sb.auth.updateUser({password:newPwd});if(error)throw error;toast('Contraseña actualizada 🔐','success');closeModal('modal-change-password');}
-  catch(err){toast('Error: '+err.message,'error');}
+    const newPwd = document.getElementById('chg-pwd-new').value;
+    const confirm = document.getElementById('chg-pwd-confirm').value;
+    
+    // 👉 1. Validaciones básicas
+    if (!newPwd || !confirm) { toast('Completa todos los campos', 'error'); return; }
+    if (newPwd !== confirm) { toast('Las contraseñas no coinciden', 'error'); return; }
+    if (newPwd.length < 6) { toast('Mínimo 6 caracteres', 'error'); return; }
+    
+    // 👉 2. Verificar restricción de 30 días (solo aplica a OPERADORES)
+    const cooldownStatus = getPwdCooldown();
+    if (!cooldownStatus.allowed) {
+        toast(`⏳ Por políticas de seguridad, debes esperar ${cooldownStatus.remaining} día(s) más para cambiar tu contraseña.`, 'error');
+        return;
+    }
+    
+    // Estado de carga en el botón
+    const btn = document.querySelector('#modal-change-password .btn-primary');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Actualizando...'; }
+    
+    try {
+        // 👉 3. Verificar sesión activa ANTES de llamar a updateUser (evita error 403/SessionMissing)
+        const { data: { session }, error: sessionError } = await sb.auth.getSession();
+        if (sessionError || !session || !session.access_token) {
+            throw new Error('Sesión no válida o expirada. Inicia sesión nuevamente.');
+        }
+        
+        // 👉 4. Intentar actualizar contraseña en Supabase Auth
+        const { error } = await sb.auth.updateUser({ password: newPwd });
+        
+        if (error) {
+            console.error('❌ Error updateUser:', error);
+            
+            // Manejo específico de errores 403/401 por sesión o permisos
+            if (error.status === 403 || error.status === 401 || error.message?.includes('session')) {
+                toast('🔐 Permiso denegado o sesión expirada. Serás redirigido al login.', 'error');
+                setTimeout(() => { sb.auth.signOut(); doLogout(); }, 2000);
+                return;
+            }
+            throw error;
+        }
+        
+        // 👉 5. ÉXITO: Guardar fecha de cambio SOLO para operadores
+        if (currentProfile?.rol !== 'administrador') {
+            localStorage.setItem(`haliel-pwd-${currentUser.id}`, new Date().toISOString());
+        }
+        
+        toast('✅ Contraseña actualizada correctamente. Por seguridad, tu sesión se cerrará.', 'success');
+        closeModal('modal-change-password');
+        
+        // 👉 6. Cierre forzado tras 1.5s (para que el usuario lea el mensaje)
+        setTimeout(async () => {
+            await sb.auth.signOut(); // Cierra sesión en Supabase primero
+            doLogout();              // Luego limpia estado local y UI
+        }, 1500);
+        
+    } catch (err) {
+        console.error('💥 Error al cambiar contraseña:', err);
+        toast('Error: ' + (err.message || 'No se pudo actualizar la contraseña'), 'error');
+    } finally {
+        // Restaurar botón
+        if (btn) { 
+            btn.disabled = false; 
+            btn.innerHTML = 'Actualizar'; 
+        }
+    }
 }
 
 async function removeProfilePhoto() {
@@ -2996,36 +3741,86 @@ async function handleProfilePhotoUpload(event) {
 // EXPORT
 // =====================================================
 function populateReportFilters() {
-  const sel=document.getElementById('rpt-op');
-  if(!sel)return;
-  while(sel.options.length>1)sel.remove(1);
-  allOperadores.forEach(o=>{const opt=document.createElement('option');opt.value=o.id;opt.textContent=o.nombre||o.correo;sel.appendChild(opt);});
+    const sel = document.getElementById('rpt-op');
+    if (!sel) return;
+    while (sel.options.length > 1) sel.remove(1);
+    allOperadores.forEach(o => { const opt = document.createElement('option'); opt.value = o.id; opt.textContent = o.nombre || o.correo; sel.appendChild(opt); });
+    
+    // Inicializar inputs de rango si existen (Mejora 7 HTML)
+    const desde = document.getElementById('rpt-desde');
+    const hasta = document.getElementById('rpt-hasta');
+    if (desde && !desde.value) desde.value = new Date().toISOString().split('T')[0];
+    if (hasta && !hasta.value) hasta.value = new Date().toISOString().split('T')[0];
+}
+
+function setReportRange(preset) {
+    const hoy = new Date();
+    const desde = document.getElementById('rpt-desde');
+    const hasta = document.getElementById('rpt-hasta');
+    
+    if(!desde || !hasta) return;
+    
+    switch(preset) {
+        case 'hoy':
+            desde.value = hoy.toISOString().split('T')[0];
+            hasta.value = hoy.toISOString().split('T')[0];
+            break;
+        case 'semana':
+            const inicioSemana = new Date(hoy);
+            inicioSemana.setDate(hoy.getDate() - hoy.getDay()); // Domingo
+            desde.value = inicioSemana.toISOString().split('T')[0];
+            hasta.value = hoy.toISOString().split('T')[0];
+            break;
+        case 'mes':
+            desde.value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-01`;
+            hasta.value = hoy.toISOString().split('T')[0];
+            break;
+        case 'todo':
+            desde.value = '';
+            hasta.value = '';
+            break;
+    }
 }
 
 async function getExportData() {
-  const mes=document.getElementById('rpt-mes')?.value;
-  const ano=document.getElementById('rpt-ano')?.value||new Date().getFullYear().toString();
-  const opId=document.getElementById('rpt-op')?.value;
-  let query=sb.from('registros').select('*').order('fecha');
-  if(mes){const start=`${ano}-${mes.padStart(2,'0')}-01`;const end=new Date(ano,mes,0).toISOString().split('T')[0];query=query.gte('fecha',start).lte('fecha',end);}
-  else{query=query.gte('fecha',`${ano}-01-01`).lte('fecha',`${ano}-12-31`);}
-  if(opId)query=query.eq('operador_id',opId);
-  const {data}=await query;
-  return data||[];
+    const desde = document.getElementById('rpt-desde')?.value;
+    const hasta = document.getElementById('rpt-hasta')?.value;
+    const opId = document.getElementById('rpt-op')?.value;
+    let query = sb.from('registros').select('*').order('fecha');
+    
+    // Priorizar rango de fechas
+    if (desde) query = query.gte('fecha', desde);
+    if (hasta) query = query.lte('fecha', hasta);
+    // Fallback a mes/año si no hay rango (por compatibilidad)
+    else {
+        const mes = document.getElementById('rpt-mes')?.value;
+        const ano = document.getElementById('rpt-ano')?.value || new Date().getFullYear().toString();
+        if (mes) { const start = `${ano}-${mes.padStart(2,'0')}-01`; const end = new Date(ano, mes, 0).toISOString().split('T')[0]; query = query.gte('fecha', start).lte('fecha', end); }
+        else { query = query.gte('fecha', `${ano}-01-01`).lte('fecha', `${ano}-12-31`); }
+    }
+    
+    if (opId) query = query.eq('operador_id', opId);
+    const { data } = await query;
+    return data || [];
 }
 
 async function exportExcel() {
-  const data=await getExportData();
-  if(!data.length){toast('No hay datos para exportar','info');return;}
-  const ws=XLSX.utils.json_to_sheet(data.map(r=>({
-    Fecha:r.fecha,Movimientos:r.movimientos,Participación:r.participacion,
-    Clasificación:r.clasificacion,Operador:r.operador_nombre,Sucursal:r.sucursal,
-    ...Object.fromEntries(Object.entries(r.plataformas_data||{}).map(([k,v])=>[k,v])),
-    'Creado en':r.created_at,
-  })));
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Registros');
-  XLSX.writeFile(wb,'Haliel_Registros.xlsx');
-  toast('Excel exportado ✅','success');
+    const btn = document.querySelector('#sec-reportes .btn-primary'); // Selecciona el botón específico
+    if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Exportando...'; }
+    try {
+        const data = await getExportData();
+        if (!data.length) { toast('No hay datos para exportar', 'info'); return; }
+        const ws = XLSX.utils.json_to_sheet(data.map(r => ({
+            Fecha: r.fecha, Movimientos: r.movimientos, Participación: r.participacion,
+            Clasificación: r.clasificacion, Operador: r.operador_nombre, Sucursal: r.sucursal,
+            ...Object.fromEntries(Object.entries(r.plataformas_data || {}).map(([k, v]) => [k, v])),
+            'Creado en': r.created_at,
+        })));
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+        XLSX.writeFile(wb, 'Haliel_Registros.xlsx');
+        toast('Excel exportado ✅', 'success');
+    } catch (err) { toast('Error al exportar: ' + err.message, 'error'); }
+    finally { if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> Exportar Excel'; } }
 }
 
 async function exportPDF() {
@@ -3203,6 +3998,14 @@ window.addEventListener('online', updateConnectionStatus);
 window.addEventListener('offline', updateConnectionStatus);
 // Verificar estado inicial al cargar
 updateConnectionStatus();
+
+// 👉 Auto-sincronizar al recuperar conexión
+window.addEventListener('online', () => {
+    if(offlineQueue.length > 0) {
+        toast('🌐 Conexión restaurada. Sincronizando...', 'success');
+        syncOfflineQueue();
+    }
+});
 
 </script>
 
