@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#2563EB"/>
 <meta name="description" content="Haliel Papelería - Sistema Administrativo"/>
+<link rel="icon" href="logo.png" type="image/png"/>
 <title>Haliel Papelería | Sistema Administrativo</title>
 
 <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Haliel%20Papeler%C3%ADa%22,%22short_name%22:%22Haliel%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%230F172A%22,%22theme_color%22:%22%232563EB%22,%22icons%22:[{%22src%22:%22logo.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}"/>
@@ -214,6 +215,11 @@
   .divider { height: 1px; background: var(--card-border); margin: 1rem 0; }
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
   .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .skeleton { background: var(--input-bg); border-radius: 0.75rem; position: relative; overflow: hidden; }
+  .skeleton::after { content: ''; position: absolute; top: 0; left: -150%; width: 150%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 100% { left: 150%; } }
+  .skeleton-card { height: 130px; }
+  .skeleton-row { height: 46px; margin-bottom: 0.5rem; }
   .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: 1rem 2rem 0.35rem; opacity: 0.7; white-space: nowrap; overflow: hidden; }
 
   /* Tooltip para sidebar colapsado */
@@ -247,9 +253,14 @@
   /* Sidebar footer */
   .sidebar-footer { padding: 0.75rem; border-top: 1px solid var(--card-border); }
   .sidebar.collapsed .sidebar-footer .nav-item { justify-content: center; margin: 0.15rem 0; }
+  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 <body>
+
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#EF4444;color:white;text-align:center;padding:0.6rem;font-size:0.85rem;font-weight:600;z-index:10001;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:transform 0.3s;">
+    ⚠️ Sin conexión — los datos pueden no estar actualizados
+</div>
 
 <!-- LOGIN -->
 <div id="login-page">
@@ -347,9 +358,13 @@
 	<!-- Sidebar -->
 	<aside class="sidebar" id="sidebar">
 	  <!-- HEADER: Logo centrado y limpio (sin texto duplicado ni botón de pin) -->
-	  <div class="sidebar-logo" style="padding: 2rem 1.5rem 1.5rem; display: flex; justify-content: center; border-bottom: none;">
-		<img src="logo.png" alt="Haliel Papelería" style="width: 100%; max-width: 700px; height: auto; object-fit: contain;"/>
-	  </div>
+		<div class="sidebar-logo" 
+			 style="padding: 1.5rem; display: flex; justify-content: center; border-bottom: 1px solid var(--card-border); cursor: pointer;" 
+			 ondblclick="goSection('dashboard')" 
+			 title="Doble clic para ir al Dashboard">
+			<img src="logo.png" alt="Haliel Papelería" 
+				 style="width: 100%; max-width: 160px; height: auto; object-fit: contain;"/>
+		</div>
 
 	  <!-- Admin Nav -->
 	  <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
@@ -398,6 +413,9 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
+	  <button onclick="openHelpModal()" title="Centro de Ayuda" style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:1.1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.background='rgba(37,99,235,0.1)';this.style.color='#2563EB'" onmouseout="this.style.background='var(--input-bg)';this.style.color='var(--text-muted)'">
+		  <i class="fa-solid fa-circle-question"></i>
+		</button>
         <div style="text-align:right;" id="user-info-top">
           <div style="font-size:0.825rem;font-weight:600;" id="topbar-name">Usuario</div>
           <div style="font-size:0.75rem;color:var(--text-muted);" id="topbar-role">-</div>
@@ -410,23 +428,35 @@
 
     <!-- ADMIN: DASHBOARD -->
     <div class="section active" id="sec-dashboard">
-      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
-        <select id="filter-mes" class="field-input" style="width:auto;" onchange="loadDashboard()">
-          <option value="">Todos los meses</option>
-          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-        </select>
-        <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()">
-          <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
-        </select>
-        <select id="filter-sucursal-dash" class="field-input" style="width:auto;" onchange="loadDashboard()">
-          <option value="">Todas las sucursales</option>
-        </select>
-        <button class="btn-primary" onclick="loadDashboard()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
-      </div>
+	   <!-- 👉 SALUDO DINÁMICO AGREGADO AQUÍ -->
+       <div id="dashboard-greeting" style="margin-bottom:1.25rem; font-size:1.15rem; font-weight:700; font-family:'Poppins',sans-serif;"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;align-items:center;">
+		  <select id="dash-vista" class="field-input" style="width:auto;" onchange="toggleDashVista()">
+			<option value="mes">Vista: por mes</option>
+			<option value="dia">Vista: día específico</option>
+		  </select>
+		  <select id="filter-mes" class="field-input" style="width:auto;" onchange="loadDashboard()">
+			<option value="">Todos los meses</option>
+			<option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+			<option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+			<option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+			<option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+		  </select>
+		  <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()">
+			<option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+		  </select>
+		  <input type="date" id="filter-dia-especifico" class="field-input" style="width:auto;display:none;border-color:#2563EB;" onchange="loadDashboard()"/>
+		  <select id="filter-sucursal-dash" class="field-input" style="width:auto;" onchange="loadDashboard()">
+			<option value="">Todas las sucursales</option>
+		  </select>
+		  <button class="btn-primary" onclick="loadDashboard()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+		</div>
       <div class="grid-4" style="margin-bottom:1.25rem;" id="stats-grid"></div>
+	  <!-- RESUMEN SEMANAL AUTOMÁTICO -->
+		<div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
+		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;"><i class="fa-solid fa-calendar-week" style="color:#2563EB;margin-right:0.5rem;"></i>Resumen Semanal del Período</h3>
+		  <div id="weekly-summary-container" style="display:flex;gap:0.75rem;flex-wrap:wrap;"></div>
+		</div>
       <div class="grid-2" style="margin-bottom:1.25rem;">
         <div class="glass-card" style="padding:1.5rem;">
           <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Movimientos Diarios</h3>
@@ -484,7 +514,7 @@
       <div class="glass-card" style="overflow:hidden;">
         <div style="overflow-x:auto;">
           <table class="premium-table">
-            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr></thead>
             <tbody id="registros-tbody"></tbody>
           </table>
         </div>
@@ -523,19 +553,24 @@
 
     <!-- ADMIN: TOP DÍAS -->
     <div class="section" id="sec-top-dias">
-      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
-        <select id="top-filter-mes" class="field-input" style="width:auto;" onchange="loadTopDias()">
-          <option value="">Todos los meses</option>
-          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-        </select>
-        <select id="top-filter-ano" class="field-input" style="width:auto;" onchange="loadTopDias()">
-          <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
-        </select>
-        <button class="btn-primary" onclick="loadTopDias()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
-      </div>
+		<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;align-items:center;">
+		  <select id="top-vista" class="field-input" style="width:auto;" onchange="toggleTopVista()">
+			<option value="mes">Vista: por mes</option>
+			<option value="dia">Vista: día específico</option>
+		  </select>
+		  <select id="top-filter-mes" class="field-input" style="width:auto;" onchange="loadTopDias()">
+			<option value="">Todos los meses</option>
+			<option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+			<option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+			<option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+			<option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+		  </select>
+		  <select id="top-filter-ano" class="field-input" style="width:auto;" onchange="loadTopDias()">
+			<option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+		  </select>
+		  <input type="date" id="top-filter-dia" class="field-input" style="width:auto;display:none;border-color:#2563EB;" onchange="loadTopDias()"/>
+		  <button class="btn-primary" onclick="loadTopDias()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+		</div>
       <div class="grid-3" style="margin-bottom:1.25rem;" id="top-dias-grid"></div>
       <div class="grid-2">
         <div class="glass-card" style="padding:1.5rem;">
@@ -605,7 +640,7 @@
           </div>
           <div><label class="field-label">Año</label>
             <select id="rpt-ano" class="field-input">
-              <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
+              <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
             </select>
           </div>
           <div><label class="field-label">Operador</label>
@@ -634,11 +669,26 @@
     <!-- OPERADOR: INICIO -->
     <div class="section" id="sec-op-inicio">
       <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
+	  <!-- ALERTA BANNER OPERADOR (3PM) -->
+		<div id="op-alert-banner" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;color:#B91C1C;">
+		  <div style="display:flex;align-items:center;gap:0.75rem;">
+			<i class="fa-solid fa-triangle-exclamation" style="font-size:1.3rem;color:#EF4444;"></i>
+			<div>
+			  <div style="font-weight:700;font-size:0.95rem;">⚠️ Registro pendiente para hoy</div>
+			  <div style="font-size:0.85rem;opacity:0.9;">Son las <span id="alert-time"></span>. Recuerda registrar tus movimientos para cumplir tu meta diaria (${META_DIARIA} mov.).</div>
+			</div>
+		  </div>
+		</div>
         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
           <div style="width:56px;height:56px;cursor:pointer;" id="op-avatar-big" onclick="openProfileModal()" title="Ver mi perfil"></div>
           <div>
             <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;" id="op-welcome">¡Bienvenido!</h2>
             <p style="color:var(--text-muted);font-size:0.875rem;" id="op-sucursal-info">Sucursal: —</p>
+			<div id="op-alert-banner" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;color:#DC2626;">
+			  <div style="display:flex;align-items:center;gap:0.75rem;"><i class="fa-solid fa-triangle-exclamation"></i><div><div style="font-weight:700;font-size:0.9rem;">⚠️ Registro pendiente para hoy</div><div style="font-size:0.8rem;">Son las <span id="alert-time"></span>. Recuerda registrar tus movimientos.</div></div></div>
+			</div>
+			<div id="op-date-status" style="font-size:0.9rem;color:var(--text-muted);margin-top:0.5rem;font-weight:500;"></div>
+			<div id="op-date-status" style="font-size:0.9rem;color:var(--text-muted);margin-top:0.5rem;font-weight:500;"></div>
           </div>
         </div>
       </div>
@@ -647,7 +697,7 @@
         <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mis últimos registros</h3>
         <div style="overflow-x:auto;">
           <table class="premium-table">
-            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Clasificación</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th></tr></thead>
             <tbody id="op-recent-tbody"></tbody>
           </table>
         </div>
@@ -679,6 +729,8 @@
           </div>
 
           <div><label class="field-label">Participación del día (ganancia $)</label><input type="number" id="reg-participacion" class="field-input" placeholder="Ej: 50000" min="0"/></div>
+		  <div style="margin-top:1rem;"><label class="field-label">Notas / Observaciones (opcional)</label>
+          <textarea id="reg-notas" class="field-input" placeholder="Ej: Día festivo, afluencia baja, cierre anticipado..." rows="2" style="resize:none;font-family:'Inter',sans-serif;"></textarea></div>
 
           <button class="btn-primary" onclick="guardarRegistro()" style="width:100%;justify-content:center;padding:0.9rem;" id="btn-guardar-reg">
             <i class="fa-solid fa-save"></i> Guardar Registro
@@ -692,7 +744,7 @@
       <div class="glass-card" style="overflow:hidden;">
         <div style="overflow-x:auto;">
           <table class="premium-table">
-            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Clasificación</th><th>Creado</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th><th>Creado</th></tr></thead>
             <tbody id="op-registros-tbody"></tbody>
           </table>
         </div>
@@ -799,6 +851,8 @@
       <div><label class="field-label">Fecha</label><input type="date" id="edit-reg-fecha" class="field-input"/></div>
       <div><label class="field-label">Movimientos</label><input type="number" id="edit-reg-movimientos" class="field-input" min="0"/></div>
       <div><label class="field-label">Participación</label><input type="number" id="edit-reg-participacion" class="field-input" min="0"/></div>
+	  <div style="margin-top:1rem;"><label class="field-label">Notas</label>
+	  <textarea id="edit-reg-notas" class="field-input" rows="2" style="resize:none;font-family:'Inter',sans-serif;"></textarea></div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
         <button class="btn-secondary" onclick="closeModal('modal-registro')">Cancelar</button>
         <button class="btn-primary" onclick="updateRegistro()"><i class="fa-solid fa-save"></i> Guardar</button>
@@ -809,7 +863,7 @@
 
 <!-- Modal: PERFIL PREMIUM -->
 <div id="modal-profile" class="modal-overlay" style="display:none;">
-  <div class="modal-box" style="max-width:740px;max-height:92vh;overflow-y:auto;padding:0;background:transparent;border:none;box-shadow:none;">
+  <div class="modal-box" style="max-width:960px;max-height:92vh;overflow-y:auto;padding:0;background:transparent;border:none;box-shadow:none;">
     <!-- Header Gradient -->
     <div style="background:linear-gradient(135deg,#2563EB 0%,#7C3AED 50%,#EC4899 100%);border-radius:1.5rem 1.5rem 0 0;padding:2rem 2rem 1.25rem;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:rgba(255,255,255,0.1);border-radius:50%;filter:blur(60px);"></div>
@@ -817,32 +871,30 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <div style="display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;">
-        <!-- Avatar -->
-        <div style="position:relative;display:inline-block;">
-          <div style="position:absolute;inset:-3px;background:linear-gradient(135deg,#fff,rgba(255,255,255,0.4));border-radius:50%;"></div>
-          <div id="profile-avatar-premium" style="position:relative;width:88px;height:88px;border-radius:50%;border:3px solid white;box-shadow:0 8px 24px rgba(0,0,0,0.3);overflow:hidden;cursor:pointer;" onclick="document.getElementById('profile-photo-input-premium').click()" title="Cambiar foto"></div>
-          <label for="profile-photo-input-premium" style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:2;">
-            <i class="fa-solid fa-camera" style="color:#2563EB;font-size:0.7rem;"></i>
-          </label>
-          <input type="file" id="profile-photo-input-premium" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)"/>
-        </div>
-
-        <!-- Info -->
-        <div style="color:white;flex:1;">
-          <div id="profile-greeting" style="font-size:0.8rem;opacity:0.85;margin-bottom:0.2rem;"></div>
-          <h2 id="profile-name-display" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.4rem;margin:0;"></h2>
-          <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-            <span id="profile-role-badge" class="badge" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);font-size:0.75rem;"></span>
-            <span id="profile-status-badge" style="font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;color:rgba(255,255,255,0.9);"></span>
-          </div>
-        </div>
-
-        <!-- Botón cerrar sesión -->
-        <button onclick="doLogout()" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:0.75rem;padding:0.6rem 1rem;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'" title="Cerrar sesión">
-          <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
-        </button>
-      </div>
+		<div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+			<!-- Avatar -->
+			<div style="position:relative;display:inline-block;">
+				<div style="position:absolute;inset:-3px;background:linear-gradient(135deg,#fff,rgba(255,255,255,0.4));border-radius:50%;"></div>
+				<div id="profile-avatar-premium" style="position:relative;width:88px;height:88px;border-radius:50%;border:3px solid white;box-shadow:0 8px 24px rgba(0,0,0,0.3);overflow:hidden;cursor:pointer;" onclick="document.getElementById('profile-photo-input-premium').click()" title="Cambiar foto"></div>
+				<label for="profile-photo-input-premium" style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:2;">
+					<i class="fa-solid fa-camera" style="color:#2563EB;font-size:0.7rem;"></i>
+				</label>
+				<input type="file" id="profile-photo-input-premium" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)"/>
+			</div>
+			<!-- Info -->
+			<div style="color:white;flex:1;">
+				<div id="profile-greeting" style="font-size:0.8rem;opacity:0.85;margin-bottom:0.2rem;"></div>
+				<h2 id="profile-name-display" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.4rem;margin:0;"></h2>
+				<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+					<span id="profile-role-badge" class="badge" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);font-size:0.75rem;"></span>
+					<span id="profile-status-badge" style="font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;color:rgba(255,255,255,0.9);"></span>
+				</div>
+			</div>
+			<!-- Botón cerrar sesión CORREGIDO -->
+			<button onclick="doLogout()" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:0.75rem;padding:0.6rem 1rem;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s; position:relative; z-index:10; flex-shrink:0;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'" title="Cerrar sesión">
+				<i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+			</button>
+		</div>
     </div>
 
     <!-- Contenido -->
@@ -887,6 +939,10 @@
             <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#22C55E;" id="stat-avg-daily">0</div>
             <div style="font-size:0.75rem;color:var(--text-muted);">Promedio diario</div>
           </div>
+		  <div class="glass-card" style="padding:1rem;text-align:center;border:1px solid rgba(250,204,21,0.2);background:rgba(250,204,21,0.05);">
+			<div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#FACC15;" id="stat-streak">0 🔥</div>
+			<div style="font-size:0.75rem;color:var(--text-muted);">Racha días óptimos</div>
+		  </div>
           <div class="glass-card" style="padding:1rem;text-align:center;">
             <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#7C3AED;" id="stat-compliance">0%</div>
             <div style="font-size:0.75rem;color:var(--text-muted);">Cumplimiento meta</div>
@@ -1020,6 +1076,26 @@
   </div>
 </div>
 
+<!-- Modal: Centro de Ayuda -->
+<div id="modal-help" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:740px;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;"><i class="fa-solid fa-circle-question" style="color:#2563EB;margin-right:0.5rem;"></i>Guía de Uso</h3>
+      <button onclick="closeModal('modal-help')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="help-modal-content" style="line-height:1.6;"></div>
+    
+    <!-- 👉 Firma Profesional -->
+    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--card-border);text-align:center;">
+      <div style="font-size:0.75rem;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:0.25rem;">DESARROLLADO Y ARQUITECTADO POR</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;color:#2563EB;margin-bottom:0.3rem;">ING. SANTIAGO ESCORCIA CARLOS ANDRÉS</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);border-top:1px dashed rgba(37,99,235,0.2);display:inline-block;padding-top:0.4rem;margin-top:0.2rem;">
+        contacto · ✆ 315-238-0960
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Inactivity Warning -->
 <div id="inactivity-warning">
   <div id="inactivity-box">
@@ -1031,6 +1107,10 @@
       <button class="btn-secondary" onclick="doLogout()">Cerrar sesión</button>
     </div>
   </div>
+</div>
+<div id="success-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:9998;align-items:center;justify-content:center;flex-direction:column;gap:1rem;">
+  <div style="font-size:5rem;color:#22C55E;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">✅</div>
+  <div style="font-size:1.2rem;font-weight:700;color:#0F172A;">¡Guardado correctamente!</div>
 </div>
 
 <div id="toast-container"></div>
@@ -1135,6 +1215,11 @@ function toast(msg, type = 'info') {
   t.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:1.1rem;flex-shrink:0;"></i> <span>${msg}</span>`;
   c.appendChild(t);
   setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(40px)'; t.style.transition='0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+function showSkeletons(containerId, count=4, type='card') {
+    const c = document.getElementById(containerId); 
+    if(!c) return;
+    c.innerHTML = Array(count).fill().map(() => `<div class="skeleton skeleton-${type}"></div>`).join('');
 }
 function formatCurrency(n) { return '$' + (n||0).toLocaleString('es-CO'); }
 function formatDate(d) { if(!d) return '-'; const p=d.split('T')[0].split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
@@ -1369,15 +1454,61 @@ window.addEventListener('load', async () => {
     
     const fechaInput = document.getElementById('reg-fecha');
     if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
-});
 
-// Escuchar cambios de auth (incluyendo recovery)
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'PASSWORD_RECOVERY') {
-    document.getElementById('login-page').style.display='flex';
-    document.getElementById('app').style.display='none';
-    showReset();
-  }
+    // 👉 MEJORA: Fechas inteligentes y filtros dinámicos (año/mes actual)
+    const now = new Date();
+    const currentYear = now.getFullYear().toString();
+    const currentMonth = (now.getMonth() + 1).toString();
+    const todayISO = now.toISOString().split('T')[0];
+
+    // Establecer AÑO ACTUAL en todos los filtros de año
+    ['filter-ano','top-filter-ano','rpt-ano'].forEach(id => {
+        const el = document.getElementById(id); 
+        if(el && !el.value) el.value = currentYear;
+    });
+    // Establecer MES ACTUAL en todos los filtros de mes
+    ['filter-mes','top-filter-mes','rpt-mes'].forEach(id => {
+        const el = document.getElementById(id); 
+        if(el && !el.value) el.value = currentMonth;
+    });
+    // Fecha de hoy en filtros de día específico
+    ['filter-dia-especifico','top-filter-dia'].forEach(id => {
+        const el = document.getElementById(id); 
+        if(el && !el.value) el.value = todayISO;
+    });
+
+    // 👉 MEJORA: Favicon (si no existe ya)
+    if (!document.querySelector('link[rel="icon"]')) {
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = 'logo.png';
+        link.type = 'image/png';
+        document.head.appendChild(link);
+    }
+
+    // 👉 MEJORA: Banner offline (si no existe ya)
+    if (!document.getElementById('offline-banner')) {
+        const banner = document.createElement('div');
+        banner.id = 'offline-banner';
+        banner.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;background:#EF4444;color:white;text-align:center;padding:0.6rem;font-size:0.85rem;font-weight:600;z-index:10001;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+        banner.innerHTML = '⚠️ Sin conexión — los datos pueden no estar actualizados';
+        document.body.insertBefore(banner, document.body.firstChild);
+    }
+    // Listener para conexión
+    function updateConnectionStatus() {
+        const banner = document.getElementById('offline-banner');
+        const main = document.getElementById('main-content');
+        if (!navigator.onLine) {
+            if(banner) banner.style.display = 'block';
+            if(main) main.style.paddingTop = '2.5rem';
+        } else {
+            if(banner) banner.style.display = 'none';
+            if(main) main.style.paddingTop = '1.5rem';
+        }
+    }
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    updateConnectionStatus();
 });
 
 // =====================================================
@@ -1441,6 +1572,9 @@ async function initApp(user) {
     
     // Cargar plataformas (datos compartidos entre admins)
     await loadPlataformas();
+	
+	// 👉 Inicializar fechas inteligentes en tiempo real
+	initSmartDates();
     
     // Configurar navegación según rol
     if (role === 'administrador') {
@@ -1517,18 +1651,29 @@ const sectionMap = {
 };
 
 function goSection(key) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  const sec = sectionMap[key];
-  if (!sec) return;
-  document.getElementById(sec.id).classList.add('active');
-  document.getElementById('page-title').textContent = sec.title;
-  document.getElementById('page-subtitle').textContent = sec.sub;
-  document.querySelectorAll('.nav-item').forEach(n => {
-    n.classList.remove('active');
-    if (n.textContent.trim().includes(sec.title)) n.classList.add('active');
-  });
-  if (sec.load) sec.load();
-  if (window.innerWidth < 768) closeSidebar();
+    // 🔒 Seguridad: Bloquear acceso a Auditoría si no es administrador
+    if (key === 'auditoria' && currentProfile?.rol !== 'administrador') {
+        toast('Acceso restringido', 'error');
+        goSection('dashboard');
+        return;
+    }
+
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const sec = sectionMap[key];
+    if (!sec) return;
+    
+    document.getElementById(sec.id).classList.add('active');
+	document.title = `${sec.title} | Haliel Papelería`;
+    document.getElementById('page-title').textContent = sec.title;
+    document.getElementById('page-subtitle').textContent = sec.sub;
+    
+    document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('active');
+        if (n.textContent.trim().includes(sec.title)) n.classList.add('active');
+    });
+    
+    if (sec.load) sec.load();
+    if (window.innerWidth < 768) closeSidebar();
 }
 
 // =====================================================
@@ -1591,96 +1736,147 @@ function getTotalFromPlatData(platData) {
 }
 
 function renderPlataformas() {
-  const grid = document.getElementById('plataformas-grid');
-  if (!allPlataformas.length) { grid.innerHTML='<div class="empty-state"><i class="fa-solid fa-layer-group"></i><p>No hay plataformas</p></div>'; return; }
-  grid.innerHTML = allPlataformas.map(p => `
+    const grid = document.getElementById('plataformas-grid');
+    if (!allPlataformas.length) { grid.innerHTML='<div class="empty-state"><i class="fa-solid fa-layer-group"></i><p>No hay plataformas</p></div>'; return; }
+    grid.innerHTML = allPlataformas.map(p => `
     <div class="glass-card" style="padding:1.5rem;">
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-        <div style="width:44px;height:44px;border-radius:0.875rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;">
-          <div style="width:16px;height:16px;border-radius:50%;background:${p.color};"></div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div style="width:44px;height:44px;border-radius:0.875rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;">
+                <div style="width:16px;height:16px;border-radius:50%;background:${p.color};"></div>
+            </div>
+            <div style="font-weight:700;font-family:'Poppins',sans-serif;">${p.nombre}</div>
         </div>
-        <div style="font-weight:700;font-family:'Poppins',sans-serif;">${p.nombre}</div>
-      </div>
-      <div style="display:flex;gap:0.5rem;">
-        <button class="btn-danger" onclick="deletePlataforma('${p.id}')"><i class="fa-solid fa-trash"></i> Eliminar</button>
-      </div>
+        <div style="display:flex;gap:0.5rem;">
+            <!-- 👉 Botón de Editar agregado aquí -->
+            <button class="btn-edit" onclick="openModalPlataforma('${p.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
+            <button class="btn-danger" onclick="deletePlataforma('${p.id}')"><i class="fa-solid fa-trash"></i> Eliminar</button>
+        </div>
     </div>
-  `).join('');
-  loadPlataformasStats();
+    `).join('');
+    loadPlataformasStats();
 }
 
 async function loadPlataformasStats() {
-  const { data } = await sb.from('registros').select('plataformas_data').not('plataformas_data', 'is', null);
-  const stats = {};
-  allPlataformas.forEach(p => { stats[p.nombre] = 0; });
-  (data || []).forEach(r => {
-    if (r.plataformas_data) {
-      Object.entries(r.plataformas_data).forEach(([nombre, val]) => {
-        if (stats[nombre] !== undefined) stats[nombre] += val || 0;
-        else stats[nombre] = val || 0;
-      });
+    try {
+        // 👉 Usamos select('*') para evitar problemas con campos JSON
+        const { data, error } = await sb.from('registros').select('*');
+        
+        if (error) {
+            console.error('❌ Error al cargar registros:', error);
+            toast('Error: ' + error.message, 'error');
+            return;
+        }
+        
+        const stats = {};
+        // Inicializar contadores para cada plataforma
+        allPlataformas.forEach(p => { stats[p.nombre] = 0; });
+        
+        // Procesar datos en JavaScript
+        (data || []).forEach(r => {
+            if (r.plataformas_data && typeof r.plataformas_data === 'object') {
+                Object.entries(r.plataformas_data).forEach(([nombre, val]) => {
+                    if (stats[nombre] !== undefined) stats[nombre] += val || 0;
+                    else stats[nombre] = val || 0;
+                });
+            }
+        });
+        
+        const container = document.getElementById('plataformas-stats');
+        if (!container) return;
+        
+        const total = Object.values(stats).reduce((a, v) => a + v, 0);
+        
+        container.innerHTML = Object.entries(stats).map(([nombre, val]) => {
+            const p = allPlataformas.find(x => x.nombre === nombre);
+            const pct = total ? Math.round((val / total) * 100) : 0;
+            return `
+            <div style="margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:${p?.color||'#2563EB'};display:inline-block;"></span>
+                        <span style="font-size:0.875rem;font-weight:600;">${nombre}</span>
+                    </div>
+                    <div style="display:flex;gap:1rem;font-size:0.8rem;">
+                        <span style="font-weight:700;">${val.toLocaleString()} mov.</span>
+                        <span style="color:var(--text-muted);">${pct}%</span>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${p?.color||'#2563EB'};"></div></div>
+            </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('💥 Error inesperado:', err);
+        toast('Error inesperado: ' + err.message, 'error');
     }
-  });
-  const container = document.getElementById('plataformas-stats');
-  if (!container) return;
-  const total = Object.values(stats).reduce((a, v) => a + v, 0);
-  container.innerHTML = Object.entries(stats).map(([nombre, val]) => {
-    const p = allPlataformas.find(x => x.nombre === nombre);
-    const pct = total ? Math.round((val / total) * 100) : 0;
-    return `
-      <div style="margin-bottom:1rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
-          <div style="display:flex;align-items:center;gap:0.5rem;">
-            <span style="width:10px;height:10px;border-radius:50%;background:${p?.color||'#2563EB'};display:inline-block;"></span>
-            <span style="font-size:0.875rem;font-weight:600;">${nombre}</span>
-          </div>
-          <div style="display:flex;gap:1rem;font-size:0.8rem;">
-            <span style="font-weight:700;">${val.toLocaleString()} mov.</span>
-            <span style="color:var(--text-muted);">${pct}%</span>
-          </div>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${p?.color||'#2563EB'};"></div></div>
-      </div>
-    `;
-  }).join('');
 }
 
 function openModalPlataforma(id = null) {
-  editingPlatId = id;
-  document.getElementById('modal-plat-title').textContent = id ? 'Editar Plataforma' : 'Nueva Plataforma';
-  document.getElementById('plat-nombre').value = '';
-  document.getElementById('plat-color').value = '#2563EB';
-  if (id) {
-    const p = allPlataformas.find(x => x.id === id);
-    if (p) { document.getElementById('plat-nombre').value = p.nombre; document.getElementById('plat-color').value = p.color; }
-  }
-  openModal('modal-plataforma');
+    editingPlatId = id;
+    document.getElementById('modal-plat-title').textContent = id ? 'Editar Plataforma' : 'Nueva Plataforma';
+    document.getElementById('plat-nombre').value = '';
+    document.getElementById('plat-color').value = '#2563EB'; // Valor por defecto seguro
+    
+    if (id) {
+        const p = allPlataformas.find(x => x.id === id);
+        if (p) {
+            document.getElementById('plat-nombre').value = p.nombre;
+            // 👉 Fallback por si el color está vacío en BD
+            document.getElementById('plat-color').value = p.color || '#2563EB'; 
+        }
+    }
+    openModal('modal-plataforma');
 }
 
 async function savePlataforma() {
-  const nombre = document.getElementById('plat-nombre').value.trim().toUpperCase();
-  const color = document.getElementById('plat-color').value;
-  if (!nombre) { toast('El nombre es requerido', 'error'); return; }
-  if (editingPlatId) {
-    await sb.from('plataformas').update({ nombre, color }).eq('id', editingPlatId);
-    toast('Plataforma actualizada', 'success');
-  } else {
-    await sb.from('plataformas').insert({ nombre, color });
-    toast('Plataforma creada', 'success');
-  }
-  closeModal('modal-plataforma');
-  await loadPlataformas();
-  buildPlataformaInputs();
-  renderPlataformas();
+    const nombre = document.getElementById('plat-nombre').value.trim().toUpperCase();
+    const color = document.getElementById('plat-color').value;
+    if (!nombre) { toast('El nombre es requerido', 'error'); return; }
+
+    let result;
+    if (editingPlatId) {
+        result = await sb.from('plataformas').update({ nombre, color }).eq('id', editingPlatId);
+    } else {
+        result = await sb.from('plataformas').insert({ nombre, color });
+    }
+
+    if (result.error) {
+        console.error('❌ Error Supabase:', result.error);
+        toast('Error: ' + result.error.message, 'error');
+        return;
+    }
+
+    // 👉 LOG DE AUDITORÍA PARA PLATAFORMAS
+    const accion = editingPlatId ? 'editar' : 'crear';
+    const descripcion = editingPlatId 
+        ? `Plataforma ${nombre} actualizada` 
+        : `Plataforma ${nombre} creada`;
+    await logAuditoria(accion, descripcion);
+
+    toast(editingPlatId ? 'Plataforma actualizada' : 'Plataforma creada', 'success');
+    closeModal('modal-plataforma');
+    await loadPlataformas();
+    buildPlataformaInputs();
+    renderPlataformas();
 }
 
 async function deletePlataforma(id) {
-  if (!confirm('¿Eliminar esta plataforma?')) return;
-  await sb.from('plataformas').delete().eq('id', id);
-  toast('Plataforma eliminada', 'success');
-  await loadPlataformas();
-  buildPlataformaInputs();
-  renderPlataformas();
+    if (!confirm('¿Eliminar esta plataforma?')) return;
+    
+    // 👉 Buscar nombre antes de eliminar para la auditoría
+    const platToDelete = allPlataformas.find(p => p.id === id);
+    const platNombre = platToDelete ? platToDelete.nombre : id;
+    
+    const { error } = await sb.from('plataformas').delete().eq('id', id);
+    if (error) { toast('Error al eliminar', 'error'); return; }
+    
+    // 👉 LOG DE AUDITORÍA
+    await logAuditoria('eliminar', `Plataforma ${platNombre} eliminada`);
+    
+    toast('Plataforma eliminada', 'success');
+    await loadPlataformas();
+    buildPlataformaInputs();
+    renderPlataformas();
 }
 
 function platDataBadges(platData) {
@@ -1824,12 +2020,22 @@ async function saveOperador() {
 }
 
 async function deleteOperador(id) {
-  if (!confirm('¿Eliminar este usuario?')) return;
-  const { error } = await sb.from('usuarios').delete().eq('id', id);
-  if (error) { toast('Error al eliminar','error'); return; }
-  toast('Usuario eliminado','success');
-  await logAuditoria('eliminar', `Usuario ${id} eliminado`);
-  loadAllUsers();
+    if (!confirm('¿Eliminar este usuario?')) return;
+    
+    // 👉 Buscar el usuario en la lista cargada para obtener su nombre/correo antes de eliminarlo
+    const userToDelete = allOperadores.find(u => u.id === id);
+    const userIdentifier = userToDelete ? (userToDelete.nombre || userToDelete.correo) : id;
+
+    // Ejecutar la eliminación en Supabase
+    const { error } = await sb.from('usuarios').delete().eq('id', id);
+    if (error) { toast('Error al eliminar','error'); return; }
+    
+    toast('Usuario eliminado','success');
+    
+    // 👉 Usar el nombre/correo guardado en la auditoría en lugar del ID crudo
+    await logAuditoria('eliminar', `Usuario ${userIdentifier} eliminado`);
+    
+    loadAllUsers();
 }
 
 // =====================================================
@@ -1844,66 +2050,150 @@ function openModalSucursal(id=null) {
 }
 
 async function saveSucursal() {
-  const nombre = document.getElementById('suc-nombre').value.trim();
-  const direccion = document.getElementById('suc-direccion').value.trim();
-  if (!nombre) { toast('El nombre es requerido','error'); return; }
-  if (editingSucId) { await sb.from('sucursales').update({nombre,direccion}).eq('id',editingSucId); toast('Sucursal actualizada','success'); }
-  else { await sb.from('sucursales').insert({nombre,direccion}); toast('Sucursal creada','success'); }
-  closeModal('modal-sucursal');
-  await loadSucursales();
-  renderSucursales();
+    const nombre = document.getElementById('suc-nombre').value.trim();
+    const direccion = document.getElementById('suc-direccion').value.trim();
+    if (!nombre) { toast('El nombre es requerido','error'); return; }
+    
+    if (editingSucId) { 
+        await sb.from('sucursales').update({nombre,direccion}).eq('id',editingSucId); 
+        // 👉 LOG DE AUDITORÍA
+        await logAuditoria('editar', `Sucursal ${nombre} actualizada`);
+        toast('Sucursal actualizada','success'); 
+    } else { 
+        await sb.from('sucursales').insert({nombre,direccion}); 
+        // 👉 LOG DE AUDITORÍA
+        await logAuditoria('crear', `Sucursal ${nombre} creada`);
+        toast('Sucursal creada','success'); 
+    }
+    closeModal('modal-sucursal');
+    await loadSucursales();
+    renderSucursales();
 }
 
 async function deleteSucursal(id) {
-  if (!confirm('¿Eliminar esta sucursal?')) return;
-  await sb.from('sucursales').delete().eq('id',id);
-  toast('Sucursal eliminada','success');
-  await loadSucursales();
-  renderSucursales();
+    if (!confirm('¿Eliminar esta sucursal?')) return;
+    
+    // 👉 Buscar nombre antes de eliminar
+    const sucToDelete = allSucursales.find(s => s.id === id);
+    const sucNombre = sucToDelete ? sucToDelete.nombre : id;
+    
+    await sb.from('sucursales').delete().eq('id',id);
+    
+    // 👉 LOG DE AUDITORÍA
+    await logAuditoria('eliminar', `Sucursal ${sucNombre} eliminada`);
+    
+    toast('Sucursal eliminada','success');
+    await loadSucursales();
+    renderSucursales();
 }
 
 // =====================================================
 // DASHBOARD
 // =====================================================
 async function loadDashboard() {
-  const mes = document.getElementById('filter-mes')?.value;
-  const ano = document.getElementById('filter-ano')?.value||'2025';
-  const sucFil = document.getElementById('filter-sucursal-dash')?.value;
+	showSkeletons('stats-grid', 4, 'card');
+    const vista = document.getElementById('dash-vista')?.value || 'mes';
+    const sucFil = document.getElementById('filter-sucursal-dash')?.value;
+    let query = sb.from('registros').select('*').order('fecha', {ascending:true});
 
-  let query = sb.from('registros').select('*').order('fecha', {ascending:true});
-  if (mes) { const start=`${ano}-${mes.padStart(2,'0')}-01`; const end=new Date(ano,mes,0).toISOString().split('T')[0]; query=query.gte('fecha',start).lte('fecha',end); }
-  else { query=query.gte('fecha',`${ano}-01-01`).lte('fecha',`${ano}-12-31`); }
-  if (sucFil) query=query.eq('sucursal',sucFil);
+    if (vista === 'dia') {
+        const dia = document.getElementById('filter-dia-especifico')?.value;
+        if (dia) query = query.eq('fecha', dia);
+    } else {
+        const mes = document.getElementById('filter-mes')?.value;
+        const ano = document.getElementById('filter-ano')?.value || new Date().getFullYear().toString();
+        if (mes) {
+            const start = `${ano}-${mes.padStart(2,'0')}-01`;
+            const end = new Date(ano, mes, 0).toISOString().split('T')[0];
+            query = query.gte('fecha', start).lte('fecha', end);
+        } else {
+            query = query.gte('fecha', `${ano}-01-01`).lte('fecha', `${ano}-12-31`);
+        }
+    }
+    if (sucFil) query = query.eq('sucursal', sucFil);
+    const { data } = await query;
+    allRegistros = data || [];
 
-  const { data } = await query;
-  allRegistros = data || [];
+    // 👉 CONSULTA MES ANTERIOR (para comparación)
+    const mes = document.getElementById('filter-mes')?.value;
+    const ano = document.getElementById('filter-ano')?.value || '2025';
+    let prevQuery = sb.from('registros').select('movimientos,participacion');
+    if (mes) {
+        let prevMes = parseInt(mes) - 1; let prevAno = parseInt(ano);
+        if (prevMes < 1) { prevMes = 12; prevAno--; }
+        const start = `${prevAno}-${String(prevMes).padStart(2,'0')}-01`;
+        const end = new Date(prevAno, prevMes, 0).toISOString().split('T')[0];
+        prevQuery = prevQuery.gte('fecha', start).lte('fecha', end);
+    } else {
+        prevQuery = prevQuery.gte('fecha', `${parseInt(ano)-1}-01-01`).lte('fecha', `${parseInt(ano)-1}-12-31`);
+    }
+    if (sucFil) prevQuery = prevQuery.eq('sucursal', sucFil);
+    const { data: prevData } = await prevQuery;
 
-  renderStatCards(allRegistros);
-  renderCharts(allRegistros);
-  renderRanking(allRegistros);
-  renderMetas(allRegistros);
-  renderPlataformasChart(allRegistros);
+    renderStatCards(allRegistros, prevData || []);
+    renderWeeklySummary(allRegistros); // 👉 NUEVO: Resumen semanal
+    renderCharts(allRegistros);
+    renderRanking(allRegistros);
+    renderMetas(allRegistros);
+    renderPlataformasChart(allRegistros);
 }
 
-function renderStatCards(data) {
-  const totalMov = data.reduce((a,r)=>a+(r.movimientos||0),0);
-  const totalPart = data.reduce((a,r)=>a+(r.participacion||0),0);
-  const avgMov = data.length ? Math.round(totalMov/data.length) : 0;
-  const mejorDia = data.reduce((a,r)=>r.movimientos>(a?.movimientos||0)?r:a,null);
-  const cards = [
-    {label:'Total Movimientos',value:totalMov.toLocaleString(),icon:'fa-arrows-up-down',color:'#2563EB',bg:'rgba(37,99,235,0.1)',sub:`${data.length} registros`},
-    {label:'Total Participación',value:formatCurrency(totalPart),icon:'fa-dollar-sign',color:'#22C55E',bg:'rgba(34,197,94,0.1)',sub:`Prom: ${formatCurrency(Math.round(totalPart/(data.length||1)))}`},
-    {label:'Promedio Diario',value:avgMov,icon:'fa-chart-line',color:'#7C3AED',bg:'rgba(124,58,237,0.1)',sub:`Meta: ${META_DIARIA} mov.`},
-    {label:'Mejor Día',value:mejorDia?mejorDia.movimientos:0,icon:'fa-trophy',color:'#FACC15',bg:'rgba(250,204,21,0.1)',sub:mejorDia?formatDate(mejorDia.fecha):'-'},
-  ];
-  document.getElementById('stats-grid').innerHTML = cards.map(c=>`
+function renderStatCards(data, prevData = []) {
+    const totalMov = data.reduce((a,r)=>a+(r.movimientos||0),0);
+    const totalPart = data.reduce((a,r)=>a+(r.participacion||0),0);
+    const prevMov = prevData.reduce((a,r)=>a+(r.movimientos||0),0);
+    const prevPart = prevData.reduce((a,r)=>a+(r.participacion||0),0);
+
+    const movPct = prevMov > 0 ? Math.round(((totalMov - prevMov) / prevMov) * 100) : (totalMov > 0 ? 100 : 0);
+    const partPct = prevPart > 0 ? Math.round(((totalPart - prevPart) / prevPart) * 100) : (totalPart > 0 ? 100 : 0);
+    
+    const movBadge = movPct > 0 ? `<span style="color:#22C55E;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-up"></i> +${movPct}% vs mes ant.</span>` :
+                     movPct < 0 ? `<span style="color:#EF4444;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-down"></i> ${movPct}% vs mes ant.</span>` : '';
+    const partBadge = partPct > 0 ? `<span style="color:#22C55E;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-up"></i> +${partPct}% vs mes ant.</span>` :
+                      partPct < 0 ? `<span style="color:#EF4444;font-size:0.75rem;margin-left:0.5rem;"><i class="fa-solid fa-arrow-down"></i> ${partPct}% vs mes ant.</span>` : '';
+
+    const avgMov = data.length ? Math.round(totalMov/data.length) : 0;
+    const mejorDia = data.reduce((a,r)=>r.movimientos>(a?.movimientos||0)?r:a,null);
+    
+    const cards = [
+        {label:'Total Movimientos',value:totalMov.toLocaleString(),icon:'fa-arrows-up-down',color:'#2563EB',bg:'rgba(37,99,235,0.1)',sub:`${data.length} registros ${movBadge}`},
+        {label:'Total Participación',value:formatCurrency(totalPart),icon:'fa-dollar-sign',color:'#22C55E',bg:'rgba(34,197,94,0.1)',sub:`Prom: ${formatCurrency(Math.round(totalPart/(data.length||1)))} ${partBadge}`},
+        {label:'Promedio Diario',value:avgMov,icon:'fa-chart-line',color:'#7C3AED',bg:'rgba(124,58,237,0.1)',sub:`Meta: ${META_DIARIA} mov.`},
+        {label:'Mejor Día',value:mejorDia?mejorDia.movimientos:0,icon:'fa-trophy',color:'#FACC15',bg:'rgba(250,204,21,0.1)',sub:mejorDia?formatDate(mejorDia.fecha):'-'},
+    ];
+    document.getElementById('stats-grid').innerHTML = cards.map(c=>`
     <div class="stat-card">
-      <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
-      <div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;">${c.value}</div>
-      <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
-      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${c.sub}</div>
+        <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
+        <div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;line-height:1;">${c.value}</div>
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${c.sub}</div>
     </div>
-  `).join('');
+    `).join('');
+}
+
+function renderWeeklySummary(data) {
+    const container = document.getElementById('weekly-summary-container');
+    if (!container) return;
+    
+    const weeks = {};
+    data.forEach(r => {
+        if (!r.fecha) return;
+        const day = parseInt(r.fecha.split('-')[2]);
+        const weekNum = Math.ceil(day / 7); // Agrupa 1-7=Sem1, 8-14=Sem2, etc.
+        const key = `Semana ${weekNum}`;
+        if (!weeks[key]) weeks[key] = { mov: 0, part: 0 };
+        weeks[key].mov += r.movimientos || 0;
+        weeks[key].part += r.participacion || 0;
+    });
+
+    const sorted = Object.entries(weeks).sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}));
+    container.innerHTML = sorted.length ? sorted.map(([sem, totals]) => `
+        <div class="glass-card" style="padding:1rem;text-align:center;flex:1;min-width:130px;box-shadow:var(--shadow-card);">
+            <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">${sem}</div>
+            <div style="font-size:1.25rem;font-weight:800;font-family:'Poppins',sans-serif;color:#2563EB;">${totals.mov.toLocaleString()}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">mov. · ${formatCurrency(totals.part)}</div>
+        </div>
+    `).join('') : '<div style="color:var(--text-muted);padding:1rem;text-align:center;width:100%;">Sin datos para el período</div>';
 }
 
 function renderPlataformasChart(data) {
@@ -2047,12 +2337,24 @@ function renderMetas(data) {
 // TOP DÍAS
 // =====================================================
 async function loadTopDias() {
-  const mes = document.getElementById('top-filter-mes')?.value;
-  const ano = document.getElementById('top-filter-ano')?.value||'2025';
+  const vista = document.getElementById('top-vista')?.value || 'mes';
 
   let query = sb.from('registros').select('*').order('movimientos', {ascending:false});
-  if (mes) { const start=`${ano}-${mes.padStart(2,'0')}-01`; const end=new Date(ano,mes,0).toISOString().split('T')[0]; query=query.gte('fecha',start).lte('fecha',end); }
-  else { query=query.gte('fecha',`${ano}-01-01`).lte('fecha',`${ano}-12-31`); }
+
+  if (vista === 'dia') {
+    const dia = document.getElementById('top-filter-dia')?.value;
+    if (dia) query = query.eq('fecha', dia);
+  } else {
+    const mes = document.getElementById('top-filter-mes')?.value;
+    const ano = document.getElementById('top-filter-ano')?.value || new Date().getFullYear().toString();
+    if (mes) {
+      const start = `${ano}-${mes.padStart(2,'0')}-01`;
+      const end = new Date(ano, mes, 0).toISOString().split('T')[0];
+      query = query.gte('fecha', start).lte('fecha', end);
+    } else {
+      query = query.gte('fecha', `${ano}-01-01`).lte('fecha', `${ano}-12-31`);
+    }
+  }
 
   const { data } = await query;
   const all = data || [];
@@ -2069,7 +2371,6 @@ async function loadTopDias() {
   const mejorDia = all[0];
   const peorDia = [...all].sort((a,b)=>a.movimientos-b.movimientos)[0];
 
-  // Mes top: agrupar por mes
   const byMonth={};
   all.forEach(r=>{const m=r.fecha?.substring(0,7);if(!m)return;if(!byMonth[m])byMonth[m]=0;byMonth[m]+=r.movimientos||0;});
   const topMes=Object.entries(byMonth).sort((a,b)=>b[1]-a[1])[0];
@@ -2121,6 +2422,7 @@ async function loadTopDias() {
 // REGISTROS (Admin)
 // =====================================================
 async function loadRegistros() {
+  showSkeletons('registros-tbody', 5, 'row');
   const mes = document.getElementById('reg-filter-mes')?.value;
   const opId = document.getElementById('reg-filter-op')?.value;
   const ano = new Date().getFullYear();
@@ -2136,53 +2438,71 @@ async function loadRegistros() {
 function filterRegistros() { regPage=1; renderRegistros(); }
 
 function renderRegistros() {
-  const search = document.getElementById('registros-search')?.value.toLowerCase()||'';
-  let filtered = allRegistros;
-  if (search) filtered=filtered.filter(r=>r.operador_nombre?.toLowerCase().includes(search)||r.sucursal?.toLowerCase().includes(search)||r.fecha?.includes(search)||String(r.movimientos).includes(search));
-  const total=filtered.length;
-  const pages=Math.ceil(total/REG_PER_PAGE);
-  const slice=filtered.slice((regPage-1)*REG_PER_PAGE,regPage*REG_PER_PAGE);
-  document.getElementById('registros-count').textContent=`${total} registros`;
-  const tbody=document.getElementById('registros-tbody');
-  if (!slice.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No hay registros</p></div></td></tr>`;}
-  else{tbody.innerHTML=slice.map(r=>`
+    const search = document.getElementById('registros-search')?.value.toLowerCase()||'';
+    let filtered = allRegistros;
+    if (search) filtered=filtered.filter(r=>r.operador_nombre?.toLowerCase().includes(search)||r.sucursal?.toLowerCase().includes(search)||r.fecha?.includes(search)||String(r.movimientos).includes(search));
+    const total=filtered.length;
+    const pages=Math.ceil(total/REG_PER_PAGE);
+    const slice=filtered.slice((regPage-1)*REG_PER_PAGE,regPage*REG_PER_PAGE);
+    document.getElementById('registros-count').textContent=`${total} registros`;
+    const tbody=document.getElementById('registros-tbody');
+    if (!slice.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No hay registros</p></div></td></tr>`;}
+    else{tbody.innerHTML=slice.map(r=>`
     <tr>
-      <td style="font-weight:600;">${formatDate(r.fecha)}</td>
-      <td><span style="font-weight:700;font-family:'Poppins',sans-serif;">${r.movimientos||0}</span></td>
-      <td style="color:#22C55E;font-weight:600;">${formatCurrency(r.participacion)}</td>
-      <td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td>
-      <td style="max-width:180px;"><div style="display:flex;gap:4px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td>
-      <td><div style="display:flex;align-items:center;gap:0.5rem;"><div class="avatar" style="width:26px;height:26px;font-size:0.65rem;">${getInitials(r.operador_nombre)}</div>${r.operador_nombre||'-'}</div></td>
-      <td>${r.sucursal?`<span class="badge badge-blue">${r.sucursal}</span>`:'-'}</td>
-      <td><div style="display:flex;gap:0.4rem;"><button class="btn-edit" onclick="openEditRegistro('${r.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteRegistro('${r.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
+    <td style="font-weight:600;">${formatDate(r.fecha)}</td>
+    <td><span style="font-weight:700;font-family:'Poppins',sans-serif;">${r.movimientos||0}</span></td>
+    <td style="color:#22C55E;font-weight:600;">${formatCurrency(r.participacion)}</td>
+    <td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td>
+    <td style="max-width:180px;"><div style="display:flex;gap:4px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td>
+    <td><div style="display:flex;align-items:center;gap:0.5rem;"><div class="avatar" style="width:26px;height:26px;font-size:0.65rem;">${getInitials(r.operador_nombre)}</div>${r.operador_nombre||'-'}</div></td>
+    <td>${r.sucursal?`<span class="badge badge-blue">${r.sucursal}</span>`:'-'}</td>
+    <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:0.75rem;" title="${r.notas||''}">${r.notas || '-'}</td>
+    <td><div style="display:flex;gap:0.4rem;"><button class="btn-edit" onclick="openEditRegistro('${r.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteRegistro('${r.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
     </tr>
-  `).join('');}
-  const pager=document.getElementById('pagination-btns');
-  pager.innerHTML='';
-  for(let i=1;i<=pages;i++){const btn=document.createElement('button');btn.className=i===regPage?'btn-primary':'btn-secondary';btn.style.cssText='padding:0.4rem 0.75rem;font-size:0.8rem;';btn.textContent=i;btn.onclick=()=>{regPage=i;renderRegistros();};pager.appendChild(btn);}
+    `).join('');}
+    const pager=document.getElementById('pagination-btns');
+    pager.innerHTML='';
+    for(let i=1;i<=pages;i++){const btn=document.createElement('button');btn.className=i===regPage?'btn-primary':'btn-secondary';btn.style.cssText='padding:0.4rem 0.75rem;font-size:0.8rem;';btn.textContent=i;btn.onclick=()=>{regPage=i;renderRegistros();};pager.appendChild(btn);}
 }
 
 function openEditRegistro(id) {
-  const reg=allRegistros.find(r=>r.id===id);
-  if(!reg)return;
-  document.getElementById('edit-reg-id').value=id;
-  document.getElementById('edit-reg-fecha').value=reg.fecha?.split('T')[0]||'';
-  document.getElementById('edit-reg-movimientos').value=reg.movimientos;
-  document.getElementById('edit-reg-participacion').value=reg.participacion;
-  openModal('modal-registro');
+    const reg=allRegistros.find(r=>r.id===id);
+    if(!reg)return;
+    document.getElementById('edit-reg-id').value=id;
+    document.getElementById('edit-reg-fecha').value=reg.fecha?.split('T')[0]||'';
+    document.getElementById('edit-reg-movimientos').value=reg.movimientos;
+    document.getElementById('edit-reg-participacion').value=reg.participacion;
+    document.getElementById('edit-reg-notas').value=reg.notas||''; // 👉 Cargar notas
+    openModal('modal-registro');
 }
 
 async function updateRegistro() {
-  const id=document.getElementById('edit-reg-id').value;
-  const fecha=document.getElementById('edit-reg-fecha').value;
-  const mov=parseInt(document.getElementById('edit-reg-movimientos').value);
-  const part=parseFloat(document.getElementById('edit-reg-participacion').value);
-  const {error}=await sb.from('registros').update({fecha,movimientos:mov,participacion:part,clasificacion:getClasificacion(mov)}).eq('id',id);
-  if(error){toast('Error al actualizar','error');return;}
-  toast('Registro actualizado','success');
-  closeModal('modal-registro');
-  await logAuditoria('editar',`Registro ${id} actualizado`);
-  loadRegistros();
+    const id=document.getElementById('edit-reg-id').value;
+    const fecha=document.getElementById('edit-reg-fecha').value;
+    const mov=parseInt(document.getElementById('edit-reg-movimientos').value);
+    const part=parseFloat(document.getElementById('edit-reg-participacion').value);
+    const notas=document.getElementById('edit-reg-notas').value.trim();
+
+    // 👉 Obtener valores anteriores
+    const { data: oldReg, error: fetchErr } = await sb.from('registros').select('*').eq('id', id).single();
+    if (fetchErr) { toast('Error al cargar registro original', 'error'); return; }
+
+    // 👉 Generar diff para auditoría
+    const changes = [];
+    if (oldReg.movimientos !== mov) changes.push(`Movimientos: ${oldReg.movimientos||0} → ${mov}`);
+    if (oldReg.participacion !== part) changes.push(`Participación: ${formatCurrency(oldReg.participacion||0)} → ${formatCurrency(part)}`);
+    if (oldReg.notas !== notas) changes.push(`Notas: "${oldReg.notas||'-'}" → "${notas||'-'}"`);
+    if (oldReg.fecha !== fecha) changes.push(`Fecha: ${formatDate(oldReg.fecha)} → ${formatDate(fecha)}`);
+
+    const diffDesc = changes.length > 0 ? `Registro actualizado: ${changes.join(' | ')}` : 'Sin cambios detectados';
+
+    const {error}=await sb.from('registros').update({fecha,movimientos:mov,participacion:part,notas,clasificacion:getClasificacion(mov)}).eq('id',id);
+    if(error){toast('Error al actualizar','error');return;}
+    
+    toast('Registro actualizado','success');
+    closeModal('modal-registro');
+    await logAuditoria('editar', diffDesc); // 👉 Guarda el cambio exacto
+    loadRegistros();
 }
 
 async function deleteRegistro(id) {
@@ -2242,64 +2562,113 @@ async function loadEstadisticas() {
 // OPERADOR: GUARDAR REGISTRO
 // =====================================================
 async function guardarRegistro() {
-  const fecha=document.getElementById('reg-fecha').value;
-  const part=parseFloat(document.getElementById('reg-participacion').value)||0;
-  const platData=getPlatData();
-  const mov=getTotalFromPlatData(platData);
-
-  if (!fecha){toast('Selecciona una fecha','error');return;}
-  if (mov<=0){toast('Ingresa movimientos en al menos una plataforma','error');return;}
-
-  const btn=document.getElementById('btn-guardar-reg');
-  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
-
-  const {error}=await sb.from('registros').insert({
-    fecha,movimientos:mov,participacion:part,
-    clasificacion:getClasificacion(mov),
-    operador_id:currentUser.id,
-    operador_nombre:currentProfile?.nombre||currentUser.email,
-    sucursal:currentProfile?.sucursal||null,
-    plataformas_data:platData,
-  });
-
-  btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-save"></i> Guardar Registro';
-
-  if(error){toast('Error al guardar: '+error.message,'error');return;}
-  toast('Registro guardado correctamente ✅','success');
-
-  // Reset
-  allPlataformas.forEach(p=>{const el=document.getElementById(`plat-input-${p.id}`);if(el)el.value='';});
-  document.getElementById('reg-participacion').value='';
-  document.getElementById('clasificacion-preview').innerHTML='';
-  document.getElementById('total-movimientos-preview').textContent='0';
-  document.getElementById('reg-fecha').value=new Date().toISOString().split('T')[0];
-  await loadOpInicio();
+    const fecha=document.getElementById('reg-fecha').value;
+    const part=parseFloat(document.getElementById('reg-participacion').value)||0;
+    const notas=document.getElementById('reg-notas')?.value.trim()||'';
+    const platData=getPlatData();
+    const mov=getTotalFromPlatData(platData);
+    if (!fecha){toast('Selecciona una fecha','error');return;}
+    if (mov<=0){toast('Ingresa movimientos en al menos una plataforma','error');return;}
+    
+    const btn=document.getElementById('btn-guardar-reg');
+    btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
+    
+    const {error}=await sb.from('registros').insert({
+        fecha,movimientos:mov,participacion:part,notas,
+        clasificacion:getClasificacion(mov),
+        operador_id:currentUser.id,
+        operador_nombre:currentProfile?.nombre||currentUser.email,
+        sucursal:currentProfile?.sucursal||null,
+        plataformas_data:platData,
+    });
+    
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-save"></i> Guardar Registro';
+    if(error){toast('Error al guardar: '+error.message,'error');return;}
+    
+    // 👉 MEJORA: Confirmación visual ✅ grande por 2s
+    const overlay = document.getElementById('success-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+    }
+    
+    toast('Registro guardado correctamente ✅','success');
+    
+    // Reset
+    allPlataformas.forEach(p=>{const el=document.getElementById(`plat-input-${p.id}`);if(el)el.value='';});
+    document.getElementById('reg-participacion').value='';
+    if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value='';
+    document.getElementById('clasificacion-preview').innerHTML='';
+    document.getElementById('total-movimientos-preview').textContent='0';
+    document.getElementById('reg-fecha').value=new Date().toISOString().split('T')[0];
+    await loadOpInicio();
 }
 
 // =====================================================
 // OPERADOR: DASHBOARD
 // =====================================================
 async function loadOpInicio() {
-  const {data}=await sb.from('registros').select('*').eq('operador_id',currentUser.id).order('fecha',{ascending:false}).limit(30);
-  const regs=data||[];
-  const totalMov=regs.reduce((a,r)=>a+(r.movimientos||0),0);
-  const avgMov=regs.length?Math.round(totalMov/regs.length):0;
-  const optDays=regs.filter(r=>getClasificacion(r.movimientos)==='optimo').length;
-  const cards=[
-    {label:'Total Movimientos',value:totalMov.toLocaleString(),icon:'fa-arrows-up-down',color:'#2563EB',bg:'rgba(37,99,235,0.1)'},
-    {label:'Promedio Diario',value:avgMov,icon:'fa-chart-bar',color:'#7C3AED',bg:'rgba(124,58,237,0.1)'},
-    {label:'Días Óptimos',value:`${optDays}/${regs.length}`,icon:'fa-star',color:'#FACC15',bg:'rgba(250,204,21,0.1)'},
-  ];
-  document.getElementById('op-stats-grid').innerHTML=cards.map(c=>`<div class="stat-card"><div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div><div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div><div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div></div>`).join('');
-  const tbody=document.getElementById('op-recent-tbody');
-  tbody.innerHTML=regs.slice(0,8).map(r=>`<tr><td style="font-weight:600;">${formatDate(r.fecha)}</td><td><span style="font-weight:700;">${r.movimientos||0}</span></td><td style="max-width:140px;"><div style="display:flex;gap:3px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td><td style="color:#22C55E;">${formatCurrency(r.participacion)}</td><td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td></tr>`).join('')||`<tr><td colspan="5"><div class="empty-state" style="padding:1.5rem;"><p>Sin registros aún</p></div></td></tr>`;
+    // 👉 MEJORA: Skeleton mientras carga
+    showSkeletons('op-stats-grid', 3, 'card');
+
+    const {data}=await sb.from('registros').select('*').eq('operador_id',currentUser.id).order('fecha',{ascending:false}).limit(30);
+    const regs=data||[];
+
+    // 👉 MEJORA: ALERTA INTELIGENTE (3 PM SIN REGISTRO)
+    const today = new Date().toISOString().split('T')[0];
+    const hasTodayRecord = regs.some(r => r.fecha === today);
+    const alertBanner = document.getElementById('op-alert-banner');
+    if (alertBanner) {
+        const currentHour = new Date().getHours();
+        if (!hasTodayRecord && currentHour >= 15) {
+            alertBanner.style.display = 'block';
+            document.getElementById('alert-time').textContent = new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
+        } else {
+            alertBanner.style.display = 'none';
+        }
+    }
+
+    // 👉 MEJORA: MENSAJE DE FECHA + ESTADO EN TIEMPO REAL
+    const opDateStatus = document.getElementById('op-date-status');
+    if (opDateStatus) {
+        const now = new Date();
+        const fechaStr = now.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+        const fechaCap = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1);
+        opDateStatus.textContent = `Hoy es ${fechaCap} · ${hasTodayRecord ? 'Registro guardado ✅' : 'Sin registro hoy ⏳'}`;
+    }
+
+    // 👉 MEJORA: TARJETAS DE ESTADÍSTICAS
+    const totalMov=regs.reduce((a,r)=>a+(r.movimientos||0),0);
+    const avgMov=regs.length?Math.round(totalMov/regs.length):0;
+    const optDays=regs.filter(r=>getClasificacion(r.movimientos)==='optimo').length;
+    const cards=[
+        {label:'Total Movimientos',value:totalMov.toLocaleString(),icon:'fa-arrows-up-down',color:'#2563EB',bg:'rgba(37,99,235,0.1)'},
+        {label:'Promedio Diario',value:avgMov,icon:'fa-chart-bar',color:'#7C3AED',bg:'rgba(124,58,237,0.1)'},
+        {label:'Días Óptimos',value:`${optDays}/${regs.length}`,icon:'fa-star',color:'#FACC15',bg:'rgba(250,204,21,0.1)'},
+    ];
+    document.getElementById('op-stats-grid').innerHTML=cards.map(c=>`<div class="stat-card"><div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div><div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div><div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div></div>`).join('');
+
+    // 👉 MEJORA: TABLA DE ÚLTIMOS REGISTROS (con columna Notas)
+    const tbody=document.getElementById('op-recent-tbody');
+    tbody.innerHTML=regs.slice(0,8).map(r=>`<tr><td style="font-weight:600;">${formatDate(r.fecha)}</td><td><span style="font-weight:700;">${r.movimientos||0}</span></td><td style="max-width:140px;"><div style="display:flex;gap:3px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td><td style="color:#22C55E;">${formatCurrency(r.participacion)}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:0.75rem;" title="${r.notas||''}">${r.notas||'-'}</td><td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td></tr>`).join('')||`<tr><td colspan="6"><div class="empty-state" style="padding:1.5rem;"><p>Sin registros aún</p></div></td></tr>`;
 }
 
 async function loadOpMisRegistros() {
-  const {data}=await sb.from('registros').select('*').eq('operador_id',currentUser.id).order('fecha',{ascending:false});
-  const regs=data||[];
-  const tbody=document.getElementById('op-registros-tbody');
-  tbody.innerHTML=regs.map(r=>`<tr><td style="font-weight:600;">${formatDate(r.fecha)}</td><td><span style="font-weight:700;">${r.movimientos||0}</span></td><td style="max-width:200px;"><div style="display:flex;gap:3px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td><td style="color:#22C55E;">${formatCurrency(r.participacion)}</td><td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td><td style="font-size:0.78rem;color:var(--text-muted);">${formatDate(r.created_at)}</td></tr>`).join('')||`<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>Sin registros</p></div></td></tr>`;
+    const { data } = await sb.from('registros').select('*').eq('operador_id', currentUser.id).order('fecha', { ascending: false });
+    const regs = data || [];
+    const tbody = document.getElementById('op-registros-tbody');
+
+    tbody.innerHTML = regs.map(r => `
+        <tr>
+            <td style="font-weight:600;">${formatDate(r.fecha)}</td>
+            <td><span style="font-weight:700;">${r.movimientos || 0}</span></td>
+            <td style="max-width:200px;"><div style="display:flex;gap:3px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td>
+            <td style="color:#22C55E;">${formatCurrency(r.participacion)}</td>
+            <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:0.75rem;" title="${r.notas || ''}">${r.notas || '-'}</td>
+            <td>${badgeClasificacion(r.clasificacion || getClasificacion(r.movimientos))}</td>
+            <td style="font-size:0.78rem;color:var(--text-muted);">${formatDate(r.created_at)}</td>
+        </tr>
+    `).join('') || `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>Sin registros</p></div></td></tr>`;
 }
 
 async function loadOpRendimiento() {
@@ -2379,6 +2748,42 @@ function getDynamicGreeting(name) {
   const h=new Date().getHours();
   const g=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
   return `${g}, ${name||'Usuario'} 👋`;
+}
+
+function initSmartDates() {
+    const now = new Date();
+    const currentYear = now.getFullYear().toString();
+    const currentMonth = (now.getMonth() + 1).toString();
+
+    // 1. Seleccionar automáticamente el año y mes actuales en TODOS los filtros
+    ['filter-ano','top-filter-ano','rpt-ano'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.value = currentYear;
+    });
+    ['filter-mes','top-filter-mes','rpt-mes'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.value = currentMonth;
+    });
+
+    // 2. Establecer fecha de hoy en el registro del operador
+    const regFecha = document.getElementById('reg-fecha');
+    if (regFecha) regFecha.value = now.toISOString().split('T')[0];
+
+    // 3. Actualizar saludos con fecha real
+    updateRealTimeUI(now);
+}
+
+function updateRealTimeUI(now) {
+    const options = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    const fechaCompleta = now.toLocaleDateString('es-CO', options);
+    const fechaCap = fechaCompleta.charAt(0).toUpperCase() + fechaCompleta.slice(1);
+    const horaActual = now.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+
+    // Dashboard greeting
+    const dashGreeting = document.getElementById('dashboard-greeting');
+    if (dashGreeting) dashGreeting.textContent = `📅 ${fechaCap} · ${horaActual}`;
+
+    // Operator status container (se sincroniza con loadOpInicio)
+    const opDateStatus = document.getElementById('op-date-status');
+    if (opDateStatus) opDateStatus.dataset.realDate = fechaCap;
 }
 
 async function openProfileModal() {
@@ -2478,19 +2883,25 @@ async function saveProfilePremium() {
 }
 
 async function loadProfileStats() {
-  const {data}=await sb.from('registros').select('movimientos,participacion,fecha').eq('operador_id',currentUser.id).order('fecha',{ascending:false});
-  const regs=data||[];
-  const totalMov=regs.reduce((a,r)=>a+(r.movimientos||0),0);
-  const avgMov=regs.length?Math.round(totalMov/regs.length):0;
-  const compliance=META_DIARIA>0?Math.min(100,Math.round((avgMov/META_DIARIA)*100)):0;
-  const el1=document.getElementById('stat-total-mov');const el2=document.getElementById('stat-avg-daily');const el3=document.getElementById('stat-compliance');
-  if(el1)el1.textContent=totalMov.toLocaleString();
-  if(el2)el2.textContent=avgMov.toLocaleString();
-  if(el3)el3.textContent=compliance+'%';
-  const pm=document.getElementById('progress-monthly');const pmt=document.getElementById('progress-monthly-text');
-  if(pm)pm.style.width=compliance+'%';
-  if(pmt)pmt.textContent=compliance+'%';
-  renderProfileTrendChart(regs.slice(0,7).reverse());
+    const {data}=await sb.from('registros').select('movimientos,participacion,fecha').eq('operador_id',currentUser.id).order('fecha',{ascending:false});
+    const regs=data||[];
+    const totalMov=regs.reduce((a,r)=>a+(r.movimientos||0),0);
+    const avgMov=regs.length?Math.round(totalMov/regs.length):0;
+    const compliance=META_DIARIA>0?Math.min(100,Math.round((avgMov/META_DIARIA)*100)):0;
+    
+    // 👉 Calcular y mostrar racha
+    const streak = calculateStreak(regs, OPTIMO);
+    const elStreak = document.getElementById('stat-streak');
+    if (elStreak) elStreak.textContent = streak > 0 ? `${streak} 🔥` : '0';
+
+    const el1=document.getElementById('stat-total-mov');const el2=document.getElementById('stat-avg-daily');const el3=document.getElementById('stat-compliance');
+    if(el1)el1.textContent=totalMov.toLocaleString();
+    if(el2)el2.textContent=avgMov.toLocaleString();
+    if(el3)el3.textContent=compliance+'%';
+    const pm=document.getElementById('progress-monthly');const pmt=document.getElementById('progress-monthly-text');
+    if(pm)pm.style.width=compliance+'%';
+    if(pmt)pmt.textContent=compliance+'%';
+    renderProfileTrendChart(regs.slice(0,7).reverse());
 }
 
 function renderProfileTrendChart(regs) {
@@ -2499,6 +2910,26 @@ function renderProfileTrendChart(regs) {
   if(!ctx)return;
   const cc=chartColors();
   charts['profile-trend']=new Chart(ctx,{type:'line',data:{labels:regs.map(r=>formatDate(r.fecha).split('/')[0]),datasets:[{label:'Movimientos',data:regs.map(r=>r.movimientos||0),borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,0.1)',borderWidth:2,fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#2563EB'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:cc.text,font:{size:10}}},y:{grid:{color:cc.grid},ticks:{color:cc.text,font:{size:10}},beginAtZero:true}}}});
+}
+
+function calculateStreak(regs, threshold) {
+    if (!regs.length) return 0;
+    const sorted = [...regs].sort((a,b) => b.fecha.localeCompare(a.fecha)); // Descendente
+    let streak = 0;
+    let expected = new Date(sorted[0].fecha + 'T00:00:00');
+    expected.setHours(0,0,0,0);
+
+    for (const r of sorted) {
+        const rDate = new Date(r.fecha + 'T00:00:00');
+        const diff = Math.round((expected - rDate) / (1000*60*60*24));
+        if (diff === 0 && (r.movimientos||0) >= threshold) {
+            streak++;
+            expected.setDate(expected.getDate() - 1);
+        } else {
+            break; // Racha rota
+        }
+    }
+    return streak;
 }
 
 async function loadProfileActivity() {
@@ -2573,7 +3004,7 @@ function populateReportFilters() {
 
 async function getExportData() {
   const mes=document.getElementById('rpt-mes')?.value;
-  const ano=document.getElementById('rpt-ano')?.value||'2025';
+  const ano=document.getElementById('rpt-ano')?.value||new Date().getFullYear().toString();
   const opId=document.getElementById('rpt-op')?.value;
   let query=sb.from('registros').select('*').order('fecha');
   if(mes){const start=`${ano}-${mes.padStart(2,'0')}-01`;const end=new Date(ano,mes,0).toISOString().split('T')[0];query=query.gte('fecha',start).lte('fecha',end);}
@@ -2614,6 +3045,140 @@ async function exportPDF() {
 }
 
 // =====================================================
+// TOGGLE VISTA MES / DÍA ESPECÍFICO
+// =====================================================
+function toggleDashVista() {
+  const vista = document.getElementById('dash-vista').value;
+  const filterMes = document.getElementById('filter-mes');
+  const filterAno = document.getElementById('filter-ano');
+  const filterDia = document.getElementById('filter-dia-especifico');
+  if (vista === 'dia') {
+    filterMes.style.display = 'none';
+    filterAno.style.display = 'none';
+    if (!filterDia.value) filterDia.value = new Date().toISOString().split('T')[0];
+    filterDia.style.display = 'block';
+  } else {
+    filterMes.style.display = '';
+    filterAno.style.display = '';
+    filterDia.style.display = 'none';
+  }
+  loadDashboard();
+}
+
+function toggleTopVista() {
+  const vista = document.getElementById('top-vista').value;
+  const filterMes = document.getElementById('top-filter-mes');
+  const filterAno = document.getElementById('top-filter-ano');
+  const filterDia = document.getElementById('top-filter-dia');
+  if (vista === 'dia') {
+    filterMes.style.display = 'none';
+    filterAno.style.display = 'none';
+    if (!filterDia.value) filterDia.value = new Date().toISOString().split('T')[0];
+    filterDia.style.display = 'block';
+  } else {
+    filterMes.style.display = '';
+    filterAno.style.display = '';
+    filterDia.style.display = 'none';
+  }
+  loadTopDias();
+}
+
+function openHelpModal() {
+  if (!currentProfile) return;
+  const isAdm = currentProfile.rol === 'administrador';
+  
+  const html = `
+    <div style="margin-bottom:1.25rem;">
+      <h4 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:0.75rem;color:#2563EB;">👋 Bienvenido al Panel de ${isAdm ? 'Administrador' : 'Operador'}</h4>
+      <p style="color:var(--text-muted);font-size:0.875rem;">Esta guía te ayudará a navegar y aprovechar al máximo las herramientas de Haliel Papelería.</p>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+      ${isAdm ? `
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">📊 Dashboard & Métricas</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Filtra por mes, día específico o sucursal</li>
+            <li>Visualiza KPIs, gráficas de rendimiento y metas</li>
+            <li>💡 Doble clic en el logo lateral vuelve al inicio</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">👥 Gestión de Usuarios</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Crea, edita o elimina operadores/admins</li>
+            <li>Asigna sucursales y controla estados (Activo/Inactivo)</li>
+            <li>Los cambios de rol y datos son inmediatos</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">🏢 Sucursales & Plataformas</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Administra puntos de venta y colores de plataforma</li>
+            <li>Usa "Editar" para modificar sin perder históricos</li>
+            <li>Revisa rendimiento por plataforma en tiempo real</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">📈 Reportes & Auditoría</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Exporta registros a Excel o PDF filtrados</li>
+            <li>Consulta logs de actividad (solo visible para Admin)</li>
+            <li>Toda acción crítica queda registrada automáticamente</li>
+          </ul>
+        </div>
+      ` : `
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">📝 Registrar Movimientos</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Selecciona la fecha y diligencia cada plataforma</li>
+            <li>Ingresa tu participación diaria ($)</li>
+            <li>La clasificación (Óptimo/Aceptable/Bajo) es automática</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">📊 Mi Rendimiento</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Revisa tu historial completo de registros</li>
+            <li>Visualiza tendencias y métricas personales</li>
+            <li>Compara tu desempeño con las metas asignadas</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">👤 Perfil & Seguridad</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>Actualiza tu foto, teléfono y dirección</li>
+            <li>Cambia tu contraseña desde la pestaña Seguridad</li>
+            <li>Activa/desactiva modo oscuro desde Configuración</li>
+          </ul>
+        </div>
+        <div class="glass-card" style="padding:1rem;">
+          <div style="font-weight:600;margin-bottom:0.5rem;">⚠️ Notas Importantes</div>
+          <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
+            <li>La sesión se cierra automáticamente por inactividad</li>
+            <li>Guarda tus registros diariamente para evitar pérdidas</li>
+            <li>Si la app se congela, recarga la página (F5)</li>
+          </ul>
+        </div>
+      `}
+    </div>
+    
+    <div class="glass-card" style="padding:1rem;background:rgba(37,99,235,0.05);border-color:rgba(37,99,235,0.15);">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <i class="fa-solid fa-lightbulb" style="color:#FACC15;font-size:1.2rem;"></i>
+        <div>
+          <div style="font-weight:600;font-size:0.9rem;">💡 Consejo Pro</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">${isAdm ? 'Usa los filtros superiores del Dashboard para análisis rápidos. La auditoría registra cada creación, edición y eliminación automáticamente.' : 'Completa tus movimientos al final del turno. Tu foto de perfil y datos se sincronizan en tiempo real en todos los dispositivos.'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('help-modal-content').innerHTML = html;
+  openModal('modal-help');
+}
+
+// =====================================================
 // PWA
 // =====================================================
 if('serviceWorker' in navigator){
@@ -2622,6 +3187,23 @@ if('serviceWorker' in navigator){
   const swUrl=URL.createObjectURL(blob);
   navigator.serviceWorker.register(swUrl).catch(()=>{});
 }
+
+function updateConnectionStatus() {
+    const banner = document.getElementById('offline-banner');
+    const main = document.getElementById('main-content');
+    if (!navigator.onLine) {
+        banner.style.display = 'block';
+        if(main) main.style.paddingTop = '2.5rem';
+    } else {
+        banner.style.display = 'none';
+        if(main) main.style.paddingTop = '1.5rem';
+    }
+}
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+// Verificar estado inicial al cargar
+updateConnectionStatus();
+
 </script>
 
 </body>
