@@ -188,6 +188,35 @@
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .modal-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.5rem; padding: 2rem; width: 100%; max-width: 480px; box-shadow: 0 24px 80px rgba(0,0,0,0.3); animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow-y: auto; }
+	/* Editor de recorte de foto */
+	#crop-image {
+	  transition: transform 0.1s ease-out;
+	  max-width: none !important;
+	  min-width: 100%;
+	  min-height: 100%;
+	  object-fit: contain;
+	}
+	#crop-image.dragging {
+	  transition: none;
+	  cursor: grabbing;
+	}
+	.crop-hint {
+	  position: absolute;
+	  bottom: 0.5rem;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  background: rgba(0,0,0,0.7);
+	  color: white;
+	  padding: 0.3rem 0.7rem;
+	  border-radius: 99px;
+	  font-size: 0.7rem;
+	  pointer-events: none;
+	  animation: fadeInOut 2s ease-in-out;
+	}
+	@keyframes fadeInOut {
+	  0%, 100% { opacity: 0; }
+	  20%, 80% { opacity: 1; }
+	}
   @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
   .field-input { width: 100%; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 0.75rem; padding: 0.75rem 1rem; font-family: 'Inter', sans-serif; font-size: 0.875rem; color: inherit; outline: none; transition: all 0.2s; }
@@ -569,9 +598,7 @@
 			<option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
 			<option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
 		  </select>
-		  <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()">
-			<option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
-		  </select>
+		  <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()"></select>
 		  <input type="date" id="filter-dia-especifico" class="field-input" style="width:auto;display:none;border-color:#2563EB;" onchange="loadDashboard()"/>
 		  <select id="filter-sucursal-dash" class="field-input" style="width:auto;" onchange="loadDashboard()">
 			<option value="">Todas las sucursales</option>
@@ -692,9 +719,7 @@
 			<option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
 			<option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
 		  </select>
-		  <select id="top-filter-ano" class="field-input" style="width:auto;" onchange="loadTopDias()">
-			<option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
-		  </select>
+		  <select id="top-filter-ano" class="field-input" style="width:auto;" onchange="loadTopDias()"></select>
 		  <input type="date" id="top-filter-dia" class="field-input" style="width:auto;display:none;border-color:#2563EB;" onchange="loadTopDias()"/>
 		  <button class="btn-primary" onclick="loadTopDias()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
 		</div>
@@ -1221,6 +1246,39 @@
   </div>
 </div>
 
+<!-- Modal: Editor de Foto de Perfil (Circular) -->
+<div id="modal-crop-photo" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:440px;padding:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">✂️ Ajustar foto</h3>
+      <button onclick="closeCropModal()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <!-- Contenedor cuadrado con recorte circular -->
+    <div id="crop-container" style="position:relative;width:100%;aspect-ratio:1/1;background:#000;border-radius:1rem;overflow:hidden;margin-bottom:1rem;cursor:grab;">
+      <!-- Imagen arrastrable -->
+      <img id="crop-image" src="" alt="Crop" style="position:absolute;max-width:none;user-select:none;pointer-events:none;transform:translate(0,0) scale(1);"/>
+      
+      <!-- Máscara circular (sombras exteriores + borde) -->
+      <div style="position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;">
+        <div id="crop-circle-mask" style="border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,0.65);"></div>
+      </div>
+    </div>
+    
+    <!-- Controles de zoom -->
+    <div style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.25rem;">
+      <button class="btn-secondary" onclick="zoomCrop(-0.15)" style="padding:0.4rem 0.75rem;">🔍− Alejar</button>
+      <button class="btn-secondary" onclick="resetCrop()" style="padding:0.4rem 0.75rem;">↺ Reset</button>
+      <button class="btn-secondary" onclick="zoomCrop(0.15)" style="padding:0.4rem 0.75rem;">Acercar 🔍+</button>
+    </div>
+    
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeCropModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveCroppedPhoto()"><i class="fa-solid fa-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Cambiar Contraseña -->
 <div id="modal-change-password" class="modal-overlay" style="display:none;">
   <div class="modal-box" style="max-width:420px;">
@@ -1309,6 +1367,15 @@ const DATE_FORMAT_TIME = { ...DATE_FORMAT_COMPACT, hour: '2-digit', minute: '2-d
 // =====================================================
 let currentUser = null, currentProfile = null;
 let allRegistros = [], allOperadores = [], allSucursales = [], allPlataformas = [];
+// Variables para editor de recorte de foto
+let cropState = {
+  x: 0, y: 0, scale: 1,
+  isDragging: false,
+  startX: 0, startY: 0,
+  img: null,
+  container: null,
+  pendingFile: null
+};
 let editingOpId = null, editingSucId = null, editingPlatId = null;
 let charts = {};
 let regPage = 1;
@@ -1615,7 +1682,18 @@ function renderAvatar(element, user, size='36px') {
     }
 }
 
-function closeModal(id) { document.getElementById(id).style.display='none'; }
+function closeModal(id) { 
+  const modal = document.getElementById(id);
+  if (!modal) return;
+  
+  // Cleanup especial para modal de recorte
+  if (id === 'modal-crop-photo') {
+    cleanupCropListeners();
+    cropState.pendingFile = null;
+  }
+  
+  modal.style.display = 'none'; 
+}
 function openModal(id) { document.getElementById(id).style.display='flex'; }
 
 // =====================================================
@@ -1638,6 +1716,27 @@ function initDark() {
   }
 }
 initDark();
+
+// 📅 Generación automática de años (desde 2026 hasta año actual)
+function populateYearSelectors() {
+    const START_YEAR = 2026;
+    const currentYear = new Date().getFullYear();
+    const selectors = ['filter-ano', 'top-filter-ano']; // Agrega IDs aquí si creas más filtros de año
+    
+    selectors.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = ''; // Limpia opciones anteriores
+        for (let y = START_YEAR; y <= currentYear; y++) {
+            const opt = document.createElement('option');
+            opt.value = y.toString();
+            opt.textContent = y.toString();
+            sel.appendChild(opt);
+        }
+        // Seleccionar automáticamente el año actual
+        sel.value = currentYear.toString();
+    });
+}
 
 // =====================================================
 // SIDEBAR PIN/UNPIN
@@ -1825,6 +1924,7 @@ async function submitResetPassword() {
 window.addEventListener('load', async () => {
     // Pequeño delay para asegurar que el hash esté disponible
     await new Promise(resolve => setTimeout(resolve, 100));
+	populateYearSelectors();
     
     // Parsear hash manualmente (Supabase usa #key=value&key2=value2)
     const hash = window.location.hash.substring(1);
@@ -3848,28 +3948,246 @@ async function removeProfilePhoto() {
   document.getElementById('btn-remove-photo').style.display='none';
 }
 
+// ========== FUNCIONES DEL EDITOR DE CORTE ==========
+
+// Abrir/Cerrar modal de recorte
+function openCropModal() { document.getElementById('modal-crop-photo').style.display = 'flex'; }
+function closeCropModal() { 
+  document.getElementById('modal-crop-photo').style.display = 'none';
+  cropState.pendingFile = null;
+  cropState.img = null;
+}
+
+// Resetear posición y zoom
+function resetCrop() {
+  const img = document.getElementById('crop-image');
+  const container = document.getElementById('crop-container');
+  if (!img || !container || !img.naturalWidth) return;
+  
+  cropState.x = 0;
+  cropState.y = 0;
+  cropState.scale = 1;
+  
+  // 🔑 Clave: Forzar dimensiones exactas en el DOM para que coincidan 100% con la matemática
+  const containerSize = container.offsetWidth;
+  const imgRatio = img.naturalWidth / img.naturalHeight;
+  let rW, rH;
+  if (imgRatio >= 1) { rW = containerSize; rH = containerSize / imgRatio; }
+  else               { rH = containerSize; rW = containerSize * imgRatio; }
+  
+  const baseX = (containerSize - rW) / 2;
+  const baseY = (containerSize - rH) / 2;
+  
+  // Aplicar estilos directamente (evita desincronización con CSS object-fit)
+  img.style.width = rW + 'px';
+  img.style.height = rH + 'px';
+  img.style.left = baseX + 'px';
+  img.style.top = baseY + 'px';
+  
+  applyCropTransform();
+}
+
+// Zoom in/out
+function zoomCrop(delta) {
+  // Permitir alejar hasta 0.5x y acercar hasta 4x
+  cropState.scale = Math.max(0.5, Math.min(4, cropState.scale + delta));
+  applyCropTransform();
+}
+
+// Aplicar transform CSS a la imagen
+function applyCropTransform() {
+  const img = document.getElementById('crop-image');
+  if (!img) return;
+  img.style.transform = `translate(${cropState.x}px, ${cropState.y}px) scale(${cropState.scale})`;
+}
+
+// Inicializar eventos de arrastre
+function initCropDrag() {
+  const img = document.getElementById('crop-image');
+  const container = document.getElementById('crop-container');
+  const mask = document.getElementById('crop-circle-mask');
+  
+  if (!img || !container || !mask) return;
+  
+  // Ajustar tamaño del círculo al 70% del contenedor (proporcional al avatar real)
+  const containerW = container.offsetWidth;
+  const circleSize = Math.round(containerW * 0.7);
+  mask.style.width = circleSize + 'px';
+  mask.style.height = circleSize + 'px';
+  
+  cropState.img = img;
+  cropState.container = container;
+  cropState.maskSize = circleSize;
+  
+  // Eventos de arrastre (en el contenedor, no en la imagen)
+  container.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', endDrag);
+  container.addEventListener('touchstart', (e) => startDrag(e.touches[0]), { passive: true });
+  document.addEventListener('touchmove', (e) => onDrag(e.touches[0]), { passive: true });
+  document.addEventListener('touchend', endDrag);
+}
+
+function startDrag(e) {
+  e.preventDefault();
+  cropState.isDragging = true;
+  cropState.startX = e.clientX - cropState.x;
+  cropState.startY = e.clientY - cropState.y;
+  cropState.img?.classList.add('dragging');
+}
+
+function onDrag(e) {
+  if (!cropState.isDragging) return;
+  e.preventDefault();
+  cropState.x = e.clientX - cropState.startX;
+  cropState.y = e.clientY - cropState.startY;
+  applyCropTransform();
+}
+
+function endDrag() {
+  cropState.isDragging = false;
+  cropState.img?.classList.remove('dragging');
+}
+
+// Limpiar listeners al cerrar (evitar memory leaks)
+function cleanupCropListeners() {
+  const container = document.getElementById('crop-container');
+  if (container) {
+    container.removeEventListener('mousedown', startDrag);
+    container.removeEventListener('touchstart', startDrag);
+  }
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', endDrag);
+  document.removeEventListener('touchmove', onDrag);
+  document.removeEventListener('touchend', endDrag);
+}
+
+// Guardar foto recortada
+async function saveCroppedPhoto() {
+  if (!cropState.pendingFile || !currentUser) return;
+
+  const container = document.getElementById('crop-container');
+  const imgEl = document.getElementById('crop-image');
+  if (!container || !imgEl || !imgEl.naturalWidth) { toast('Error: Imagen no cargada', 'error'); return; }
+
+  const containerSize = container.offsetWidth;
+  const cropCircleSize = 180; // Debe coincidir con el tamaño del círculo en el HTML
+
+  const img = new Image();
+  img.onload = () => {
+    try {
+      // 1️⃣ Recalcular dimensiones base (idénticas a resetCrop)
+      const imgRatio = img.naturalWidth / img.naturalHeight;
+      let renderedW, renderedH;
+      if (imgRatio >= 1) { renderedW = containerSize; renderedH = containerSize / imgRatio; }
+      else               { renderedH = containerSize; renderedW = containerSize * imgRatio; }
+      
+      const baseX = (containerSize - renderedW) / 2;
+      const baseY = (containerSize - renderedH) / 2;
+
+      // 2️⃣ Posición final en pantalla (Base + Arrastre + Zoom)
+      const finalX = baseX + cropState.x;
+      const finalY = baseY + cropState.y;
+      const totalScale = (renderedW / img.naturalWidth) * cropState.scale;
+
+      // 3️⃣ Coordenadas del círculo de recorte
+      const cropX = (containerSize - cropCircleSize) / 2;
+      const cropY = (containerSize - cropCircleSize) / 2;
+
+      // 4️⃣ Mapear a coordenadas de la imagen original
+      const sx = (cropX - finalX) / totalScale;
+      const sy = (cropY - finalY) / totalScale;
+      const sWidth = cropCircleSize / totalScale;
+      const sHeight = cropCircleSize / totalScale;
+
+      console.log('🔍 Recorte calculado:', { sx: sx.toFixed(2), sy: sy.toFixed(2), w: sWidth.toFixed(2), h: sHeight.toFixed(2) });
+
+      // 5️⃣ Dibujar en Canvas Circular
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = size;
+      canvas.height = size;
+
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
+      ctx.restore();
+
+      // Verificar si quedó vacío (por seguridad)
+      const centerPixel = ctx.getImageData(size / 2, size / 2, 1, 1).data;
+      if (centerPixel[3] === 0) {
+        toast('Error: El recorte quedó fuera del área visible', 'error');
+        return;
+      }
+
+      // 6️⃣ Subir a Supabase
+      canvas.toBlob(async (blob) => {
+        if (!blob || blob.size < 500) { toast('Error procesando imagen', 'error'); return; }
+        try {
+          const fileName = `${currentUser.id}/avatar-${Date.now()}.png`;
+          const { error: uploadError } = await sb.storage.from('avatars').upload(fileName, blob, { contentType: 'image/png', upsert: true });
+          if (uploadError) throw uploadError;
+
+          const { data } = sb.storage.from('avatars').getPublicUrl(fileName);
+          const { error: updateError } = await sb.from('usuarios').update({ foto_perfil: data.publicUrl }).eq('id', currentUser.id);
+          if (updateError) throw updateError;
+
+          currentProfile.foto_perfil = data.publicUrl;
+          renderAvatar(document.getElementById('profile-avatar-premium'), currentProfile, '88px');
+          renderAvatar(document.getElementById('topbar-avatar'), currentProfile, '36px');
+          const opAvatar = document.getElementById('op-avatar-big');
+          if (opAvatar) renderAvatar(opAvatar, currentProfile, '56px');
+          
+          toast('Foto actualizada 📸', 'success');
+          document.getElementById('btn-remove-photo').style.display = 'inline-flex';
+        } catch (err) {
+          toast('Error: ' + err.message, 'error');
+        } finally {
+          closeCropModal();
+          cleanupCropListeners();
+        }
+      }, 'image/png', 0.95);
+
+    } catch (err) {
+      console.error('💥 Error en recorte:', err);
+      toast('Error inesperado al recortar', 'error');
+    }
+  };
+  img.onerror = () => toast('Error al cargar imagen para recorte', 'error');
+  img.src = URL.createObjectURL(cropState.pendingFile);
+}
+
 async function handleProfilePhotoUpload(event) {
-  const file=event.target.files[0];
-  if(!file||!currentUser)return;
-  if(!file.type.startsWith('image/')){toast('Solo se permiten imágenes','error');return;}
-  if(file.size>2*1024*1024){toast('Máximo 2MB','error');return;}
-  try{
-    const fileExt=file.name.split('.').pop();
-    const fileName=`${currentUser.id}/${Date.now()}.${fileExt}`;
-    const {error:uploadError}=await sb.storage.from('avatars').upload(fileName,file,{upsert:true});
-    if(uploadError)throw uploadError;
-    const {data}=sb.storage.from('avatars').getPublicUrl(fileName);
-    const fotoUrl=data.publicUrl;
-    const {error:updateError}=await sb.from('usuarios').update({foto_perfil:fotoUrl}).eq('id',currentUser.id);
-    if(updateError)throw updateError;
-    currentProfile.foto_perfil=fotoUrl;
-    renderAvatar(document.getElementById('profile-avatar-premium'),currentProfile,'88px');
-    renderAvatar(document.getElementById('topbar-avatar'),currentProfile,'36px');
-    const opAvatar=document.getElementById('op-avatar-big');if(opAvatar)renderAvatar(opAvatar,currentProfile,'56px');
-    toast('Foto actualizada 📸','success');
-    document.getElementById('btn-remove-photo').style.display='inline-flex';
-    event.target.value='';
-  }catch(error){toast('Error: '+error.message,'error');}
+  const file = event.target.files[0];
+  if (!file || !currentUser) return;
+  
+  if (!file.type.startsWith('image/')) { toast('Solo se permiten imágenes', 'error'); return; }
+  if (file.size > 2*1024*1024) { toast('Máximo 2MB', 'error'); return; }
+  
+  cropState.pendingFile = file;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = document.getElementById('crop-image');
+    img.src = e.target.result;
+    
+    img.onload = () => {
+      // Abrir modal primero (necesario para que el contenedor tenga dimensiones reales)
+      openModal('modal-crop-photo');
+      
+      // Esperar un frame para que el DOM renderice el contenedor
+      requestAnimationFrame(() => {
+        resetCrop();
+        initCropDrag();
+      });
+    };
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
 }
 
 // =====================================================
@@ -3940,22 +4258,121 @@ async function getExportData() {
 }
 
 async function exportExcel() {
-    const btn = document.querySelector('#sec-reportes .btn-primary'); // Selecciona el botón específico
+    const btn = document.querySelector('#sec-reportes .btn-primary');
     if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Exportando...'; }
     try {
         const data = await getExportData();
         if (!data.length) { toast('No hay datos para exportar', 'info'); return; }
-        const ws = XLSX.utils.json_to_sheet(data.map(r => ({
-            Fecha: r.fecha, Movimientos: r.movimientos, Participación: r.participacion,
-            Clasificación: r.clasificacion, Operador: r.operador_nombre, Sucursal: r.sucursal,
-            ...Object.fromEntries(Object.entries(r.plataformas_data || {}).map(([k, v]) => [k, v])),
-            'Creado en': r.created_at,
-        })));
-        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Registros');
-        XLSX.writeFile(wb, 'Haliel_Registros.xlsx');
-        toast('Excel exportado ✅', 'success');
-    } catch (err) { toast('Error al exportar: ' + err.message, 'error'); }
-    finally { if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> Exportar Excel'; } }
+
+        const desde = document.getElementById('rpt-desde')?.value || 'Inicio';
+        const hasta = document.getElementById('rpt-hasta')?.value || 'Fin';
+        const operador = document.getElementById('rpt-op')?.selectedOptions[0]?.text || 'Todos';
+        const fechaGen = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+        // ── Totales para resumen ──
+        const totalMov = data.reduce((a,r) => a + (r.movimientos || 0), 0);
+        const totalPart = data.reduce((a,r) => a + (r.participacion || 0), 0);
+        const avgMov = data.length ? Math.round(totalMov / data.length) : 0;
+        const avgPart = data.length ? Math.round(totalPart / data.length) : 0;
+        const optCnt = data.filter(r => r.clasificacion === 'optimo').length;
+        const accCnt = data.filter(r => r.clasificacion === 'aceptable').length;
+        const bajCnt = data.filter(r => r.clasificacion === 'bajo').length;
+
+        // ── Construir filas del sheet ──
+        const aoa = [];
+
+        // Fila 0: Título corporativo
+        aoa.push(['HALIEL PAPELERÍA — REPORTE DE REGISTROS']);
+
+        // Fila 1: Metadata
+        aoa.push(['Generado:', fechaGen]);
+
+        // Fila 2: Filtros aplicados
+        aoa.push(['Período:', `${desde} → ${hasta}`, 'Operador:', operador]);
+
+        // Fila 3: Separador
+        aoa.push([]);
+
+        // Fila 4: Encabezados de tabla
+        const platNombres = [...new Set(data.flatMap(r => Object.keys(r.plataformas_data || {})))];
+        const headers = ['Fecha', 'Operador', 'Sucursal', 'Movimientos', 'Participación ($)', 'Clasificación'];
+        platNombres.forEach(p => headers.push(p));
+        headers.push('Notas', 'Creado en');
+        aoa.push(headers);
+
+        // Filas de datos
+        const clsMap = { optimo: '✅ Óptimo', aceptable: '⚠️ Aceptable', bajo: '❌ Bajo' };
+        data.forEach(r => {
+            const row = [
+                r.fecha || '',
+                r.operador_nombre || '',
+                r.sucursal || '',
+                r.movimientos || 0,
+                r.participacion || 0,
+                clsMap[r.clasificacion] || r.clasificacion || '',
+            ];
+            platNombres.forEach(p => row.push((r.plataformas_data?.[p]) || 0));
+            row.push(r.notas || '', r.created_at || '');
+            aoa.push(row);
+        });
+
+        // ── Resumen estadístico (después de los datos) ──
+        const summaryRow = aoa.length + 2;
+        aoa.push([]); // Separador
+        aoa.push(['RESUMEN ESTADÍSTICO']);
+        aoa.push([]);
+        aoa.push(['Total Registros:', data.length]);
+        aoa.push(['Total Movimientos:', totalMov.toLocaleString('es-CO')]);
+        aoa.push(['Total Participación:', totalPart.toLocaleString('es-CO')]);
+        aoa.push(['Promedio Diario Mov.:', avgMov.toLocaleString('es-CO')]);
+        aoa.push(['Promedio Diario Part.:', avgPart.toLocaleString('es-CO')]);
+        aoa.push(['Días Óptimos:', optCnt]);
+        aoa.push(['Días Aceptables:', accCnt]);
+        aoa.push(['Días Bajos:', bajCnt]);
+        aoa.push([]);
+        aoa.push(['---']);
+        aoa.push(['Desarrollado por Ing. Santiago Escorcia Carlos Andrés']);
+        aoa.push(['Contacto: 315-238-0960']);
+
+        // ── Crear workbook ──
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+        // ── Ancho de columnas ──
+        const colWidths = [
+            { wch: 14 }, // Fecha
+            { wch: 25 }, // Operador
+            { wch: 18 }, // Sucursal
+            { wch: 12 }, // Movimientos
+            { wch: 16 }, // Participación
+            { wch: 14 }, // Clasificación
+            ...platNombres.map(() => ({ wch: 12 })), // Plataformas
+            { wch: 30 }, // Notas
+            { wch: 20 }, // Creado en
+        ];
+        ws['!cols'] = colWidths;
+
+        // ── Merge para título (A1 → última columna) ──
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } },  // Título
+            { s: { r: summaryRow + 1, c: 0 }, e: { r: summaryRow + 1, c: 1 } }, // Resumen header
+        ];
+
+        // ── AutoFilter en encabezados (fila 5 = índice 4) ──
+        ws['!autofilter'] = { ref: `A${5}:${String.fromCharCode(65 + headers.length - 1)}${4 + data.length}` };
+
+        XLSX.utils.book_append_sheet(wb, ws, 'Registros Haliel');
+
+        // ── Descargar ──
+        const fileName = `Haliel_Reporte_${desde}_al_${hasta}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        toast('Excel profesional exportado ✅', 'success');
+    } catch (err) {
+        console.error('Error exportando Excel:', err);
+        toast('Error al exportar: ' + err.message, 'error');
+    } finally {
+        if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> Exportar Excel'; }
+    }
 }
 
 async function exportPDF() {
