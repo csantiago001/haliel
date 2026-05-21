@@ -774,7 +774,7 @@
 				<span style="color:var(--text-muted);font-size:0.8rem;">hasta</span>
 				<input type="date" id="rpt-hasta" class="field-input" style="width:auto;"/>
 				<div style="display:flex;gap:0.35rem;margin-left:0.5rem;">
-					<button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.7rem;" onclick="document.getElementById('rpt-desde').value=new Date().toISOString().split('T')[0];document.getElementById('rpt-hasta').value=new Date().toISOString().split('T')[0]">Hoy</button>
+					<button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.7rem;" onclick="document.getElementById('rpt-desde').value=todayLocal();document.getElementById('rpt-hasta').value=todayLocal()">Hoy</button>
 					<button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.7rem;" onclick="document.getElementById('rpt-desde').value='';document.getElementById('rpt-hasta').value=''">Todo</button>
 				</div>
 			</div></div>
@@ -876,7 +876,16 @@
             <div id="clasificacion-preview" style="margin-top:0.5rem;"></div>
           </div>
 
-          <div><label class="field-label">Participación del día (ganancia $)</label><input type="number" id="reg-participacion" class="field-input" placeholder="Ej: 50000" min="0"/></div>
+          <div>
+            <label class="field-label">Participación del día (ganancia $)</label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);font-weight:600;color:var(--text-muted);pointer-events:none;">$</span>
+              <input type="text" id="reg-participacion" class="field-input" placeholder="0" inputmode="numeric"
+                style="padding-left:1.75rem;"
+                oninput="formatParticipacion(this)"/>
+            </div>
+            <input type="hidden" id="reg-participacion-raw" value="0"/>
+          </div>
 		  <div style="margin-top:1rem;"><label class="field-label">Notas / Observaciones (opcional)</label>
           <textarea id="reg-notas" class="field-input" placeholder="Ej: Día festivo, afluencia baja, cierre anticipado..." rows="2" style="resize:none;font-family:'Inter',sans-serif;"></textarea></div>
 
@@ -1276,6 +1285,14 @@
 const SUPABASE_URL = 'https://ejbkqnanjvmjykovvvos.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYmtxbmFuanZtanlrb3Z2dm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzI1NzAsImV4cCI6MjA5NDQ0ODU3MH0.BnFrDc8CwqfITTFoPNGcp4OiJ7A4jr4FX30eJrWeRO0';
 
+function todayLocal() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 let OPTIMO = 120, ACEPTABLE = 90, META_DIARIA = 120, META_MENSUAL = 3600;
 let INACTIVIDAD_MINUTOS = 30;
 
@@ -1531,6 +1548,19 @@ function showSkeletons(containerId, count=4, type='card') {
     }
 }
 function formatCurrency(n) { return '$' + (n||0).toLocaleString('es-CO'); }
+function formatParticipacion(input) {
+  const raw = input.value.replace(/\D/g, '');
+  document.getElementById('reg-participacion-raw').value = raw || '0';
+  if (raw === '') { input.value = ''; return; }
+  input.value = parseInt(raw, 10).toLocaleString('es-CO');
+}
+
+function getParticipacionValue() {
+  const raw = document.getElementById('reg-participacion-raw');
+  if (raw) return parseFloat(raw.value) || 0;
+  const txt = document.getElementById('reg-participacion')?.value || '0';
+  return parseFloat(txt.replace(/\./g, '').replace(',', '.')) || 0;
+}
 function formatDate(d) { if(!d) return '-'; const p=d.split('T')[0].split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
 function emptyState(icon, title, desc, actionLabel, actionFn) {
     const btn = actionLabel
@@ -1832,8 +1862,8 @@ window.addEventListener('load', async () => {
     checkMobile();
     initSidebarState();
     
-    const fechaInput = document.getElementById('reg-fecha');
-    if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
+	const fechaInput = document.getElementById('reg-fecha');
+	if (fechaInput) fechaInput.value = todayLocal();
 
 });
 
@@ -1973,7 +2003,7 @@ const sectionMap = {
   'reportes': { id:'sec-reportes', title:'Reportes', sub:'Exportar datos', load:()=>populateReportFilters() },
   'auditoria': { id:'sec-auditoria', title:'Auditoría', sub:'Registro de actividad', load:()=>loadAuditoria() },
   'op-inicio': { id:'sec-op-inicio', title:'Inicio', sub:'Tu resumen diario', load:()=>loadOpInicio() },
-  'op-registrar': { id:'sec-op-registrar', title:'Registrar', sub:'Nuevo movimiento', load:()=>{ document.getElementById('reg-fecha').value=new Date().toISOString().split('T')[0]; buildPlataformaInputs(); } },
+  'op-registrar': { id:'sec-op-registrar', title:'Registrar', sub:'Nuevo movimiento', load:()=>{ document.getElementById('reg-fecha').value=todayLocal(); buildPlataformaInputs(); } },
   'op-mis-registros': { id:'sec-op-mis-registros', title:'Mis Registros', sub:'Tu historial', load:()=>loadOpMisRegistros() },
   'op-rendimiento': { id:'sec-op-rendimiento', title:'Mi Rendimiento', sub:'Estadísticas personales', load:()=>loadOpRendimiento() },
 };
@@ -2338,26 +2368,57 @@ async function saveOperador() {
     const btn = document.querySelector('#modal-operador .btn-primary');
 
     if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
+
     try {
         if (!nombre || !correo) throw new Error('Nombre y correo son requeridos');
-        if (!editingOpId && (!password || password.length < 6)) throw new Error('Mínimo 6 caracteres para la contraseña');
 
         if (editingOpId) {
-            const { error } = await sb.from('usuarios').update({ nombre, sucursal, estado, rol }).eq('id', editingOpId);
+            const { error } = await sb.from('usuarios')
+                .update({ nombre, sucursal, estado, rol })
+                .eq('id', editingOpId);
             if (error) throw error;
             await logAuditoria('editar', `Usuario ${nombre} actualizado`);
-            toast('Usuario actualizado', 'success');
+            toast('Usuario actualizado ✅', 'success');
+
         } else {
-            const { data: authData, error: authErr } = await sb.auth.signUp({ email: correo, password });
-            if (authErr) throw authErr;
-            if (authData.user) {
-                await sb.from('usuarios').upsert({ id: authData.user.id, nombre, correo, rol, sucursal, estado });
+            if (!password || password.length < 6) throw new Error('Mínimo 6 caracteres para la contraseña');
+
+            // Guardar sesión del admin ANTES de crear
+            const { data: { session: adminSession } } = await sb.auth.getSession();
+            const adminAccessToken = adminSession.access_token;
+            const adminRefreshToken = adminSession.refresh_token;
+
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminAccessToken}`
+                },
+                body: JSON.stringify({ email: correo, password, nombre, rol, sucursal, estado })
+            });
+
+            const responseData = await res.json();
+            if (!res.ok) throw new Error(responseData.error || 'Error al crear usuario');
+
+            // Restaurar sesión del admin inmediatamente
+            const { error: restoreError } = await sb.auth.setSession({
+                access_token: adminAccessToken,
+                refresh_token: adminRefreshToken
+            });
+
+            if (restoreError) {
+                console.warn('⚠️ Error restaurando sesión:', restoreError.message);
+            } else {
+                console.log('✅ Sesión admin restaurada correctamente');
             }
+
             await logAuditoria('crear', `Usuario ${nombre} (${rol}) creado`);
-            toast('Usuario creado', 'success');
+            toast('Usuario creado ✅', 'success');
         }
+
         closeModal('modal-operador');
         await loadAllUsers();
+
     } catch (err) {
         toast(err.message, 'error');
     } finally {
@@ -2366,22 +2427,55 @@ async function saveOperador() {
 }
 
 async function deleteOperador(id) {
-    if (!confirm('¿Eliminar este usuario?')) return;
+    if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
     
-    // 👉 Buscar el usuario en la lista cargada para obtener su nombre/correo antes de eliminarlo
     const userToDelete = allOperadores.find(u => u.id === id);
     const userIdentifier = userToDelete ? (userToDelete.nombre || userToDelete.correo) : id;
 
-    // Ejecutar la eliminación en Supabase
-    const { error } = await sb.from('usuarios').delete().eq('id', id);
-    if (error) { toast('Error al eliminar','error'); return; }
-    
-    toast('Usuario eliminado','success');
-    
-    // 👉 Usar el nombre/correo guardado en la auditoría en lugar del ID crudo
-    await logAuditoria('eliminar', `Usuario ${userIdentifier} eliminado`);
-    
-    loadAllUsers();
+    try {
+        const { data: { session }, error: sessionError } = await sb.auth.getSession();
+        if (sessionError || !session) throw new Error('Sesión no válida.');
+
+        // 1. Eliminar registros relacionados PRIMERO
+        console.log('🗑️ Eliminando registros del operador...');
+        const { error: regError } = await sb.from('registros').delete().eq('operador_id', id);
+        if (regError) console.warn('⚠️ registros:', regError.message);
+
+        // 2. Eliminar de auditoría
+        console.log('🗑️ Eliminando auditoría...');
+        const { error: audError } = await sb.from('auditoria').delete().eq('usuario', userIdentifier);
+        if (audError) console.warn('⚠️ auditoria:', audError.message);
+
+        // 3. Eliminar de tabla usuarios
+        console.log('🗑️ Eliminando de tabla usuarios...');
+        const { error: userError } = await sb.from('usuarios').delete().eq('id', id);
+        if (userError) console.warn('⚠️ usuarios:', userError.message);
+
+        // 4. Ahora sí eliminar de Auth via Edge Function
+        console.log('🔐 Eliminando de Auth...');
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({ userId: id })
+        });
+
+        const responseData = await res.json();
+        console.log('📡 Status:', res.status);
+        console.log('📦 Respuesta:', JSON.stringify(responseData));
+
+        if (!res.ok) throw new Error(responseData.error || 'Error en Edge Function');
+
+        toast(`Usuario ${userIdentifier} eliminado completamente ✅`, 'success');
+        await logAuditoria('eliminar', `Usuario ${userIdentifier} eliminado`);
+        loadAllUsers();
+
+    } catch (err) {
+        console.error('💥 Error:', err);
+        toast('Error: ' + err.message, 'error');
+    }
 }
 
 // =====================================================
@@ -2572,26 +2666,70 @@ function renderWeeklySummary(data) {
 }
 
 function renderPlataformasChart(data) {
+  // Inicializar stats en el orden exacto de allPlataformas
   const stats = {};
+  allPlataformas.forEach(p => { stats[p.nombre] = 0; });
+
   data.forEach(r => {
     if (r.plataformas_data) {
-      Object.entries(r.plataformas_data).forEach(([nombre,val]) => {
-        if (!stats[nombre]) stats[nombre]=0;
-        stats[nombre] += val||0;
+      Object.entries(r.plataformas_data).forEach(([nombre, val]) => {
+        if (stats[nombre] !== undefined) stats[nombre] += val || 0;
+        else stats[nombre] = val || 0;
       });
     }
   });
-  const labels = Object.keys(stats);
-  const values = Object.values(stats);
-  const colors = allPlataformas.map(p => p.color).concat(['#2563EB','#7C3AED','#EC4899','#38BDF8']);
+
+  // Construir labels y colores en el MISMO orden que allPlataformas
+  const labels = [];
+  const values = [];
+  const colors = [];
+  const fallbackColors = ['#2563EB','#7C3AED','#EC4899','#38BDF8','#22C55E','#FACC15'];
+  let fallbackIdx = 0;
+
+  allPlataformas.forEach(p => {
+    labels.push(p.nombre);
+    values.push(stats[p.nombre] || 0);
+    colors.push(p.color || fallbackColors[fallbackIdx++ % fallbackColors.length]);
+  });
+
+  // Plataformas extra en datos que no están en allPlataformas
+  Object.entries(stats).forEach(([nombre, val]) => {
+    if (!allPlataformas.find(p => p.nombre === nombre)) {
+      labels.push(nombre);
+      values.push(val);
+      colors.push(fallbackColors[fallbackIdx++ % fallbackColors.length]);
+    }
+  });
+
   const cc = chartColors();
   destroyChart('plataformas');
   const ctx = document.getElementById('chart-plataformas');
-  if (!ctx || !labels.length) { if(ctx) ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height); return; }
+  if (!ctx || !labels.length) {
+    if (ctx) ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+    return;
+  }
   charts.plataformas = new Chart(ctx, {
     type: 'doughnut',
-    data: { labels, datasets: [{ data:values, backgroundColor:colors.slice(0,labels.length), borderWidth:0, hoverOffset:8 }] },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{color:cc.text,padding:12,font:{family:'Inter',size:11}} } }, cutout:'65%' }
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: cc.text, padding: 12, font: { family: 'Inter', size: 11 } }
+        }
+      },
+      cutout: '65%'
+    }
   });
 }
 
@@ -2997,7 +3135,7 @@ async function loadEstadisticas() {
 // =====================================================
 async function guardarRegistro() {
     const fecha = document.getElementById('reg-fecha').value;
-    const part = parseFloat(document.getElementById('reg-participacion').value) || 0;
+    const part = getParticipacionValue();
     const notas = document.getElementById('reg-notas')?.value.trim() || '';
     const platData = getPlatData();
     const mov = getTotalFromPlatData(platData);
@@ -3052,10 +3190,11 @@ async function guardarRegistro() {
     // Reset UI (Solo si fue online y exitoso)
     allPlataformas.forEach(p => { const el = document.getElementById(`plat-input-${p.id}`); if (el) el.value = ''; });
     document.getElementById('reg-participacion').value = '';
+    document.getElementById('reg-participacion-raw').value = '0';
     if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
     document.getElementById('clasificacion-preview').innerHTML = '';
     document.getElementById('total-movimientos-preview').textContent = '0';
-    document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('reg-fecha').value = todayLocal();
     await loadOpInicio();
 }
 
@@ -3063,15 +3202,17 @@ async function guardarRegistro() {
 // OPERADOR: DASHBOARD
 // =====================================================
 async function loadOpInicio() {
-    // 👉 MEJORA: Skeleton mientras carga
     showSkeletons('op-stats-grid', 3, 'card');
 
     const {data}=await sb.from('registros').select('*').eq('operador_id',currentUser.id).order('fecha',{ascending:false}).limit(30);
     const regs=data||[];
 
-    // 👉 MEJORA: ALERTA INTELIGENTE (3 PM SIN REGISTRO)
-    const today = new Date().toISOString().split('T')[0];
+    // Compartir con allRegistros para que updateRealTimeUI pueda leerlos
+    if (currentProfile?.rol !== 'administrador') allRegistros = regs;
+
+    const today = todayLocal();
     const hasTodayRecord = regs.some(r => r.fecha === today);
+
     const alertBanner = document.getElementById('op-alert-banner');
     if (alertBanner) {
         const currentHour = new Date().getHours();
@@ -3083,7 +3224,6 @@ async function loadOpInicio() {
         }
     }
 
-    // 👉 MEJORA: MENSAJE DE FECHA + ESTADO EN TIEMPO REAL
     const opDateStatus = document.getElementById('op-date-status');
     if (opDateStatus) {
         const now = new Date();
@@ -3092,7 +3232,6 @@ async function loadOpInicio() {
         opDateStatus.textContent = `Hoy es ${fechaCap} · ${hasTodayRecord ? 'Registro guardado ✅' : 'Sin registro hoy ⏳'}`;
     }
 
-    // 👉 MEJORA: TARJETAS DE ESTADÍSTICAS
     const totalMov=regs.reduce((a,r)=>a+(r.movimientos||0),0);
     const avgMov=regs.length?Math.round(totalMov/regs.length):0;
     const optDays=regs.filter(r=>getClasificacion(r.movimientos)==='optimo').length;
@@ -3103,7 +3242,6 @@ async function loadOpInicio() {
     ];
     document.getElementById('op-stats-grid').innerHTML=cards.map(c=>`<div class="stat-card"><div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div><div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div><div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div></div>`).join('');
 
-    // 👉 MEJORA: TABLA DE ÚLTIMOS REGISTROS (con columna Notas)
     const tbody=document.getElementById('op-recent-tbody');
     tbody.innerHTML=regs.slice(0,8).map(r=>`<tr><td style="font-weight:600;">${formatDate(r.fecha)}</td><td><span style="font-weight:700;">${r.movimientos||0}</span></td><td style="max-width:140px;"><div style="display:flex;gap:3px;flex-wrap:wrap;">${platDataBadges(r.plataformas_data)}</div></td><td style="color:#22C55E;">${formatCurrency(r.participacion)}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:0.75rem;" title="${r.notas||''}">${r.notas||'-'}</td><td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td></tr>`).join('')||`<tr><td colspan="6"><div class="empty-state" style="padding:1.5rem;"><p>Sin registros aún</p></div></td></tr>`;
 }
@@ -3261,9 +3399,8 @@ function initSmartDates() {
     });
 
     const regFecha = document.getElementById('reg-fecha');
-    if (regFecha) regFecha.value = now.toISOString().split('T')[0];
+    if (regFecha) regFecha.value = todayLocal();
 
-    // Lanzar reloj en tiempo real
     updateRealTimeUI(now);
     initRealTimeClock();
 }
@@ -3278,9 +3415,6 @@ function updateRealTimeUI(now = new Date()) {
         const horaActual = now.toLocaleTimeString('es-CO', {
             hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
-        const horaSinSeg = now.toLocaleTimeString('es-CO', {
-            hour: '2-digit', minute: '2-digit'
-        });
 
         // ── DASHBOARD ADMINISTRADOR ──────────────────────────────
         const dashGreeting = document.getElementById('dashboard-greeting');
@@ -3289,12 +3423,14 @@ function updateRealTimeUI(now = new Date()) {
             const fechaEl  = document.getElementById('dash-greeting-date');
             const relojEl  = document.getElementById('dash-greeting-clock');
 
-            if (nombreEl && !nombreEl.dataset.set) {
-                const nombre = currentProfile?.nombre || 'Administrador';
+            if (nombreEl) {
+                const nombre = currentProfile?.nombre || currentUser?.email?.split('@')[0] || 'Administrador';
                 const h = now.getHours();
                 const saludo = h < 12 ? '☀️ Buenos días' : h < 18 ? '🌤️ Buenas tardes' : '🌙 Buenas noches';
-                nombreEl.textContent = `${saludo}, ${nombre}`;
-                nombreEl.dataset.set = '1';
+                const nuevoTexto = `${saludo}, ${nombre}`;
+                if (nombreEl.textContent !== nuevoTexto) {
+                    nombreEl.textContent = nuevoTexto;
+                }
             }
             if (fechaEl)  fechaEl.textContent  = fechaCap;
             if (relojEl)  relojEl.textContent  = horaActual;
@@ -3303,9 +3439,9 @@ function updateRealTimeUI(now = new Date()) {
         // ── INICIO OPERADOR ──────────────────────────────────────
         const opDateStatus = document.getElementById('op-date-status');
         if (opDateStatus) {
-            const today = now.toISOString().split('T')[0];
+            const today = todayLocal();
             const hasTodayRecord = (allRegistros || []).some(r =>
-                r.fecha === today && r.operador_id === currentUser?.id
+                r.fecha === today && (currentProfile?.rol === 'administrador' || r.operador_id === currentUser?.id)
             );
             const estadoBadge = hasTodayRecord
                 ? `<span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(34,197,94,0.12);color:#16a34a;padding:0.25rem 0.65rem;border-radius:99px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-circle-check" style="font-size:0.6rem;"></i> Registro guardado</span>`
@@ -3327,7 +3463,6 @@ function updateRealTimeUI(now = new Date()) {
                 </div>`;
         }
 
-        // ── Reloj operador (si ya fue renderizado, solo actualizar el span) ──
         const opClock = document.getElementById('op-clock-display');
         if (opClock) opClock.textContent = horaActual;
 
