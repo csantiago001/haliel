@@ -1249,26 +1249,124 @@
 			<div class="divider"></div>
 
 			<!-- 🔔 Notificaciones Telegram -->
-			<div id="telegram-notif-row" style="display:flex;align-items:center;justify-content:space-between;">
-			  <div>
-				<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Telegram</div>
-				<div style="font-size:0.75rem;color:var(--text-muted);" id="telegram-notif-desc">Recibe alertas de registros en Telegram</div>
+			<div id="telegram-notif-row" style="display:none;">
+			  <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
+				
+				<!-- Header con toggle -->
+				<div style="display:flex;align-items:center;justify-content:space-between;">
+				  <div>
+					<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Telegram</div>
+					<div style="font-size:0.75rem;color:var(--text-muted);" id="telegram-notif-desc">Recibe alertas de registros en tu Telegram</div>
+				  </div>
+				  <button class="toggle-dark" id="telegram-notif-toggle" onclick="toggleTelegramNotif()"><span class="toggle-dot"></span></button>
+				</div>
+
+				<!-- Instrucciones para obtener Chat ID -->
+				<div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:0.75rem;padding:1rem;">
+				  <div style="font-size:0.8rem;font-weight:600;color:#2563EB;margin-bottom:0.5rem;">📱 ¿Cómo obtener tu Chat ID?</div>
+				  <ol style="font-size:0.75rem;color:var(--text-muted);padding-left:1.1rem;margin:0;line-height:1.8;">
+					<li>Abre Telegram y busca <b>@HalielPapeleriaBot</b></li>
+					<li>Escríbele <b>/start</b></li>
+					<li>Abre en el navegador:<br/>
+					  <code style="font-size:0.7rem;background:var(--card-bg);padding:2px 6px;border-radius:4px;word-break:break-all;">https://api.telegram.org/botTU_TOKEN/getUpdates</code>
+					</li>
+					<li>Busca el número en <b>"chat":{"id":</b></li>
+				  </ol>
+				</div>
+
+				<!-- Input Chat ID -->
+				<div>
+				  <label class="field-label">Tu Chat ID de Telegram</label>
+				  <div style="display:flex;gap:0.5rem;">
+					<input 
+					  type="text" 
+					  id="telegram-chat-id-input" 
+					  class="field-input" 
+					  placeholder="Ej: 123456789"
+					  style="flex:1;"
+					/>
+					<button class="btn-primary" onclick="saveTelegramChatId()" style="white-space:nowrap;padding:0.65rem 1rem;">
+					  <i class="fa-solid fa-save"></i> Guardar
+					</button>
+			<!-- TAB: CONFIGURACIÓN PERSONAL -->
+			<div id="tab-settings" class="profile-tab-content" style="display:none;">
+			  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+				<!-- Modo Oscuro -->
+				<div style="display:flex;align-items:center;justify-content:space-between;">
+				  <div>
+					<div style="font-weight:600;font-size:0.9rem;">Modo oscuro</div>
+					<div style="font-size:0.75rem;color:var(--text-muted);">Adapta la interfaz</div>
+				  </div>
+				  <button class="toggle-dark" id="profile-dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
+				</div>
+				<div class="divider"></div>
+
+				<!-- 🔔 Notificaciones Telegram -->
+				<div id="telegram-notif-row" style="display:none;">
+				  <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
+
+					<!-- Header con toggle -->
+					<div style="display:flex;align-items:center;justify-content:space-between;">
+					  <div>
+						<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Telegram</div>
+						<div style="font-size:0.75rem;color:var(--text-muted);" id="telegram-notif-desc">Recibe alertas de registros en tu Telegram</div>
+					  </div>
+					  <button class="toggle-dark" id="telegram-notif-toggle" onclick="toggleTelegramNotif()"><span class="toggle-dot"></span></button>
+					</div>
+
+					<!-- Instrucciones para obtener Chat ID -->
+					<div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:0.75rem;padding:1rem;">
+					  <div style="font-size:0.8rem;font-weight:600;color:#2563EB;margin-bottom:0.5rem;">📱 ¿Cómo obtener tu Chat ID?</div>
+					  <ol style="font-size:0.75rem;color:var(--text-muted);padding-left:1.1rem;margin:0;line-height:1.8;">
+						<li>Abre Telegram y busca <b>@HalielPapeleriaBot</b></li>
+						<li>Escríbele <b>/start</b></li>
+						<li>Abre en el navegador:<br/>
+						  <code style="font-size:0.7rem;background:var(--card-bg);padding:2px 6px;border-radius:4px;word-break:break-all;">https://api.telegram.org/botTU_TOKEN/getUpdates</code>
+						</li>
+						<li>Busca el número en <b>"chat":{"id":</b></li>
+					  </ol>
+					</div>
+
+					<!-- Input Chat ID -->
+					<div>
+					  <label class="field-label">Tu Chat ID de Telegram</label>
+					  <div style="display:flex;gap:0.5rem;">
+						<input
+						  type="text"
+						  id="telegram-chat-id-input"
+						  class="field-input"
+						  placeholder="Ej: 123456789"
+						  style="flex:1;"
+						/>
+						<button class="btn-primary" onclick="saveTelegramChatId()" style="white-space:nowrap;padding:0.65rem 1rem;">
+						  <i class="fa-solid fa-save"></i> Guardar
+						</button>
+					  </div>
+					  <div id="telegram-chat-id-status" style="font-size:0.75rem;margin-top:0.4rem;"></div>
+					</div>
+
+					<!-- Botón probar -->
+					<button class="btn-secondary" onclick="testTelegramNotif()" id="btn-test-telegram" style="justify-content:center;display:none;">
+					  <i class="fa-solid fa-paper-plane"></i> Enviar notificación de prueba
+					</button>
+
+				  </div>
+				</div>
+				<div id="telegram-notif-divider" class="divider" style="display:none;"></div>
+
+				<!-- Foto de Perfil -->
+				<div>
+				  <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Foto de perfil</div>
+				  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+					<button class="btn-secondary" onclick="document.getElementById('profile-photo-input-premium').click()"><i class="fa-solid fa-upload"></i> Subir nueva</button>
+					<button class="btn-secondary" onclick="removeProfilePhoto()" id="btn-remove-photo" style="display:none;color:#EF4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-trash"></i> Eliminar</button>
+				  </div>
+				  <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">JPG, PNG, WebP · Máx. 2MB</p>
+				</div>
+
 			  </div>
-			  <button class="toggle-dark" id="telegram-notif-toggle" onclick="toggleTelegramNotif()"><span class="toggle-dot"></span></button>
 			</div>
-			<div class="divider"></div>
-			
-			<!-- Foto de Perfil -->
-			<div>
-			  <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Foto de perfil</div>
-			  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-				<button class="btn-secondary" onclick="document.getElementById('profile-photo-input-premium').click()"><i class="fa-solid fa-upload"></i> Subir nueva</button>
-				<button class="btn-secondary" onclick="removeProfilePhoto()" id="btn-remove-photo" style="display:none;color:#EF4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-trash"></i> Eliminar</button>
-			  </div>
-			  <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">JPG, PNG, WebP · Máx. 2MB</p>
-			</div>
-		  </div>
-		</div>
 
       <!-- TAB: CONFIGURACIÓN DEL SISTEMA (Solo Admin) -->
       <div id="tab-sysconfig" class="profile-tab-content" style="display:none;">
@@ -1462,30 +1560,51 @@ const TELEGRAM_BOT_TOKEN = '8939765729:AAFXoyxciIrgSDxNLBcoGMA58GnAAtw6V60'; // 
 const TELEGRAM_CHAT_ID   = '1698032936'; // Reemplaza con tu Chat ID
 
 async function sendTelegramNotification(mensaje) {
-    // Respetar preferencia del administrador
-    if (!isTelegramNotifEnabled()) {
-        console.log('🔕 Notificaciones Telegram desactivadas');
-        return;
-    }
     try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: mensaje,
-                parse_mode: 'HTML'
-            })
-        });
-        const result = await response.json();
-        if (!result.ok) {
-            console.warn('⚠️ Telegram error:', result.description);
-        } else {
-            console.log('✅ Notificación Telegram enviada');
+        // Buscar todos los admins con notificaciones activas y Chat ID configurado
+        const { data: admins, error } = await sb.from('usuarios')
+            .select('id, nombre, telegram_chat_id, telegram_notif')
+            .eq('rol', 'administrador')
+            .eq('telegram_notif', true)
+            .not('telegram_chat_id', 'is', null);
+
+        if (error) {
+            console.warn('⚠️ Error consultando admins:', error.message);
+            return;
         }
+
+        if (!admins || admins.length === 0) {
+            console.log('ℹ️ No hay admins con notificaciones activas');
+            return;
+        }
+
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+        // Enviar a cada admin su notificación
+        for (const admin of admins) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: admin.telegram_chat_id,
+                        text: mensaje,
+                        parse_mode: 'HTML'
+                    })
+                });
+                const result = await response.json();
+                if (!result.ok) {
+                    console.warn(`⚠️ Error enviando a ${admin.nombre}:`, result.description);
+                } else {
+                    console.log(`✅ Notificación enviada a ${admin.nombre}`);
+                }
+            } catch (err) {
+                console.warn(`⚠️ Fallo enviando a ${admin.nombre}:`, err.message);
+            }
+        }
+
     } catch (err) {
-        console.warn('⚠️ No se pudo enviar notificación Telegram:', err.message);
+        console.warn('⚠️ Error general en sendTelegramNotification:', err.message);
     }
 }
 
@@ -1577,10 +1696,10 @@ async function toggleTelegramNotif() {
     const activo = toggle.classList.contains('on');
     const nuevoEstado = !activo;
 
-    // Actualizar UI inmediatamente (optimistic update)
+    // Actualizar UI inmediatamente
     if (nuevoEstado) {
         toggle.classList.add('on');
-        if (desc) desc.textContent = 'Recibe alertas de registros en Telegram';
+        if (desc) desc.textContent = 'Recibe alertas de registros en tu Telegram';
     } else {
         toggle.classList.remove('on');
         if (desc) desc.textContent = 'Notificaciones desactivadas';
@@ -1592,8 +1711,6 @@ async function toggleTelegramNotif() {
             .eq('id', currentUser.id);
 
         if (error) throw error;
-
-        // Actualizar estado local
         currentProfile.telegram_notif = nuevoEstado;
 
         if (nuevoEstado) {
@@ -1609,7 +1726,7 @@ async function toggleTelegramNotif() {
             if (desc) desc.textContent = 'Notificaciones desactivadas';
         } else {
             toggle.classList.add('on');
-            if (desc) desc.textContent = 'Recibe alertas de registros en Telegram';
+            if (desc) desc.textContent = 'Recibe alertas de registros en tu Telegram';
         }
         toast('Error al guardar preferencia: ' + err.message, 'error');
     }
@@ -1617,32 +1734,136 @@ async function toggleTelegramNotif() {
 
 function isTelegramNotifEnabled() {
     if (currentProfile?.rol !== 'administrador') return false;
-    // Si el campo es null (usuario antiguo sin columna aún), por defecto true
     return currentProfile?.telegram_notif !== false;
 }
 
 function initTelegramToggleUI() {
     const toggle = document.getElementById('telegram-notif-toggle');
     const row = document.getElementById('telegram-notif-row');
+    const divider = document.getElementById('telegram-notif-divider');
     const desc = document.getElementById('telegram-notif-desc');
+    const chatInput = document.getElementById('telegram-chat-id-input');
+    const statusEl = document.getElementById('telegram-chat-id-status');
+    const testBtn = document.getElementById('btn-test-telegram');
+
     if (!toggle || !row) return;
 
     // Solo mostrar para administradores
     if (currentProfile?.rol !== 'administrador') {
         row.style.display = 'none';
-        const divider = row.nextElementSibling;
         if (divider) divider.style.display = 'none';
         return;
     }
 
-    row.style.display = 'flex';
+    row.style.display = 'block';
+    if (divider) divider.style.display = 'block';
 
+    // Estado del toggle
     if (isTelegramNotifEnabled()) {
         toggle.classList.add('on');
-        if (desc) desc.textContent = 'Recibe alertas de registros en Telegram';
+        if (desc) desc.textContent = 'Recibe alertas de registros en tu Telegram';
     } else {
         toggle.classList.remove('on');
         if (desc) desc.textContent = 'Notificaciones desactivadas';
+    }
+
+    // Cargar Chat ID guardado
+    if (chatInput) {
+        chatInput.value = currentProfile?.telegram_chat_id || '';
+    }
+
+    // Mostrar estado del Chat ID
+    if (statusEl) {
+        if (currentProfile?.telegram_chat_id) {
+            statusEl.innerHTML = `<span style="color:#16a34a;"><i class="fa-solid fa-circle-check"></i> Chat ID configurado correctamente</span>`;
+            if (testBtn) testBtn.style.display = 'flex';
+        } else {
+            statusEl.innerHTML = `<span style="color:#ca8a04;"><i class="fa-solid fa-triangle-exclamation"></i> Sin Chat ID — no recibirás notificaciones</span>`;
+            if (testBtn) testBtn.style.display = 'none';
+        }
+    }
+}
+
+async function saveTelegramChatId() {
+    const input = document.getElementById('telegram-chat-id-input');
+    const statusEl = document.getElementById('telegram-chat-id-status');
+    const testBtn = document.getElementById('btn-test-telegram');
+    const chatId = input?.value.trim();
+
+    if (!chatId) {
+        toast('Ingresa tu Chat ID', 'error');
+        return;
+    }
+
+    if (!/^-?\d+$/.test(chatId)) {
+        toast('El Chat ID solo debe contener números', 'error');
+        return;
+    }
+
+    try {
+        const { error } = await sb.from('usuarios')
+            .update({ telegram_chat_id: chatId })
+            .eq('id', currentUser.id);
+
+        if (error) throw error;
+
+        currentProfile.telegram_chat_id = chatId;
+
+        if (statusEl) {
+            statusEl.innerHTML = `<span style="color:#16a34a;"><i class="fa-solid fa-circle-check"></i> Chat ID guardado correctamente</span>`;
+        }
+        if (testBtn) testBtn.style.display = 'flex';
+
+        toast('Chat ID guardado ✅', 'success');
+
+    } catch (err) {
+        toast('Error al guardar: ' + err.message, 'error');
+        if (statusEl) {
+            statusEl.innerHTML = `<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> Error al guardar</span>`;
+        }
+    }
+}
+
+async function testTelegramNotif() {
+    const chatId = currentProfile?.telegram_chat_id;
+    if (!chatId) {
+        toast('Primero guarda tu Chat ID', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-test-telegram');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,0.2);border-top-color:#2563EB;"></span> Enviando...'; }
+
+    const hora = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    const mensaje = `🏬 <b>Haliel Papelería</b>
+━━━━━━━━━━━━━━━━━━
+✅ <b>Notificación de prueba</b>
+
+👤 <b>Admin:</b> ${currentProfile?.nombre || 'Administrador'}
+🕐 <b>Hora:</b> ${hora}
+
+Las notificaciones están funcionando correctamente en tu cuenta.
+━━━━━━━━━━━━━━━━━━
+<i>Si ves este mensaje, todo está listo 🎉</i>`;
+
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: mensaje,
+                parse_mode: 'HTML'
+            })
+        });
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.description);
+        toast('✅ Mensaje de prueba enviado a tu Telegram', 'success');
+    } catch (err) {
+        toast('Error: ' + err.message + ' — Verifica tu Chat ID', 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar notificación de prueba'; }
     }
 }
 
