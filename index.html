@@ -16,6 +16,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
 <script>
   tailwind.config = {
@@ -1235,27 +1238,40 @@
         </div>
       </div>
 
-      <!-- TAB: CONFIGURACIÓN PERSONAL -->
-      <div id="tab-settings" class="profile-tab-content" style="display:none;">
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-weight:600;font-size:0.9rem;">Modo oscuro</div>
-              <div style="font-size:0.75rem;color:var(--text-muted);">Adapta la interfaz</div>
-            </div>
-            <button class="toggle-dark" id="profile-dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Foto de perfil</div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-              <button class="btn-secondary" onclick="document.getElementById('profile-photo-input-premium').click()"><i class="fa-solid fa-upload"></i> Subir nueva</button>
-              <button class="btn-secondary" onclick="removeProfilePhoto()" id="btn-remove-photo" style="display:none;color:#EF4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-trash"></i> Eliminar</button>
-            </div>
-            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">JPG, PNG, WebP · Máx. 2MB</p>
-          </div>
-        </div>
-      </div>
+		<!-- TAB: CONFIGURACIÓN PERSONAL -->
+		<div id="tab-settings" class="profile-tab-content" style="display:none;">
+		  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+			<!-- Modo Oscuro -->
+			<div style="display:flex;align-items:center;justify-content:space-between;">
+			  <div>
+				<div style="font-weight:600;font-size:0.9rem;">Modo oscuro</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);">Adapta la interfaz</div>
+			  </div>
+			  <button class="toggle-dark" id="profile-dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
+			</div>
+			<div class="divider"></div>
+			
+			<!-- 🔔 Notificaciones Push Firebase -->
+			<div style="display:flex;align-items:center;justify-content:space-between;">
+			  <div>
+				<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Push</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);">Recibe alertas en tiempo real</div>
+			  </div>
+			  <label class="toggle-dark" id="toggle-notif-firebase" onclick="toggleFirebaseNotif()"><span class="toggle-dot"></span></label>
+			</div>
+			<div class="divider"></div>
+			
+			<!-- Foto de Perfil -->
+			<div>
+			  <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Foto de perfil</div>
+			  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+				<button class="btn-secondary" onclick="document.getElementById('profile-photo-input-premium').click()"><i class="fa-solid fa-upload"></i> Subir nueva</button>
+				<button class="btn-secondary" onclick="removeProfilePhoto()" id="btn-remove-photo" style="display:none;color:#EF4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-trash"></i> Eliminar</button>
+			  </div>
+			  <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">JPG, PNG, WebP · Máx. 2MB</p>
+			</div>
+		  </div>
+		</div>
 
       <!-- TAB: CONFIGURACIÓN DEL SISTEMA (Solo Admin) -->
       <div id="tab-sysconfig" class="profile-tab-content" style="display:none;">
@@ -1441,6 +1457,23 @@
 // =====================================================
 const SUPABASE_URL = 'https://ejbkqnanjvmjykovvvos.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYmtxbmFuanZtanlrb3Z2dm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzI1NzAsImV4cCI6MjA5NDQ0ODU3MH0.BnFrDc8CwqfITTFoPNGcp4OiJ7A4jr4FX30eJrWeRO0';
+
+// 🔥 FIREBASE CONFIGURATION
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBnUyK1E8B_EiYUjHw1BxrKsvP2yTZheFs",
+  authDomain: "haliel.firebaseapp.com",
+  projectId: "haliel",
+  storageBucket: "haliel.firebasestorage.app",
+  messagingSenderId: "400290356422",
+  appId: "1:400290356422:web:6503e67049429f1f018bc7"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(FIREBASE_CONFIG);
+const messaging = firebase.messaging();
+
+// VAPID Key para Web Push (obtén esta clave en Firebase Console → Cloud Messaging)
+const VAPID_KEY = "BKctL_NU2MhubtLlj2fTn0R78ZhlCpzk1JLePvLjAaLUmXnUacLeXlv8s1IIz1hOlzYBfyi68owcLqJqcxv8waQ"; // 👉 Reemplaza con tu clave pública
 
 function todayLocal() {
   const now = new Date();
@@ -2205,6 +2238,15 @@ async function initApp(user) {
     loadConfig();
     initInactivityTracking();
     initSidebarState();
+	
+	// 🔔 Inicializar notificaciones Firebase (solo admins)
+	if (currentProfile?.rol === 'administrador') {
+	  // Verificar si ya tenía permiso
+	  const permission = Notification.permission;
+	  if (permission === 'granted') {
+		requestNotificationPermission();
+	  }
+	}
     
     // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
     setTimeout(() => {
@@ -5470,6 +5512,133 @@ window.addEventListener('online', () => {
         syncOfflineQueue();
     }
 });
+
+// =====================================================
+// 🔥 FIREBASE CLOUD MESSAGING
+// =====================================================
+
+let firebaseNotifEnabled = false;
+
+// Solicitar permiso y obtener token
+async function requestNotificationPermission() {
+  try {
+    // Registrar Service Worker
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    
+    // Solicitar permiso
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      console.log('❌ Permiso de notificaciones denegado');
+      return;
+    }
+    
+    // Obtener token FCM
+    const token = await messaging.getToken({
+      vapidKey: 'TU_VAPID_KEY_AQUI' // La obtienes de Firebase Console
+    });
+    
+    console.log('✅ Token FCM:', token);
+    
+    // Guardar token en Supabase (para admins)
+    if (currentUser && currentProfile?.rol === 'administrador') {
+      await sb.from('usuarios')
+        .update({ fcm_token: token })
+        .eq('id', currentUser.id);
+      console.log('💾 Token guardado en BD');
+    }
+    
+    // Escuchar notificaciones en primer plano
+    messaging.onMessage((payload) => {
+      console.log('📨 Notificación recibida:', payload);
+      toast(`🔔 ${payload.notification.title}: ${payload.notification.body}`, 'info');
+      
+      // Mostrar notificación nativa
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(payload.notification.title, {
+          body: payload.notification.body,
+          icon: payload.notification.icon || '/logo.png',
+          badge: payload.notification.icon || '/logo.png'
+        });
+      }
+    });
+    
+    firebaseNotifEnabled = true;
+    updateFirebaseToggleUI();
+    
+  } catch (error) {
+    console.error('❌ Error FCM:', error);
+  }
+}
+
+// Toggle Firebase notifications
+function toggleFirebaseNotif() {
+  const toggle = document.getElementById('toggle-notif-firebase');
+  toggle.classList.toggle('on');
+  
+  if (toggle.classList.contains('on')) {
+    requestNotificationPermission();
+  } else {
+    firebaseNotifEnabled = false;
+    // Opcional: Eliminar token de la BD
+  }
+}
+
+// Actualizar UI del toggle
+function updateFirebaseToggleUI() {
+  const toggle = document.getElementById('toggle-notif-firebase');
+  if (toggle && firebaseNotifEnabled) {
+    toggle.classList.add('on');
+  }
+}
+
+// Enviar notificación a un admin específico
+async function sendFirebaseNotification(userId, title, body) {
+  try {
+    // Obtener token del usuario
+    const { data } = await sb.from('usuarios')
+      .select('fcm_token')
+      .eq('id', userId)
+      .single();
+    
+    if (!data?.fcm_token) {
+      console.log('⚠️ Usuario sin token FCM');
+      return;
+    }
+    
+    // Aquí podrías llamar a una Cloud Function de Firebase
+    // o usar el Admin SDK desde un backend
+    console.log('📤 Enviando notificación a:', userId);
+    console.log('📝 Título:', title);
+    console.log('📝 Cuerpo:', body);
+    
+  } catch (error) {
+    console.error('❌ Error enviando notificación:', error);
+  }
+}
+
+// Notificar a todos los admins
+async function notifyAllAdmins(title, body) {
+  try {
+    const { data } = await sb.from('usuarios')
+      .select('id, fcm_token')
+      .eq('rol', 'administrador')
+      .not('fcm_token', 'is', null);
+    
+    if (!data || data.length === 0) {
+      console.log('⚠️ No hay admins con tokens registrados');
+      return;
+    }
+    
+    console.log(`📤 Enviando a ${data.length} admins...`);
+    
+    for (const admin of data) {
+      await sendFirebaseNotification(admin.id, title, body);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error notificando admins:', error);
+  }
+}
 
 // =====================================================
 // FUNCIONES NUEVAS: REGISTRO PARA ADMINISTRADORES
