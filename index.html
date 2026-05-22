@@ -1953,18 +1953,25 @@ async function doLogout() {
     // 👉 1. CERRAR MODALES
     closeModal('modal-profile');
     closeModal('modal-change-password');
+    closeModal('modal-avatar-lightbox'); // 👉 NUEVO: Cerrar lightbox si está abierto
     
     // 👉 2. LIMPIAR TIMERS DE INACTIVIDAD
     clearTimeout(inactivityTimer);
     clearInterval(countdownTimer);
     document.getElementById('inactivity-warning')?.classList.remove('show');
     
-    // 👉 3. DESTRUIR TODOS LOS GRÁFICOS
+    // 👉 3. DETENER RELOJ EN TIEMPO REAL
+    if (window.halielClockInterval) {
+        clearInterval(window.halielClockInterval);
+        delete window.halielClockInterval;
+    }
+    
+    // 👉 4. DESTRUIR TODOS LOS GRÁFICOS
     destroyAllCharts();
     
-    // 👉 4. ✅ NUEVO: DESUSCRIBIR CANALES REALTIME DE SUPABASE
+    // 👉 5. ✅ NUEVO: DESUSCRIBIR CANALES REALTIME DE SUPABASE
     if (currentUser?.rol === 'administrador') {
-        // Obtener todos los canales activos y desuscribirlos
+        // Desuscribir canales generales
         sb.realtime.getChannels().forEach(channel => {
             if (channel.state === 'subscribed' || channel.state === 'joining') {
                 sb.removeChannel(channel);
@@ -1974,16 +1981,23 @@ async function doLogout() {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
     
-    // 👉 5. CERRAR SESIÓN EN SUPABASE
+    // 👉 6. ✅ NUEVO: LIMPIAR CANAL EXCLUSIVO DE SINCRONIZACIÓN DE PERFIL
+    if (window.profileSyncChannel) {
+        sb.removeChannel(window.profileSyncChannel);
+        delete window.profileSyncChannel;
+        console.log('🧹 Canal de sincronización de perfil limpiado');
+    }
+    
+    // 👉 7. CERRAR SESIÓN EN SUPABASE
     await sb.auth.signOut();
     
-    // 👉 6. LIMPIAR ESTADO LOCAL
+    // 👉 8. LIMPIAR ESTADO LOCAL
     currentUser = null;
     currentProfile = null;
     allRegistros = [];
     allOperadores = [];
     
-    // 👉 7. OCULTAR APP Y MOSTRAR LOGIN
+    // 👉 9. OCULTAR APP Y MOSTRAR LOGIN
     document.getElementById('app').style.display = 'none';
     document.getElementById('login-page').style.display = 'flex';
     showLogin();
@@ -2166,6 +2180,9 @@ async function initApp(user) {
                 
             console.log('📡 Canales realtime suscritos');
         }
+		
+		// 👉 NUEVO: Iniciar sincronización de perfil en tiempo real
+		initProfileRealtimeSync();
         
     } else {
         document.getElementById('nav-admin').classList.add('hidden');
@@ -2510,27 +2527,39 @@ async function loadAllUsers() {
 }
 
 function renderOperadores(filter='') {
-    const tbody = document.getElementById('operadores-tbody');
-    let ops = allOperadores;
-    if (filter) ops = ops.filter(o => o.nombre?.toLowerCase().includes(filter) || o.correo?.toLowerCase().includes(filter));
-    if (!ops.length) { tbody.innerHTML=`<tr><td colspan="8">${emptyState('fa-users','Sin usuarios','Crea el primer operador usando el botón "Nuevo Usuario".')}</td></tr>`; return; }
-    tbody.innerHTML = ops.map(o => `
-    <tr>
+  const tbody = document.getElementById('operadores-tbody');
+  let ops = allOperadores;
+  if (filter) ops = ops.filter(o => o.nombre?.toLowerCase().includes(filter) || o.correo?.toLowerCase().includes(filter));
+  if (!ops.length) { tbody.innerHTML=`<tr><td colspan="8">${emptyState('fa-users','Sin usuarios','Crea el primer operador usando el botón "Nuevo Usuario".')}</td></tr>`; return; }
+  tbody.innerHTML = ops.map(o => `
+  <tr>
     <td style="width:40px;padding-right:0.5rem;">
-        <input type="checkbox" class="op-checkbox" data-id="${o.id}" 
-               ${selectedOperadores.has(o.id) ? 'checked' : ''}
-               onchange="toggleOperadorSelect('${o.id}', this.checked)"
-               style="width:16px;height:16px;cursor:pointer;"/>
+      <input type="checkbox" class="op-checkbox" data-id="${o.id}"
+      ${selectedOperadores.has(o.id) ? 'checked' : ''}
+      onchange="toggleOperadorSelect('${o.id}', this.checked)"
+      style="width:16px;height:16px;cursor:pointer;"/>
     </td>
-    <td><div style="display:flex;align-items:center;gap:0.75rem;"><div class="avatar" style="width:32px;height:32px;font-size:0.75rem;">${getInitials(o.nombre)}</div><span style="font-weight:600;">${o.nombre||'-'}</span></div></td>
+    <td>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div class="avatar" id="op-avatar-${o.id}" style="width:32px;height:32px;font-size:0.75rem;cursor:pointer;border:2px solid var(--card-border);transition:transform 0.2s,box-shadow 0.2s;" onclick="showOperatorPhoto('${o.id}')" onmouseover="this.style.transform='scale(1.15)';this.style.boxShadow='0 0 12px rgba(37,99,235,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
+          ${o.foto_perfil ? `<img src="${o.foto_perfil}" alt="${o.nombre}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>` : getInitials(o.nombre)}
+        </div>
+        <span style="font-weight:600;">${o.nombre||'-'}</span>
+      </div>
+    </td>
     <td style="color:var(--text-muted);">${o.correo||o.email||'-'}</td>
     <td>${o.rol==='administrador'?'<span class="badge badge-purple"><i class="fa-solid fa-crown"></i> Admin</span>':'<span class="badge badge-blue">Operador</span>'}</td>
     <td>${o.sucursal?`<span class="badge badge-blue">${o.sucursal}</span>`:'-'}</td>
     <td>${o.estado==='activo'?'<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>':'<span class="badge badge-red">Inactivo</span>'}</td>
     <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(o.created_at)}</td>
     <td><div style="display:flex;gap:0.5rem;"><button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
-    </tr>
-    `).join('');
+  </tr>
+  `).join('');
+  // Refrescar avatares después de insertar en el DOM
+  ops.forEach(o => {
+    const el = document.getElementById(`op-avatar-${o.id}`);
+    if (el) renderAvatar(el, o, '32px');
+  });
 }
 
 function filterOperadores(v) { renderOperadores(v.toLowerCase()); }
@@ -5547,6 +5576,103 @@ async function guardarRegistroAdmin() {
   document.getElementById('admin-clasificacion-preview').innerHTML = '';
   document.getElementById('admin-total-movimientos-preview').textContent = '0';
   document.getElementById('admin-reg-fecha').value = todayLocal();
+}
+
+// =====================================================
+// LIGHTBOX FOTO DE PERFIL DE OPERADOR
+// =====================================================
+function showOperatorPhoto(opId) {
+  const op = allOperadores.find(o => o.id === opId);
+  if (!op) return;
+  
+  // Crear modal dinámicamente si no existe
+  let lightbox = document.getElementById('op-photo-lightbox');
+  if (!lightbox) {
+    lightbox = document.createElement('div');
+    lightbox.id = 'op-photo-lightbox';
+    lightbox.className = 'modal-overlay';
+    lightbox.style.cssText = 'display:none;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:2000;';
+    lightbox.onclick = (e) => { if (e.target === lightbox) closeOperatorPhoto(); };
+    lightbox.innerHTML = `
+      <div style="text-align:center;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+        <button onclick="closeOperatorPhoto()" style="position:absolute;top:1.5rem;right:1.5rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:40px;height:40px;color:white;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div id="op-photo-img-container" style="width:280px;height:280px;border-radius:50%;overflow:hidden;border:5px solid white;box-shadow:0 16px 64px rgba(0,0,0,0.5);margin:0 auto 1.5rem;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;">
+        </div>
+        <div style="color:white;">
+          <div id="op-photo-name" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:0.25rem;"></div>
+          <div id="op-photo-role" style="font-size:0.85rem;opacity:0.7;"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(lightbox);
+  }
+  
+  // Actualizar contenido
+  const container = document.getElementById('op-photo-img-container');
+  const fotoUrl = op.foto_perfil;
+  if (fotoUrl) {
+    container.innerHTML = `<img src="${fotoUrl}" alt="${op.nombre}" style="width:100%;height:100%;object-fit:cover;"/>`;
+  } else {
+    container.innerHTML = `<span style="font-size:5rem;font-weight:800;color:rgba(255,255,255,0.8);font-family:'Poppins',sans-serif;">${getInitials(op.nombre)}</span>`;
+  }
+  
+  document.getElementById('op-photo-name').textContent = op.nombre || 'Usuario';
+  document.getElementById('op-photo-role').textContent = op.rol === 'administrador' ? 'Administrador' : `Operador · ${op.sucursal || 'Sin sucursal'}`;
+  
+  lightbox.style.display = 'flex';
+}
+
+function closeOperatorPhoto() {
+  const lightbox = document.getElementById('op-photo-lightbox');
+  if (lightbox) lightbox.style.display = 'none';
+}
+
+// =====================================================
+// SINCRONIZACIÓN EN TIEMPO REAL DE PERFIL (MULTI-DISPOSITIVO)
+// =====================================================
+function initProfileRealtimeSync() {
+  if (!currentUser?.id) return;
+  // Canal exclusivo para el perfil del usuario actual
+  const profileSyncChannel = sb
+    .channel(`profile-sync-${currentUser.id}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'usuarios',
+        filter: `id=eq.${currentUser.id}`
+      },
+      (payload) => {
+        const updatedData = payload.new;
+        // Si cambió la foto, actualizar y refrescar UI
+        if (updatedData.foto_perfil !== currentProfile?.foto_perfil) {
+          currentProfile.foto_perfil = updatedData.foto_perfil || null;
+          refreshAllAvatarsUI();
+          toast('Foto de perfil actualizada en otro dispositivo 🔄', 'info');
+        }
+        // Si cambiaron datos básicos desde otro dispositivo, también sincronizarlos
+        if (updatedData.nombre !== currentProfile?.nombre || 
+            updatedData.telefono !== currentProfile?.telefono || 
+            updatedData.direccion !== currentProfile?.direccion) {
+          currentProfile = { ...currentProfile, nombre: updatedData.nombre, telefono: updatedData.telefono, direccion: updatedData.direccion };
+          document.getElementById('topbar-name').textContent = currentProfile.nombre || currentUser.email;
+        }
+      }
+    )
+    .subscribe();
+
+  window.profileSyncChannel = profileSyncChannel; // Guardar referencia para limpieza
+}
+
+function refreshAllAvatarsUI() {
+  if (!currentProfile) return;
+  renderAvatar(document.getElementById('topbar-avatar'), currentProfile, '36px');
+  renderAvatar(document.getElementById('profile-avatar-premium'), currentProfile, '120px');
+  const opAvatar = document.getElementById('op-avatar-big');
+  if (opAvatar) renderAvatar(opAvatar, currentProfile, '56px');
 }
 
 </script>
