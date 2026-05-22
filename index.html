@@ -1238,6 +1238,7 @@
 		<!-- TAB: CONFIGURACIÓN PERSONAL -->
 		<div id="tab-settings" class="profile-tab-content" style="display:none;">
 		  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
 			<!-- Modo Oscuro -->
 			<div style="display:flex;align-items:center;justify-content:space-between;">
 			  <div>
@@ -1251,7 +1252,7 @@
 			<!-- 🔔 Notificaciones Telegram -->
 			<div id="telegram-notif-row" style="display:none;">
 			  <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
-				
+
 				<!-- Header con toggle -->
 				<div style="display:flex;align-items:center;justify-content:space-between;">
 				  <div>
@@ -1278,95 +1279,41 @@
 				<div>
 				  <label class="field-label">Tu Chat ID de Telegram</label>
 				  <div style="display:flex;gap:0.5rem;">
-					<input 
-					  type="text" 
-					  id="telegram-chat-id-input" 
-					  class="field-input" 
+					<input
+					  type="text"
+					  id="telegram-chat-id-input"
+					  class="field-input"
 					  placeholder="Ej: 123456789"
 					  style="flex:1;"
 					/>
 					<button class="btn-primary" onclick="saveTelegramChatId()" style="white-space:nowrap;padding:0.65rem 1rem;">
 					  <i class="fa-solid fa-save"></i> Guardar
 					</button>
-			<!-- TAB: CONFIGURACIÓN PERSONAL -->
-			<div id="tab-settings" class="profile-tab-content" style="display:none;">
-			  <div style="display:flex;flex-direction:column;gap:1.25rem;">
-
-				<!-- Modo Oscuro -->
-				<div style="display:flex;align-items:center;justify-content:space-between;">
-				  <div>
-					<div style="font-weight:600;font-size:0.9rem;">Modo oscuro</div>
-					<div style="font-size:0.75rem;color:var(--text-muted);">Adapta la interfaz</div>
 				  </div>
-				  <button class="toggle-dark" id="profile-dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
+				  <div id="telegram-chat-id-status" style="font-size:0.75rem;margin-top:0.4rem;"></div>
 				</div>
-				<div class="divider"></div>
 
-				<!-- 🔔 Notificaciones Telegram -->
-				<div id="telegram-notif-row" style="display:none;">
-				  <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
-
-					<!-- Header con toggle -->
-					<div style="display:flex;align-items:center;justify-content:space-between;">
-					  <div>
-						<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Telegram</div>
-						<div style="font-size:0.75rem;color:var(--text-muted);" id="telegram-notif-desc">Recibe alertas de registros en tu Telegram</div>
-					  </div>
-					  <button class="toggle-dark" id="telegram-notif-toggle" onclick="toggleTelegramNotif()"><span class="toggle-dot"></span></button>
-					</div>
-
-					<!-- Instrucciones para obtener Chat ID -->
-					<div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:0.75rem;padding:1rem;">
-					  <div style="font-size:0.8rem;font-weight:600;color:#2563EB;margin-bottom:0.5rem;">📱 ¿Cómo obtener tu Chat ID?</div>
-					  <ol style="font-size:0.75rem;color:var(--text-muted);padding-left:1.1rem;margin:0;line-height:1.8;">
-						<li>Abre Telegram y busca <b>@HalielPapeleriaBot</b></li>
-						<li>Escríbele <b>/start</b></li>
-						<li>Abre en el navegador:<br/>
-						  <code style="font-size:0.7rem;background:var(--card-bg);padding:2px 6px;border-radius:4px;word-break:break-all;">https://api.telegram.org/botTU_TOKEN/getUpdates</code>
-						</li>
-						<li>Busca el número en <b>"chat":{"id":</b></li>
-					  </ol>
-					</div>
-
-					<!-- Input Chat ID -->
-					<div>
-					  <label class="field-label">Tu Chat ID de Telegram</label>
-					  <div style="display:flex;gap:0.5rem;">
-						<input
-						  type="text"
-						  id="telegram-chat-id-input"
-						  class="field-input"
-						  placeholder="Ej: 123456789"
-						  style="flex:1;"
-						/>
-						<button class="btn-primary" onclick="saveTelegramChatId()" style="white-space:nowrap;padding:0.65rem 1rem;">
-						  <i class="fa-solid fa-save"></i> Guardar
-						</button>
-					  </div>
-					  <div id="telegram-chat-id-status" style="font-size:0.75rem;margin-top:0.4rem;"></div>
-					</div>
-
-					<!-- Botón probar -->
-					<button class="btn-secondary" onclick="testTelegramNotif()" id="btn-test-telegram" style="justify-content:center;display:none;">
-					  <i class="fa-solid fa-paper-plane"></i> Enviar notificación de prueba
-					</button>
-
-				  </div>
-				</div>
-				<div id="telegram-notif-divider" class="divider" style="display:none;"></div>
-
-				<!-- Foto de Perfil -->
-				<div>
-				  <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Foto de perfil</div>
-				  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-					<button class="btn-secondary" onclick="document.getElementById('profile-photo-input-premium').click()"><i class="fa-solid fa-upload"></i> Subir nueva</button>
-					<button class="btn-secondary" onclick="removeProfilePhoto()" id="btn-remove-photo" style="display:none;color:#EF4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-trash"></i> Eliminar</button>
-				  </div>
-				  <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">JPG, PNG, WebP · Máx. 2MB</p>
-				</div>
+				<!-- Botón probar -->
+				<button class="btn-secondary" onclick="testTelegramNotif()" id="btn-test-telegram" style="justify-content:center;display:none;">
+				  <i class="fa-solid fa-paper-plane"></i> Enviar notificación de prueba
+				</button>
 
 			  </div>
 			</div>
+			<div id="telegram-notif-divider" class="divider" style="display:none;"></div>
+
+			<!-- Foto de Perfil -->
+			<div>
+			  <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Foto de perfil</div>
+			  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+				<button class="btn-secondary" onclick="document.getElementById('profile-photo-input-premium').click()"><i class="fa-solid fa-upload"></i> Subir nueva</button>
+				<button class="btn-secondary" onclick="removeProfilePhoto()" id="btn-remove-photo" style="display:none;color:#EF4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-trash"></i> Eliminar</button>
+			  </div>
+			  <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">JPG, PNG, WebP · Máx. 2MB</p>
+			</div>
+
+		  </div>
+		</div>
 
       <!-- TAB: CONFIGURACIÓN DEL SISTEMA (Solo Admin) -->
       <div id="tab-sysconfig" class="profile-tab-content" style="display:none;">
@@ -1539,7 +1486,7 @@
     </div>
   </div>
 </div>
-<div id="success-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:9998;align-items:center;justify-content:center;flex-direction:column;gap:1rem;">
+<div id="success-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:9998;flex-direction:column;gap:1rem;">
   <div style="font-size:5rem;color:#22C55E;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">✅</div>
   <div style="font-size:1.2rem;font-weight:700;color:#0F172A;">¡Guardado correctamente!</div>
 </div>
@@ -2219,13 +2166,6 @@ function renderAvatar(element, user, size='36px') {
 function closeModal(id) { 
   const modal = document.getElementById(id);
   if (!modal) return;
-  
-  // Cleanup especial para modal de recorte
-  if (id === 'modal-crop-photo') {
-    cleanupCropListeners();
-    cropState.pendingFile = null;
-  }
-  
   modal.style.display = 'none'; 
 }
 function openModal(id) { document.getElementById(id).style.display='flex'; }
@@ -3851,7 +3791,7 @@ async function guardarRegistro() {
 
         // ✅ Mostrar overlay de éxito PRIMERO
 		if (overlay) {
-			overlay.style.display = 'flex';
+			overlay.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:9998;align-items:center;justify-content:center;flex-direction:column;gap:1rem;';
 			setTimeout(() => { overlay.style.display = 'none'; }, 2000);
 		}
 		toast('Registro guardado correctamente ✅', 'success');
@@ -6000,7 +5940,7 @@ async function guardarRegistroAdmin() {
 
         // ✅ Mostrar overlay de éxito PRIMERO
 		if (overlay) {
-			overlay.style.display = 'flex';
+			overlay.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:9998;align-items:center;justify-content:center;flex-direction:column;gap:1rem;';
 			setTimeout(() => { overlay.style.display = 'none'; }, 2000);
 		}
 		toast('Registro guardado correctamente ✅', 'success');
