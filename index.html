@@ -3849,12 +3849,16 @@ async function guardarRegistro() {
         const { error } = await sb.from('registros').insert(registroData);
         if (error) throw error;
 
-        // ✅ Notificación Telegram
-        const mensaje = buildTelegramMensaje('registro_nuevo', registroData);
-        sendTelegramNotification(mensaje);
+        // ✅ Mostrar overlay de éxito PRIMERO
+		if (overlay) {
+			overlay.style.display = 'flex';
+			setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+		}
+		toast('Registro guardado correctamente ✅', 'success');
 
-        if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
-        toast('Registro guardado correctamente ✅', 'success');
+		// ✅ Notificación Telegram (no bloquea la UI)
+		const mensaje = buildTelegramMensaje('registro_nuevo', registroData);
+		sendTelegramNotification(mensaje);
 
     } catch (err) {
         if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
@@ -5994,12 +5998,16 @@ async function guardarRegistroAdmin() {
         const { error } = await sb.from('registros').insert(registroData);
         if (error) throw error;
 
-        // ✅ Notificación Telegram
-        const mensaje = buildTelegramMensaje('registro_nuevo', registroData);
-        sendTelegramNotification(mensaje);
+        // ✅ Mostrar overlay de éxito PRIMERO
+		if (overlay) {
+			overlay.style.display = 'flex';
+			setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+		}
+		toast('Registro guardado correctamente ✅', 'success');
 
-        if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
-        toast('Registro guardado correctamente ✅', 'success');
+		// ✅ Notificación Telegram (no bloquea la UI)
+		const mensaje = buildTelegramMensaje('registro_nuevo', registroData);
+		sendTelegramNotification(mensaje);
 
     } catch (err) {
         if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
