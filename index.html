@@ -509,6 +509,7 @@
 		<div class="nav-label">Principal</div>
 		<div class="nav-item active" data-tooltip="Dashboard" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
 		<div class="nav-item" data-tooltip="Registros" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
+		<div class="nav-item" data-tooltip="Registrar" onclick="goSection('admin-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
 		<div class="nav-item" data-tooltip="Estadísticas" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
 		<div class="nav-item" data-tooltip="Top Días" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
 		<div class="nav-label">Gestión</div>
@@ -668,7 +669,7 @@
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
 			<table class="premium-table">
-			<thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr></thead>
+			<thead><tr><th>Fecha / Hora</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr>
 			<tbody id="registros-tbody"></tbody>
 			</table>
 		</div>
@@ -841,6 +842,42 @@
         </div>
       </div>
     </div>
+	<!-- ADMIN: REGISTRAR MOVIMIENTOS -->
+	<div class="section" id="sec-admin-registrar">
+	  <div class="glass-card" style="padding:2rem;max-width:580px;margin:0 auto;">
+		<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:1.5rem;text-align:center;">
+		  <i class="fa-solid fa-plus-circle" style="color:#2563EB;margin-right:0.5rem;"></i> Registrar Movimientos (Admin)
+		</h3>
+		<div style="display:flex;flex-direction:column;gap:1.25rem;">
+		  <div><label class="field-label">Fecha</label><input type="date" id="admin-reg-fecha" class="field-input"/></div>
+		  <div>
+			<label class="field-label">Movimientos por plataforma</label>
+			<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;">Ingresa la cantidad de movimientos realizados en cada plataforma</p>
+			<div class="plataforma-grid" id="admin-plataformas-inputs"></div>
+		  </div>
+		  <div style="background:var(--input-bg);border-radius:0.875rem;padding:1rem;">
+			<div style="display:flex;justify-content:space-between;align-items:center;">
+			  <span style="font-size:0.875rem;font-weight:600;">Total movimientos:</span>
+			  <span id="admin-total-movimientos-preview" style="font-family:'Poppins',sans-serif;font-weight:800;font-size:1.5rem;color:#2563EB;">0</span>
+			</div>
+			<div id="admin-clasificacion-preview" style="margin-top:0.5rem;"></div>
+		  </div>
+		  <div>
+			<label class="field-label">Participación del día (ganancia $)</label>
+			<div style="position:relative;">
+			  <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);font-weight:600;color:var(--text-muted);pointer-events:none;">$</span>
+			  <input type="text" id="admin-reg-participacion" class="field-input" placeholder="0" inputmode="numeric" style="padding-left:1.75rem;" oninput="formatParticipacionAdmin(this)"/>
+			</div>
+			<input type="hidden" id="admin-reg-participacion-raw" value="0"/>
+		  </div>
+		  <div style="margin-top:1rem;"><label class="field-label">Notas / Observaciones (opcional)</label>
+		  <textarea id="admin-reg-notas" class="field-input" placeholder="Ej: Día festivo, afluencia baja..." rows="2" style="resize:none;font-family:'Inter',sans-serif;"></textarea></div>
+		  <button class="btn-primary" onclick="guardarRegistroAdmin()" style="width:100%;justify-content:center;padding:0.9rem;" id="admin-btn-guardar-reg">
+			<i class="fa-solid fa-save"></i> Guardar Registro
+		  </button>
+		</div>
+	  </div>
+	</div>
 
 	<!-- OPERADOR: INICIO -->
 	<div class="section" id="sec-op-inicio">
@@ -1690,6 +1727,16 @@ function getParticipacionValue() {
   const txt = document.getElementById('reg-participacion')?.value || '0';
   return parseFloat(txt.replace(/\./g, '').replace(',', '.')) || 0;
 }
+function formatDateHour(isoString) {
+  if (!isoString) return '-';
+  const d = new Date(isoString);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
 function formatDate(d) { if(!d) return '-'; const p=d.split('T')[0].split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
 function emptyState(icon, title, desc, actionLabel, actionFn) {
     const btn = actionLabel
@@ -2164,6 +2211,7 @@ const sectionMap = {
   'plataformas': { id:'sec-plataformas', title:'Plataformas', sub:'Gestión de plataformas de pago', load:()=>renderPlataformas() },
   'reportes': { id:'sec-reportes', title:'Reportes', sub:'Exportar datos', load:()=>populateReportFilters() },
   'auditoria': { id:'sec-auditoria', title:'Auditoría', sub:'Registro de actividad', load:()=>loadAuditoria() },
+  'admin-registrar': { id:'sec-admin-registrar', title:'Registrar', sub:'Nuevo movimiento (Admin)', load:()=>{ document.getElementById('admin-reg-fecha').value=todayLocal(); buildAdminPlataformaInputs(); } },
   'op-inicio': { id:'sec-op-inicio', title:'Inicio', sub:'Tu resumen diario', load:()=>loadOpInicio() },
   'op-registrar': { id:'sec-op-registrar', title:'Registrar', sub:'Nuevo movimiento', load:()=>{ document.getElementById('reg-fecha').value=todayLocal(); buildPlataformaInputs(); } },
   'op-mis-registros': { id:'sec-op-mis-registros', title:'Mis Registros', sub:'Tu historial', load:()=>loadOpMisRegistros() },
@@ -3155,7 +3203,8 @@ async function loadRegistros() {
   const mes = document.getElementById('reg-filter-mes')?.value;
   const opId = document.getElementById('reg-filter-op')?.value;
   const ano = new Date().getFullYear();
-  let query = sb.from('registros').select('*').order('fecha',{ascending:false});
+  // ✅ ORDENAR POR TIMESTAMP EXACTO (CREATED_AT) DE MÁS RECIENTE A MÁS ANTIGUO
+  let query = sb.from('registros').select('*').order('created_at',{ascending:false});
   if (mes) { const start=`${ano}-${mes.padStart(2,'0')}-01`;const end=new Date(ano,mes,0).toISOString().split('T')[0];query=query.gte('fecha',start).lte('fecha',end); }
   if (opId) query=query.eq('operador_id',opId);
   const { data } = await query.limit(500);
@@ -3167,23 +3216,23 @@ async function loadRegistros() {
 function filterRegistros() { regPage=1; renderRegistros(); }
 
 function renderRegistros() {
-    const search = document.getElementById('registros-search')?.value.toLowerCase()||'';
-    let filtered = allRegistros;
-    if (search) filtered=filtered.filter(r=>r.operador_nombre?.toLowerCase().includes(search)||r.sucursal?.toLowerCase().includes(search)||r.fecha?.includes(search)||String(r.movimientos).includes(search));
-    const total=filtered.length;
-    const pages=Math.ceil(total/REG_PER_PAGE);
-    const slice=filtered.slice((regPage-1)*REG_PER_PAGE,regPage*REG_PER_PAGE);
-	const countEl = document.getElementById('registros-count');
-	if (countEl) {
-		countEl.innerHTML = search
-			? `<span style="font-weight:700;color:#2563EB;">${total}</span> resultados para <em>"${search}"</em>`
-			: `<span style="font-weight:700;">${total}</span> registros en total`;
-	}
-    const tbody=document.getElementById('registros-tbody');
-    if (!slice.length){ tbody.innerHTML=`<tr><td colspan="9">${emptyState('fa-inbox', 'Sin registros', 'No se encontraron registros para los filtros seleccionados.', currentProfile?.rol==='administrador'?null:null)}</td></tr>`; }
-    else{tbody.innerHTML=slice.map(r=>`
-    <tr>
-    <td style="font-weight:600;">${formatDate(r.fecha)}</td>
+  const search = document.getElementById('registros-search')?.value.toLowerCase()||'';
+  let filtered = allRegistros;
+  if (search) filtered=filtered.filter(r=>r.operador_nombre?.toLowerCase().includes(search)||r.sucursal?.toLowerCase().includes(search)||r.fecha?.includes(search)||String(r.movimientos).includes(search));
+  const total=filtered.length;
+  const pages=Math.ceil(total/REG_PER_PAGE);
+  const slice=filtered.slice((regPage-1)*REG_PER_PAGE,regPage*REG_PER_PAGE);
+  const countEl = document.getElementById('registros-count');
+  if (countEl) {
+    countEl.innerHTML = search
+    ? `<span style="font-weight:700;color:#2563EB;">${total}</span> resultados para <em>"${search}"</em>`
+    : `<span style="font-weight:700;">${total}</span> registros en total`;
+  }
+  const tbody=document.getElementById('registros-tbody');
+  if (!slice.length){ tbody.innerHTML=`<tr><td colspan="9">${emptyState('fa-inbox', 'Sin registros', 'No se encontraron registros para los filtros seleccionados.', currentProfile?.rol==='administrador'?null:null)}</td></tr>`; }
+  else{tbody.innerHTML=slice.map(r=>`
+  <tr>
+    <td style="font-weight:600;font-size:0.82rem;white-space:nowrap;">${formatDateHour(r.created_at || r.fecha)}</td>
     <td><span style="font-weight:700;font-family:'Poppins',sans-serif;">${r.movimientos||0}</span></td>
     <td style="color:#22C55E;font-weight:600;">${formatCurrency(r.participacion)}</td>
     <td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td>
@@ -3192,11 +3241,11 @@ function renderRegistros() {
     <td>${r.sucursal?`<span class="badge badge-blue">${r.sucursal}</span>`:'-'}</td>
     <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:0.75rem;" title="${r.notas||''}">${r.notas || '-'}</td>
     <td><div style="display:flex;gap:0.4rem;"><button class="btn-edit" onclick="openEditRegistro('${r.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteRegistro('${r.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
-    </tr>
-    `).join('');}
-    const pager=document.getElementById('pagination-btns');
-    pager.innerHTML='';
-    for(let i=1;i<=pages;i++){const btn=document.createElement('button');btn.className=i===regPage?'btn-primary':'btn-secondary';btn.style.cssText='padding:0.4rem 0.75rem;font-size:0.8rem;';btn.textContent=i;btn.onclick=()=>{regPage=i;renderRegistros();};pager.appendChild(btn);}
+  </tr>
+  `).join('');}
+  const pager=document.getElementById('pagination-btns');
+  pager.innerHTML='';
+  for(let i=1;i<=pages;i++){const btn=document.createElement('button');btn.className=i===regPage?'btn-primary':'btn-secondary';btn.style.cssText='padding:0.4rem 0.75rem;font-size:0.8rem;';btn.textContent=i;btn.onclick=()=>{regPage=i;renderRegistros();};pager.appendChild(btn);}
 }
 
 function openEditRegistro(id) {
@@ -4349,109 +4398,527 @@ async function exportExcel() {
         const data = await getExportData();
         if (!data.length) { toast('No hay datos para exportar', 'info'); return; }
 
-        const desde = document.getElementById('rpt-desde')?.value || 'Inicio';
-        const hasta = document.getElementById('rpt-hasta')?.value || 'Fin';
+        const desde = document.getElementById('rpt-desde')?.value || '';
+        const hasta = document.getElementById('rpt-hasta')?.value || '';
         const operador = document.getElementById('rpt-op')?.selectedOptions[0]?.text || 'Todos';
-        const fechaGen = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const fechaGen = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
+        const horaGen = new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
 
-        // ── Totales para resumen ──
         const totalMov = data.reduce((a,r) => a + (r.movimientos || 0), 0);
         const totalPart = data.reduce((a,r) => a + (r.participacion || 0), 0);
         const avgMov = data.length ? Math.round(totalMov / data.length) : 0;
-        const avgPart = data.length ? Math.round(totalPart / data.length) : 0;
         const optCnt = data.filter(r => r.clasificacion === 'optimo').length;
         const accCnt = data.filter(r => r.clasificacion === 'aceptable').length;
         const bajCnt = data.filter(r => r.clasificacion === 'bajo').length;
+        const pctOpt = data.length ? Math.round((optCnt / data.length) * 100) : 0;
+        const mejorDia = [...data].sort((a,b) => (b.movimientos||0)-(a.movimientos||0))[0];
 
-        // ── Construir filas del sheet ──
-        const aoa = [];
-
-        // Fila 0: Título corporativo
-        aoa.push(['HALIEL PAPELERÍA — REPORTE DE REGISTROS']);
-
-        // Fila 1: Metadata
-        aoa.push(['Generado:', fechaGen]);
-
-        // Fila 2: Filtros aplicados
-        aoa.push(['Período:', `${desde} → ${hasta}`, 'Operador:', operador]);
-
-        // Fila 3: Separador
-        aoa.push([]);
-
-        // Fila 4: Encabezados de tabla
         const platNombres = [...new Set(data.flatMap(r => Object.keys(r.plataformas_data || {})))];
-        const headers = ['Fecha', 'Operador', 'Sucursal', 'Movimientos', 'Participación ($)', 'Clasificación'];
-        platNombres.forEach(p => headers.push(p));
-        headers.push('Notas', 'Creado en');
-        aoa.push(headers);
 
-        // Filas de datos
-        const clsMap = { optimo: '✅ Óptimo', aceptable: '⚠️ Aceptable', bajo: '❌ Bajo' };
+        // ── Rendimiento por operador ──
+        const opMap = {};
         data.forEach(r => {
-            const row = [
-                r.fecha || '',
-                r.operador_nombre || '',
-                r.sucursal || '',
-                r.movimientos || 0,
-                r.participacion || 0,
-                clsMap[r.clasificacion] || r.clasificacion || '',
-            ];
-            platNombres.forEach(p => row.push((r.plataformas_data?.[p]) || 0));
-            row.push(r.notas || '', r.created_at || '');
-            aoa.push(row);
+            const n = r.operador_nombre || 'Sin asignar';
+            if (!opMap[n]) opMap[n] = { movimientos: 0, participacion: 0, dias: 0, optimo: 0 };
+            opMap[n].movimientos += r.movimientos || 0;
+            opMap[n].participacion += r.participacion || 0;
+            opMap[n].dias++;
+            if (r.clasificacion === 'optimo') opMap[n].optimo++;
         });
 
-        // ── Resumen estadístico (después de los datos) ──
-        const summaryRow = aoa.length + 2;
-        aoa.push([]); // Separador
-        aoa.push(['RESUMEN ESTADÍSTICO']);
-        aoa.push([]);
-        aoa.push(['Total Registros:', data.length]);
-        aoa.push(['Total Movimientos:', totalMov.toLocaleString('es-CO')]);
-        aoa.push(['Total Participación:', totalPart.toLocaleString('es-CO')]);
-        aoa.push(['Promedio Diario Mov.:', avgMov.toLocaleString('es-CO')]);
-        aoa.push(['Promedio Diario Part.:', avgPart.toLocaleString('es-CO')]);
-        aoa.push(['Días Óptimos:', optCnt]);
-        aoa.push(['Días Aceptables:', accCnt]);
-        aoa.push(['Días Bajos:', bajCnt]);
-        aoa.push([]);
-        aoa.push(['---']);
-        aoa.push(['Desarrollado por Ing. Santiago Escorcia Carlos Andrés']);
-        aoa.push(['Contacto: 315-238-0960']);
+        // ── Plataformas totales ──
+        const platTotales = {};
+        platNombres.forEach(p => { platTotales[p] = 0; });
+        data.forEach(r => {
+            if (r.plataformas_data) Object.entries(r.plataformas_data).forEach(([n,v]) => { platTotales[n] = (platTotales[n]||0)+(v||0); });
+        });
 
-        // ── Crear workbook ──
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        // ─────────────────────────────────────────────────────────
+        // ESTILOS GLOBALES
+        // ─────────────────────────────────────────────────────────
+        const css = `
+        <style>
+            body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; }
+            table { border-collapse: collapse; }
+            td, th { vertical-align: middle; }
 
-        // ── Ancho de columnas ──
-        const colWidths = [
-            { wch: 14 }, // Fecha
-            { wch: 25 }, // Operador
-            { wch: 18 }, // Sucursal
-            { wch: 12 }, // Movimientos
-            { wch: 16 }, // Participación
-            { wch: 14 }, // Clasificación
-            ...platNombres.map(() => ({ wch: 12 })), // Plataformas
-            { wch: 30 }, // Notas
-            { wch: 20 }, // Creado en
-        ];
-        ws['!cols'] = colWidths;
+            /* ── PALETA ── */
+            .bg-navy    { background:#1e1b4b; color:#ffffff; }
+            .bg-blue    { background:#2563EB; color:#ffffff; }
+            .bg-violet  { background:#7C3AED; color:#ffffff; }
+            .bg-dark    { background:#0f172a; color:#ffffff; }
+            .bg-slate   { background:#1e293b; color:#ffffff; }
+            .bg-header  { background:#334155; color:#ffffff; }
+            .bg-subhead { background:#475569; color:#ffffff; }
+            .bg-kpi-b   { background:#EFF6FF; color:#1e40af; }
+            .bg-kpi-g   { background:#F0FDF4; color:#166534; }
+            .bg-kpi-p   { background:#F5F3FF; color:#5b21b6; }
+            .bg-kpi-a   { background:#FEFCE8; color:#854d0e; }
+            .bg-kpi-r   { background:#FFF7ED; color:#9a3412; }
+            .bg-opt     { background:#dcfce7; color:#166534; }
+            .bg-ace     { background:#fef9c3; color:#854d0e; }
+            .bg-low     { background:#fee2e2; color:#991b1b; }
+            .bg-total   { background:#0f172a; color:#ffffff; }
+            .bg-altrow  { background:#f8fafc; }
+            .bg-white   { background:#ffffff; }
+            .bg-section { background:#f1f5f9; color:#0f172a; }
+            .bg-plat    { background:#eff6ff; color:#1e40af; }
 
-        // ── Merge para título (A1 → última columna) ──
-        ws['!merges'] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } },  // Título
-            { s: { r: summaryRow + 1, c: 0 }, e: { r: summaryRow + 1, c: 1 } }, // Resumen header
-        ];
+            /* ── TIPOGRAFÍA ── */
+            .bold       { font-weight: bold; }
+            .center     { text-align: center; }
+            .right      { text-align: right; }
+            .left       { text-align: left; }
+            .fs-giant   { font-size: 20pt; }
+            .fs-large   { font-size: 14pt; }
+            .fs-medium  { font-size: 12pt; }
+            .fs-normal  { font-size: 11pt; }
+            .fs-small   { font-size: 9pt; }
+            .fs-xs      { font-size: 8pt; }
+            .italic     { font-style: italic; }
+            .upper      { text-transform: uppercase; }
+            .muted      { color: #64748b; }
+            .green-txt  { color: #166534; }
+            .red-txt    { color: #991b1b; }
+            .blue-txt   { color: #1e40af; }
 
-        // ── AutoFilter en encabezados (fila 5 = índice 4) ──
-        ws['!autofilter'] = { ref: `A${5}:${String.fromCharCode(65 + headers.length - 1)}${4 + data.length}` };
+            /* ── BORDES ── */
+            .border-all    { border: 1px solid #cbd5e1; }
+            .border-b      { border-bottom: 1px solid #e2e8f0; }
+            .border-b-dark { border-bottom: 2px solid #1e293b; }
+            .border-b-blue { border-bottom: 3px solid #2563EB; }
+            .border-t-blue { border-top: 3px solid #2563EB; }
 
-        XLSX.utils.book_append_sheet(wb, ws, 'Registros Haliel');
+            /* ── LAYOUT ── */
+            .pad-lg  { padding: 14px 18px; }
+            .pad-md  { padding: 10px 14px; }
+            .pad-sm  { padding: 7px 10px; }
+            .pad-xs  { padding: 4px 8px; }
+            .h-30    { height: 30px; }
+            .h-20    { height: 20px; }
+            .h-10    { height: 10px; }
+            .w-date  { width: 90px; }
+            .w-name  { width: 160px; }
+            .w-suc   { width: 110px; }
+            .w-num   { width: 80px; }
+            .w-cls   { width: 90px; }
+            .w-note  { width: 180px; }
+            .w-kpi   { width: 130px; }
+            .rounded { border-radius: 4px; }
+        </style>`;
 
-        // ── Descargar ──
-        const fileName = `Haliel_Reporte_${desde}_al_${hasta}.xlsx`;
-        XLSX.writeFile(wb, fileName);
-        toast('Excel profesional exportado ✅', 'success');
+        // ─────────────────────────────────────────────────────────
+        // HOJA 1: REGISTROS
+        // ─────────────────────────────────────────────────────────
+
+        const platHeaders = platNombres.map(p => {
+            const pl = allPlataformas.find(x => x.nombre === p);
+            const color = pl?.color || '#2563EB';
+            return `<td class="center bold border-all pad-sm fs-small" style="background:${color};color:#fff;width:70px;">${p}</td>`;
+        }).join('');
+
+        const dataRowsHtml = data.map((r, i) => {
+            const isBg = i % 2 === 0 ? 'bg-white' : 'bg-altrow';
+            const clsCls = r.clasificacion === 'optimo' ? 'bg-opt' : r.clasificacion === 'aceptable' ? 'bg-ace' : 'bg-low';
+            const clsLabel = r.clasificacion === 'optimo' ? '✔ Óptimo' : r.clasificacion === 'aceptable' ? '~ Aceptable' : '✖ Bajo';
+            const platCells = platNombres.map(p => {
+                const val = r.plataformas_data?.[p] || 0;
+                return `<td class="center border-all pad-sm ${isBg}" style="color:${val>0?'#1e40af':'#94a3b8'};">${val > 0 ? val.toLocaleString('es-CO') : '—'}</td>`;
+            }).join('');
+            return `
+            <tr>
+                <td class="center border-all pad-sm ${isBg} bold w-date">${r.fecha || ''}</td>
+                <td class="border-all pad-sm ${isBg} w-name">${r.operador_nombre || '—'}</td>
+                <td class="center border-all pad-sm ${isBg} muted w-suc">${r.sucursal || '—'}</td>
+                <td class="center bold border-all pad-sm ${isBg} w-num" style="color:#1e40af;font-size:12pt;">${(r.movimientos||0).toLocaleString('es-CO')}</td>
+                <td class="right border-all pad-sm ${isBg} green-txt w-num">$${(r.participacion||0).toLocaleString('es-CO')}</td>
+                <td class="center bold border-all pad-xs ${clsCls} w-cls rounded">${clsLabel}</td>
+                ${platCells}
+                <td class="border-all pad-sm ${isBg} muted fs-small w-note">${r.notas || ''}</td>
+            </tr>`;
+        }).join('');
+
+        const platTotalCells = platNombres.map(p => `
+            <td class="center bold border-all pad-sm bg-total">${(platTotales[p]||0).toLocaleString('es-CO')}</td>
+        `).join('');
+
+        const sheet1 = `
+        <table style="width:100%;margin-bottom:0;">
+
+            <!-- BANDA HEADER -->
+            <tr style="height:60px;">
+                <td colspan="${6 + platNombres.length + 1}" class="bg-navy pad-lg">
+                    <span class="fs-giant bold">🏬 HALIEL PAPELERÍA</span>
+                    <span class="fs-medium" style="margin-left:20px;opacity:0.75;">— Sistema Administrativo de Registros</span>
+                </td>
+            </tr>
+            <tr style="height:28px;">
+                <td colspan="${6 + platNombres.length + 1}" class="bg-blue pad-sm center fs-medium bold">
+                    REPORTE DE MOVIMIENTOS DETALLADO
+                </td>
+            </tr>
+
+            <!-- METADATA -->
+            <tr style="height:8px;"><td colspan="${6 + platNombres.length + 1}" class="bg-section"></td></tr>
+            <tr>
+                <td colspan="2" class="bg-section pad-sm bold fs-small upper muted">Período</td>
+                <td colspan="2" class="bg-section pad-sm bold blue-txt">${desde || 'Todo el historial'}${hasta && desde ? ' → '+hasta : ''}</td>
+                <td colspan="2" class="bg-section pad-sm bold fs-small upper muted">Operador</td>
+                <td colspan="${platNombres.length - 1 || 1}" class="bg-section pad-sm bold blue-txt">${operador}</td>
+                <td class="bg-section pad-sm muted fs-small right">${fechaGen} ${horaGen}</td>
+            </tr>
+            <tr style="height:8px;"><td colspan="${6 + platNombres.length + 1}" class="bg-section"></td></tr>
+
+            <!-- SEPARADOR AZUL -->
+            <tr style="height:4px;">
+                <td colspan="${6 + platNombres.length + 1}" style="background:#2563EB;"></td>
+            </tr>
+            <tr style="height:8px;"><td colspan="${6 + platNombres.length + 1}"></td></tr>
+
+            <!-- KPIs DESTACADOS -->
+            <tr>
+                <td colspan="${6 + platNombres.length + 1}" class="bold pad-sm fs-small upper muted" style="border-bottom:2px solid #2563EB;padding-bottom:4px;">
+                    📊 INDICADORES CLAVE DEL PERÍODO
+                </td>
+            </tr>
+            <tr style="height:6px;"><td colspan="${6 + platNombres.length + 1}"></td></tr>
+            <tr>
+                <td colspan="1" class="bg-kpi-b border-all pad-md center rounded" style="width:${w => w}">
+                    <div class="fs-large bold">${data.length}</div>
+                    <div class="fs-xs upper muted">Registros</div>
+                </td>
+                <td colspan="1" class="bg-kpi-b border-all pad-md center rounded">
+                    <div class="fs-large bold">${totalMov.toLocaleString('es-CO')}</div>
+                    <div class="fs-xs upper muted">Total Movimientos</div>
+                </td>
+                <td colspan="1" class="bg-kpi-g border-all pad-md center rounded">
+                    <div class="fs-large bold green-txt">$${totalPart.toLocaleString('es-CO')}</div>
+                    <div class="fs-xs upper muted">Total Participación</div>
+                </td>
+                <td colspan="1" class="bg-kpi-p border-all pad-md center rounded">
+                    <div class="fs-large bold" style="color:#5b21b6;">${avgMov.toLocaleString('es-CO')}</div>
+                    <div class="fs-xs upper muted">Promedio Diario</div>
+                </td>
+                <td colspan="1" class="bg-opt border-all pad-md center rounded">
+                    <div class="fs-large bold green-txt">${optCnt}</div>
+                    <div class="fs-xs upper muted">Días Óptimos</div>
+                </td>
+                <td colspan="1" class="bg-ace border-all pad-md center rounded">
+                    <div class="fs-large bold" style="color:#854d0e;">${accCnt}</div>
+                    <div class="fs-xs upper muted">Días Acept.</div>
+                </td>
+                <td colspan="1" class="bg-low border-all pad-md center rounded">
+                    <div class="fs-large bold red-txt">${bajCnt}</div>
+                    <div class="fs-xs upper muted">Días Bajos</div>
+                </td>
+                <td colspan="${Math.max(platNombres.length - 1, 1)}" class="bg-kpi-a border-all pad-md center rounded">
+                    <div class="fs-large bold" style="color:#854d0e;">${pctOpt}%</div>
+                    <div class="fs-xs upper muted">% Cumplimiento</div>
+                </td>
+            </tr>
+            <tr style="height:6px;"><td colspan="${6 + platNombres.length + 1}"></td></tr>
+
+            ${mejorDia ? `
+            <!-- MEJOR DÍA -->
+            <tr>
+                <td colspan="${6 + platNombres.length + 1}" class="border-all pad-md" style="background:#fefce8;border-left:5px solid #FACC15;">
+                    <span class="bold" style="color:#854d0e;">🏆 MEJOR DÍA DEL PERÍODO:</span>
+                    <span style="color:#0f172a;margin-left:8px;">${mejorDia.fecha}</span>
+                    <span class="muted" style="margin-left:12px;">${mejorDia.operador_nombre || ''}</span>
+                    <span class="bold blue-txt" style="margin-left:12px;">${(mejorDia.movimientos||0).toLocaleString('es-CO')} movimientos</span>
+                    <span class="green-txt" style="margin-left:12px;">$${(mejorDia.participacion||0).toLocaleString('es-CO')}</span>
+                </td>
+            </tr>
+            <tr style="height:6px;"><td colspan="${6 + platNombres.length + 1}"></td></tr>
+            ` : ''}
+
+            <!-- SEPARADOR -->
+            <tr style="height:4px;">
+                <td colspan="${6 + platNombres.length + 1}" style="background:#e2e8f0;"></td>
+            </tr>
+            <tr style="height:10px;"><td colspan="${6 + platNombres.length + 1}"></td></tr>
+
+            <!-- ENCABEZADOS DE TABLA -->
+            <tr style="height:36px;">
+                <td class="bg-slate center bold border-all pad-sm fs-small upper w-date">📅 Fecha</td>
+                <td class="bg-slate bold border-all pad-sm fs-small upper w-name">👤 Operador</td>
+                <td class="bg-slate center bold border-all pad-sm fs-small upper w-suc">🏢 Sucursal</td>
+                <td class="bg-slate center bold border-all pad-sm fs-small upper w-num">📦 Mov.</td>
+                <td class="bg-slate right bold border-all pad-sm fs-small upper w-num">💰 Partic.</td>
+                <td class="bg-slate center bold border-all pad-sm fs-small upper w-cls">⭐ Clasif.</td>
+                ${platHeaders}
+                <td class="bg-slate bold border-all pad-sm fs-small upper w-note">📝 Notas</td>
+            </tr>
+
+            <!-- FILAS DE DATOS -->
+            ${dataRowsHtml}
+
+            <!-- FILA DE TOTALES -->
+            <tr style="height:34px;">
+                <td colspan="3" class="bg-total bold border-all pad-md">TOTALES GENERALES</td>
+                <td class="bg-total center bold border-all pad-md fs-medium">${totalMov.toLocaleString('es-CO')}</td>
+                <td class="bg-total right bold border-all pad-md green-txt">$${totalPart.toLocaleString('es-CO')}</td>
+                <td class="bg-total center border-all pad-sm muted fs-small">${data.length} reg.</td>
+                ${platTotalCells}
+                <td class="bg-total border-all pad-sm muted fs-small">Prom: ${avgMov} mov/día</td>
+            </tr>
+
+            <!-- PIE -->
+            <tr style="height:14px;"><td colspan="${6 + platNombres.length + 1}"></td></tr>
+            <tr>
+                <td colspan="${6 + platNombres.length + 1}" class="bg-navy pad-sm center fs-xs" style="color:rgba(255,255,255,0.6);">
+                    Desarrollado por Ing. Santiago Escorcia Carlos Andrés · ✆ 315-238-0960 · Haliel Papelería · Bucaramanga, Colombia
+                </td>
+            </tr>
+        </table>`;
+
+        // ─────────────────────────────────────────────────────────
+        // HOJA 2: RESUMEN EJECUTIVO
+        // ─────────────────────────────────────────────────────────
+
+        const opRows = Object.entries(opMap)
+            .sort((a,b) => b[1].movimientos - a[1].movimientos)
+            .map(([nombre, s], i) => {
+                const pct = s.dias ? Math.round((s.optimo / s.dias) * 100) : 0;
+                const rowBg = i % 2 === 0 ? 'bg-white' : 'bg-altrow';
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+                const pctColor = pct >= 70 ? '#166534' : pct >= 40 ? '#854d0e' : '#991b1b';
+                const pctBg = pct >= 70 ? '#dcfce7' : pct >= 40 ? '#fef9c3' : '#fee2e2';
+                return `
+                <tr>
+                    <td class="center border-all pad-sm ${rowBg} bold" style="width:40px;">${medal}</td>
+                    <td class="border-all pad-sm ${rowBg} bold">${nombre}</td>
+                    <td class="center border-all pad-sm ${rowBg} bold blue-txt">${s.movimientos.toLocaleString('es-CO')}</td>
+                    <td class="right border-all pad-sm ${rowBg} green-txt">$${s.participacion.toLocaleString('es-CO')}</td>
+                    <td class="center border-all pad-sm ${rowBg}">${s.dias}</td>
+                    <td class="center border-all pad-sm ${rowBg} green-txt">${s.optimo}</td>
+                    <td class="center border-all pad-xs bold rounded" style="background:${pctBg};color:${pctColor};">${pct}%</td>
+                </tr>`;
+            }).join('');
+
+        const platResumenRows = Object.entries(platTotales)
+            .sort((a,b) => b[1]-a[1])
+            .map(([p, val], i) => {
+                const pl = allPlataformas.find(x => x.nombre === p);
+                const color = pl?.color || '#2563EB';
+                const pct = totalMov ? Math.round((val/totalMov)*100) : 0;
+                const rowBg = i % 2 === 0 ? 'bg-white' : 'bg-altrow';
+                return `
+                <tr>
+                    <td class="border-all pad-sm ${rowBg}">
+                        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};margin-right:8px;vertical-align:middle;"></span>
+                        <b>${p}</b>
+                    </td>
+                    <td class="center border-all pad-sm ${rowBg} bold" style="color:${color};">${val.toLocaleString('es-CO')}</td>
+                    <td class="center border-all pad-sm ${rowBg} muted">${pct}%</td>
+                </tr>`;
+            }).join('');
+
+        const sheet2 = `
+        <table style="width:680px;margin-bottom:0;">
+
+            <!-- HEADER -->
+            <tr style="height:54px;">
+                <td colspan="4" class="bg-violet pad-lg">
+                    <div class="fs-large bold">📊 RESUMEN EJECUTIVO</div>
+                    <div class="fs-xs" style="opacity:0.8;margin-top:2px;">Haliel Papelería · ${fechaGen}</div>
+                </td>
+            </tr>
+
+            <tr style="height:10px;"><td colspan="4"></td></tr>
+
+            <!-- KPIs fila 1 -->
+            <tr>
+                <td class="bg-kpi-b border-all pad-md center rounded" style="width:170px;">
+                    <div class="fs-large bold">${data.length}</div>
+                    <div class="fs-xs upper muted">Total Registros</div>
+                </td>
+                <td class="bg-kpi-b border-all pad-md center rounded" style="width:170px;">
+                    <div class="fs-large bold">${totalMov.toLocaleString('es-CO')}</div>
+                    <div class="fs-xs upper muted">Total Movimientos</div>
+                </td>
+                <td class="bg-kpi-g border-all pad-md center rounded" style="width:170px;">
+                    <div class="fs-large bold green-txt">$${totalPart.toLocaleString('es-CO')}</div>
+                    <div class="fs-xs upper muted">Total Participación</div>
+                </td>
+                <td class="bg-kpi-p border-all pad-md center rounded" style="width:170px;">
+                    <div class="fs-large bold" style="color:#5b21b6;">${avgMov}</div>
+                    <div class="fs-xs upper muted">Promedio Diario</div>
+                </td>
+            </tr>
+            <tr style="height:8px;"><td colspan="4"></td></tr>
+
+            <!-- KPIs fila 2 -->
+            <tr>
+                <td class="bg-opt border-all pad-md center rounded">
+                    <div class="fs-large bold green-txt">${optCnt}</div>
+                    <div class="fs-xs upper muted">✔ Días Óptimos</div>
+                </td>
+                <td class="bg-ace border-all pad-md center rounded">
+                    <div class="fs-large bold" style="color:#854d0e;">${accCnt}</div>
+                    <div class="fs-xs upper muted">~ Días Aceptables</div>
+                </td>
+                <td class="bg-low border-all pad-md center rounded">
+                    <div class="fs-large bold red-txt">${bajCnt}</div>
+                    <div class="fs-xs upper muted">✖ Días Bajos</div>
+                </td>
+                <td class="bg-kpi-a border-all pad-md center rounded">
+                    <div class="fs-large bold" style="color:#854d0e;">${pctOpt}%</div>
+                    <div class="fs-xs upper muted">% Días Óptimos</div>
+                </td>
+            </tr>
+            <tr style="height:16px;"><td colspan="4"></td></tr>
+
+            <!-- RANKING OPERADORES -->
+            <tr>
+                <td colspan="4" class="bold pad-sm fs-small upper" style="border-bottom:3px solid #7C3AED;color:#5b21b6;">🏆 RANKING DE OPERADORES</td>
+            </tr>
+            <tr style="height:6px;"><td colspan="4"></td></tr>
+            <tr style="height:32px;">
+                <td class="bg-subhead center bold border-all pad-sm fs-xs upper" style="width:40px;">#</td>
+                <td class="bg-subhead bold border-all pad-sm fs-xs upper">Operador</td>
+                <td class="bg-subhead center bold border-all pad-sm fs-xs upper">Movimientos</td>
+                <td class="bg-subhead right bold border-all pad-sm fs-xs upper">Participación</td>
+            </tr>
+            ${Object.entries(opMap).sort((a,b)=>b[1].movimientos-a[1].movimientos).map(([n,s],i)=>{
+                const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+                const bg = i%2===0?'bg-white':'bg-altrow';
+                return `<tr>
+                    <td class="center border-all pad-sm ${bg} bold">${medal}</td>
+                    <td class="border-all pad-sm ${bg} bold">${n}</td>
+                    <td class="center border-all pad-sm ${bg} bold blue-txt">${s.movimientos.toLocaleString('es-CO')}</td>
+                    <td class="right border-all pad-sm ${bg} green-txt">$${s.participacion.toLocaleString('es-CO')}</td>
+                </tr>`;
+            }).join('')}
+            <tr style="height:16px;"><td colspan="4"></td></tr>
+
+            <!-- PLATAFORMAS -->
+            <tr>
+                <td colspan="4" class="bold pad-sm fs-small upper" style="border-bottom:3px solid #2563EB;color:#1e40af;">🔗 MOVIMIENTOS POR PLATAFORMA</td>
+            </tr>
+            <tr style="height:6px;"><td colspan="4"></td></tr>
+            <tr style="height:30px;">
+                <td colspan="2" class="bg-header bold border-all pad-sm fs-xs upper">Plataforma</td>
+                <td class="bg-header center bold border-all pad-sm fs-xs upper">Movimientos</td>
+                <td class="bg-header center bold border-all pad-sm fs-xs upper">% del Total</td>
+            </tr>
+            ${platResumenRows}
+            <tr style="height:16px;"><td colspan="4"></td></tr>
+
+            <!-- METAS -->
+            <tr>
+                <td colspan="4" class="bold pad-sm fs-small upper" style="border-bottom:3px solid #16a34a;color:#166534;">🎯 METAS CONFIGURADAS</td>
+            </tr>
+            <tr style="height:6px;"><td colspan="4"></td></tr>
+            <tr>
+                <td class="bg-kpi-g border-all pad-md center rounded">
+                    <div class="fs-large bold green-txt">${META_DIARIA}</div>
+                    <div class="fs-xs upper muted">Meta Diaria</div>
+                </td>
+                <td class="bg-kpi-g border-all pad-md center rounded">
+                    <div class="fs-large bold green-txt">${META_MENSUAL.toLocaleString('es-CO')}</div>
+                    <div class="fs-xs upper muted">Meta Mensual</div>
+                </td>
+                <td class="bg-kpi-b border-all pad-md center rounded">
+                    <div class="fs-large bold blue-txt">${OPTIMO}</div>
+                    <div class="fs-xs upper muted">Umbral Óptimo</div>
+                </td>
+                <td class="bg-kpi-a border-all pad-md center rounded">
+                    <div class="fs-large bold" style="color:#854d0e;">${ACEPTABLE}</div>
+                    <div class="fs-xs upper muted">Umbral Aceptable</div>
+                </td>
+            </tr>
+            <tr style="height:20px;"><td colspan="4"></td></tr>
+
+            <!-- PIE -->
+            <tr>
+                <td colspan="4" class="bg-navy pad-sm center fs-xs" style="color:rgba(255,255,255,0.6);">
+                    Desarrollado por Ing. Santiago Escorcia Carlos Andrés · ✆ 315-238-0960
+                </td>
+            </tr>
+        </table>`;
+
+        // ─────────────────────────────────────────────────────────
+        // HOJA 3: DETALLE POR OPERADOR
+        // ─────────────────────────────────────────────────────────
+        const sheet3 = `
+        <table style="width:700px;margin-bottom:0;">
+            <tr style="height:50px;">
+                <td colspan="7" class="bg-dark pad-lg">
+                    <span class="fs-large bold">👥 RENDIMIENTO DETALLADO POR OPERADOR</span>
+                    <span class="fs-xs" style="opacity:0.65;margin-left:16px;">Haliel Papelería · ${fechaGen}</span>
+                </td>
+            </tr>
+            <tr style="height:8px;"><td colspan="7"></td></tr>
+            <tr style="height:34px;">
+                <td class="bg-slate center bold border-all pad-sm fs-xs upper" style="width:40px;">#</td>
+                <td class="bg-slate bold border-all pad-sm fs-xs upper" style="width:180px;">Operador</td>
+                <td class="bg-slate center bold border-all pad-sm fs-xs upper" style="width:110px;">Movimientos</td>
+                <td class="bg-slate right bold border-all pad-sm fs-xs upper" style="width:130px;">Participación</td>
+                <td class="bg-slate center bold border-all pad-sm fs-xs upper" style="width:80px;">Días Reg.</td>
+                <td class="bg-slate center bold border-all pad-sm fs-xs upper" style="width:80px;">Días Ópt.</td>
+                <td class="bg-slate center bold border-all pad-sm fs-xs upper" style="width:80px;">% Cumpl.</td>
+            </tr>
+            ${opRows}
+            <tr style="height:14px;"><td colspan="7"></td></tr>
+            <tr>
+                <td colspan="7" class="bg-navy pad-sm center fs-xs" style="color:rgba(255,255,255,0.6);">
+                    Desarrollado por Ing. Santiago Escorcia Carlos Andrés · ✆ 315-238-0960 · Haliel Papelería
+                </td>
+            </tr>
+        </table>`;
+
+        // ─────────────────────────────────────────────────────────
+        // CONSTRUIR Y DESCARGAR EL ARCHIVO
+        // ─────────────────────────────────────────────────────────
+        const htmlContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="UTF-8"/>
+            <!--[if gte mso 9]>
+            <xml>
+                <x:ExcelWorkbook>
+                    <x:ExcelWorksheets>
+                        <x:ExcelWorksheet>
+                            <x:Name>📋 Registros</x:Name>
+                            <x:WorksheetOptions><x:Selected/></x:WorksheetOptions>
+                        </x:ExcelWorksheet>
+                        <x:ExcelWorksheet>
+                            <x:Name>📊 Resumen Ejecutivo</x:Name>
+                        </x:ExcelWorksheet>
+                        <x:ExcelWorksheet>
+                            <x:Name>👥 Por Operador</x:Name>
+                        </x:ExcelWorksheet>
+                    </x:ExcelWorksheets>
+                </x:ExcelWorkbook>
+            </xml>
+            <![endif]-->
+            ${css}
+        </head>
+        <body>
+            ${sheet1}
+            <br clear="all" style="page-break-before:always;mso-break-type:excel-sheet-break"/>
+            ${sheet2}
+            <br clear="all" style="page-break-before:always;mso-break-type:excel-sheet-break"/>
+            ${sheet3}
+        </body>
+        </html>`;
+
+        const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Haliel_${desde || 'Historial'}_al_${hasta || 'hoy'}.xls`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast('Excel exportado exitosamente ✅', 'success');
+        await logAuditoria('crear', `Reporte Excel exportado: ${data.length} registros`);
+
     } catch (err) {
         console.error('Error exportando Excel:', err);
         toast('Error al exportar: ' + err.message, 'error');
@@ -4461,19 +4928,350 @@ async function exportExcel() {
 }
 
 async function exportPDF() {
-  const data=await getExportData();
-  if(!data.length){toast('No hay datos para exportar','info');return;}
-  const totalMov=data.reduce((a,r)=>a+(r.movimientos||0),0);
-  const totalPart=data.reduce((a,r)=>a+(r.participacion||0),0);
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>body{font-family:Arial,sans-serif;padding:20px;color:#0f172a;}h1{color:#2563EB;font-size:20px;}table{width:100%;border-collapse:collapse;font-size:11px;}th{background:#2563EB;color:white;padding:8px;text-align:left;}td{padding:7px 8px;border-bottom:1px solid #e2e8f0;}tr:nth-child(even){background:#f8fafc;}.summary{background:#f1f5f9;padding:12px;border-radius:8px;margin-bottom:16px;display:flex;gap:24px;}.sum-item{font-size:12px;}.sum-val{font-weight:700;font-size:16px;color:#2563EB;}</style></head><body>
-  <h1>Haliel Papelería — Reporte de Registros</h1>
-  <p>Generado el ${new Date().toLocaleDateString('es-CO')} | ${data.length} registros</p>
-  <div class="summary"><div class="sum-item"><div class="sum-val">${totalMov.toLocaleString()}</div>Total Movimientos</div><div class="sum-item"><div class="sum-val">$${totalPart.toLocaleString('es-CO')}</div>Total Participación</div></div>
-  <table><thead><tr><th>Fecha</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Operador</th><th>Sucursal</th></tr></thead>
-  <tbody>${data.map(r=>`<tr><td>${r.fecha||''}</td><td>${r.movimientos||0}</td><td>$${(r.participacion||0).toLocaleString('es-CO')}</td><td>${r.clasificacion||''}</td><td>${r.operador_nombre||''}</td><td>${r.sucursal||''}</td></tr>`).join('')}</tbody></table>
-  </body></html>`;
-  const win=window.open('','_blank');win.document.write(html);win.document.close();win.print();
-  toast('PDF generado ✅','success');
+    const btn = document.querySelector('#sec-reportes .btn-secondary');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,0.2);border-top-color:#2563EB;"></span> Generando...'; }
+
+    try {
+        const data = await getExportData();
+        if (!data.length) { toast('No hay datos para exportar', 'info'); return; }
+
+        const desde = document.getElementById('rpt-desde')?.value || '';
+        const hasta = document.getElementById('rpt-hasta')?.value || '';
+        const operador = document.getElementById('rpt-op')?.selectedOptions[0]?.text || 'Todos';
+        const fechaGen = new Date().toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+        const horaGen = new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+
+        const totalMov = data.reduce((a,r) => a + (r.movimientos || 0), 0);
+        const totalPart = data.reduce((a,r) => a + (r.participacion || 0), 0);
+        const avgMov = data.length ? Math.round(totalMov / data.length) : 0;
+        const optCnt = data.filter(r => r.clasificacion === 'optimo').length;
+        const accCnt = data.filter(r => r.clasificacion === 'aceptable').length;
+        const bajCnt = data.filter(r => r.clasificacion === 'bajo').length;
+        const pctOpt = data.length ? Math.round((optCnt / data.length) * 100) : 0;
+        const mejorDia = [...data].sort((a,b) => (b.movimientos||0)-(a.movimientos||0))[0];
+
+        // Plataformas
+        const platStats = {};
+        data.forEach(r => {
+            if (r.plataformas_data) {
+                Object.entries(r.plataformas_data).forEach(([n,v]) => {
+                    platStats[n] = (platStats[n] || 0) + (v || 0);
+                });
+            }
+        });
+
+        const platRows = Object.entries(platStats)
+            .sort((a,b) => b[1]-a[1])
+            .map(([nombre, val]) => {
+                const p = allPlataformas.find(x => x.nombre === nombre);
+                const color = p?.color || '#2563EB';
+                const pct = totalMov ? Math.round((val/totalMov)*100) : 0;
+                return `
+                <tr>
+                    <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;">
+                        <span style="display:inline-flex;align-items:center;gap:8px;">
+                            <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;"></span>
+                            ${nombre}
+                        </span>
+                    </td>
+                    <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;">${val.toLocaleString('es-CO')}</td>
+                    <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;text-align:center;">
+                        <div style="background:#f1f5f9;border-radius:99px;height:8px;width:100%;min-width:80px;overflow:hidden;">
+                            <div style="background:${color};height:8px;width:${pct}%;border-radius:99px;"></div>
+                        </div>
+                    </td>
+                    <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;text-align:right;color:#64748b;font-size:12px;">${pct}%</td>
+                </tr>`;
+            }).join('');
+
+        const dataRows = data.map((r, i) => {
+            const clsColor = r.clasificacion === 'optimo' ? '#16a34a' : r.clasificacion === 'aceptable' ? '#ca8a04' : '#dc2626';
+            const clsBg = r.clasificacion === 'optimo' ? '#dcfce7' : r.clasificacion === 'aceptable' ? '#fef9c3' : '#fee2e2';
+            const clsLabel = r.clasificacion === 'optimo' ? 'Óptimo' : r.clasificacion === 'aceptable' ? 'Aceptable' : 'Bajo';
+            const rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+            return `
+            <tr style="background:${rowBg};">
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;font-weight:600;font-size:12px;">${r.fecha || ''}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;">${r.operador_nombre || '—'}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;">${r.sucursal || '—'}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;font-size:13px;">${(r.movimientos||0).toLocaleString('es-CO')}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:12px;color:#16a34a;">$${(r.participacion||0).toLocaleString('es-CO')}</td>
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:center;">
+                    <span style="background:${clsBg};color:${clsColor};padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;">${clsLabel}</span>
+                </td>
+                <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#64748b;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.notas || ''}</td>
+            </tr>`;
+        }).join('');
+
+        const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Reporte Haliel Papelería</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #0f172a; font-size: 13px; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+  }
+  .no-print {
+    position: fixed; top: 16px; right: 16px; z-index: 999;
+    display: flex; gap: 8px;
+  }
+  .btn-print {
+    background: #2563EB; color: white; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+  }
+  .btn-close {
+    background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .header-band {
+    background: linear-gradient(135deg, #1e1b4b 0%, #2563EB 50%, #7C3AED 100%);
+    color: white; padding: 32px 48px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-logo-area { display: flex; align-items: center; gap: 20px; }
+  .header-logo-circle {
+    width: 70px; height: 70px; border-radius: 16px;
+    background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+  }
+  .header-logo-circle img { width: 100%; height: 100%; object-fit: contain; }
+  .header-logo-circle-fallback {
+    font-size: 28px; font-weight: 900; color: white; letter-spacing: -1px;
+  }
+  .header-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .header-subtitle { font-size: 13px; opacity: 0.8; font-weight: 400; }
+  .header-meta { text-align: right; font-size: 12px; opacity: 0.85; line-height: 1.7; }
+  .header-meta strong { font-size: 14px; }
+  .kpi-band { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 20px 48px; display: flex; gap: 0; }
+  .kpi-item {
+    flex: 1; text-align: center; padding: 0 16px;
+    border-right: 1px solid #e2e8f0;
+  }
+  .kpi-item:last-child { border-right: none; }
+  .kpi-value { font-size: 26px; font-weight: 900; color: #2563EB; line-height: 1; margin-bottom: 4px; }
+  .kpi-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-value.green { color: #16a34a; }
+  .kpi-value.purple { color: #7C3AED; }
+  .kpi-value.amber { color: #ca8a04; }
+  .body-wrap { padding: 32px 48px; }
+  .section-title {
+    font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 16px;
+    padding-bottom: 8px; border-bottom: 2px solid #2563EB;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title span { font-size: 18px; }
+  .cards-row { display: flex; gap: 12px; margin-bottom: 28px; }
+  .mini-card {
+    flex: 1; background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 14px 16px; text-align: center;
+  }
+  .mini-card-val { font-size: 20px; font-weight: 800; margin-bottom: 3px; }
+  .mini-card-label { font-size: 11px; color: #64748b; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .data-table thead th {
+    background: #1e293b; color: white;
+    padding: 10px 10px; text-align: left; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .data-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .data-table thead th:last-child { border-radius: 0 8px 0 0; }
+  .totals-row td {
+    background: #1e293b; color: white; font-weight: 800; font-size: 12px;
+    padding: 10px 10px; border-bottom: none;
+  }
+  .platform-table { width: 100%; border-collapse: collapse; }
+  .platform-table thead th {
+    background: #f1f5f9; color: #64748b; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 8px 12px; text-align: left; font-weight: 700;
+  }
+  .footer {
+    margin-top: 40px; padding: 20px 48px; background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-brand { font-size: 11px; color: #94a3b8; }
+  .footer-dev { font-size: 10px; color: #94a3b8; text-align: right; }
+  .badge-optimo { background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap; }
+  .badge-aceptable { background:#fef9c3;color:#ca8a04;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap; }
+  .badge-bajo { background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap; }
+  .highlight-box {
+    background: linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));
+    border: 1px solid rgba(37,99,235,0.15); border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .highlight-icon { font-size: 28px; flex-shrink: 0; }
+  .highlight-text strong { font-size: 14px; color: #2563EB; display: block; margin-bottom: 2px; }
+  .highlight-text span { font-size: 12px; color: #64748b; }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  <button class="btn-close" onclick="window.close()">✕ Cerrar</button>
+</div>
+
+<!-- ENCABEZADO -->
+<div class="header-band">
+  <div class="header-logo-area">
+    <div class="header-logo-circle">
+      <img src="logo.png" alt="Haliel Papelería" onerror="this.parentElement.innerHTML='<span class=\\'header-logo-circle-fallback\\'>HP</span>'"/>
+    </div>
+    <div>
+      <div class="header-title">Haliel Papelería</div>
+      <div class="header-subtitle">Reporte de Movimientos y Estadísticas</div>
+      <div style="margin-top:8px;font-size:11px;opacity:0.7;">📍 Bucaramanga, Colombia</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <strong>Reporte generado el</strong><br/>
+    ${fechaGen}<br/>
+    ${horaGen} hrs<br/><br/>
+    Período: <strong>${desde || 'Todo el historial'}</strong>${hasta && desde ? ` → <strong>${hasta}</strong>` : ''}<br/>
+    Operador: <strong>${operador}</strong>
+  </div>
+</div>
+
+<!-- KPIs PRINCIPALES -->
+<div class="kpi-band">
+  <div class="kpi-item">
+    <div class="kpi-value">${data.length}</div>
+    <div class="kpi-label">Registros</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-value">${totalMov.toLocaleString('es-CO')}</div>
+    <div class="kpi-label">Total Movimientos</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-value green">$${totalPart.toLocaleString('es-CO')}</div>
+    <div class="kpi-label">Total Participación</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-value purple">${avgMov.toLocaleString('es-CO')}</div>
+    <div class="kpi-label">Promedio Diario</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-value amber">${pctOpt}%</div>
+    <div class="kpi-label">Días Óptimos</div>
+  </div>
+</div>
+
+<!-- CUERPO -->
+<div class="body-wrap">
+
+  <!-- DESTACADO: MEJOR DÍA -->
+  ${mejorDia ? `
+  <div class="highlight-box">
+    <div class="highlight-icon">🏆</div>
+    <div class="highlight-text">
+      <strong>Mejor día del período — ${mejorDia.operador_nombre || 'Sin asignar'}</strong>
+      <span>${mejorDia.fecha} · ${(mejorDia.movimientos||0).toLocaleString('es-CO')} movimientos · $${(mejorDia.participacion||0).toLocaleString('es-CO')} de participación</span>
+    </div>
+  </div>
+  ` : ''}
+
+  <!-- CLASIFICACIÓN -->
+  <div class="section-title"><span>📊</span> Clasificación de días</div>
+  <div class="cards-row" style="margin-bottom:28px;">
+    <div class="mini-card" style="border-color:#bbf7d0;">
+      <div class="mini-card-val" style="color:#16a34a;">${optCnt}</div>
+      <div class="mini-card-label">✅ Días Óptimos</div>
+    </div>
+    <div class="mini-card" style="border-color:#fef08a;">
+      <div class="mini-card-val" style="color:#ca8a04;">${accCnt}</div>
+      <div class="mini-card-label">⚠️ Días Aceptables</div>
+    </div>
+    <div class="mini-card" style="border-color:#fecaca;">
+      <div class="mini-card-val" style="color:#dc2626;">${bajCnt}</div>
+      <div class="mini-card-label">❌ Días Bajos</div>
+    </div>
+    <div class="mini-card" style="border-color:#dbeafe;">
+      <div class="mini-card-val" style="color:#2563EB;">${META_DIARIA}</div>
+      <div class="mini-card-label">🎯 Meta Diaria</div>
+    </div>
+    <div class="mini-card" style="border-color:#e9d5ff;">
+      <div class="mini-card-val" style="color:#7C3AED;">${META_MENSUAL.toLocaleString('es-CO')}</div>
+      <div class="mini-card-label">📅 Meta Mensual</div>
+    </div>
+  </div>
+
+  <!-- PLATAFORMAS -->
+  ${platRows ? `
+  <div class="section-title"><span>🔗</span> Movimientos por plataforma</div>
+  <table class="platform-table" style="margin-bottom:32px;">
+    <thead>
+      <tr>
+        <th style="width:40%;">Plataforma</th>
+        <th style="text-align:center;">Movimientos</th>
+        <th style="width:30%;">Distribución</th>
+        <th style="text-align:right;">%</th>
+      </tr>
+    </thead>
+    <tbody>${platRows}</tbody>
+  </table>
+  ` : ''}
+
+  <!-- TABLA DE REGISTROS -->
+  <div class="section-title page-break"><span>📋</span> Detalle de registros (${data.length})</div>
+  <div style="overflow-x:auto;margin-bottom:8px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Operador</th>
+          <th>Sucursal</th>
+          <th style="text-align:center;">Movimientos</th>
+          <th style="text-align:right;">Participación</th>
+          <th style="text-align:center;">Clasificación</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${dataRows}
+        <tr class="totals-row">
+          <td colspan="3">TOTALES GENERALES</td>
+          <td style="text-align:center;">${totalMov.toLocaleString('es-CO')}</td>
+          <td style="text-align:right;">$${totalPart.toLocaleString('es-CO')}</td>
+          <td colspan="2">${data.length} registros · Prom. ${avgMov} mov/día</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- PIE DE PÁGINA -->
+<div class="footer">
+  <div class="footer-brand">
+    <strong>Haliel Papelería</strong><br/>
+    📞 3134194976 · ✉️ papeleriahaliel@gmail.com<br/>
+  </div>
+</div>
+
+</body>
+</html>`;
+
+        const win = window.open('', '_blank');
+        if (!win) { toast('Activa las ventanas emergentes para generar el PDF', 'error'); return; }
+        win.document.write(html);
+        win.document.close();
+        toast('PDF profesional generado ✅ — usa Ctrl+P para guardar', 'success');
+        await logAuditoria('crear', `Reporte PDF exportado: ${data.length} registros`);
+
+    } catch (err) {
+        console.error('Error exportando PDF:', err);
+        toast('Error al generar PDF: ' + err.message, 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Exportar PDF'; }
+    }
 }
 
 // =====================================================
@@ -4643,6 +5441,113 @@ window.addEventListener('online', () => {
         syncOfflineQueue();
     }
 });
+
+// =====================================================
+// FUNCIONES NUEVAS: REGISTRO PARA ADMINISTRADORES
+// =====================================================
+function formatParticipacionAdmin(input) {
+  const raw = input.value.replace(/\D/g, '');
+  document.getElementById('admin-reg-participacion-raw').value = raw || '0';
+  if (raw === '') { input.value = ''; return; }
+  input.value = parseInt(raw, 10).toLocaleString('es-CO');
+}
+
+function buildAdminPlataformaInputs() {
+  const container = document.getElementById('admin-plataformas-inputs');
+  if (!container) return;
+  container.innerHTML = allPlataformas.map(p => `
+    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.75rem;">
+      <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;text-transform:uppercase;">
+        <span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block;"></span>
+        ${p.nombre}
+      </label>
+      <input type="number" id="admin-plat-input-${p.id}" class="field-input" placeholder="0" min="0" oninput="updateAdminTotalMovimientos()" style="padding:0.5rem 0.75rem;"/>
+    </div>
+  `).join('');
+  updateAdminTotalMovimientos();
+}
+
+function updateAdminTotalMovimientos() {
+  let total = 0;
+  allPlataformas.forEach(p => {
+    const val = parseInt(document.getElementById(`admin-plat-input-${p.id}`)?.value || '0') || 0;
+    total += val;
+  });
+  document.getElementById('admin-total-movimientos-preview').textContent = total.toLocaleString();
+  const preview = document.getElementById('admin-clasificacion-preview');
+  if (total > 0) {
+    preview.innerHTML = badgeClasificacion(getClasificacion(total));
+  } else {
+    preview.innerHTML = '';
+  }
+}
+
+function getAdminPlatData() {
+  const result = {};
+  allPlataformas.forEach(p => {
+    result[p.nombre] = parseInt(document.getElementById(`admin-plat-input-${p.id}`)?.value || '0') || 0;
+  });
+  return result;
+}
+
+async function guardarRegistroAdmin() {
+  const fecha = document.getElementById('admin-reg-fecha').value;
+  const partRaw = document.getElementById('admin-reg-participacion-raw').value || '0';
+  const part = parseFloat(partRaw) || 0;
+  const notas = document.getElementById('admin-reg-notas')?.value.trim() || '';
+  const platData = getAdminPlatData();
+  const mov = Object.values(platData).reduce((a, v) => a + v, 0);
+  const btn = document.getElementById('admin-btn-guardar-reg');
+  const overlay = document.getElementById('success-overlay');
+
+  if (!fecha) { toast('Selecciona una fecha', 'error'); return; }
+  if (mov <= 0) { toast('Ingresa movimientos en al menos una plataforma', 'error'); return; }
+
+  if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
+
+  const registroData = {
+    fecha, movimientos: mov, participacion: part, notas,
+    clasificacion: getClasificacion(mov),
+    operador_id: currentUser.id,
+    operador_nombre: currentProfile?.nombre || currentUser.email,
+    sucursal: currentProfile?.sucursal || null,
+    plataformas_data: platData,
+  };
+
+  try {
+    if (!navigator.onLine) throw new Error('Offline');
+    const { error } = await sb.from('registros').insert(registroData);
+    if (error) throw error;
+
+    if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
+    toast('Registro guardado correctamente ✅', 'success');
+  } catch (err) {
+    if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
+      await queueOfflineAction('Registro Admin del día', registroData);
+      // Reset form
+      allPlataformas.forEach(p => { const el = document.getElementById(`admin-plat-input-${p.id}`); if (el) el.value = ''; });
+      document.getElementById('admin-reg-participacion').value = '';
+      document.getElementById('admin-reg-participacion-raw').value = '0';
+      if(document.getElementById('admin-reg-notas')) document.getElementById('admin-reg-notas').value = '';
+      document.getElementById('admin-clasificacion-preview').innerHTML = '';
+      document.getElementById('admin-total-movimientos-preview').textContent = '0';
+      document.getElementById('admin-reg-fecha').value = todayLocal();
+      return;
+    }
+    toast('Error: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar Registro'; }
+  }
+
+  // Reset form on success
+  allPlataformas.forEach(p => { const el = document.getElementById(`admin-plat-input-${p.id}`); if (el) el.value = ''; });
+  document.getElementById('admin-reg-participacion').value = '';
+  document.getElementById('admin-reg-participacion-raw').value = '0';
+  if(document.getElementById('admin-reg-notas')) document.getElementById('admin-reg-notas').value = '';
+  document.getElementById('admin-clasificacion-preview').innerHTML = '';
+  document.getElementById('admin-total-movimientos-preview').textContent = '0';
+  document.getElementById('admin-reg-fecha').value = todayLocal();
+}
 
 </script>
 
