@@ -16,9 +16,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
 <script>
   tailwind.config = {
@@ -1250,14 +1247,14 @@
 			  <button class="toggle-dark" id="profile-dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
 			</div>
 			<div class="divider"></div>
-			
-			<!-- 🔔 Notificaciones Push Firebase -->
-			<div style="display:flex;align-items:center;justify-content:space-between;">
+
+			<!-- 🔔 Notificaciones Telegram -->
+			<div id="telegram-notif-row" style="display:flex;align-items:center;justify-content:space-between;">
 			  <div>
-				<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Push</div>
-				<div style="font-size:0.75rem;color:var(--text-muted);">Recibe alertas en tiempo real</div>
+				<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Telegram</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);" id="telegram-notif-desc">Recibe alertas de registros en Telegram</div>
 			  </div>
-			  <label class="toggle-dark" id="toggle-notif-firebase" onclick="toggleFirebaseNotif()"><span class="toggle-dot"></span></label>
+			  <button class="toggle-dark" id="telegram-notif-toggle" onclick="toggleTelegramNotif()"><span class="toggle-dot"></span></button>
 			</div>
 			<div class="divider"></div>
 			
@@ -1458,22 +1455,196 @@
 const SUPABASE_URL = 'https://ejbkqnanjvmjykovvvos.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYmtxbmFuanZtanlrb3Z2dm9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzI1NzAsImV4cCI6MjA5NDQ0ODU3MH0.BnFrDc8CwqfITTFoPNGcp4OiJ7A4jr4FX30eJrWeRO0';
 
-// 🔥 FIREBASE CONFIGURATION
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBnUyK1E8B_EiYUjHw1BxrKsvP2yTZheFs",
-  authDomain: "haliel.firebaseapp.com",
-  projectId: "haliel",
-  storageBucket: "haliel.firebasestorage.app",
-  messagingSenderId: "400290356422",
-  appId: "1:400290356422:web:6503e67049429f1f018bc7"
-};
+// =====================================================
+// TELEGRAM BOT CONFIG
+// =====================================================
+const TELEGRAM_BOT_TOKEN = '8939765729:AAFXoyxciIrgSDxNLBcoGMA58GnAAtw6V60'; // Reemplaza con tu token de BotFather
+const TELEGRAM_CHAT_ID   = '1698032936'; // Reemplaza con tu Chat ID
 
-// Inicializar Firebase
-firebase.initializeApp(FIREBASE_CONFIG);
-const messaging = firebase.messaging();
+async function sendTelegramNotification(mensaje) {
+    // Respetar preferencia del administrador
+    if (!isTelegramNotifEnabled()) {
+        console.log('🔕 Notificaciones Telegram desactivadas');
+        return;
+    }
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: mensaje,
+                parse_mode: 'HTML'
+            })
+        });
+        const result = await response.json();
+        if (!result.ok) {
+            console.warn('⚠️ Telegram error:', result.description);
+        } else {
+            console.log('✅ Notificación Telegram enviada');
+        }
+    } catch (err) {
+        console.warn('⚠️ No se pudo enviar notificación Telegram:', err.message);
+    }
+}
 
-// VAPID Key para Web Push (obtén esta clave en Firebase Console → Cloud Messaging)
-const VAPID_KEY = "BKctL_NU2MhubtLlj2fTn0R78ZhlCpzk1JLePvLjAaLUmXnUacLeXlv8s1IIz1hOlzYBfyi68owcLqJqcxv8waQ"; // 👉 Reemplaza con tu clave pública
+function buildTelegramMensaje(tipo, datos) {
+    const hora = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    const fecha = new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    if (tipo === 'registro_nuevo') {
+        const cls = datos.clasificacion === 'optimo'   ? '✅ Óptimo'
+                  : datos.clasificacion === 'aceptable' ? '⚠️ Aceptable'
+                  :                                       '❌ Bajo';
+
+        const platLineas = datos.plataformas_data
+            ? Object.entries(datos.plataformas_data)
+                .filter(([, v]) => v > 0)
+                .map(([n, v]) => `   • ${n}: <b>${v}</b>`)
+                .join('\n')
+            : '';
+
+        return `🏬 <b>Haliel Papelería</b>
+━━━━━━━━━━━━━━━━━━
+📝 <b>Nuevo Registro Guardado</b>
+
+👤 <b>Operador:</b> ${datos.operador_nombre || '—'}
+🏢 <b>Sucursal:</b> ${datos.sucursal || 'Sin asignar'}
+📅 <b>Fecha:</b> ${datos.fecha || '—'}
+🕐 <b>Hora:</b> ${hora}
+
+📦 <b>Movimientos:</b> ${(datos.movimientos || 0).toLocaleString('es-CO')}
+💰 <b>Participación:</b> $${(datos.participacion || 0).toLocaleString('es-CO')}
+${platLineas ? '\n🔗 <b>Por plataforma:</b>\n' + platLineas + '\n' : ''}
+${cls} <b>Clasificación:</b> ${datos.clasificacion?.charAt(0).toUpperCase() + datos.clasificacion?.slice(1) || '—'}
+${datos.notas ? '\n📌 <b>Notas:</b> ' + datos.notas : ''}
+━━━━━━━━━━━━━━━━━━
+<i>${fecha}</i>`;
+    }
+
+    if (tipo === 'registro_editado') {
+        return `🏬 <b>Haliel Papelería</b>
+━━━━━━━━━━━━━━━━━━
+✏️ <b>Registro Editado</b>
+
+👤 <b>Admin:</b> ${datos.admin || '—'}
+📅 <b>Fecha del registro:</b> ${datos.fecha || '—'}
+📦 <b>Movimientos:</b> ${(datos.movimientos || 0).toLocaleString('es-CO')}
+💰 <b>Participación:</b> $${(datos.participacion || 0).toLocaleString('es-CO')}
+🕐 <b>Hora de edición:</b> ${hora}
+━━━━━━━━━━━━━━━━━━
+<i>${fecha}</i>`;
+    }
+
+    if (tipo === 'registro_eliminado') {
+        return `🏬 <b>Haliel Papelería</b>
+━━━━━━━━━━━━━━━━━━
+🗑️ <b>Registro Eliminado</b>
+
+👤 <b>Admin:</b> ${datos.admin || '—'}
+🆔 <b>ID Registro:</b> ${datos.id || '—'}
+🕐 <b>Hora:</b> ${hora}
+━━━━━━━━━━━━━━━━━━
+<i>${fecha}</i>`;
+    }
+
+    if (tipo === 'usuario_nuevo') {
+        return `🏬 <b>Haliel Papelería</b>
+━━━━━━━━━━━━━━━━━━
+👤 <b>Nuevo Usuario Creado</b>
+
+📛 <b>Nombre:</b> ${datos.nombre || '—'}
+📧 <b>Correo:</b> ${datos.correo || '—'}
+🎭 <b>Rol:</b> ${datos.rol || '—'}
+🏢 <b>Sucursal:</b> ${datos.sucursal || 'Sin asignar'}
+🕐 <b>Hora:</b> ${hora}
+━━━━━━━━━━━━━━━━━━
+<i>${fecha}</i>`;
+    }
+
+    return `🏬 <b>Haliel Papelería</b>\n📌 ${tipo}\n🕐 ${hora}`;
+}
+
+// =====================================================
+// TOGGLE NOTIFICACIONES TELEGRAM
+// =====================================================
+async function toggleTelegramNotif() {
+    const toggle = document.getElementById('telegram-notif-toggle');
+    const desc = document.getElementById('telegram-notif-desc');
+    if (!toggle || !currentUser) return;
+
+    const activo = toggle.classList.contains('on');
+    const nuevoEstado = !activo;
+
+    // Actualizar UI inmediatamente (optimistic update)
+    if (nuevoEstado) {
+        toggle.classList.add('on');
+        if (desc) desc.textContent = 'Recibe alertas de registros en Telegram';
+    } else {
+        toggle.classList.remove('on');
+        if (desc) desc.textContent = 'Notificaciones desactivadas';
+    }
+
+    try {
+        const { error } = await sb.from('usuarios')
+            .update({ telegram_notif: nuevoEstado })
+            .eq('id', currentUser.id);
+
+        if (error) throw error;
+
+        // Actualizar estado local
+        currentProfile.telegram_notif = nuevoEstado;
+
+        if (nuevoEstado) {
+            toast('🔔 Notificaciones Telegram activadas', 'success');
+        } else {
+            toast('🔕 Notificaciones Telegram desactivadas', 'info');
+        }
+
+    } catch (err) {
+        // Revertir UI si falla
+        if (nuevoEstado) {
+            toggle.classList.remove('on');
+            if (desc) desc.textContent = 'Notificaciones desactivadas';
+        } else {
+            toggle.classList.add('on');
+            if (desc) desc.textContent = 'Recibe alertas de registros en Telegram';
+        }
+        toast('Error al guardar preferencia: ' + err.message, 'error');
+    }
+}
+
+function isTelegramNotifEnabled() {
+    if (currentProfile?.rol !== 'administrador') return false;
+    // Si el campo es null (usuario antiguo sin columna aún), por defecto true
+    return currentProfile?.telegram_notif !== false;
+}
+
+function initTelegramToggleUI() {
+    const toggle = document.getElementById('telegram-notif-toggle');
+    const row = document.getElementById('telegram-notif-row');
+    const desc = document.getElementById('telegram-notif-desc');
+    if (!toggle || !row) return;
+
+    // Solo mostrar para administradores
+    if (currentProfile?.rol !== 'administrador') {
+        row.style.display = 'none';
+        const divider = row.nextElementSibling;
+        if (divider) divider.style.display = 'none';
+        return;
+    }
+
+    row.style.display = 'flex';
+
+    if (isTelegramNotifEnabled()) {
+        toggle.classList.add('on');
+        if (desc) desc.textContent = 'Recibe alertas de registros en Telegram';
+    } else {
+        toggle.classList.remove('on');
+        if (desc) desc.textContent = 'Notificaciones desactivadas';
+    }
+}
 
 function todayLocal() {
   const now = new Date();
@@ -2238,15 +2409,6 @@ async function initApp(user) {
     loadConfig();
     initInactivityTracking();
     initSidebarState();
-	
-	// 🔔 Inicializar notificaciones Firebase (solo admins)
-	if (currentProfile?.rol === 'administrador') {
-	  // Verificar si ya tenía permiso
-	  const permission = Notification.permission;
-	  if (permission === 'granted') {
-		requestNotificationPermission();
-	  }
-	}
     
     // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
     setTimeout(() => {
@@ -2661,41 +2823,45 @@ async function saveOperador() {
             await logAuditoria('editar', `Usuario ${nombre} actualizado`);
             toast('Usuario actualizado ✅', 'success');
 
-        } else {
-            if (!password || password.length < 6) throw new Error('Mínimo 6 caracteres para la contraseña');
+		} else {
+			if (!password || password.length < 6) throw new Error('Mínimo 6 caracteres para la contraseña');
 
-            // Guardar sesión del admin ANTES de crear
-            const { data: { session: adminSession } } = await sb.auth.getSession();
-            const adminAccessToken = adminSession.access_token;
-            const adminRefreshToken = adminSession.refresh_token;
+			const { data: { session: adminSession } } = await sb.auth.getSession();
+			const adminAccessToken = adminSession.access_token;
+			const adminRefreshToken = adminSession.refresh_token;
 
-            const res = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminAccessToken}`
-                },
-                body: JSON.stringify({ email: correo, password, nombre, rol, sucursal, estado })
-            });
+			const res = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${adminAccessToken}`
+				},
+				body: JSON.stringify({ email: correo, password, nombre, rol, sucursal, estado })
+			});
 
-            const responseData = await res.json();
-            if (!res.ok) throw new Error(responseData.error || 'Error al crear usuario');
+			const responseData = await res.json();
+			if (!res.ok) throw new Error(responseData.error || 'Error al crear usuario');
 
-            // Restaurar sesión del admin inmediatamente
-            const { error: restoreError } = await sb.auth.setSession({
-                access_token: adminAccessToken,
-                refresh_token: adminRefreshToken
-            });
+			const { error: restoreError } = await sb.auth.setSession({
+				access_token: adminAccessToken,
+				refresh_token: adminRefreshToken
+			});
 
-            if (restoreError) {
-                console.warn('⚠️ Error restaurando sesión:', restoreError.message);
-            } else {
-                console.log('✅ Sesión admin restaurada correctamente');
-            }
+			if (restoreError) {
+				console.warn('⚠️ Error restaurando sesión:', restoreError.message);
+			} else {
+				console.log('✅ Sesión admin restaurada correctamente');
+			}
 
-            await logAuditoria('crear', `Usuario ${nombre} (${rol}) creado`);
-            toast('Usuario creado ✅', 'success');
-        }
+			// ✅ Notificación Telegram usuario nuevo
+			const msgNuevoUser = buildTelegramMensaje('usuario_nuevo', {
+				nombre, correo, rol, sucursal
+			});
+			sendTelegramNotification(msgNuevoUser);
+
+			await logAuditoria('crear', `Usuario ${nombre} (${rol}) creado`);
+			toast('Usuario creado ✅', 'success');
+		}
 
         closeModal('modal-operador');
         await loadAllUsers();
@@ -3331,41 +3497,59 @@ function openEditRegistro(id) {
 }
 
 async function updateRegistro() {
-    const id=document.getElementById('edit-reg-id').value;
-    const fecha=document.getElementById('edit-reg-fecha').value;
-    const mov=parseInt(document.getElementById('edit-reg-movimientos').value);
-    const part=parseFloat(document.getElementById('edit-reg-participacion').value);
-    const notas=document.getElementById('edit-reg-notas').value.trim();
+    const id = document.getElementById('edit-reg-id').value;
+    const fecha = document.getElementById('edit-reg-fecha').value;
+    const mov = parseInt(document.getElementById('edit-reg-movimientos').value);
+    const part = parseFloat(document.getElementById('edit-reg-participacion').value);
+    const notas = document.getElementById('edit-reg-notas').value.trim();
 
-    // 👉 Obtener valores anteriores
     const { data: oldReg, error: fetchErr } = await sb.from('registros').select('*').eq('id', id).single();
     if (fetchErr) { toast('Error al cargar registro original', 'error'); return; }
 
-    // 👉 Generar diff para auditoría
     const changes = [];
-    if (oldReg.movimientos !== mov) changes.push(`Movimientos: ${oldReg.movimientos||0} → ${mov}`);
-    if (oldReg.participacion !== part) changes.push(`Participación: ${formatCurrency(oldReg.participacion||0)} → ${formatCurrency(part)}`);
-    if (oldReg.notas !== notas) changes.push(`Notas: "${oldReg.notas||'-'}" → "${notas||'-'}"`);
+    if (oldReg.movimientos !== mov) changes.push(`Movimientos: ${oldReg.movimientos || 0} → ${mov}`);
+    if (oldReg.participacion !== part) changes.push(`Participación: ${formatCurrency(oldReg.participacion || 0)} → ${formatCurrency(part)}`);
+    if (oldReg.notas !== notas) changes.push(`Notas: "${oldReg.notas || '-'}" → "${notas || '-'}"`);
     if (oldReg.fecha !== fecha) changes.push(`Fecha: ${formatDate(oldReg.fecha)} → ${formatDate(fecha)}`);
 
     const diffDesc = changes.length > 0 ? `Registro actualizado: ${changes.join(' | ')}` : 'Sin cambios detectados';
 
-    const {error}=await sb.from('registros').update({fecha,movimientos:mov,participacion:part,notas,clasificacion:getClasificacion(mov)}).eq('id',id);
-    if(error){toast('Error al actualizar','error');return;}
-    
-    toast('Registro actualizado','success');
+    const { error } = await sb.from('registros').update({
+        fecha, movimientos: mov, participacion: part, notas,
+        clasificacion: getClasificacion(mov)
+    }).eq('id', id);
+
+    if (error) { toast('Error al actualizar', 'error'); return; }
+
+    // ✅ Notificación Telegram
+    const mensaje = buildTelegramMensaje('registro_editado', {
+        admin: currentProfile?.nombre || currentUser.email,
+        fecha, movimientos: mov, participacion: part
+    });
+    sendTelegramNotification(mensaje);
+
+    toast('Registro actualizado', 'success');
     closeModal('modal-registro');
-    await logAuditoria('editar', diffDesc); // 👉 Guarda el cambio exacto
+    await logAuditoria('editar', diffDesc);
     loadRegistros();
 }
 
 async function deleteRegistro(id) {
-  if(!confirm('¿Eliminar este registro?'))return;
-  const {error}=await sb.from('registros').delete().eq('id',id);
-  if(error){toast('Error al eliminar','error');return;}
-  toast('Registro eliminado','success');
-  await logAuditoria('eliminar',`Registro ${id} eliminado`);
-  loadRegistros();
+    if (!confirm('¿Eliminar este registro?')) return;
+
+    const { error } = await sb.from('registros').delete().eq('id', id);
+    if (error) { toast('Error al eliminar', 'error'); return; }
+
+    // ✅ Notificación Telegram
+    const mensaje = buildTelegramMensaje('registro_eliminado', {
+        admin: currentProfile?.nombre || currentUser.email,
+        id
+    });
+    sendTelegramNotification(mensaje);
+
+    toast('Registro eliminado', 'success');
+    await logAuditoria('eliminar', `Registro ${id} eliminado`);
+    loadRegistros();
 }
 
 // =====================================================
@@ -3424,13 +3608,11 @@ async function guardarRegistro() {
     const btn = document.getElementById('btn-guardar-reg');
     const overlay = document.getElementById('success-overlay');
 
-    // Validación de campos
     if (!fecha) { toast('Selecciona una fecha', 'error'); return; }
     if (mov <= 0) { toast('Ingresa movimientos en al menos una plataforma', 'error'); return; }
 
-    // UI de carga
     if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
-    
+
     const registroData = {
         fecha, movimientos: mov, participacion: part, notas,
         clasificacion: getClasificacion(mov),
@@ -3441,39 +3623,39 @@ async function guardarRegistro() {
     };
 
     try {
-        if (!navigator.onLine) throw new Error('Offline'); // Forzar cola si no hay red
+        if (!navigator.onLine) throw new Error('Offline');
 
         const { error } = await sb.from('registros').insert(registroData);
         if (error) throw error;
 
-        // Éxito online
+        // ✅ Notificación Telegram
+        const mensaje = buildTelegramMensaje('registro_nuevo', registroData);
+        sendTelegramNotification(mensaje);
+
         if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
         toast('Registro guardado correctamente ✅', 'success');
-        
+
     } catch (err) {
-        // Si es error de red o offline, usar cola
         if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
             await queueOfflineAction('Registro del día', registroData);
-            // Reset UI aunque se guarde offline
             allPlataformas.forEach(p => { const el = document.getElementById(`plat-input-${p.id}`); if (el) el.value = ''; });
             document.getElementById('reg-participacion').value = '';
-            if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
+            if (document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
             document.getElementById('clasificacion-preview').innerHTML = '';
             document.getElementById('total-movimientos-preview').textContent = '0';
-            document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0];
+            document.getElementById('reg-fecha').value = todayLocal();
             await loadOpInicio();
-            return; // Salir para evitar reset doble
+            return;
         }
         toast('Error: ' + err.message, 'error');
     } finally {
         if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar Registro'; }
     }
 
-    // Reset UI (Solo si fue online y exitoso)
     allPlataformas.forEach(p => { const el = document.getElementById(`plat-input-${p.id}`); if (el) el.value = ''; });
     document.getElementById('reg-participacion').value = '';
     document.getElementById('reg-participacion-raw').value = '0';
-    if(document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
+    if (document.getElementById('reg-notas')) document.getElementById('reg-notas').value = '';
     document.getElementById('clasificacion-preview').innerHTML = '';
     document.getElementById('total-movimientos-preview').textContent = '0';
     document.getElementById('reg-fecha').value = todayLocal();
@@ -3804,6 +3986,7 @@ async function openProfileModal() {
   switchProfileTab('info');
   loadProfileStats();
   loadProfileActivity();
+  initTelegramToggleUI();
   openModal('modal-profile');
 }
 
@@ -5514,133 +5697,6 @@ window.addEventListener('online', () => {
 });
 
 // =====================================================
-// 🔥 FIREBASE CLOUD MESSAGING
-// =====================================================
-
-let firebaseNotifEnabled = false;
-
-// Solicitar permiso y obtener token
-async function requestNotificationPermission() {
-  try {
-    // Registrar Service Worker
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    
-    // Solicitar permiso
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      console.log('❌ Permiso de notificaciones denegado');
-      return;
-    }
-    
-    // Obtener token FCM
-    const token = await messaging.getToken({
-      vapidKey: 'TU_VAPID_KEY_AQUI' // La obtienes de Firebase Console
-    });
-    
-    console.log('✅ Token FCM:', token);
-    
-    // Guardar token en Supabase (para admins)
-    if (currentUser && currentProfile?.rol === 'administrador') {
-      await sb.from('usuarios')
-        .update({ fcm_token: token })
-        .eq('id', currentUser.id);
-      console.log('💾 Token guardado en BD');
-    }
-    
-    // Escuchar notificaciones en primer plano
-    messaging.onMessage((payload) => {
-      console.log('📨 Notificación recibida:', payload);
-      toast(`🔔 ${payload.notification.title}: ${payload.notification.body}`, 'info');
-      
-      // Mostrar notificación nativa
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(payload.notification.title, {
-          body: payload.notification.body,
-          icon: payload.notification.icon || '/logo.png',
-          badge: payload.notification.icon || '/logo.png'
-        });
-      }
-    });
-    
-    firebaseNotifEnabled = true;
-    updateFirebaseToggleUI();
-    
-  } catch (error) {
-    console.error('❌ Error FCM:', error);
-  }
-}
-
-// Toggle Firebase notifications
-function toggleFirebaseNotif() {
-  const toggle = document.getElementById('toggle-notif-firebase');
-  toggle.classList.toggle('on');
-  
-  if (toggle.classList.contains('on')) {
-    requestNotificationPermission();
-  } else {
-    firebaseNotifEnabled = false;
-    // Opcional: Eliminar token de la BD
-  }
-}
-
-// Actualizar UI del toggle
-function updateFirebaseToggleUI() {
-  const toggle = document.getElementById('toggle-notif-firebase');
-  if (toggle && firebaseNotifEnabled) {
-    toggle.classList.add('on');
-  }
-}
-
-// Enviar notificación a un admin específico
-async function sendFirebaseNotification(userId, title, body) {
-  try {
-    // Obtener token del usuario
-    const { data } = await sb.from('usuarios')
-      .select('fcm_token')
-      .eq('id', userId)
-      .single();
-    
-    if (!data?.fcm_token) {
-      console.log('⚠️ Usuario sin token FCM');
-      return;
-    }
-    
-    // Aquí podrías llamar a una Cloud Function de Firebase
-    // o usar el Admin SDK desde un backend
-    console.log('📤 Enviando notificación a:', userId);
-    console.log('📝 Título:', title);
-    console.log('📝 Cuerpo:', body);
-    
-  } catch (error) {
-    console.error('❌ Error enviando notificación:', error);
-  }
-}
-
-// Notificar a todos los admins
-async function notifyAllAdmins(title, body) {
-  try {
-    const { data } = await sb.from('usuarios')
-      .select('id, fcm_token')
-      .eq('rol', 'administrador')
-      .not('fcm_token', 'is', null);
-    
-    if (!data || data.length === 0) {
-      console.log('⚠️ No hay admins con tokens registrados');
-      return;
-    }
-    
-    console.log(`📤 Enviando a ${data.length} admins...`);
-    
-    for (const admin of data) {
-      await sendFirebaseNotification(admin.id, title, body);
-    }
-    
-  } catch (error) {
-    console.error('❌ Error notificando admins:', error);
-  }
-}
-
-// =====================================================
 // FUNCIONES NUEVAS: REGISTRO PARA ADMINISTRADORES
 // =====================================================
 function formatParticipacionAdmin(input) {
@@ -5689,62 +5745,65 @@ function getAdminPlatData() {
 }
 
 async function guardarRegistroAdmin() {
-  const fecha = document.getElementById('admin-reg-fecha').value;
-  const partRaw = document.getElementById('admin-reg-participacion-raw').value || '0';
-  const part = parseFloat(partRaw) || 0;
-  const notas = document.getElementById('admin-reg-notas')?.value.trim() || '';
-  const platData = getAdminPlatData();
-  const mov = Object.values(platData).reduce((a, v) => a + v, 0);
-  const btn = document.getElementById('admin-btn-guardar-reg');
-  const overlay = document.getElementById('success-overlay');
+    const fecha = document.getElementById('admin-reg-fecha').value;
+    const partRaw = document.getElementById('admin-reg-participacion-raw').value || '0';
+    const part = parseFloat(partRaw) || 0;
+    const notas = document.getElementById('admin-reg-notas')?.value.trim() || '';
+    const platData = getAdminPlatData();
+    const mov = Object.values(platData).reduce((a, v) => a + v, 0);
+    const btn = document.getElementById('admin-btn-guardar-reg');
+    const overlay = document.getElementById('success-overlay');
 
-  if (!fecha) { toast('Selecciona una fecha', 'error'); return; }
-  if (mov <= 0) { toast('Ingresa movimientos en al menos una plataforma', 'error'); return; }
+    if (!fecha) { toast('Selecciona una fecha', 'error'); return; }
+    if (mov <= 0) { toast('Ingresa movimientos en al menos una plataforma', 'error'); return; }
 
-  if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
+    if (btn) { btn.classList.add('btn-loading'); btn.innerHTML = 'Guardando...'; }
 
-  const registroData = {
-    fecha, movimientos: mov, participacion: part, notas,
-    clasificacion: getClasificacion(mov),
-    operador_id: currentUser.id,
-    operador_nombre: currentProfile?.nombre || currentUser.email,
-    sucursal: currentProfile?.sucursal || null,
-    plataformas_data: platData,
-  };
+    const registroData = {
+        fecha, movimientos: mov, participacion: part, notas,
+        clasificacion: getClasificacion(mov),
+        operador_id: currentUser.id,
+        operador_nombre: currentProfile?.nombre || currentUser.email,
+        sucursal: currentProfile?.sucursal || null,
+        plataformas_data: platData,
+    };
 
-  try {
-    if (!navigator.onLine) throw new Error('Offline');
-    const { error } = await sb.from('registros').insert(registroData);
-    if (error) throw error;
+    try {
+        if (!navigator.onLine) throw new Error('Offline');
+        const { error } = await sb.from('registros').insert(registroData);
+        if (error) throw error;
 
-    if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
-    toast('Registro guardado correctamente ✅', 'success');
-  } catch (err) {
-    if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
-      await queueOfflineAction('Registro Admin del día', registroData);
-      // Reset form
-      allPlataformas.forEach(p => { const el = document.getElementById(`admin-plat-input-${p.id}`); if (el) el.value = ''; });
-      document.getElementById('admin-reg-participacion').value = '';
-      document.getElementById('admin-reg-participacion-raw').value = '0';
-      if(document.getElementById('admin-reg-notas')) document.getElementById('admin-reg-notas').value = '';
-      document.getElementById('admin-clasificacion-preview').innerHTML = '';
-      document.getElementById('admin-total-movimientos-preview').textContent = '0';
-      document.getElementById('admin-reg-fecha').value = todayLocal();
-      return;
+        // ✅ Notificación Telegram
+        const mensaje = buildTelegramMensaje('registro_nuevo', registroData);
+        sendTelegramNotification(mensaje);
+
+        if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
+        toast('Registro guardado correctamente ✅', 'success');
+
+    } catch (err) {
+        if (err.message === 'Offline' || err.message.includes('fetch') || !navigator.onLine) {
+            await queueOfflineAction('Registro Admin del día', registroData);
+            allPlataformas.forEach(p => { const el = document.getElementById(`admin-plat-input-${p.id}`); if (el) el.value = ''; });
+            document.getElementById('admin-reg-participacion').value = '';
+            document.getElementById('admin-reg-participacion-raw').value = '0';
+            if (document.getElementById('admin-reg-notas')) document.getElementById('admin-reg-notas').value = '';
+            document.getElementById('admin-clasificacion-preview').innerHTML = '';
+            document.getElementById('admin-total-movimientos-preview').textContent = '0';
+            document.getElementById('admin-reg-fecha').value = todayLocal();
+            return;
+        }
+        toast('Error: ' + err.message, 'error');
+    } finally {
+        if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar Registro'; }
     }
-    toast('Error: ' + err.message, 'error');
-  } finally {
-    if (btn) { btn.classList.remove('btn-loading'); btn.innerHTML = '<i class="fa-solid fa-save"></i> Guardar Registro'; }
-  }
 
-  // Reset form on success
-  allPlataformas.forEach(p => { const el = document.getElementById(`admin-plat-input-${p.id}`); if (el) el.value = ''; });
-  document.getElementById('admin-reg-participacion').value = '';
-  document.getElementById('admin-reg-participacion-raw').value = '0';
-  if(document.getElementById('admin-reg-notas')) document.getElementById('admin-reg-notas').value = '';
-  document.getElementById('admin-clasificacion-preview').innerHTML = '';
-  document.getElementById('admin-total-movimientos-preview').textContent = '0';
-  document.getElementById('admin-reg-fecha').value = todayLocal();
+    allPlataformas.forEach(p => { const el = document.getElementById(`admin-plat-input-${p.id}`); if (el) el.value = ''; });
+    document.getElementById('admin-reg-participacion').value = '';
+    document.getElementById('admin-reg-participacion-raw').value = '0';
+    if (document.getElementById('admin-reg-notas')) document.getElementById('admin-reg-notas').value = '';
+    document.getElementById('admin-clasificacion-preview').innerHTML = '';
+    document.getElementById('admin-total-movimientos-preview').textContent = '0';
+    document.getElementById('admin-reg-fecha').value = todayLocal();
 }
 
 // =====================================================
