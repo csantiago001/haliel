@@ -517,6 +517,15 @@
 		<div class="nav-item" data-tooltip="Sucursales" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text"> Sucursales</span></div>
 		<div class="nav-item" data-tooltip="Plataformas" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text"> Plataformas</span></div>
 		<div class="nav-item" data-tooltip="Reportes" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text"> Reportes</span></div>
+        <div class="nav-label">Streaming</div>
+        <div class="nav-item" id="nav-streaming-cartera" data-tooltip="Cartera" onclick="goSection('streaming-cartera')">
+		  <i class="fa-solid fa-users-rectangle"></i>
+		  <span class="nav-item-text"> Cartera de Clientes</span>
+		</div>
+		<div class="nav-item" id="nav-streaming-suscripciones" data-tooltip="Gestión" onclick="goSection('streaming-suscripciones')">
+		  <i class="fa-solid fa-cog"></i>
+		  <span class="nav-item-text"> Gestión de Suscripciones</span>
+		</div>		
 		<div class="nav-label">Sistema</div>
 		<div class="nav-item" data-tooltip="Auditoría" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text"> Auditoría</span></div>
 	  </nav>
@@ -879,6 +888,363 @@
 	  </div>
 	</div>
 
+	<!-- ============================================================ -->
+	<!-- STREAMING: CARTERA DE CLIENTES -->
+	<!-- ============================================================ -->
+	<div class="section" id="sec-streaming-cartera">
+	  <!-- TABS SUPERIORES -->
+	  <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid var(--card-border);overflow-x:auto;">
+		<button class="profile-tab active" data-tab="clientes" onclick="switchStreamingTab('clientes')" 
+				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
+		  👥 Clientes
+		</button>
+		<button class="profile-tab" data-tab="plataformas" onclick="switchStreamingTab('plataformas')" 
+				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
+		  🎬 Plataformas Disponibles
+		</button>
+	  </div>
+
+	  <!-- TAB: CLIENTES -->
+	  <div id="tab-clientes-st" style="display:block;">
+		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
+		  <div style="position:relative;flex:1;min-width:250px;">
+			<i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+			<input type="text" id="st-cli-search" class="search-input" style="width:100%;" placeholder="Buscar cliente..." oninput="filterStreamingClientes()"/>
+		  </div>
+		  <button class="btn-primary" onclick="openModalStreamingCliente()">
+			<i class="fa-solid fa-plus"></i> Nuevo Cliente
+		  </button>
+		</div>
+
+		<!-- KPIs -->
+		<div class="grid-4" id="st-cli-kpis" style="margin-bottom:1.25rem;"></div>
+
+		<!-- TABLA DE CLIENTES -->
+		<div class="glass-card" style="overflow:hidden;">
+		  <div class="table-wrapper" style="overflow-x:auto;">
+			<table class="premium-table">
+			  <thead>
+				<tr>
+				  <th>Cliente</th>
+				  <th>WhatsApp</th>
+				  <th>Ciudad</th>
+				  <th>Suscripciones Activas</th>
+				  <th>Ingresos Mensuales</th>
+				  <th>Estado</th>
+				  <th>Registrado</th>
+				  <th>Acciones</th>
+				</tr>
+			  </thead>
+			  <tbody id="st-cli-tbody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+
+	  <!-- TAB: PLATAFORMAS -->
+	  <div id="tab-plataformas-st" style="display:none;">
+		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
+		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;">Catálogo de Plataformas</h3>
+		  <button class="btn-primary" onclick="openModalStPlataforma()">
+			<i class="fa-solid fa-plus"></i> Agregar Plataforma
+		  </button>
+		</div>
+
+		<!-- GRID DE PLATAFORMAS -->
+		<div class="grid-4" id="st-plat-grid"></div>
+
+		<!-- ESTADÍSTICAS DE PLATAFORMAS -->
+		<div class="glass-card" style="padding:1.5rem;margin-top:1.25rem;">
+		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">
+			<i class="fa-solid fa-chart-pie" style="color:#2563EB;margin-right:0.5rem;"></i>
+			Distribución de Ingresos por Plataforma
+		  </h3>
+		  <div id="st-plat-rentabilidad"></div>
+		</div>
+	  </div>
+	</div>
+	<!-- ============================================================ -->
+	<!-- STREAMING: CARTERA - DASHBOARD -->
+	<!-- ============================================================ -->
+	<div class="section" id="sec-streaming-cartera-dashboard" style="display:none;">
+	  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem;">
+		<!-- KPI 1: Total Clientes -->
+		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #2563EB;background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.02));">
+		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+			<div>
+			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Clientes Activos</div>
+			  <div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#2563EB;" id="st-total-clientes">0</div>
+			</div>
+			<div style="width:48px;height:48px;background:rgba(37,99,235,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">👥</div>
+		  </div>
+		  <div style="font-size:0.75rem;color:var(--text-muted);">Clientes con suscripciones activas</div>
+		</div>
+
+		<!-- KPI 2: Ingresos -->
+		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #22C55E;background:linear-gradient(135deg,rgba(34,197,94,0.04),rgba(34,197,94,0.02));">
+		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+			<div>
+			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ingresos Activos</div>
+			  <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#22C55E;" id="st-total-ingresos">$0</div>
+			</div>
+			<div style="width:48px;height:48px;background:rgba(34,197,94,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">💰</div>
+		  </div>
+		  <div style="font-size:0.75rem;color:var(--text-muted);">Total de ingresos mensuales estimados</div>
+		</div>
+
+		<!-- KPI 3: Ganancia -->
+		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #7C3AED;background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(124,58,237,0.02));">
+		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+			<div>
+			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ganancia Neta</div>
+			  <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#7C3AED;" id="st-total-ganancia">$0</div>
+			</div>
+			<div style="width:48px;height:48px;background:rgba(124,58,237,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📈</div>
+		  </div>
+		  <div style="font-size:0.75rem;color:var(--text-muted);">Ingresos menos costos reales</div>
+		</div>
+
+		<!-- KPI 4: Margen -->
+		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #FACC15;background:linear-gradient(135deg,rgba(250,204,21,0.04),rgba(250,204,21,0.02));">
+		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+			<div>
+			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Margen Promedio</div>
+			  <div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#FACC15;" id="st-avg-margen">0%</div>
+			</div>
+			<div style="width:48px;height:48px;background:rgba(250,204,21,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📊</div>
+		  </div>
+		  <div style="font-size:0.75rem;color:var(--text-muted);">Porcentaje de ganancia sobre ingresos</div>
+		</div>
+	  </div>
+
+	  <!-- GRÁFICAS -->
+	  <div class="grid-2" style="margin-bottom:1.5rem;">
+		<!-- Gráfica: Ingresos vs Costos -->
+		<div class="glass-card" style="padding:1.5rem;">
+		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
+			<i class="fa-solid fa-chart-bar" style="color:#22C55E;margin-right:0.5rem;"></i>
+			Ingresos vs Costos (últimos 6 meses)
+		  </h3>
+		  <div class="chart-container" style="height:280px;">
+			<canvas id="chart-st-ingresos-costos"></canvas>
+		  </div>
+		</div>
+
+		<!-- Gráfica: Distribución por Plataforma -->
+		<div class="glass-card" style="padding:1.5rem;">
+		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
+			<i class="fa-solid fa-pie-chart" style="color:#2563EB;margin-right:0.5rem;"></i>
+			Clientes por Plataforma
+		  </h3>
+		  <div class="chart-container" style="height:280px;">
+			<canvas id="chart-st-clientes-plat"></canvas>
+		  </div>
+		</div>
+	  </div>
+
+	  <!-- BOTÓN VOLVER -->
+	  <div style="display:flex;justify-content:center;margin-top:2rem;">
+		<button class="btn-secondary" onclick="goSection('streaming-suscripciones')" style="padding:0.75rem 2rem;">
+		  <i class="fa-solid fa-arrow-left" style="margin-right:0.5rem;"></i> Volver a Gestión
+		</button>
+	  </div>
+	</div>
+	<div class="section" id="sec-streaming-suscripciones">
+	  <!-- TABS SUPERIORES -->
+	  <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid var(--card-border);overflow-x:auto;">
+		<button class="profile-tab active" data-tab="dashboard" onclick="switchStSusTab('dashboard')" 
+				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
+		  📊 Dashboard
+		</button>
+		<button class="profile-tab" data-tab="suscripciones" onclick="switchStSusTab('suscripciones')" 
+				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
+		  📋 Mis Suscripciones
+		</button>
+		<button class="profile-tab" data-tab="calendario" onclick="switchStSusTab('calendario')" 
+				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
+		  📅 Calendario de Cobros
+		</button>
+		<button class="profile-tab" data-tab="analytics" onclick="switchStSusTab('analytics')" 
+				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
+		  📈 Analytics
+		</button>
+	  </div>
+		<!-- TAB 0: DASHBOARD -->
+		  <div id="tab-dashboard-st" style="display:none;">
+			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem;">
+			  <!-- KPI 1: Total Clientes -->
+			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #2563EB;background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.02));">
+				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+				  <div>
+					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Clientes Activos</div>
+					<div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#2563EB;" id="st-total-clientes">0</div>
+				  </div>
+				  <div style="width:48px;height:48px;background:rgba(37,99,235,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">👥</div>
+				</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);">Clientes con suscripciones activas</div>
+			  </div>
+
+			  <!-- KPI 2: Ingresos -->
+			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #22C55E;background:linear-gradient(135deg,rgba(34,197,94,0.04),rgba(34,197,94,0.02));">
+				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+				  <div>
+					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ingresos Activos</div>
+					<div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#22C55E;" id="st-total-ingresos">$0</div>
+				  </div>
+				  <div style="width:48px;height:48px;background:rgba(34,197,94,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">💰</div>
+				</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);">Total de ingresos mensuales estimados</div>
+			  </div>
+
+			  <!-- KPI 3: Ganancia -->
+			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #7C3AED;background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(124,58,237,0.02));">
+				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+				  <div>
+					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ganancia Neta</div>
+					<div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#7C3AED;" id="st-total-ganancia">$0</div>
+				  </div>
+				  <div style="width:48px;height:48px;background:rgba(124,58,237,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📈</div>
+				</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);">Ingresos menos costos reales</div>
+			  </div>
+
+			  <!-- KPI 4: Margen -->
+			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #FACC15;background:linear-gradient(135deg,rgba(250,204,21,0.04),rgba(250,204,21,0.02));">
+				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+				  <div>
+					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Margen Promedio</div>
+					<div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#FACC15;" id="st-avg-margen">0%</div>
+				  </div>
+				  <div style="width:48px;height:48px;background:rgba(250,204,21,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📊</div>
+				</div>
+				<div style="font-size:0.75rem;color:var(--text-muted);">Porcentaje de ganancia sobre ingresos</div>
+			  </div>
+			</div>
+
+			<!-- GRÁFICAS -->
+			<div class="grid-2" style="margin-bottom:1.5rem;">
+			  <!-- Gráfica: Ingresos vs Costos -->
+			  <div class="glass-card" style="padding:1.5rem;">
+				<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
+				  <i class="fa-solid fa-chart-bar" style="color:#22C55E;margin-right:0.5rem;"></i>
+				  Ingresos vs Costos (últimos 6 meses)
+				</h3>
+				<div class="chart-container" style="height:280px;">
+				  <canvas id="chart-st-ingresos-costos"></canvas>
+				</div>
+			  </div>
+
+			  <!-- Gráfica: Distribución por Plataforma -->
+			  <div class="glass-card" style="padding:1.5rem;">
+				<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
+				  <i class="fa-solid fa-pie-chart" style="color:#2563EB;margin-right:0.5rem;"></i>
+				  Clientes por Plataforma
+				</h3>
+				<div class="chart-container" style="height:280px;">
+				  <canvas id="chart-st-clientes-plat"></canvas>
+				</div>
+			  </div>
+			</div>
+		  </div>
+	  <!-- TAB 1: SUSCRIPCIONES -->
+	  <div id="tab-suscripciones-st" style="display:block;">
+		<div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
+		  <div style="position:relative;flex:1;min-width:200px;">
+			<i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+			<input type="text" id="st-sus-search" class="search-input" style="width:100%;" placeholder="Buscar cliente o plataforma..." oninput="filterStreamingSuscripciones()"/>
+		  </div>
+		  <select id="st-sus-filter-estado" class="field-input" style="width:auto;" onchange="filterStreamingSuscripciones()">
+			<option value="">Todos los estados</option>
+			<option value="activo">🟢 Activo</option>
+			<option value="por_vencer">🟡 Por vencer (1-5 días)</option>
+			<option value="vencido">🔴 Vencido</option>
+			<option value="cancelado">⚫ Cancelado</option>
+		  </select>
+		  <button class="btn-primary" onclick="openModalStreamingSus()">
+			<i class="fa-solid fa-plus"></i> Nueva Venta
+		  </button>
+		</div>
+
+		<!-- KPIs SUSCRIPCIONES -->
+		<div class="grid-4" id="st-sus-kpis" style="margin-bottom:1.25rem;"></div>
+
+		<!-- INDICADOR DE RENTABILIDAD -->
+		<div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;" id="st-rentabilidad-card">
+		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">
+			<i class="fa-solid fa-chart-line" style="color:#22C55E;margin-right:0.5rem;"></i>
+			Rentabilidad por Plataforma
+		  </h3>
+		  <div id="st-rentabilidad-lista"></div>
+		</div>
+
+		<!-- TABLA DE SUSCRIPCIONES -->
+		<div class="glass-card" style="overflow:hidden;">
+		  <div class="table-wrapper" style="overflow-x:auto;">
+			<table class="premium-table">
+			  <thead>
+				<tr>
+				  <th>ID Venta</th>
+				  <th>Cliente</th>
+				  <th>Plataformas</th>
+				  <th>Monto Total</th>
+				  <th>Inicio</th>
+				  <th>Vencimiento</th>
+				  <th>Estado</th>
+				  <th>Acciones</th>
+				</tr>
+			  </thead>
+			  <tbody id="st-sus-tbody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+
+	  <!-- TAB 2: CALENDARIO DE COBROS -->
+	  <div id="tab-calendario-st" style="display:none;">
+		<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+		  <button class="btn-primary" onclick="loadStreamingCalendario('hoy')">📅 Hoy</button>
+		  <button class="btn-secondary" onclick="loadStreamingCalendario('semana')">📆 Esta semana</button>
+		  <button class="btn-secondary" onclick="loadStreamingCalendario('mes')">📊 Este mes</button>
+		  <button class="btn-danger" onclick="loadStreamingCalendario('vencidos')">🔴 Vencidos</button>
+		</div>
+		<div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;">
+		  <span style="font-size:0.9rem;color:var(--text-muted);padding:0.5rem 1rem;background:var(--input-bg);border-radius:0.75rem;">
+			<i class="fa-solid fa-info-circle" style="margin-right:0.4rem;"></i>
+			<span id="st-cal-info">Selecciona un período</span>
+		  </span>
+		</div>
+		<div id="st-cal-grid" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+	  </div>
+
+	  <!-- TAB 3: ANALYTICS -->
+	  <div id="tab-analytics-st" style="display:none;">
+		<div class="grid-2" style="margin-bottom:1.25rem;">
+		  <div class="glass-card" style="padding:1.5rem;">
+			<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
+			  <i class="fa-solid fa-arrow-trend-up" style="color:#22C55E;margin-right:0.5rem;"></i>
+			  Ingresos vs Costos
+			</h3>
+			<div class="chart-container" style="height:240px;">
+			  <canvas id="chart-st-ingresos-costos"></canvas>
+			</div>
+		  </div>
+		  <div class="glass-card" style="padding:1.5rem;">
+			<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
+			  <i class="fa-solid fa-pie-chart" style="color:#2563EB;margin-right:0.5rem;"></i>
+			  Clientes por Plataforma
+			</h3>
+			<div class="chart-container" style="height:240px;">
+			  <canvas id="chart-st-clientes-plat"></canvas>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+	<!-- ============================================================ -->
+	<!-- STREAMING: HISTORIAL DE PAGOS (modal, no sección aparte) -->
+	<!-- ============================================================ -->
+
 	<!-- OPERADOR: INICIO -->
 	<div class="section" id="sec-op-inicio">
 	  <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
@@ -1014,6 +1380,16 @@
       <div><label class="field-label">Estado</label>
         <select id="op-estado" class="field-input"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select>
       </div>
+	  <div id="op-streaming-access-row">
+	  <label class="field-label">Acceso al módulo Streaming</label>
+	  <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--input-bg);border-radius:0.75rem;border:1px solid var(--card-border);">
+		<button class="toggle-dark" id="op-streaming-toggle" onclick="toggleOpStreamingAccess()"><span class="toggle-dot"></span></button>
+		<div>
+		  <div style="font-size:0.85rem;font-weight:600;" id="op-streaming-toggle-label">Sin acceso a Streaming</div>
+		  <div style="font-size:0.75rem;color:var(--text-muted);">Activa para que este usuario vea el módulo de suscripciones</div>
+		</div>
+	  </div>
+	</div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
         <button class="btn-secondary" onclick="closeModal('modal-operador')">Cancelar</button>
         <button class="btn-primary" onclick="saveOperador()"><i class="fa-solid fa-save"></i> Guardar</button>
@@ -1474,6 +1850,212 @@
   </div>
 </div>
 
+<!-- Modal: Cliente Streaming -->
+<div id="modal-st-cliente" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:500px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-st-cli-title">Nuevo Cliente</h3>
+      <button onclick="closeModal('modal-st-cliente')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div><label class="field-label">Nombre completo *</label><input type="text" id="st-cli-nombre" class="field-input" placeholder="Nombre del cliente"/></div>
+      <div><label class="field-label">WhatsApp *</label><input type="tel" id="st-cli-whatsapp" class="field-input" placeholder="Ej: 3001234567"/></div>
+      <div><label class="field-label">Correo electrónico <span style="color:var(--text-muted);font-weight:400;">(opcional)</span></label><input type="email" id="st-cli-correo" class="field-input" placeholder="correo@ejemplo.com"/></div>
+      <div><label class="field-label">Ciudad <span style="color:var(--text-muted);font-weight:400;">(opcional)</span></label><input type="text" id="st-cli-ciudad" class="field-input" placeholder="Ej: Bucaramanga"/></div>
+      <div><label class="field-label">Notas internas <span style="color:var(--text-muted);font-weight:400;">(opcional)</span></label><textarea id="st-cli-notas" class="field-input" rows="2" style="resize:none;"></textarea></div>
+      <div><label class="field-label">Estado</label>
+        <select id="st-cli-estado" class="field-input"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select>
+      </div>
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+        <button class="btn-secondary" onclick="closeModal('modal-st-cliente')">Cancelar</button>
+        <button class="btn-primary" onclick="saveStreamingCliente()"><i class="fa-solid fa-save"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Suscripción Streaming (CON COMBOS) -->
+<div id="modal-st-sus" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-st-sus-title">
+        <i class="fa-solid fa-shopping-cart" style="color:#2563EB;margin-right:0.5rem;"></i>
+        Nueva Venta de Suscripción
+      </h3>
+      <button onclick="closeModal('modal-st-sus')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <!-- CLIENTE -->
+      <div>
+        <label class="field-label">Cliente *</label>
+        <select id="st-sus-cliente" class="field-input" onchange="onStCliComboChange()">
+          <option value="">Seleccionar cliente...</option>
+        </select>
+      </div>
+
+      <!-- SELECTOR DE PLATAFORMAS (COMBOS) -->
+      <div style="background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));border:1px solid rgba(37,99,235,0.15);border-radius:1rem;padding:1.25rem;">
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+          <i class="fa-solid fa-film" style="color:#2563EB;"></i>
+          Selecciona Plataformas (Puedes elegir varias)
+        </div>
+        <div id="st-sus-plataformas-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;"></div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(37,99,235,0.1);">
+          <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">Plataformas seleccionadas:</div>
+          <div id="st-sus-plat-selected" style="display:flex;flex-wrap:wrap;gap:0.5rem;min-height:32px;align-content:flex-start;">
+            <span style="color:var(--text-muted);font-size:0.8rem;opacity:0.6;">Ninguna</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS POR PLATAFORMA (Dinámico) -->
+      <div id="st-sus-detalles-plataformas" style="display:none;background:var(--input-bg);border-radius:1rem;padding:1rem;">
+        <!-- Se llenan dinámicamente -->
+      </div>
+
+      <!-- DURACIÓN COMÚN -->
+      <div class="grid-2">
+        <div>
+          <label class="field-label">Duración *</label>
+          <select id="st-sus-duracion" class="field-input" onchange="onStSusDuracionChange()">
+            <option value="1">1 mes</option>
+            <option value="2">2 meses</option>
+            <option value="3">3 meses</option>
+            <option value="6">6 meses</option>
+            <option value="12">12 meses</option>
+            <option value="custom">Personalizado...</option>
+          </select>
+        </div>
+        <div id="st-sus-duracion-custom-row" style="display:none;">
+          <label class="field-label">Meses</label>
+          <input type="number" id="st-sus-duracion-custom" class="field-input" min="1" max="36" placeholder="Ej: 4" oninput="onStSusDuracionChange()"/>
+        </div>
+      </div>
+
+      <!-- FECHAS -->
+      <div class="grid-2">
+        <div>
+          <label class="field-label">Fecha de inicio *</label>
+          <input type="date" id="st-sus-inicio" class="field-input" oninput="onStSusDuracionChange()"/>
+        </div>
+        <div>
+          <label class="field-label">Fecha de vencimiento</label>
+          <input type="text" id="st-sus-vencimiento-display" class="field-input" disabled style="opacity:0.7;background:var(--input-bg);font-weight:600;color:#2563EB;"/>
+          <input type="hidden" id="st-sus-vencimiento"/>
+        </div>
+      </div>
+
+      <!-- RESUMEN ECONÓMICO -->
+      <div id="st-sus-resumen-combo" style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.04));border:1px solid rgba(34,197,94,0.2);border-radius:1rem;padding:1rem;display:none;">
+        <h4 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;">💰 Resumen de la Venta</h4>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Total plataformas:</span>
+            <span style="font-weight:700;" id="st-combo-count">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Monto total:</span>
+            <span style="font-weight:700;color:#22C55E;" id="st-combo-total">$0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Costo real (meses):</span>
+            <span style="font-weight:700;color:#EF4444;" id="st-combo-costo">$0</span>
+          </div>
+          <div style="border-top:1px solid rgba(34,197,94,0.2);padding-top:0.5rem;display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);font-weight:600;">Ganancia neta:</span>
+            <span style="font-weight:800;color:#16a34a;font-size:1rem;" id="st-combo-ganancia">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <div>
+        <label class="field-label">Notas internas (opcional)</label>
+        <textarea id="st-sus-notas" class="field-input" rows="2" style="resize:none;" placeholder="Ej: Cliente preguntó por descuento, requiere factura..."></textarea>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem;">
+        <button class="btn-secondary" onclick="closeModal('modal-st-sus')">Cancelar</button>
+        <button class="btn-primary" onclick="saveStreamingSusCombo()">
+          <i class="fa-solid fa-check"></i> Guardar Venta
+        </button>
+      </div>
+
+      <!-- INFO DE ID -->
+      <div style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:0.75rem;padding:0.75rem;font-size:0.75rem;color:var(--text-muted);">
+        <i class="fa-solid fa-info-circle" style="margin-right:0.4rem;"></i>
+        Cada venta recibe un ID único automático (ej: VT-2026-001234)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Plataforma Streaming -->
+<div id="modal-st-plataforma" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:420px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-st-plat-title">Nueva Plataforma</h3>
+      <button onclick="closeModal('modal-st-plataforma')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div><label class="field-label">Nombre *</label><input type="text" id="st-plat-nombre" class="field-input" placeholder="Ej: Paramount+"/></div>
+      <div><label class="field-label">Emoji / Ícono</label><input type="text" id="st-plat-emoji" class="field-input" placeholder="🎬" maxlength="4"/></div>
+      <div><label class="field-label">Color</label><input type="color" id="st-plat-color" class="field-input" value="#2563EB" style="height:48px;padding:0.4rem;cursor:pointer;"/></div>
+      <div><label class="field-label">Costo real mensual (lo que tú pagas)</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);font-weight:600;color:var(--text-muted);">$</span>
+          <input type="number" id="st-plat-costo" class="field-input" placeholder="0" style="padding-left:1.75rem;"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+        <button class="btn-secondary" onclick="closeModal('modal-st-plataforma')">Cancelar</button>
+        <button class="btn-primary" onclick="saveStPlataforma()"><i class="fa-solid fa-save"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Historial de Pagos del cliente -->
+<div id="modal-st-historial" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:680px;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-st-hist-title">Historial de Pagos</h3>
+      <button onclick="closeModal('modal-st-historial')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <!-- Resumen del cliente -->
+    <div id="st-hist-resumen" style="margin-bottom:1.25rem;"></div>
+    <div class="table-wrapper" style="overflow-x:auto;">
+      <table class="premium-table">
+        <thead><tr><th>Fecha</th><th>Plataforma</th><th>Duración</th><th>Monto</th><th>Costo real</th><th>Ganancia</th><th>Notas</th></tr></thead>
+        <tbody id="st-hist-tbody"></tbody>
+      </table>
+    </div>
+    <!-- Totales -->
+    <div id="st-hist-totales" style="margin-top:1rem;padding:1rem;background:var(--input-bg);border-radius:0.875rem;"></div>
+  </div>
+</div>
+
+<!-- Modal: Cobro WhatsApp -->
+<div id="modal-st-cobro" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:480px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">💬 Enviar cobro</h3>
+      <button onclick="closeModal('modal-st-cobro')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="st-cobro-preview" style="background:var(--input-bg);border-radius:0.875rem;padding:1.25rem;margin-bottom:1rem;font-size:0.875rem;white-space:pre-wrap;line-height:1.7;border:1px solid var(--card-border);"></div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button class="btn-primary" onclick="openWhatsApp()" style="flex:1;justify-content:center;"><i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp</button>
+      <button class="btn-secondary" onclick="copiarMensajeCobro()" style="flex:1;justify-content:center;"><i class="fa-solid fa-copy"></i> Copiar mensaje</button>
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted);text-align:center;">Al renovar también puedes registrar el pago directamente</div>
+    <button class="btn-secondary" onclick="renovarSuscripcion()" id="btn-st-renovar" style="width:100%;justify-content:center;margin-top:0.5rem;color:#22C55E;border-color:rgba(34,197,94,0.3);">
+      <i class="fa-solid fa-rotate"></i> Marcar como pagado y renovar
+    </button>
+  </div>
+</div>
+
 <!-- Inactivity Warning -->
 <div id="inactivity-warning">
   <div id="inactivity-box">
@@ -1848,6 +2430,10 @@ let cropState = {
   pendingFile: null
 };
 let editingOpId = null, editingSucId = null, editingPlatId = null;
+// ── STREAMING STATE ──────────────────────────────────────
+let allStPlataformas = [], allStClientes = [], allStSuscripciones = [];
+let editingStCliId = null, editingStSusId = null, editingStPlatId = null;
+let stCobroActual = null; // suscripción activa en modal de cobro
 let charts = {};
 let regPage = 1;
 const REG_PER_PAGE = 20;
@@ -2502,6 +3088,8 @@ async function initApp(user) {
     
     // Cargar datos compartidos
     await loadPlataformas();
+	await loadStPlataformas();
+    setTimeout(() => checkStreamingAlertas(), 3000);
     initSmartDates();
     
     // Configurar navegación según rol
@@ -2570,6 +3158,7 @@ async function initApp(user) {
     loadConfig();
     initInactivityTracking();
     initSidebarState();
+	initStreamingNav();
     
     // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
     setTimeout(() => {
@@ -2594,11 +3183,35 @@ const sectionMap = {
   'reportes': { id:'sec-reportes', title:'Reportes', sub:'Exportar datos', load:()=>populateReportFilters() },
   'auditoria': { id:'sec-auditoria', title:'Auditoría', sub:'Registro de actividad', load:()=>loadAuditoria() },
   'admin-registrar': { id:'sec-admin-registrar', title:'Registrar', sub:'Nuevo movimiento (Admin)', load:()=>{ document.getElementById('admin-reg-fecha').value=todayLocal(); buildAdminPlataformaInputs(); } },
+  'streaming-cartera': { id:'sec-streaming-cartera', title:'Cartera de Clientes', sub:'Clientes y plataformas disponibles', load:()=>loadStreamingClientes() },
+  'streaming-suscripciones': { id:'sec-streaming-suscripciones', title:'Gestión de Suscripciones', sub:'Ventas, vencimientos y rentabilidad', load:()=>{ switchStSusTab('dashboard'); calcularResumenCartera(); } },  
   'op-inicio': { id:'sec-op-inicio', title:'Inicio', sub:'Tu resumen diario', load:()=>loadOpInicio() },
   'op-registrar': { id:'sec-op-registrar', title:'Registrar', sub:'Nuevo movimiento', load:()=>{ document.getElementById('reg-fecha').value=todayLocal(); buildPlataformaInputs(); } },
   'op-mis-registros': { id:'sec-op-mis-registros', title:'Mis Registros', sub:'Tu historial', load:()=>loadOpMisRegistros() },
   'op-rendimiento': { id:'sec-op-rendimiento', title:'Mi Rendimiento', sub:'Estadísticas personales', load:()=>loadOpRendimiento() },
 };
+
+// ── STREAMING: Control de acceso ─────────────────────────
+function hasStreamingAccess() {
+  return currentProfile?.streaming_access === true;
+}
+
+function initStreamingNav() {
+  const items = [
+    'nav-streaming-cartera',
+    'nav-streaming-suscripciones'
+  ];
+  const show = hasStreamingAccess();
+  
+  document.querySelectorAll('.nav-label').forEach(lbl => {
+    if (lbl.textContent.trim() === 'Streaming') lbl.style.display = show ? '' : 'none';
+  });
+  
+  items.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  });
+}
 
 function goSection(key) {
   // 🔒 Seguridad + Limpieza de gráficos
@@ -6070,6 +6683,1353 @@ function refreshAllAvatarsUI() {
   renderAvatar(document.getElementById('profile-avatar-premium'), currentProfile, '120px');
   const opAvatar = document.getElementById('op-avatar-big');
   if (opAvatar) renderAvatar(opAvatar, currentProfile, '56px');
+}
+
+// =====================================================================
+// MÓDULO STREAMING — COMPLETO
+// =====================================================================
+
+// ── Toggle acceso streaming en modal operador ─────────────────────────
+let opStreamingAccessTemp = false;
+
+function toggleOpStreamingAccess() {
+  opStreamingAccessTemp = !opStreamingAccessTemp;
+  const toggle = document.getElementById('op-streaming-toggle');
+  const label  = document.getElementById('op-streaming-toggle-label');
+  if (opStreamingAccessTemp) {
+    toggle.classList.add('on');
+    label.textContent = 'Con acceso a Streaming ✅';
+  } else {
+    toggle.classList.remove('on');
+    label.textContent = 'Sin acceso a Streaming';
+  }
+}
+
+// Parchear openModalOperador para incluir el toggle
+const _origOpenModalOperador = openModalOperador;
+openModalOperador = function(id = null) {
+  _origOpenModalOperador(id);
+  opStreamingAccessTemp = false;
+  const toggle = document.getElementById('op-streaming-toggle');
+  const label  = document.getElementById('op-streaming-toggle-label');
+  if (id) {
+    const op = allOperadores.find(o => o.id === id);
+    opStreamingAccessTemp = op?.streaming_access === true;
+  }
+  if (toggle) {
+    opStreamingAccessTemp ? toggle.classList.add('on') : toggle.classList.remove('on');
+  }
+  if (label) label.textContent = opStreamingAccessTemp ? 'Con acceso a Streaming ✅' : 'Sin acceso a Streaming';
+};
+
+// Parchear saveOperador para guardar streaming_access
+const _origSaveOperador = saveOperador;
+saveOperador = async function() {
+  // Guardamos el valor antes de que el original cierre el modal
+  const accessVal = opStreamingAccessTemp;
+  const editingId = editingOpId;
+  await _origSaveOperador();
+  // Si es edición, actualizar también streaming_access
+  if (editingId) {
+    await sb.from('usuarios').update({ streaming_access: accessVal }).eq('id', editingId);
+  }
+  // Para creación, el edge function ya creó el usuario; buscamos el recién creado por correo
+  if (!editingId) {
+    const correo = document.getElementById('op-correo')?.value?.trim();
+    if (correo && accessVal) {
+      const { data: newUser } = await sb.from('usuarios').select('id').eq('correo', correo).maybeSingle();
+      if (newUser) await sb.from('usuarios').update({ streaming_access: accessVal }).eq('id', newUser.id);
+    }
+  }
+};
+
+// ── Helpers de fecha ──────────────────────────────────────────────────
+function calcVencimiento(fechaInicio, meses) {
+  const d = new Date(fechaInicio + 'T00:00:00');
+  d.setMonth(d.getMonth() + parseInt(meses));
+  return d.toISOString().split('T')[0];
+}
+
+function diasRestantes(fechaVence) {
+  const hoy  = new Date(todayLocal() + 'T00:00:00');
+  const vence = new Date(fechaVence   + 'T00:00:00');
+  return Math.round((vence - hoy) / (1000 * 60 * 60 * 24));
+}
+
+function calcEstadoSus(fechaVence) {
+  const dias = diasRestantes(fechaVence);
+  if (dias < 0)  return 'vencido';
+  if (dias <= 5) return 'por_vencer';
+  return 'activo';
+}
+
+function badgeEstadoSus(estado, fechaVence) {
+  const dias = diasRestantes(fechaVence);
+  const map = {
+    activo:     ['badge-green',  '🟢', `Activo (${dias}d)`],
+    por_vencer: ['badge-yellow', '🟡', `Vence en ${dias}d`],
+    vencido:    ['badge-red',    '🔴', `Vencido hace ${Math.abs(dias)}d`],
+    cancelado:  ['',             '⚫', 'Cancelado'],
+  };
+  const [cls, ico, txt] = map[estado] || map['activo'];
+  return `<span class="badge ${cls}">${ico} ${txt}</span>`;
+}
+
+// ── PLATAFORMAS STREAMING ─────────────────────────────────────────────
+async function loadStPlataformas() {
+  const { data } = await sb.from('streaming_plataformas').select('*').order('nombre');
+  allStPlataformas = data || [];
+  renderStPlataformas();
+  populateStPlatSelects();
+}
+
+function renderStPlataformas() {
+  const grid = document.getElementById('st-plat-grid');
+  if (!grid) return;
+  if (!allStPlataformas.length) { grid.innerHTML = emptyState('fa-film','Sin plataformas','Agrega la primera plataforma.'); return; }
+  grid.innerHTML = allStPlataformas.map(p => `
+    <div class="glass-card" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+        <div style="width:48px;height:48px;border-radius:0.875rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">${p.emoji}</div>
+        <div>
+          <div style="font-weight:700;font-family:'Poppins',sans-serif;">${p.nombre}</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">Costo real: ${p.costo_real > 0 ? formatCurrency(p.costo_real) : 'No definido'}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn-edit" onclick="openModalStPlataforma('${p.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
+        <button class="btn-danger" onclick="deleteStPlataforma('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function populateStPlatSelects() {
+  ['st-sus-plataforma', 'st-sus-filter-plat'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    while (sel.options.length > 1) sel.remove(1);
+    allStPlataformas.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = `${p.emoji} ${p.nombre}`;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function openModalStPlataforma(id = null) {
+  editingStPlatId = id;
+  document.getElementById('modal-st-plat-title').textContent = id ? 'Editar Plataforma' : 'Nueva Plataforma';
+  if (id) {
+    const p = allStPlataformas.find(x => x.id === id);
+    if (p) {
+      document.getElementById('st-plat-nombre').value = p.nombre;
+      document.getElementById('st-plat-emoji').value  = p.emoji;
+      document.getElementById('st-plat-color').value  = p.color;
+      document.getElementById('st-plat-costo').value  = p.costo_real || 0;
+    }
+  } else {
+    document.getElementById('st-plat-nombre').value = '';
+    document.getElementById('st-plat-emoji').value  = '🎬';
+    document.getElementById('st-plat-color').value  = '#2563EB';
+    document.getElementById('st-plat-costo').value  = 0;
+  }
+  openModal('modal-st-plataforma');
+}
+
+async function saveStPlataforma() {
+  const nombre = document.getElementById('st-plat-nombre').value.trim();
+  const emoji  = document.getElementById('st-plat-emoji').value.trim() || '🎬';
+  const color  = document.getElementById('st-plat-color').value;
+  const costo  = parseFloat(document.getElementById('st-plat-costo').value) || 0;
+  if (!nombre) { toast('El nombre es requerido', 'error'); return; }
+  const payload = { nombre, emoji, color, costo_real: costo };
+  const result = editingStPlatId
+    ? await sb.from('streaming_plataformas').update(payload).eq('id', editingStPlatId)
+    : await sb.from('streaming_plataformas').insert(payload);
+  if (result.error) { toast('Error: ' + result.error.message, 'error'); return; }
+  toast(editingStPlatId ? 'Plataforma actualizada ✅' : 'Plataforma creada ✅', 'success');
+  closeModal('modal-st-plataforma');
+  await loadStPlataformas();
+}
+
+async function deleteStPlataforma(id) {
+  if (!confirm('¿Eliminar esta plataforma? Las suscripciones asociadas quedarán sin plataforma.')) return;
+  const { error } = await sb.from('streaming_plataformas').delete().eq('id', id);
+  if (error) { toast('Error al eliminar', 'error'); return; }
+  toast('Plataforma eliminada', 'success');
+  await loadStPlataformas();
+}
+
+// ── CLIENTES ──────────────────────────────────────────────────────────
+async function loadStreamingClientes() {
+  if (!allStPlataformas.length) await loadStPlataformas();
+  const { data } = await sb.from('streaming_clientes').select('*').order('nombre');
+  allStClientes = data || [];
+  // Cargar conteo de suscripciones activas por cliente
+  const { data: susList } = await sb.from('streaming_suscripciones').select('cliente_id, estado');
+  const susCount = {};
+  (susList || []).forEach(s => {
+    if (!susCount[s.cliente_id]) susCount[s.cliente_id] = 0;
+    if (s.estado !== 'cancelado') susCount[s.cliente_id]++;
+  });
+  renderStreamingClientes(susCount);
+  renderStCliKpis();
+  populateStCliSelects();
+}
+
+function renderStreamingClientes(susCount = {}, filter = '') {
+  const tbody = document.getElementById('st-cli-tbody');
+  let list = allStClientes;
+  if (filter) list = list.filter(c =>
+    c.nombre.toLowerCase().includes(filter) ||
+    c.whatsapp.includes(filter) ||
+    (c.ciudad || '').toLowerCase().includes(filter)
+  );
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7">${emptyState('fa-users','Sin clientes','Agrega el primer cliente con el botón "Nuevo Cliente".')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(c => {
+    const cnt = susCount[c.id] || 0;
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:0.65rem;">
+          <div class="avatar" style="width:32px;height:32px;font-size:0.75rem;">${getInitials(c.nombre)}</div>
+          <div>
+            <div style="font-weight:600;">${c.nombre}</div>
+            ${c.notas ? `<div style="font-size:0.72rem;color:var(--text-muted);">${c.notas}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td>
+        <a href="https://wa.me/57${c.whatsapp}" target="_blank" style="color:#22C55E;font-weight:600;text-decoration:none;">
+          <i class="fa-brands fa-whatsapp"></i> ${c.whatsapp}
+        </a>
+      </td>
+      <td style="color:var(--text-muted);">${c.ciudad || '—'}</td>
+      <td>
+        ${cnt > 0
+          ? `<span class="badge badge-blue">${cnt} activa${cnt > 1 ? 's' : ''}</span>`
+          : `<span class="badge" style="color:var(--text-muted);">Sin suscripciones</span>`}
+      </td>
+      <td>${c.estado === 'activo'
+        ? '<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>'
+        : '<span class="badge badge-red">Inactivo</span>'}</td>
+      <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(c.created_at)}</td>
+      <td>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          <button class="btn-edit" onclick="openHistorialCliente('${c.id}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
+          <button class="btn-edit" onclick="openModalStreamingCliente('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-danger" onclick="deleteStreamingCliente('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStCliKpis() {
+  const total    = allStClientes.length;
+  const activos  = allStClientes.filter(c => c.estado === 'activo').length;
+  const inactivos = total - activos;
+  const container = document.getElementById('st-cli-kpis');
+  if (!container) return;
+  container.innerHTML = [
+    { label:'Total clientes', value:total, icon:'fa-users', color:'#2563EB', bg:'rgba(37,99,235,0.1)' },
+    { label:'Clientes activos', value:activos, icon:'fa-circle-check', color:'#22C55E', bg:'rgba(34,197,94,0.1)' },
+    { label:'Clientes inactivos', value:inactivos, icon:'fa-circle-xmark', color:'#EF4444', bg:'rgba(239,68,68,0.1)' },
+  ].map(c => `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
+      <div style="font-size:1.75rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
+    </div>
+  `).join('');
+}
+
+function filterStreamingClientes() {
+  const q = document.getElementById('st-cli-search')?.value.toLowerCase() || '';
+  renderStreamingClientes({}, q);
+}
+
+function populateStCliSelects() {
+  const sel = document.getElementById('st-sus-cliente');
+  if (!sel) return;
+  while (sel.options.length > 1) sel.remove(1);
+  allStClientes.filter(c => c.estado === 'activo').forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = `${c.nombre} (${c.whatsapp})`;
+    sel.appendChild(opt);
+  });
+}
+
+function openModalStreamingCliente(id = null) {
+  editingStCliId = id;
+  document.getElementById('modal-st-cli-title').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+  if (id) {
+    const c = allStClientes.find(x => x.id === id);
+    if (c) {
+      document.getElementById('st-cli-nombre').value   = c.nombre;
+      document.getElementById('st-cli-whatsapp').value = c.whatsapp;
+      document.getElementById('st-cli-correo').value   = c.correo   || '';
+      document.getElementById('st-cli-ciudad').value   = c.ciudad   || '';
+      document.getElementById('st-cli-notas').value    = c.notas    || '';
+      document.getElementById('st-cli-estado').value   = c.estado;
+    }
+  } else {
+    ['st-cli-nombre','st-cli-whatsapp','st-cli-correo','st-cli-ciudad','st-cli-notas'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('st-cli-estado').value = 'activo';
+  }
+  openModal('modal-st-cliente');
+}
+
+async function saveStreamingCliente() {
+  const nombre   = document.getElementById('st-cli-nombre').value.trim();
+  const whatsapp = document.getElementById('st-cli-whatsapp').value.trim().replace(/\D/g,'');
+  const correo   = document.getElementById('st-cli-correo').value.trim();
+  const ciudad   = document.getElementById('st-cli-ciudad').value.trim();
+  const notas    = document.getElementById('st-cli-notas').value.trim();
+  const estado   = document.getElementById('st-cli-estado').value;
+  if (!nombre)    { toast('El nombre es requerido', 'error'); return; }
+  if (!whatsapp)  { toast('El WhatsApp es requerido', 'error'); return; }
+  const payload = { nombre, whatsapp, correo: correo||null, ciudad: ciudad||null, notas: notas||null, estado };
+  const result = editingStCliId
+    ? await sb.from('streaming_clientes').update(payload).eq('id', editingStCliId)
+    : await sb.from('streaming_clientes').insert(payload);
+  if (result.error) { toast('Error: ' + result.error.message, 'error'); return; }
+  toast(editingStCliId ? 'Cliente actualizado ✅' : 'Cliente creado ✅', 'success');
+  closeModal('modal-st-cliente');
+  await loadStreamingClientes();
+}
+
+async function deleteStreamingCliente(id) {
+  if (!confirm('¿Eliminar este cliente? Se eliminarán también todas sus suscripciones e historial.')) return;
+  const { error } = await sb.from('streaming_clientes').delete().eq('id', id);
+  if (error) { toast('Error al eliminar: ' + error.message, 'error'); return; }
+  toast('Cliente eliminado', 'success');
+  await loadStreamingClientes();
+}
+
+// ── SUSCRIPCIONES ─────────────────────────────────────────────────────
+async function loadStreamingSuscripciones() {
+  if (!allStPlataformas.length) await loadStPlataformas();
+  if (!allStClientes.length)    await loadStreamingClientes();
+  // Actualizar estados automáticamente
+  const { data } = await sb.from('streaming_suscripciones').select('*').order('fecha_vencimiento');
+  allStSuscripciones = data || [];
+  // Actualizar estados en BD si han cambiado
+  for (const s of allStSuscripciones) {
+    if (s.estado === 'cancelado') continue;
+    const nuevoEstado = calcEstadoSus(s.fecha_vencimiento);
+    if (nuevoEstado !== s.estado) {
+      await sb.from('streaming_suscripciones').update({ estado: nuevoEstado }).eq('id', s.id);
+      s.estado = nuevoEstado;
+    }
+  }
+  renderStreamingSuscripciones();
+  renderStSusKpis();
+  renderStRentabilidad();
+  
+  // Actualizar dashboard
+  calcularResumenCartera();
+  renderStAnalytics();
+}
+
+function filterStreamingSuscripciones() {
+  renderStreamingSuscripciones();
+}
+
+function renderStreamingSuscripciones() {
+  const tbody = document.getElementById('st-sus-tbody');
+  const search = document.getElementById('st-sus-search')?.value.toLowerCase() || '';
+  const fEstado = document.getElementById('st-sus-filter-estado')?.value || '';
+
+  let list = allStSuscripciones.filter(s => {
+    const cli = allStClientes.find(c => c.id === s.cliente_id);
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    const matchSearch = !search || (cli?.nombre||'').toLowerCase().includes(search) || (plat?.nombre||'').toLowerCase().includes(search);
+    const matchEstado = !fEstado || s.estado === fEstado;
+    return matchSearch && matchEstado;
+  });
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','openModalStreamingSus()','+ Nueva venta')}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(s => {
+    const cli = allStClientes.find(c => c.id === s.cliente_id);
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    const estadoActual = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
+    return `
+    <tr>
+      <td style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.82rem;color:#2563EB;">${s.id_venta || s.id}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div class="avatar" style="width:28px;height:28px;font-size:0.65rem;">${getInitials(cli?.nombre||'?')}</div>
+          <span style="font-weight:600;">${cli?.nombre||'—'}</span>
+        </div>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span style="font-size:1rem;">${plat?.emoji||'🎬'}</span>
+          <span style="font-size:0.82rem;font-weight:600;">${plat?.nombre||'—'}</span>
+        </div>
+      </td>
+      <td style="font-weight:700;color:#22C55E;">${formatCurrency(s.precio_venta)}</td>
+      <td style="font-size:0.82rem;">${formatDate(s.fecha_inicio)}</td>
+      <td style="font-size:0.82rem;font-weight:600;">${formatDate(s.fecha_vencimiento)}</td>
+      <td>${badgeEstadoSus(estadoActual, s.fecha_vencimiento)}</td>
+      <td>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          ${estadoActual !== 'cancelado' ? `<button class="btn-primary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;" onclick="abrirModalCobro('${s.id}')"><i class="fa-brands fa-whatsapp"></i> Cobro</button>` : ''}
+          <button class="btn-edit" onclick="openModalStreamingSus('${s.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-danger" onclick="deleteStreamingSus('${s.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStSusKpis() {
+  const activas    = allStSuscripciones.filter(s => s.estado === 'activo').length;
+  const porVencer  = allStSuscripciones.filter(s => s.estado === 'por_vencer').length;
+  const vencidas   = allStSuscripciones.filter(s => s.estado === 'vencido').length;
+  const ingresos   = allStSuscripciones
+    .filter(s => s.estado !== 'cancelado')
+    .reduce((a,s) => a + (s.precio_venta || 0), 0);
+  const container  = document.getElementById('st-sus-kpis');
+  if (!container) return;
+  container.innerHTML = [
+    { label:'Ingresos del mes', value:formatCurrency(ingresos), icon:'fa-dollar-sign', color:'#22C55E', bg:'rgba(34,197,94,0.1)' },
+    { label:'Activas',          value:activas,                  icon:'fa-circle-check', color:'#2563EB', bg:'rgba(37,99,235,0.1)' },
+    { label:'Por vencer',       value:porVencer,                icon:'fa-clock',        color:'#FACC15', bg:'rgba(250,204,21,0.1)' },
+    { label:'Vencidas',         value:vencidas,                 icon:'fa-circle-xmark', color:'#EF4444', bg:'rgba(239,68,68,0.1)' },
+  ].map(c => `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
+      <div style="font-size:1.6rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
+    </div>
+  `).join('');
+}
+
+function renderStRentabilidad() {
+  const container = document.getElementById('st-rentabilidad-lista');
+  if (!container) return;
+  const byPlat = {};
+  allStSuscripciones.filter(s => s.estado !== 'cancelado').forEach(s => {
+    if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = { ingresos:0, cnt:0 };
+    byPlat[s.plataforma_id].ingresos += s.precio_venta || 0;
+    byPlat[s.plataforma_id].cnt++;
+  });
+  const rows = Object.entries(byPlat).map(([platId, d]) => {
+    const plat = allStPlataformas.find(p => p.id === platId);
+    if (!plat) return '';
+    const costoTotal = (plat.costo_real || 0) * d.cnt;
+    const ganancia   = d.ingresos - costoTotal;
+    const pctGanancia = d.ingresos > 0 ? Math.round((ganancia / d.ingresos) * 100) : 0;
+    const isPositive  = ganancia >= 0;
+    return `
+      <div style="display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--card-border);">
+        <div style="font-size:1.4rem;flex-shrink:0;">${plat.emoji}</div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+            <span style="font-weight:600;font-size:0.9rem;">${plat.nombre}</span>
+            <div style="display:flex;gap:1rem;font-size:0.82rem;">
+              <span style="color:var(--text-muted);">${d.cnt} suscripción${d.cnt>1?'es':''}</span>
+              <span style="color:#22C55E;font-weight:700;">${formatCurrency(d.ingresos)}</span>
+              ${plat.costo_real > 0 ? `<span style="color:${isPositive?'#16a34a':'#dc2626'};font-weight:700;">Gan: ${formatCurrency(ganancia)}</span>` : '<span style="color:var(--text-muted);font-size:0.75rem;">Costo no definido</span>'}
+            </div>
+          </div>
+          ${plat.costo_real > 0 ? `
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${Math.min(100,pctGanancia)}%;background:${isPositive?'#22C55E':'#EF4444'};"></div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">${pctGanancia}% de margen</div>
+          ` : ''}
+        </div>
+      </div>`;
+  }).join('');
+  container.innerHTML = rows || '<div style="color:var(--text-muted);text-align:center;padding:1rem;">Sin suscripciones activas</div>';
+}
+
+// Suscripción: modal
+function onStSusPlataformaChange() {
+  calcStRentabilidadPreview();
+}
+
+function calcStVencimiento() {
+  const inicio = document.getElementById('st-sus-inicio')?.value;
+  const durSel = document.getElementById('st-sus-duracion')?.value;
+  const durCustomRow = document.getElementById('st-sus-duracion-custom-row');
+  let meses;
+  if (durSel === 'custom') {
+    if (durCustomRow) durCustomRow.style.display = 'block';
+    meses = parseInt(document.getElementById('st-sus-duracion-custom')?.value) || 0;
+  } else {
+    if (durCustomRow) durCustomRow.style.display = 'none';
+    meses = parseInt(durSel) || 1;
+  }
+  if (!inicio || !meses) return;
+  const vence = calcVencimiento(inicio, meses);
+  document.getElementById('st-sus-vencimiento').value = vence;
+  document.getElementById('st-sus-vencimiento-display').value = formatDate(vence);
+  calcStRentabilidadPreview();
+}
+
+function calcStRentabilidadPreview() {
+  const platId  = document.getElementById('st-sus-plataforma')?.value;
+  const precio  = parseFloat(document.getElementById('st-sus-precio')?.value) || 0;
+  const durSel  = document.getElementById('st-sus-duracion')?.value;
+  const meses   = durSel === 'custom'
+    ? parseInt(document.getElementById('st-sus-duracion-custom')?.value) || 1
+    : parseInt(durSel) || 1;
+  const preview = document.getElementById('st-sus-rentabilidad-preview');
+  if (!preview) return;
+  if (!platId || precio <= 0) { preview.style.display = 'none'; return; }
+  const plat = allStPlataformas.find(p => p.id === platId);
+  if (!plat) { preview.style.display = 'none'; return; }
+  const costoTotal = (plat.costo_real || 0) * meses;
+  const ganancia   = (precio * meses) - costoTotal;
+  const isPos      = ganancia >= 0;
+  preview.style.display = 'block';
+  preview.innerHTML = `
+    <div style="display:flex;gap:1.25rem;flex-wrap:wrap;font-size:0.82rem;">
+      <div><span style="color:var(--text-muted);">Ingresos totales:</span> <strong style="color:#22C55E;">${formatCurrency(precio*meses)}</strong></div>
+      ${plat.costo_real > 0 ? `
+      <div><span style="color:var(--text-muted);">Costo real (${meses}m):</span> <strong style="color:#EF4444;">${formatCurrency(costoTotal)}</strong></div>
+      <div><span style="color:var(--text-muted);">Ganancia:</span> <strong style="color:${isPos?'#16a34a':'#dc2626'};">${formatCurrency(ganancia)}</strong></div>
+      ` : '<div style="color:var(--text-muted);">Define el costo en la plataforma para ver rentabilidad</div>'}
+    </div>`;
+}
+
+function openModalStreamingSus(id = null) {
+  editingStSusId = id;
+  document.getElementById('modal-st-sus-title').textContent = id 
+    ? '✏️ Editar Suscripción' 
+    : '🛒 Nueva Venta de Suscripción';
+  
+  stSusComboSeleccionadas.clear();
+  
+  if (id) {
+    // Modo edición: mostrar suscripción existente
+    const s = allStSuscripciones.find(x => x.id === id);
+    if (s) {
+      document.getElementById('st-sus-cliente').value = s.cliente_id;
+      document.getElementById('st-sus-inicio').value = s.fecha_inicio;
+      document.getElementById('st-sus-vencimiento').value = s.fecha_vencimiento;
+      document.getElementById('st-sus-vencimiento-display').value = formatDate(s.fecha_vencimiento);
+      document.getElementById('st-sus-notas').value = s.notas || '';
+      
+      // Para edición: mostrar plataforma como read-only
+      const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+      stSusComboSeleccionadas.add(s.plataforma_id);
+      
+      renderStPlataformasSelector();
+      actualizarResumenCombo();
+    }
+  } else {
+    // Modo creación
+    document.getElementById('st-sus-cliente').value = '';
+    document.getElementById('st-sus-inicio').value = todayLocal();
+    document.getElementById('st-sus-vencimiento').value = '';
+    document.getElementById('st-sus-vencimiento-display').value = '';
+    document.getElementById('st-sus-notas').value = '';
+    document.getElementById('st-sus-duracion').value = '1';
+    document.getElementById('st-sus-duracion-custom-row').style.display = 'none';
+    
+    renderStPlataformasSelector();
+  }
+  
+  openModal('modal-st-sus');
+}
+
+async function saveStreamingSus() {
+  const clienteId  = document.getElementById('st-sus-cliente').value;
+  const platId     = document.getElementById('st-sus-plataforma').value;
+  const perfil     = document.getElementById('st-sus-perfil').value.trim() || 'Perfil 1';
+  const precio     = parseFloat(document.getElementById('st-sus-precio').value) || 0;
+  const inicio     = document.getElementById('st-sus-inicio').value;
+  const notas      = document.getElementById('st-sus-notas').value.trim();
+  const durSel     = document.getElementById('st-sus-duracion').value;
+  const meses      = durSel === 'custom'
+    ? parseInt(document.getElementById('st-sus-duracion-custom').value) || 1
+    : parseInt(durSel) || 1;
+  const vence      = document.getElementById('st-sus-vencimiento').value;
+
+  if (!clienteId) { toast('Selecciona un cliente', 'error'); return; }
+  if (!platId)    { toast('Selecciona una plataforma', 'error'); return; }
+  if (!inicio)    { toast('Define la fecha de inicio', 'error'); return; }
+  if (precio <= 0){ toast('El precio debe ser mayor a 0', 'error'); return; }
+  if (!vence)     { calcStVencimiento(); }
+
+  const fechaVence = document.getElementById('st-sus-vencimiento').value;
+  if (!fechaVence) { toast('No se pudo calcular la fecha de vencimiento', 'error'); return; }
+
+  const estado = calcEstadoSus(fechaVence);
+  const payload = {
+    cliente_id: clienteId, plataforma_id: platId, perfil, precio_venta: precio,
+    duracion_meses: meses, fecha_inicio: inicio, fecha_vencimiento: fechaVence,
+    estado, notas: notas || null
+  };
+  const result = editingStSusId
+    ? await sb.from('streaming_suscripciones').update(payload).eq('id', editingStSusId)
+    : await sb.from('streaming_suscripciones').insert(payload);
+  if (result.error) { toast('Error: ' + result.error.message, 'error'); return; }
+  toast(editingStSusId ? 'Suscripción actualizada ✅' : 'Suscripción creada ✅', 'success');
+  closeModal('modal-st-sus');
+  await loadStreamingSuscripciones();
+}
+
+async function deleteStreamingSus(id) {
+  if (!confirm('¿Eliminar esta suscripción?')) return;
+  const { error } = await sb.from('streaming_suscripciones').delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message, 'error'); return; }
+  toast('Suscripción eliminada', 'success');
+  await loadStreamingSuscripciones();
+}
+
+// ── COBRO WHATSAPP ────────────────────────────────────────────────────
+function abrirModalCobro(susId) {
+  const s    = allStSuscripciones.find(x => x.id === susId);
+  if (!s) return;
+  const cli  = allStClientes.find(c => c.id === s.cliente_id);
+  const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+  stCobroActual = s;
+
+  const mensaje = `Hola ${cli?.nombre || 'cliente'} 👋
+
+Te recuerdo que tu suscripción de *${plat?.nombre || 'streaming'}* vence el *${formatDate(s.fecha_vencimiento)}*.
+
+El valor de renovación es: *${formatCurrency(s.precio_venta)}*
+
+Para renovar por favor realiza tu pago y envíame el comprobante.
+
+¡Gracias por confiar en nosotros! 🙌
+— Haliel Papelería`;
+
+  document.getElementById('st-cobro-preview').textContent = mensaje;
+  openModal('modal-st-cobro');
+}
+
+function openWhatsApp() {
+  if (!stCobroActual) return;
+  const cli     = allStClientes.find(c => c.id === stCobroActual.cliente_id);
+  const numero  = (cli?.whatsapp || '').replace(/\D/g,'');
+  const mensaje = document.getElementById('st-cobro-preview').textContent;
+  const url     = `https://wa.me/57${numero}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+}
+
+function copiarMensajeCobro() {
+  const texto = document.getElementById('st-cobro-preview').textContent;
+  navigator.clipboard.writeText(texto).then(() => toast('Mensaje copiado ✅', 'success')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Mensaje copiado ✅', 'success');
+  });
+}
+
+async function renovarSuscripcion() {
+  if (!stCobroActual) return;
+  const s    = stCobroActual;
+  const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+  if (!confirm(`¿Marcar como pagado y renovar ${s.duracion_meses} mes(es) más?`)) return;
+
+  const nuevaFechaInicio = s.fecha_vencimiento;
+  const nuevaFechaVence  = calcVencimiento(nuevaFechaInicio, s.duracion_meses);
+  const nuevoEstado      = calcEstadoSus(nuevaFechaVence);
+
+  // Registrar pago en historial
+  await sb.from('streaming_pagos').insert({
+    suscripcion_id: s.id,
+    cliente_id:     s.cliente_id,
+    plataforma_id:  s.plataforma_id,
+    monto:          s.precio_venta,
+    costo_real:     plat?.costo_real || 0,
+    duracion_meses: s.duracion_meses,
+    fecha_pago:     todayLocal(),
+    notas:          'Renovación desde modal de cobro'
+  });
+
+  // Actualizar fechas de la suscripción
+  await sb.from('streaming_suscripciones').update({
+    fecha_inicio:       nuevaFechaInicio,
+    fecha_vencimiento:  nuevaFechaVence,
+    estado:             nuevoEstado
+  }).eq('id', s.id);
+
+  toast('✅ Renovada hasta ' + formatDate(nuevaFechaVence), 'success');
+  closeModal('modal-st-cobro');
+  stCobroActual = null;
+  await loadStreamingSuscripciones();
+
+  // Notificación Telegram
+  const cli = allStClientes.find(c => c.id === s.cliente_id);
+  const hora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  sendTelegramNotification(`🎬 <b>Haliel Streaming</b>
+━━━━━━━━━━━━━━━━━━
+✅ <b>Suscripción Renovada</b>
+
+👤 <b>Cliente:</b> ${cli?.nombre||'—'}
+📺 <b>Plataforma:</b> ${plat?.emoji||''} ${plat?.nombre||'—'}
+💰 <b>Monto:</b> ${formatCurrency(s.precio_venta)}
+📅 <b>Nueva vigencia:</b> ${formatDate(nuevaFechaInicio)} → ${formatDate(nuevaFechaVence)}
+🕐 <b>Hora:</b> ${hora}
+━━━━━━━━━━━━━━━━━━`);
+}
+
+// =====================================================
+// 📊 DASHBOARD DE STREAMING - CÁLCULO DE RESUMEN
+// =====================================================
+async function calcularResumenCartera() {
+  if (!allStClientes.length || !allStSuscripciones.length) return;
+
+  const totalClientes = allStClientes.filter(c => c.estado === 'activo').length;
+  
+  const totalIngresos = allStSuscripciones
+    .filter(s => s.estado === 'activo')
+    .reduce((a, s) => a + (s.precio_venta || 0), 0);
+  
+  const totalCostos = allStSuscripciones
+    .filter(s => s.estado === 'activo')
+    .reduce((a, s) => {
+      const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+      return a + ((plat?.costo_real || 0) * s.duracion_meses);
+    }, 0);
+  
+  const ganancia = totalIngresos - totalCostos;
+  const margen = totalIngresos > 0 ? Math.round((ganancia / totalIngresos) * 100) : 0;
+
+  // Actualizar elementos del DOM
+  const el1 = document.getElementById('st-total-clientes');
+  const el2 = document.getElementById('st-total-ingresos');
+  const el3 = document.getElementById('st-total-ganancia');
+  const el4 = document.getElementById('st-avg-margen');
+
+  if (el1) el1.textContent = totalClientes;
+  if (el2) el2.textContent = formatCurrency(totalIngresos);
+  if (el3) el3.textContent = formatCurrency(ganancia);
+  if (el4) el4.textContent = margen + '%';
+}
+
+async function renderStAnalytics() {
+  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
+
+  // Datos para gráficas
+  const byPlat = {};
+  const ingresosMensual = {};
+
+  allStSuscripciones.filter(s => s.estado !== 'cancelado').forEach(s => {
+    if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = 0;
+    byPlat[s.plataforma_id]++;
+    
+    const mes = s.fecha_inicio.substring(0, 7);
+    if (!ingresosMensual[mes]) ingresosMensual[mes] = 0;
+    ingresosMensual[mes] += s.precio_venta || 0;
+  });
+
+  // Gráfica 1: Ingresos vs Costos (últimos 6 meses)
+  destroyChart('st-ingresos-costos');
+  const ctxIC = document.getElementById('chart-st-ingresos-costos');
+  if (ctxIC) {
+    const meses = Object.keys(ingresosMensual).sort().slice(-6);
+    const ingresos = meses.map(m => ingresosMensual[m] || 0);
+    const costos = meses.map(m => {
+      return allStSuscripciones
+        .filter(s => s.fecha_inicio.substring(0, 7) === m && s.estado !== 'cancelado')
+        .reduce((a, s) => {
+          const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+          return a + ((plat?.costo_real || 0) * s.duracion_meses);
+        }, 0);
+    });
+
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const labelsFormateados = meses.map(m => {
+      const [y, mes] = m.split('-');
+      return monthNames[parseInt(mes) - 1];
+    });
+
+    const cc = chartColors();
+    charts['st-ingresos-costos'] = new Chart(ctxIC, {
+      type: 'bar',
+      data: {
+        labels: labelsFormateados,
+        datasets: [
+          {
+            label: 'Ingresos',
+            data: ingresos,
+            backgroundColor: 'rgba(34,197,94,0.7)',
+            borderRadius: 8,
+            borderSkipped: false
+          },
+          {
+            label: 'Costos Reales',
+            data: costos,
+            backgroundColor: 'rgba(239,68,68,0.7)',
+            borderRadius: 8,
+            borderSkipped: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: cc.text, font: { size: 11 } } }
+        },
+        scales: {
+          x: { grid: { color: cc.grid }, ticks: { color: cc.text } },
+          y: { grid: { color: cc.grid }, ticks: { color: cc.text } }
+        }
+      }
+    });
+  }
+
+  // Gráfica 2: Distribución de clientes por plataforma
+  destroyChart('st-clientes-plat');
+  const ctxCP = document.getElementById('chart-st-clientes-plat');
+  if (ctxCP && Object.keys(byPlat).length) {
+    const labels = Object.keys(byPlat)
+      .map(id => allStPlataformas.find(p => p.id === id)?.nombre || 'N/A');
+    const values = Object.values(byPlat);
+    const colors = Object.keys(byPlat)
+      .map(id => allStPlataformas.find(p => p.id === id)?.color || '#2563EB');
+
+    charts['st-clientes-plat'] = new Chart(ctxCP, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderWidth: 0,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: chartColors().text, font: { size: 11 } }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+  }
+}
+
+// ── CALENDARIO DE VENCIMIENTOS ────────────────────────────────────────
+async function loadStreamingCalendario(filtro = 'semana') {
+  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
+  const hoy      = todayLocal();
+  const enXDias  = d => { const f = new Date(hoy+'T00:00:00'); f.setDate(f.getDate()+d); return f.toISOString().split('T')[0]; };
+
+  let lista = allStSuscripciones.filter(s => s.estado !== 'cancelado');
+  if (filtro === 'hoy')       lista = lista.filter(s => s.fecha_vencimiento === hoy);
+  if (filtro === 'semana')    lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(7));
+  if (filtro === 'mes')       lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(30));
+  if (filtro === 'vencidos')  lista = lista.filter(s => s.fecha_vencimiento < hoy);
+
+  lista.sort((a,b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
+
+  const grid = document.getElementById('st-cal-grid');
+  if (!lista.length) {
+    grid.innerHTML = `<div class="glass-card" style="padding:2rem;text-align:center;color:var(--text-muted);">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">✅</div>
+      <div style="font-weight:600;">Sin vencimientos para este período</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = lista.map(s => {
+    const cli    = allStClientes.find(c => c.id === s.cliente_id);
+    const plat   = allStPlataformas.find(p => p.id === s.plataforma_id);
+    const dias   = diasRestantes(s.fecha_vencimiento);
+    const estado = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
+    const borderColor = estado === 'vencido' ? '#EF4444' : estado === 'por_vencer' ? '#FACC15' : '#22C55E';
+    return `
+    <div class="glass-card" style="padding:1.25rem;border-left:4px solid ${borderColor};">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.875rem;">
+          <div style="font-size:1.75rem;">${plat?.emoji||'🎬'}</div>
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;">${cli?.nombre||'—'}</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">${plat?.nombre||'—'} · ${s.perfil||''} · ${formatCurrency(s.precio_venta)}</div>
+            <div style="font-size:0.8rem;margin-top:0.2rem;">${badgeEstadoSus(estado, s.fecha_vencimiento)}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.78rem;color:var(--text-muted);">Vence</div>
+          <div style="font-weight:700;font-size:0.9rem;">${formatDate(s.fecha_vencimiento)}</div>
+          <button class="btn-primary" style="margin-top:0.5rem;padding:0.4rem 0.85rem;font-size:0.78rem;" onclick="abrirModalCobro('${s.id}')">
+            <i class="fa-brands fa-whatsapp"></i> Cobrar
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HISTORIAL DE PAGOS ────────────────────────────────────────────────
+async function openHistorialCliente(clienteId) {
+  const cli = allStClientes.find(c => c.id === clienteId);
+  if (!cli) return;
+  document.getElementById('modal-st-hist-title').textContent = `Historial — ${cli.nombre}`;
+
+  const { data: pagos } = await sb.from('streaming_pagos')
+    .select('*')
+    .eq('cliente_id', clienteId)
+    .order('fecha_pago', { ascending: false });
+
+  const lista = pagos || [];
+
+  // Resumen del cliente
+  const totalPagado  = lista.reduce((a,p) => a + (p.monto||0), 0);
+  const totalGanado  = lista.reduce((a,p) => a + (p.ganancia||0), 0);
+  const totalRenovaciones = lista.length;
+
+  document.getElementById('st-hist-resumen').innerHTML = `
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+      <div class="glass-card" style="padding:0.875rem;flex:1;text-align:center;min-width:110px;">
+        <div style="font-size:1.2rem;font-weight:800;color:#2563EB;">${totalRenovaciones}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Renovaciones</div>
+      </div>
+      <div class="glass-card" style="padding:0.875rem;flex:1;text-align:center;min-width:110px;">
+        <div style="font-size:1.2rem;font-weight:800;color:#22C55E;">${formatCurrency(totalPagado)}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Total pagado</div>
+      </div>
+      <div class="glass-card" style="padding:0.875rem;flex:1;text-align:center;min-width:110px;">
+        <div style="font-size:1.2rem;font-weight:800;color:#7C3AED;">${formatCurrency(totalGanado)}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Tu ganancia</div>
+      </div>
+    </div>`;
+
+  const tbody = document.getElementById('st-hist-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin pagos registrados aún</td></tr>`;
+  } else {
+    tbody.innerHTML = lista.map(p => {
+      const plat = allStPlataformas.find(x => x.id === p.plataforma_id);
+      return `
+      <tr>
+        <td style="font-weight:600;">${formatDate(p.fecha_pago)}</td>
+        <td>${plat ? `${plat.emoji} ${plat.nombre}` : '—'}</td>
+        <td>${p.duracion_meses} mes${p.duracion_meses>1?'es':''}</td>
+        <td style="color:#22C55E;font-weight:700;">${formatCurrency(p.monto)}</td>
+        <td style="color:#EF4444;">${formatCurrency(p.costo_real||0)}</td>
+        <td style="color:#7C3AED;font-weight:700;">${formatCurrency(p.ganancia||0)}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${p.notas||'—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('st-hist-totales').innerHTML = `
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.875rem;">
+      <span>Total pagado: <strong style="color:#22C55E;">${formatCurrency(totalPagado)}</strong></span>
+      <span>Tu ganancia acumulada: <strong style="color:#7C3AED;">${formatCurrency(totalGanado)}</strong></span>
+      <span>Renovaciones: <strong>${totalRenovaciones}</strong></span>
+    </div>`;
+
+  openModal('modal-st-historial');
+}
+
+// ── ALERTAS TELEGRAM DIARIAS ─────────────────────────────────────────
+async function checkStreamingAlertas() {
+  if (!hasStreamingAccess()) return;
+  if (!allStSuscripciones.length) {
+    const { data } = await sb.from('streaming_suscripciones').select('*');
+    allStSuscripciones = data || [];
+  }
+  const hoy = todayLocal();
+  const vencenHoy    = allStSuscripciones.filter(s => s.estado !== 'cancelado' && s.fecha_vencimiento === hoy);
+  const vencen3dias  = allStSuscripciones.filter(s => {
+    const dias = diasRestantes(s.fecha_vencimiento);
+    return s.estado !== 'cancelado' && dias > 0 && dias <= 3;
+  });
+  if (!vencenHoy.length && !vencen3dias.length) return;
+
+  const getInfo = s => {
+    const cli  = allStClientes.find(c => c.id === s.cliente_id);
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    return `  • ${cli?.nombre||'—'} → ${plat?.emoji||''} ${plat?.nombre||'—'} (${formatCurrency(s.precio_venta)})`;
+  };
+
+  const totalCobrar = [...vencenHoy, ...vencen3dias].reduce((a,s) => a+(s.precio_venta||0), 0);
+  const fechaHoyStr = new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+  const horaCap     = fechaHoyStr.charAt(0).toUpperCase() + fechaHoyStr.slice(1);
+
+  let msg = `🎬 <b>Haliel Streaming — Resumen del día</b>\n━━━━━━━━━━━━━━━━━━\n📅 ${horaCap}\n`;
+  if (vencenHoy.length)   msg += `\n🔴 <b>Vencen hoy (${vencenHoy.length}):</b>\n${vencenHoy.map(getInfo).join('\n')}`;
+  if (vencen3dias.length) msg += `\n\n🟡 <b>Vencen en 1-3 días (${vencen3dias.length}):</b>\n${vencen3dias.map(getInfo).join('\n')}`;
+  msg += `\n\n💰 <b>Por cobrar:</b> ${formatCurrency(totalCobrar)}\n━━━━━━━━━━━━━━━━━━`;
+
+  sendTelegramNotification(msg);
+}
+
+// =====================================================
+// 🆕 SISTEMA DE COMBOS - NUEVAS FUNCIONES
+// =====================================================
+
+let stSusComboSeleccionadas = new Set(); // Plataformas seleccionadas
+
+function switchStreamingTab(tab) {
+  document.querySelectorAll('[id^="tab-"]').forEach(el => {
+    if (el.id.startsWith('tab-') && el.id.includes('st')) el.style.display = 'none';
+  });
+  document.querySelectorAll('.profile-tab').forEach(el => el.classList.remove('active'));
+  
+  const tabEl = document.getElementById(`tab-${tab}-st`);
+  if (tabEl) tabEl.style.display = 'block';
+  
+  const btnEl = document.querySelector(`.profile-tab[data-tab="${tab}"]`);
+  if (btnEl) btnEl.classList.add('active');
+}
+
+function switchStSusTab(tab) {
+  // Ocultar todos los tabs
+  document.querySelectorAll('[id^="tab-"]').forEach(el => {
+    if (el.id.startsWith('tab-') && el.id.includes('-st')) el.style.display = 'none';
+  });
+  
+  // Remover clase active de todos los botones
+  document.querySelectorAll('.profile-tab').forEach(el => el.classList.remove('active'));
+  
+  // Mostrar el tab seleccionado
+  const tabEl = document.getElementById(`tab-${tab}-st`);
+  if (tabEl) tabEl.style.display = 'block';
+  
+  // Marcar botón como activo
+  const btnEl = document.querySelector(`.profile-tab[data-tab="${tab}"]`);
+  if (btnEl) btnEl.classList.add('active');
+
+  // Cargar datos según el tab
+  if (tab === 'dashboard') {
+    calcularResumenCartera();
+    renderStAnalytics();
+  }
+  if (tab === 'suscripciones') loadStreamingSuscripciones();
+  if (tab === 'calendario') loadStreamingCalendario('semana');
+  if (tab === 'analytics') renderStAnalytics();
+}
+
+function renderStPlataformasSelector() {
+  const container = document.getElementById('st-sus-plataformas-grid');
+  if (!container) return;
+  
+  container.innerHTML = allStPlataformas.map(p => `
+    <div class="glass-card" style="padding:0.875rem;cursor:pointer;transition:all 0.2s;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;text-align:center;"
+         onclick="toggleStPlatCombo('${p.id}', this)"
+         data-plat-id="${p.id}">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">${p.emoji}</div>
+      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.25rem;">${p.nombre}</div>
+      <div style="font-size:0.72rem;color:var(--text-muted);">${formatCurrency(p.costo_real || 0)}/mes</div>
+    </div>
+  `).join('');
+}
+
+function toggleStPlatCombo(platId, el) {
+  if (stSusComboSeleccionadas.has(platId)) {
+    stSusComboSeleccionadas.delete(platId);
+    el.style.borderColor = 'transparent';
+    el.style.background = 'var(--card-bg)';
+  } else {
+    stSusComboSeleccionadas.add(platId);
+    el.style.borderColor = '#2563EB';
+    el.style.background = 'rgba(37,99,235,0.05)';
+  }
+  
+  actualizarResumenCombo();
+}
+
+function actualizarResumenCombo() {
+  const selectedEl = document.getElementById('st-sus-plat-selected');
+  const detallesEl = document.getElementById('st-sus-detalles-plataformas');
+  const resumenEl = document.getElementById('st-sus-resumen-combo');
+  
+  if (stSusComboSeleccionadas.size === 0) {
+    selectedEl.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;opacity:0.6;">Ninguna</span>';
+    detallesEl.style.display = 'none';
+    resumenEl.style.display = 'none';
+    return;
+  }
+
+  // Mostrar plataformas seleccionadas
+  const platNames = Array.from(stSusComboSeleccionadas)
+    .map(id => allStPlataformas.find(p => p.id === id))
+    .filter(p => p);
+  
+  selectedEl.innerHTML = platNames.map(p => `
+    <span class="badge badge-blue">${p.emoji} ${p.nombre}</span>
+  `).join('');
+
+  // Mostrar detalles por plataforma
+  detallesEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;">
+      ${platNames.map(p => `
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.75rem;">
+          <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">${p.emoji} ${p.nombre}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.4rem;">
+            Perfil: <input type="text" class="field-input" placeholder="Perfil 1" style="padding:0.3rem;font-size:0.75rem;margin-top:0.2rem;" data-plat="${p.id}" class="st-perfil-combo"/>
+          </div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">
+            Precio: <input type="number" class="field-input" value="${p.costo_real||0}" style="padding:0.3rem;font-size:0.75rem;margin-top:0.2rem;width:100%;" data-plat="${p.id}" class="st-precio-combo"/>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  detallesEl.style.display = 'block';
+  resumenEl.style.display = 'block';
+
+  calcularResumenCombo();
+}
+
+function calcularResumenCombo() {
+  const meses = parseInt(document.getElementById('st-sus-duracion')?.value || document.getElementById('st-sus-duracion-custom')?.value || '1') || 1;
+  
+  let totalPrecio = 0, totalCosto = 0;
+  const precios = {};
+
+  document.querySelectorAll('.st-precio-combo').forEach(el => {
+    const platId = el.getAttribute('data-plat');
+    const precio = parseFloat(el.value) || 0;
+    precios[platId] = precio;
+    totalPrecio += precio * meses;
+    
+    const plat = allStPlataformas.find(p => p.id === platId);
+    totalCosto += (plat?.costo_real || 0) * meses;
+  });
+
+  const ganancia = totalPrecio - totalCosto;
+
+  document.getElementById('st-combo-count').textContent = stSusComboSeleccionadas.size;
+  document.getElementById('st-combo-total').textContent = formatCurrency(totalPrecio);
+  document.getElementById('st-combo-costo').textContent = formatCurrency(totalCosto);
+  document.getElementById('st-combo-ganancia').textContent = formatCurrency(ganancia);
+}
+
+function onStCliComboChange() {
+  renderStPlataformasSelector();
+  stSusComboSeleccionadas.clear();
+}
+
+function onStSusDuracionChange() {
+  const durSel = document.getElementById('st-sus-duracion')?.value;
+  const customRow = document.getElementById('st-sus-duracion-custom-row');
+  let meses;
+  
+  if (durSel === 'custom') {
+    customRow.style.display = 'block';
+    meses = parseInt(document.getElementById('st-sus-duracion-custom')?.value) || 1;
+  } else {
+    customRow.style.display = 'none';
+    meses = parseInt(durSel) || 1;
+  }
+
+  const inicio = document.getElementById('st-sus-inicio')?.value;
+  if (inicio && meses) {
+    const vence = calcVencimiento(inicio, meses);
+    document.getElementById('st-sus-vencimiento').value = vence;
+    document.getElementById('st-sus-vencimiento-display').value = formatDate(vence);
+  }
+
+  calcularResumenCombo();
+}
+
+async function saveStreamingSusCombo() {
+  const clienteId = document.getElementById('st-sus-cliente').value;
+  const inicio = document.getElementById('st-sus-inicio').value;
+  const vence = document.getElementById('st-sus-vencimiento').value;
+  const notas = document.getElementById('st-sus-notas').value.trim();
+  const meses = parseInt(document.getElementById('st-sus-duracion')?.value || document.getElementById('st-sus-duracion-custom')?.value || '1') || 1;
+
+  if (!clienteId) { toast('Selecciona un cliente', 'error'); return; }
+  if (stSusComboSeleccionadas.size === 0) { toast('Selecciona al menos una plataforma', 'error'); return; }
+  if (!inicio) { toast('Define la fecha de inicio', 'error'); return; }
+
+  const btn = document.querySelector('#modal-st-sus .btn-primary');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando...'; }
+
+  try {
+    const idVenta = await generarIdVentaUnico();
+    
+    // Guardar un registro por cada plataforma
+    for (const platId of stSusComboSeleccionadas) {
+      const precioInput = document.querySelector(`[data-plat="${platId}"].st-precio-combo`);
+      const perfilInput = document.querySelector(`[data-plat="${platId}"].st-perfil-combo`);
+      const precio = parseFloat(precioInput?.value) || 0;
+      const perfil = perfilInput?.value || 'Perfil 1';
+
+      const estado = calcEstadoSus(vence);
+      const payload = {
+        id_venta: idVenta,
+        cliente_id: clienteId,
+        plataforma_id: platId,
+        perfil,
+        precio_venta: precio,
+        duracion_meses: meses,
+        fecha_inicio: inicio,
+        fecha_vencimiento: vence,
+        estado,
+        notas: notas || null
+      };
+
+      const { error } = await sb.from('streaming_suscripciones').insert(payload);
+      if (error) throw error;
+    }
+
+    toast(`✅ Venta combo registrada con ID: ${idVenta}`, 'success');
+    closeModal('modal-st-sus');
+    stSusComboSeleccionadas.clear();
+    await loadStreamingSuscripciones();
+
+    // 📧 Notificación Telegram
+    const cli = allStClientes.find(c => c.id === clienteId);
+    const platNames = Array.from(stSusComboSeleccionadas)
+      .map(id => allStPlataformas.find(p => p.id === id)?.nombre)
+      .join(', ');
+    
+    sendTelegramNotification(`🎬 <b>Haliel Streaming — Nueva Venta Combo</b>
+━━━━━━━━━━━━━━━━━━
+🆔 <b>ID Venta:</b> ${idVenta}
+👤 <b>Cliente:</b> ${cli?.nombre||'—'}
+📺 <b>Plataformas:</b> ${platNames}
+📅 <b>Vigencia:</b> ${formatDate(inicio)} → ${formatDate(vence)}
+💰 <b>Total:</b> ${document.getElementById('st-combo-total').textContent}
+🕐 <b>Hora:</b> ${new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}
+━━━━━━━━━━━━━━━━━━`);
+
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar Venta'; }
+  }
+}
+
+// 🆔 GENERAR ID VENTA ÚNICO
+async function generarIdVentaUnico() {
+  // Formato: VT-YYYY-XXXXXX (VT = Venta, año actual, 6 dígitos secuenciales)
+  const año = new Date().getFullYear();
+  const { data, error } = await sb
+    .from('streaming_suscripciones')
+    .select('id_venta')
+    .like('id_venta', `VT-${año}%`)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  let numero = 1;
+  if (data && data.length > 0) {
+    const lastId = data[0].id_venta;
+    const match = lastId.match(/VT-\d+-(\d+)/);
+    if (match) numero = parseInt(match[1]) + 1;
+  }
+
+  return `VT-${año}-${String(numero).padStart(6, '0')}`;
+}
+
+// 📊 ANALYTICS (Nueva función)
+async function renderStAnalytics() {
+  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
+
+  // Datos para gráficas
+  const byPlat = {};
+  const ingresosMensual = {};
+  const today = todayLocal().substring(0, 7); // YYYY-MM
+
+  allStSuscripciones.forEach(s => {
+    if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = 0;
+    byPlat[s.plataforma_id]++;
+    
+    const mes = s.fecha_inicio.substring(0, 7);
+    if (!ingresosMensual[mes]) ingresosMensual[mes] = 0;
+    ingresosMensual[mes] += s.precio_venta || 0;
+  });
+
+  // Gráfica 1: Ingresos vs Costos
+  destroyChart('st-ingresos-costos');
+  const ctxIC = document.getElementById('chart-st-ingresos-costos');
+  if (ctxIC) {
+    const meses = Object.keys(ingresosMensual).sort().slice(-6); // Últimos 6 meses
+    const ingresos = meses.map(m => ingresosMensual[m] || 0);
+    const costos = meses.map(m => {
+      return allStSuscripciones
+        .filter(s => s.fecha_inicio.substring(0, 7) === m)
+        .reduce((a, s) => {
+          const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+          return a + ((plat?.costo_real || 0) * s.duracion_meses);
+        }, 0);
+    });
+
+    const cc = chartColors();
+    charts['st-ingresos-costos'] = new Chart(ctxIC, {
+      type: 'bar',
+      data: {
+        labels: meses,
+        datasets: [
+          {
+            label: 'Ingresos',
+            data: ingresos,
+            backgroundColor: 'rgba(34,197,94,0.7)',
+            borderRadius: 8
+          },
+          {
+            label: 'Costos Reales',
+            data: costos,
+            backgroundColor: 'rgba(239,68,68,0.7)',
+            borderRadius: 8
+          }
+        ]
+      },
+      options: chartOptions(cc)
+    });
+  }
+
+  // Gráfica 2: Distribución de clientes
+  destroyChart('st-clientes-plat');
+  const ctxCP = document.getElementById('chart-st-clientes-plat');
+  if (ctxCP && Object.keys(byPlat).length) {
+    const labels = Object.keys(byPlat).map(id => allStPlataformas.find(p => p.id === id)?.nombre || 'N/A');
+    const values = Object.values(byPlat);
+    const colors = allStPlataformas.map(p => p.color || '#2563EB').slice(0, labels.length);
+
+    charts['st-clientes-plat'] = new Chart(ctxCP, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderWidth: 0,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: chartColors().text, font: { size: 11 } }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+  }
 }
 
 </script>
