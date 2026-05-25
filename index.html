@@ -400,6 +400,9 @@
     ⚠️ Sin conexión — los datos pueden no estar actualizados
 </div>
 
+<!-- FONDO STREAMING: div real con position:fixed -->
+<div id="streaming-bg-overlay" style="position:fixed;inset:0;background-image:url('fondostreaming.jpg');background-size:900px auto;background-position:center center;background-repeat:no-repeat;opacity:0;z-index:0;pointer-events:none;transition:opacity 0.5s ease;"></div>
+
 <!-- LOGIN -->
 <div id="login-page">
     <div class="blob blob-1"></div>
@@ -888,357 +891,101 @@
 	  </div>
 	</div>
 
-	<!-- ============================================================ -->
 	<!-- STREAMING: CARTERA DE CLIENTES -->
-	<!-- ============================================================ -->
 	<div class="section" id="sec-streaming-cartera">
-	  <!-- TABS SUPERIORES -->
-	  <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid var(--card-border);overflow-x:auto;">
-		<button class="profile-tab active" data-tab="clientes" onclick="switchStreamingTab('clientes')" 
-				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
-		  👥 Clientes
+	  <!-- BARRA DE ACCIONES -->
+	  <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
+		<button class="btn-primary" onclick="openModalStreamingCliente()">
+		  <i class="fa-solid fa-plus"></i> Nuevo Cliente
 		</button>
-		<button class="profile-tab" data-tab="plataformas" onclick="switchStreamingTab('plataformas')" 
-				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
-		  🎬 Plataformas Disponibles
+		<button class="btn-secondary" onclick="openModalStPlataformasGestion()">
+		  <i class="fa-solid fa-film"></i> Plataformas
 		</button>
-	  </div>
-
-	  <!-- TAB: CLIENTES -->
-	  <div id="tab-clientes-st" style="display:block;">
-		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
-		  <div style="position:relative;flex:1;min-width:250px;">
-			<i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
-			<input type="text" id="st-cli-search" class="search-input" style="width:100%;" placeholder="Buscar cliente..." oninput="filterStreamingClientes()"/>
-		  </div>
-		  <button class="btn-primary" onclick="openModalStreamingCliente()">
-			<i class="fa-solid fa-plus"></i> Nuevo Cliente
-		  </button>
-		</div>
-
-		<!-- KPIs -->
-		<div class="grid-4" id="st-cli-kpis" style="margin-bottom:1.25rem;"></div>
-
-		<!-- TABLA DE CLIENTES -->
-		<div class="glass-card" style="overflow:hidden;">
-		  <div class="table-wrapper" style="overflow-x:auto;">
-			<table class="premium-table">
-			  <thead>
-				<tr>
-				  <th>Cliente</th>
-				  <th>WhatsApp</th>
-				  <th>Ciudad</th>
-				  <th>Suscripciones Activas</th>
-				  <th>Ingresos Mensuales</th>
-				  <th>Estado</th>
-				  <th>Registrado</th>
-				  <th>Acciones</th>
-				</tr>
-			  </thead>
-			  <tbody id="st-cli-tbody"></tbody>
-			</table>
-		  </div>
+		<div style="position:relative;flex:1;min-width:200px;max-width:380px;">
+		  <i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+		  <input type="text" id="st-cli-search" class="search-input" style="width:100%;" placeholder="Buscar cliente..." oninput="filterStreamingClientes()"/>
 		</div>
 	  </div>
 
-	  <!-- TAB: PLATAFORMAS -->
-	  <div id="tab-plataformas-st" style="display:none;">
-		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
-		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;">Catálogo de Plataformas</h3>
-		  <button class="btn-primary" onclick="openModalStPlataforma()">
-			<i class="fa-solid fa-plus"></i> Agregar Plataforma
-		  </button>
-		</div>
+	  <!-- KPIs -->
+	  <div class="grid-4" id="st-cli-kpis" style="margin-bottom:1.25rem;"></div>
 
-		<!-- GRID DE PLATAFORMAS -->
-		<div class="grid-4" id="st-plat-grid"></div>
-
-		<!-- ESTADÍSTICAS DE PLATAFORMAS -->
-		<div class="glass-card" style="padding:1.5rem;margin-top:1.25rem;">
-		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">
-			<i class="fa-solid fa-chart-pie" style="color:#2563EB;margin-right:0.5rem;"></i>
-			Distribución de Ingresos por Plataforma
-		  </h3>
-		  <div id="st-plat-rentabilidad"></div>
+	  <!-- TABLA DE CLIENTES -->
+	  <div class="glass-card" style="overflow:hidden;">
+		<div class="table-wrapper" style="overflow-x:auto;">
+		  <table class="premium-table">
+			<thead>
+			  <tr>
+				<th>Cliente</th>
+				<th>WhatsApp</th>
+				<th>Ciudad</th>
+				<th>Suscripciones Activas</th>
+				<th>Estado</th>
+				<th>Registrado</th>
+				<th>Acciones</th>
+			  </tr>
+			</thead>
+			<tbody id="st-cli-tbody"></tbody>
+		  </table>
 		</div>
 	  </div>
 	</div>
-	<!-- ============================================================ -->
-	<!-- STREAMING: CARTERA - DASHBOARD -->
-	<!-- ============================================================ -->
-	<div class="section" id="sec-streaming-cartera-dashboard" style="display:none;">
-	  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem;">
-		<!-- KPI 1: Total Clientes -->
-		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #2563EB;background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.02));">
-		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-			<div>
-			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Clientes Activos</div>
-			  <div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#2563EB;" id="st-total-clientes">0</div>
-			</div>
-			<div style="width:48px;height:48px;background:rgba(37,99,235,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">👥</div>
-		  </div>
-		  <div style="font-size:0.75rem;color:var(--text-muted);">Clientes con suscripciones activas</div>
-		</div>
 
-		<!-- KPI 2: Ingresos -->
-		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #22C55E;background:linear-gradient(135deg,rgba(34,197,94,0.04),rgba(34,197,94,0.02));">
-		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-			<div>
-			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ingresos Activos</div>
-			  <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#22C55E;" id="st-total-ingresos">$0</div>
-			</div>
-			<div style="width:48px;height:48px;background:rgba(34,197,94,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">💰</div>
-		  </div>
-		  <div style="font-size:0.75rem;color:var(--text-muted);">Total de ingresos mensuales estimados</div>
-		</div>
+    <div class="section" id="sec-streaming-suscripciones">
 
-		<!-- KPI 3: Ganancia -->
-		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #7C3AED;background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(124,58,237,0.02));">
-		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-			<div>
-			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ganancia Neta</div>
-			  <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#7C3AED;" id="st-total-ganancia">$0</div>
-			</div>
-			<div style="width:48px;height:48px;background:rgba(124,58,237,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📈</div>
-		  </div>
-		  <div style="font-size:0.75rem;color:var(--text-muted);">Ingresos menos costos reales</div>
+	  <!-- BARRA DE ACCIONES -->
+	  <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
+		<div style="position:relative;flex:1;min-width:180px;">
+		  <i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+		  <input type="text" id="st-sus-search" class="search-input" style="width:100%;" placeholder="Buscar cliente o plataforma..." oninput="filterStreamingSuscripciones()"/>
 		</div>
-
-		<!-- KPI 4: Margen -->
-		<div class="glass-card" style="padding:1.5rem;border-left:4px solid #FACC15;background:linear-gradient(135deg,rgba(250,204,21,0.04),rgba(250,204,21,0.02));">
-		  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-			<div>
-			  <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Margen Promedio</div>
-			  <div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#FACC15;" id="st-avg-margen">0%</div>
-			</div>
-			<div style="width:48px;height:48px;background:rgba(250,204,21,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📊</div>
-		  </div>
-		  <div style="font-size:0.75rem;color:var(--text-muted);">Porcentaje de ganancia sobre ingresos</div>
-		</div>
-	  </div>
-
-	  <!-- GRÁFICAS -->
-	  <div class="grid-2" style="margin-bottom:1.5rem;">
-		<!-- Gráfica: Ingresos vs Costos -->
-		<div class="glass-card" style="padding:1.5rem;">
-		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
-			<i class="fa-solid fa-chart-bar" style="color:#22C55E;margin-right:0.5rem;"></i>
-			Ingresos vs Costos (últimos 6 meses)
-		  </h3>
-		  <div class="chart-container" style="height:280px;">
-			<canvas id="chart-st-ingresos-costos"></canvas>
-		  </div>
-		</div>
-
-		<!-- Gráfica: Distribución por Plataforma -->
-		<div class="glass-card" style="padding:1.5rem;">
-		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
-			<i class="fa-solid fa-pie-chart" style="color:#2563EB;margin-right:0.5rem;"></i>
-			Clientes por Plataforma
-		  </h3>
-		  <div class="chart-container" style="height:280px;">
-			<canvas id="chart-st-clientes-plat"></canvas>
-		  </div>
-		</div>
-	  </div>
-
-	  <!-- BOTÓN VOLVER -->
-	  <div style="display:flex;justify-content:center;margin-top:2rem;">
-		<button class="btn-secondary" onclick="goSection('streaming-suscripciones')" style="padding:0.75rem 2rem;">
-		  <i class="fa-solid fa-arrow-left" style="margin-right:0.5rem;"></i> Volver a Gestión
+		<select id="st-sus-filter-estado" class="field-input" style="width:auto;" onchange="filterStreamingSuscripciones()">
+		  <option value="">Todos los estados</option>
+		  <option value="activo">🟢 Activo</option>
+		  <option value="por_vencer">🟡 Por vencer (1-5 días)</option>
+		  <option value="vencido">🔴 Vencido</option>
+		  <option value="cancelado">⚫ Cancelado</option>
+		</select>
+		<button class="btn-primary" onclick="openModalStreamingSus()">
+		  <i class="fa-solid fa-plus"></i> Nueva Venta
+		</button>
+		<button class="btn-secondary" onclick="openModalCalendarioCobros()">
+		  <i class="fa-solid fa-calendar-days"></i> Calendario
 		</button>
 	  </div>
-	</div>
-	<div class="section" id="sec-streaming-suscripciones">
-	  <!-- TABS SUPERIORES -->
-	  <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid var(--card-border);overflow-x:auto;">
-		<button class="profile-tab active" data-tab="dashboard" onclick="switchStSusTab('dashboard')" 
-				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
-		  📊 Dashboard
-		</button>
-		<button class="profile-tab" data-tab="suscripciones" onclick="switchStSusTab('suscripciones')" 
-				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
-		  📋 Mis Suscripciones
-		</button>
-		<button class="profile-tab" data-tab="calendario" onclick="switchStSusTab('calendario')" 
-				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
-		  📅 Calendario de Cobros
-		</button>
-		<button class="profile-tab" data-tab="analytics" onclick="switchStSusTab('analytics')" 
-				style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.85rem;white-space:nowrap;">
-		  📈 Analytics
-		</button>
+
+	  <!-- TARJETAS COMPACTAS UNIFICADAS: KPIs + Analytics -->
+	  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.65rem;margin-bottom:1.25rem;" id="st-sus-all-kpis"></div>
+
+	  <!-- RENTABILIDAD POR PLATAFORMA -->
+	  <div class="glass-card" style="padding:1.25rem;margin-bottom:1.25rem;">
+		<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:0.875rem;">
+		  <i class="fa-solid fa-chart-line" style="color:#22C55E;margin-right:0.5rem;"></i>Rentabilidad por Plataforma
+		</h3>
+		<div id="st-rentabilidad-lista"></div>
 	  </div>
-		<!-- TAB 0: DASHBOARD -->
-		  <div id="tab-dashboard-st" style="display:none;">
-			<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem;">
-			  <!-- KPI 1: Total Clientes -->
-			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #2563EB;background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.02));">
-				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-				  <div>
-					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Clientes Activos</div>
-					<div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#2563EB;" id="st-total-clientes">0</div>
-				  </div>
-				  <div style="width:48px;height:48px;background:rgba(37,99,235,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">👥</div>
-				</div>
-				<div style="font-size:0.75rem;color:var(--text-muted);">Clientes con suscripciones activas</div>
-			  </div>
 
-			  <!-- KPI 2: Ingresos -->
-			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #22C55E;background:linear-gradient(135deg,rgba(34,197,94,0.04),rgba(34,197,94,0.02));">
-				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-				  <div>
-					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ingresos Activos</div>
-					<div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#22C55E;" id="st-total-ingresos">$0</div>
-				  </div>
-				  <div style="width:48px;height:48px;background:rgba(34,197,94,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">💰</div>
-				</div>
-				<div style="font-size:0.75rem;color:var(--text-muted);">Total de ingresos mensuales estimados</div>
-			  </div>
-
-			  <!-- KPI 3: Ganancia -->
-			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #7C3AED;background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(124,58,237,0.02));">
-				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-				  <div>
-					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Ganancia Neta</div>
-					<div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#7C3AED;" id="st-total-ganancia">$0</div>
-				  </div>
-				  <div style="width:48px;height:48px;background:rgba(124,58,237,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📈</div>
-				</div>
-				<div style="font-size:0.75rem;color:var(--text-muted);">Ingresos menos costos reales</div>
-			  </div>
-
-			  <!-- KPI 4: Margen -->
-			  <div class="glass-card" style="padding:1.5rem;border-left:4px solid #FACC15;background:linear-gradient(135deg,rgba(250,204,21,0.04),rgba(250,204,21,0.02));">
-				<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
-				  <div>
-					<div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;margin-bottom:0.5rem;">Margen Promedio</div>
-					<div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;color:#FACC15;" id="st-avg-margen">0%</div>
-				  </div>
-				  <div style="width:48px;height:48px;background:rgba(250,204,21,0.1);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📊</div>
-				</div>
-				<div style="font-size:0.75rem;color:var(--text-muted);">Porcentaje de ganancia sobre ingresos</div>
-			  </div>
-			</div>
-
-			<!-- GRÁFICAS -->
-			<div class="grid-2" style="margin-bottom:1.5rem;">
-			  <!-- Gráfica: Ingresos vs Costos -->
-			  <div class="glass-card" style="padding:1.5rem;">
-				<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
-				  <i class="fa-solid fa-chart-bar" style="color:#22C55E;margin-right:0.5rem;"></i>
-				  Ingresos vs Costos (últimos 6 meses)
-				</h3>
-				<div class="chart-container" style="height:280px;">
-				  <canvas id="chart-st-ingresos-costos"></canvas>
-				</div>
-			  </div>
-
-			  <!-- Gráfica: Distribución por Plataforma -->
-			  <div class="glass-card" style="padding:1.5rem;">
-				<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
-				  <i class="fa-solid fa-pie-chart" style="color:#2563EB;margin-right:0.5rem;"></i>
-				  Clientes por Plataforma
-				</h3>
-				<div class="chart-container" style="height:280px;">
-				  <canvas id="chart-st-clientes-plat"></canvas>
-				</div>
-			  </div>
-			</div>
-		  </div>
-	  <!-- TAB 1: SUSCRIPCIONES -->
-	  <div id="tab-suscripciones-st" style="display:block;">
-		<div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
-		  <div style="position:relative;flex:1;min-width:200px;">
-			<i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
-			<input type="text" id="st-sus-search" class="search-input" style="width:100%;" placeholder="Buscar cliente o plataforma..." oninput="filterStreamingSuscripciones()"/>
-		  </div>
-		  <select id="st-sus-filter-estado" class="field-input" style="width:auto;" onchange="filterStreamingSuscripciones()">
-			<option value="">Todos los estados</option>
-			<option value="activo">🟢 Activo</option>
-			<option value="por_vencer">🟡 Por vencer (1-5 días)</option>
-			<option value="vencido">🔴 Vencido</option>
-			<option value="cancelado">⚫ Cancelado</option>
-		  </select>
-		  <button class="btn-primary" onclick="openModalStreamingSus()">
-			<i class="fa-solid fa-plus"></i> Nueva Venta
-		  </button>
-		</div>
-
-		<!-- KPIs SUSCRIPCIONES -->
-		<div class="grid-4" id="st-sus-kpis" style="margin-bottom:1.25rem;"></div>
-
-		<!-- INDICADOR DE RENTABILIDAD -->
-		<div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;" id="st-rentabilidad-card">
-		  <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">
-			<i class="fa-solid fa-chart-line" style="color:#22C55E;margin-right:0.5rem;"></i>
-			Rentabilidad por Plataforma
-		  </h3>
-		  <div id="st-rentabilidad-lista"></div>
-		</div>
-
-		<!-- TABLA DE SUSCRIPCIONES -->
-		<div class="glass-card" style="overflow:hidden;">
-		  <div class="table-wrapper" style="overflow-x:auto;">
-			<table class="premium-table">
-			  <thead>
-				<tr>
-				  <th>ID Venta</th>
-				  <th>Cliente</th>
-				  <th>Plataformas</th>
-				  <th>Monto Total</th>
-				  <th>Inicio</th>
-				  <th>Vencimiento</th>
-				  <th>Estado</th>
-				  <th>Acciones</th>
-				</tr>
-			  </thead>
-			  <tbody id="st-sus-tbody"></tbody>
-			</table>
-		  </div>
+	  <!-- TABLA DE SUSCRIPCIONES -->
+	  <div class="glass-card" style="overflow:hidden;">
+		<div class="table-wrapper" style="overflow-x:auto;">
+		  <table class="premium-table">
+			<thead>
+			  <tr>
+				<th>ID Venta</th>
+				<th>Cliente</th>
+				<th>Plataforma</th>
+				<th>Monto Total</th>
+				<th>Inicio</th>
+				<th>Vencimiento</th>
+				<th>Estado</th>
+				<th>Acciones</th>
+			  </tr>
+			</thead>
+			<tbody id="st-sus-tbody"></tbody>
+		  </table>
 		</div>
 	  </div>
 
-	  <!-- TAB 2: CALENDARIO DE COBROS -->
-	  <div id="tab-calendario-st" style="display:none;">
-		<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem;">
-		  <button class="btn-primary" onclick="loadStreamingCalendario('hoy')">📅 Hoy</button>
-		  <button class="btn-secondary" onclick="loadStreamingCalendario('semana')">📆 Esta semana</button>
-		  <button class="btn-secondary" onclick="loadStreamingCalendario('mes')">📊 Este mes</button>
-		  <button class="btn-danger" onclick="loadStreamingCalendario('vencidos')">🔴 Vencidos</button>
-		</div>
-		<div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;">
-		  <span style="font-size:0.9rem;color:var(--text-muted);padding:0.5rem 1rem;background:var(--input-bg);border-radius:0.75rem;">
-			<i class="fa-solid fa-info-circle" style="margin-right:0.4rem;"></i>
-			<span id="st-cal-info">Selecciona un período</span>
-		  </span>
-		</div>
-		<div id="st-cal-grid" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
-	  </div>
-
-	  <!-- TAB 3: ANALYTICS -->
-	  <div id="tab-analytics-st" style="display:none;">
-		<div class="grid-2" style="margin-bottom:1.25rem;">
-		  <div class="glass-card" style="padding:1.5rem;">
-			<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
-			  <i class="fa-solid fa-arrow-trend-up" style="color:#22C55E;margin-right:0.5rem;"></i>
-			  Ingresos vs Costos
-			</h3>
-			<div class="chart-container" style="height:240px;">
-			  <canvas id="chart-st-ingresos-costos"></canvas>
-			</div>
-		  </div>
-		  <div class="glass-card" style="padding:1.5rem;">
-			<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:1rem;">
-			  <i class="fa-solid fa-pie-chart" style="color:#2563EB;margin-right:0.5rem;"></i>
-			  Clientes por Plataforma
-			</h3>
-			<div class="chart-container" style="height:240px;">
-			  <canvas id="chart-st-clientes-plat"></canvas>
-			</div>
-		  </div>
-		</div>
-	  </div>
 	</div>
 
 	<!-- ============================================================ -->
@@ -1850,6 +1597,48 @@
   </div>
 </div>
 
+<!-- Modal: Gestión de Plataformas Streaming -->
+<div id="modal-st-plataformas-gestion" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:680px;max-height:88vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">
+        <i class="fa-solid fa-film" style="color:#2563EB;margin-right:0.5rem;"></i>Plataformas de Streaming
+      </h3>
+      <button onclick="closeModal('modal-st-plataformas-gestion')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Distribución de Ingresos ENCIMA de la tabla -->
+    <div class="glass-card" style="padding:1.25rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.02));">
+      <h4 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:0.875rem;">
+        <i class="fa-solid fa-chart-pie" style="color:#2563EB;margin-right:0.5rem;"></i>Distribución de Ingresos por Plataforma
+      </h4>
+      <div id="st-plat-rentabilidad-modal"></div>
+    </div>
+
+    <!-- Botón agregar -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:0.875rem;">
+      <button class="btn-primary" onclick="openModalStPlataforma()">
+        <i class="fa-solid fa-plus"></i> Nueva Plataforma
+      </button>
+    </div>
+
+    <!-- Tabla de plataformas -->
+    <div class="glass-card" style="overflow:hidden;">
+      <table class="premium-table">
+        <thead>
+          <tr>
+            <th>Plataforma</th>
+            <th>Costo Real/mes</th>
+            <th>Suscripciones</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="st-plat-tabla-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Cliente Streaming -->
 <div id="modal-st-cliente" class="modal-overlay" style="display:none;">
   <div class="modal-box" style="max-width:500px;">
@@ -1886,28 +1675,64 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:1.25rem;">
-      <!-- CLIENTE -->
-      <div>
-        <label class="field-label">Cliente *</label>
-        <select id="st-sus-cliente" class="field-input" onchange="onStCliComboChange()">
-          <option value="">Seleccionar cliente...</option>
-        </select>
-      </div>
+	 <!-- CLIENTE CON BÚSQUEDA -->
+		  <div style="position:relative;">
+			<label class="field-label">Cliente *</label>
+			<div style="position:relative;">
+			  <i class="fa-solid fa-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;z-index:1;"></i>
+			  <input type="text" id="st-sus-cliente-search" class="field-input" placeholder="Escribe el nombre del cliente..." 
+					 style="padding-left:2.5rem;" autocomplete="off"
+					 oninput="filtrarClientesSus(this.value)" 
+					 onfocus="mostrarDropdownClientes()" />
+			  <input type="hidden" id="st-sus-cliente" value=""/>
+			</div>
+			<!-- Dropdown resultados -->
+			<div id="st-sus-cliente-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:500;max-height:220px;overflow-y:auto;margin-top:4px;">
+			</div>
+			<!-- Cliente seleccionado -->
+			<div id="st-sus-cliente-selected" style="display:none;margin-top:0.5rem;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:0.65rem;padding:0.6rem 0.875rem;display:flex;align-items:center;justify-content:space-between;">
+			  <div style="display:flex;align-items:center;gap:0.65rem;">
+				<div class="avatar" style="width:28px;height:28px;font-size:0.65rem;" id="st-sus-cli-avatar"></div>
+				<div>
+				  <div style="font-weight:700;font-size:0.875rem;" id="st-sus-cli-nombre-display"></div>
+				  <div style="font-size:0.72rem;color:var(--text-muted);" id="st-sus-cli-wa-display"></div>
+				</div>
+			  </div>
+			  <button onclick="limpiarClienteSus()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem;padding:0.25rem;" title="Cambiar cliente">
+				<i class="fa-solid fa-xmark"></i>
+			  </button>
+			</div>
+		  </div>
 
-      <!-- SELECTOR DE PLATAFORMAS (COMBOS) -->
-      <div style="background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));border:1px solid rgba(37,99,235,0.15);border-radius:1rem;padding:1.25rem;">
-        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
-          <i class="fa-solid fa-film" style="color:#2563EB;"></i>
-          Selecciona Plataformas (Puedes elegir varias)
-        </div>
-        <div id="st-sus-plataformas-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;"></div>
-        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(37,99,235,0.1);">
-          <div style="font-size:0.85rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">Plataformas seleccionadas:</div>
-          <div id="st-sus-plat-selected" style="display:flex;flex-wrap:wrap;gap:0.5rem;min-height:32px;align-content:flex-start;">
-            <span style="color:var(--text-muted);font-size:0.8rem;opacity:0.6;">Ninguna</span>
-          </div>
-        </div>
-      </div>
+	<!-- SELECTOR DE PLATAFORMAS MEJORADO -->
+		  <div style="background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));border:1px solid rgba(37,99,235,0.15);border-radius:1rem;padding:1.25rem;">
+			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;flex-wrap:wrap;gap:0.5rem;">
+			  <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;display:flex;align-items:center;gap:0.5rem;">
+				<i class="fa-solid fa-film" style="color:#2563EB;"></i>
+				Selecciona Plataformas
+			  </div>
+			  <!-- Buscador de plataformas -->
+			  <div style="position:relative;">
+				<i class="fa-solid fa-search" style="position:absolute;left:0.65rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;"></i>
+				<input type="text" id="st-sus-plat-buscar" class="field-input" placeholder="Filtrar..." 
+					   style="padding:0.4rem 0.75rem 0.4rem 2rem;font-size:0.8rem;width:160px;"
+					   oninput="filtrarPlataformasSus(this.value)"/>
+			  </div>
+			</div>
+
+			<!-- Lista compacta con scroll -->
+			<div id="st-sus-plataformas-lista" style="display:flex;flex-direction:column;gap:0.4rem;max-height:220px;overflow-y:auto;padding-right:0.25rem;">
+			  <!-- Se llena dinámicamente -->
+			</div>
+
+			<!-- Resumen seleccionadas -->
+			<div style="margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(37,99,235,0.12);">
+			  <div style="font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.04em;">Seleccionadas:</div>
+			  <div id="st-sus-plat-selected" style="display:flex;flex-wrap:wrap;gap:0.4rem;min-height:28px;align-content:flex-start;">
+				<span style="color:var(--text-muted);font-size:0.78rem;opacity:0.6;">Ninguna</span>
+			  </div>
+			</div>
+		  </div>
 
       <!-- DATOS POR PLATAFORMA (Dinámico) -->
       <div id="st-sus-detalles-plataformas" style="display:none;background:var(--input-bg);border-radius:1rem;padding:1rem;">
@@ -2034,6 +1859,31 @@
     </div>
     <!-- Totales -->
     <div id="st-hist-totales" style="margin-top:1rem;padding:1rem;background:var(--input-bg);border-radius:0.875rem;"></div>
+  </div>
+</div>
+
+<!-- Modal: Calendario de Cobros -->
+<div id="modal-calendario-cobros" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:700px;max-height:88vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">
+        <i class="fa-solid fa-calendar-days" style="color:#2563EB;margin-right:0.5rem;"></i>Calendario de Cobros
+      </h3>
+      <button onclick="closeModal('modal-calendario-cobros')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="display:flex;gap:0.65rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <button class="btn-primary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('hoy')">📅 Hoy</button>
+      <button class="btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('semana')">📆 Esta semana</button>
+      <button class="btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('mes')">📊 Este mes</button>
+      <button class="btn-danger" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('vencidos')">🔴 Vencidos</button>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <span style="font-size:0.85rem;color:var(--text-muted);padding:0.4rem 0.875rem;background:var(--input-bg);border-radius:0.65rem;display:inline-block;">
+        <i class="fa-solid fa-info-circle" style="margin-right:0.4rem;"></i>
+        <span id="st-cal-modal-info">Selecciona un período</span>
+      </span>
+    </div>
+    <div id="st-cal-modal-grid" style="display:flex;flex-direction:column;gap:0.65rem;"></div>
   </div>
 </div>
 
@@ -2598,8 +2448,8 @@ function queueOfflineAction(actionFn, actionName) {
     toast(`📭 ${actionName} guardado localmente. Se sincronizará al reconectar.`, 'info');
 }
 async function syncOfflineQueue() {
-    if(isSyncing || offlineQueue.length === 0) return;
-    isSyncing = true;
+    if(window.isSyncing || offlineQueue.length === 0) return;
+    window.isSyncing = true;
     toast('🔄 Sincronizando cambios pendientes...', 'info');
     
     const queue = [...offlineQueue];
@@ -2607,19 +2457,22 @@ async function syncOfflineQueue() {
     
     for(const item of queue) {
         try {
-            await item.fn();
-            toast(`✅ ${item.name} sincronizado`, 'success');
+            if (typeof item.fn === 'function') {
+                await item.fn();
+                toast(`✅ ${item.name} sincronizado`, 'success');
+            } else if (item.action === 'registro') {
+                const { error } = await sb.from('registros').insert(item.data);
+                if (error) throw error;
+            }
         } catch(err) {
-            // Re-encolar si falla
             offlineQueue.push(item);
-            toast(`⚠️ ${item.name} pendiente de sincronizar`, 'error');
+            toast(`⚠️ ${item.name || item.action} pendiente de sincronizar`, 'error');
         }
     }
     
     localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
-    isSyncing = false;
+    window.isSyncing = false;
     
-    // Recargar datos si hay cambios
     if(currentProfile?.rol === 'administrador' && document.querySelector('.section.active')?.id === 'sec-dashboard') {
         loadDashboard();
     }
@@ -3184,7 +3037,7 @@ const sectionMap = {
   'auditoria': { id:'sec-auditoria', title:'Auditoría', sub:'Registro de actividad', load:()=>loadAuditoria() },
   'admin-registrar': { id:'sec-admin-registrar', title:'Registrar', sub:'Nuevo movimiento (Admin)', load:()=>{ document.getElementById('admin-reg-fecha').value=todayLocal(); buildAdminPlataformaInputs(); } },
   'streaming-cartera': { id:'sec-streaming-cartera', title:'Cartera de Clientes', sub:'Clientes y plataformas disponibles', load:()=>loadStreamingClientes() },
-  'streaming-suscripciones': { id:'sec-streaming-suscripciones', title:'Gestión de Suscripciones', sub:'Ventas, vencimientos y rentabilidad', load:()=>{ switchStSusTab('dashboard'); calcularResumenCartera(); } },  
+  'streaming-suscripciones': { id:'sec-streaming-suscripciones', title:'Gestión de Suscripciones', sub:'Ventas, vencimientos y rentabilidad', load:()=>loadStreamingSuscripciones() },  
   'op-inicio': { id:'sec-op-inicio', title:'Inicio', sub:'Tu resumen diario', load:()=>loadOpInicio() },
   'op-registrar': { id:'sec-op-registrar', title:'Registrar', sub:'Nuevo movimiento', load:()=>{ document.getElementById('reg-fecha').value=todayLocal(); buildPlataformaInputs(); } },
   'op-mis-registros': { id:'sec-op-mis-registros', title:'Mis Registros', sub:'Tu historial', load:()=>loadOpMisRegistros() },
@@ -3237,6 +3090,13 @@ function goSection(key) {
         n.classList.remove('active');
         if (n.textContent.trim().includes(sec.title)) n.classList.add('active');
     });
+
+    // 🎬 FONDO STREAMING
+    const _bg = document.getElementById('streaming-bg-overlay');
+    if (_bg) {
+      const esStreaming = key === 'streaming-cartera' || key === 'streaming-suscripciones';
+      _bg.style.opacity = esStreaming ? '0.07' : '0';
+    }
     
     if (sec.load) sec.load();
     if (window.innerWidth < 768) closeSidebar();
@@ -6142,6 +6002,26 @@ async function exportPDF() {
   .highlight-icon { font-size: 28px; flex-shrink: 0; }
   .highlight-text strong { font-size: 14px; color: #2563EB; display: block; margin-bottom: 2px; }
   .highlight-text span { font-size: 12px; color: #64748b; }
+	  /* ── FONDO STREAMING ─────────────────────── */
+  /* ── FONDO STREAMING ─────────────────────── */
+  #streaming-bg-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: url('fondostreaming.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  #streaming-bg-overlay.visible {
+    opacity: 0.07;
+  }
+  html.dark #streaming-bg-overlay.visible {
+    opacity: 0.10;
+  }
 </style>
 </head>
 <body>
@@ -6784,38 +6664,13 @@ async function loadStPlataformas() {
 }
 
 function renderStPlataformas() {
-  const grid = document.getElementById('st-plat-grid');
-  if (!grid) return;
-  if (!allStPlataformas.length) { grid.innerHTML = emptyState('fa-film','Sin plataformas','Agrega la primera plataforma.'); return; }
-  grid.innerHTML = allStPlataformas.map(p => `
-    <div class="glass-card" style="padding:1.5rem;">
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-        <div style="width:48px;height:48px;border-radius:0.875rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">${p.emoji}</div>
-        <div>
-          <div style="font-weight:700;font-family:'Poppins',sans-serif;">${p.nombre}</div>
-          <div style="font-size:0.78rem;color:var(--text-muted);">Costo real: ${p.costo_real > 0 ? formatCurrency(p.costo_real) : 'No definido'}</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:0.5rem;">
-        <button class="btn-edit" onclick="openModalStPlataforma('${p.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
-        <button class="btn-danger" onclick="deleteStPlataforma('${p.id}')"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    </div>
-  `).join('');
+  // Las plataformas ahora se gestionan desde el modal openModalStPlataformasGestion()
+  // Esta función se mantiene por compatibilidad pero ya no renderiza en el HTML principal
 }
 
 function populateStPlatSelects() {
-  ['st-sus-plataforma', 'st-sus-filter-plat'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    while (sel.options.length > 1) sel.remove(1);
-    allStPlataformas.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = `${p.emoji} ${p.nombre}`;
-      sel.appendChild(opt);
-    });
-  });
+  // Los selectores de plataforma fueron reemplazados por el sistema de lista con checkboxes.
+  // Función mantenida por compatibilidad.
 }
 
 function openModalStPlataforma(id = null) {
@@ -6852,6 +6707,17 @@ async function saveStPlataforma() {
   toast(editingStPlatId ? 'Plataforma actualizada ✅' : 'Plataforma creada ✅', 'success');
   closeModal('modal-st-plataforma');
   await loadStPlataformas();
+  // Refrescar modal de gestión si está abierto
+  const modalGestion = document.getElementById('modal-st-plataformas-gestion');
+  if (modalGestion && modalGestion.style.display !== 'none') {
+    renderStPlataformasModal();
+  }
+  // Refrescar selector en modal de nueva venta si está abierto
+  const modalSus = document.getElementById('modal-st-sus');
+  if (modalSus && modalSus.style.display !== 'none') {
+    const filtro = document.getElementById('st-sus-plat-buscar')?.value || '';
+    renderStPlataformasSelector(filtro);
+  }
 }
 
 async function deleteStPlataforma(id) {
@@ -6864,6 +6730,9 @@ async function deleteStPlataforma(id) {
 
 // ── CLIENTES ──────────────────────────────────────────────────────────
 async function loadStreamingClientes() {
+  // Activar fondo streaming
+  const _bg = document.getElementById('streaming-bg-overlay');
+  if (_bg) _bg.style.opacity = '0.50';
   if (!allStPlataformas.length) await loadStPlataformas();
   const { data } = await sb.from('streaming_clientes').select('*').order('nombre');
   allStClientes = data || [];
@@ -6955,15 +6824,8 @@ function filterStreamingClientes() {
 }
 
 function populateStCliSelects() {
-  const sel = document.getElementById('st-sus-cliente');
-  if (!sel) return;
-  while (sel.options.length > 1) sel.remove(1);
-  allStClientes.filter(c => c.estado === 'activo').forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = `${c.nombre} (${c.whatsapp})`;
-    sel.appendChild(opt);
-  });
+  // El selector de cliente ahora es un buscador dinámico,
+  // no hay <select> que poblar. Función mantenida por compatibilidad.
 }
 
 function openModalStreamingCliente(id = null) {
@@ -7017,12 +6879,13 @@ async function deleteStreamingCliente(id) {
 
 // ── SUSCRIPCIONES ─────────────────────────────────────────────────────
 async function loadStreamingSuscripciones() {
+  // Activar fondo streaming
+  const _bg = document.getElementById('streaming-bg-overlay');
+  if (_bg) _bg.style.opacity = '0.50';
   if (!allStPlataformas.length) await loadStPlataformas();
   if (!allStClientes.length)    await loadStreamingClientes();
-  // Actualizar estados automáticamente
   const { data } = await sb.from('streaming_suscripciones').select('*').order('fecha_vencimiento');
   allStSuscripciones = data || [];
-  // Actualizar estados en BD si han cambiado
   for (const s of allStSuscripciones) {
     if (s.estado === 'cancelado') continue;
     const nuevoEstado = calcEstadoSus(s.fecha_vencimiento);
@@ -7032,12 +6895,9 @@ async function loadStreamingSuscripciones() {
     }
   }
   renderStreamingSuscripciones();
-  renderStSusKpis();
+  renderStSusAllKpis();
   renderStRentabilidad();
-  
-  // Actualizar dashboard
   calcularResumenCartera();
-  renderStAnalytics();
 }
 
 function filterStreamingSuscripciones() {
@@ -7052,48 +6912,134 @@ function renderStreamingSuscripciones() {
   let list = allStSuscripciones.filter(s => {
     const cli = allStClientes.find(c => c.id === s.cliente_id);
     const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-    const matchSearch = !search || (cli?.nombre||'').toLowerCase().includes(search) || (plat?.nombre||'').toLowerCase().includes(search);
+    const matchSearch = !search || (cli?.nombre||'').toLowerCase().includes(search) || (plat?.nombre||'').toLowerCase().includes(search) || (s.id_venta||'').toLowerCase().includes(search);
     const matchEstado = !fEstado || s.estado === fEstado;
     return matchSearch && matchEstado;
   });
 
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="9">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','openModalStreamingSus()','+ Nueva venta')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','openModalStreamingSus()','+ Nueva venta')}</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = list.map(s => {
-    const cli = allStClientes.find(c => c.id === s.cliente_id);
-    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-    const estadoActual = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
-    return `
-    <tr>
-      <td style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.82rem;color:#2563EB;">${s.id_venta || s.id}</td>
+  // Agrupar por id_venta
+  const grupos = {};
+  list.forEach(s => {
+    const key = s.id_venta || s.id;
+    if (!grupos[key]) grupos[key] = [];
+    grupos[key].push(s);
+  });
+
+  let html = '';
+  Object.entries(grupos).forEach(([idVenta, items]) => {
+    // Tomar datos comunes del primer item
+    const s0 = items[0];
+    const cli = allStClientes.find(c => c.id === s0.cliente_id);
+    const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
+    // Estado global: el peor estado del grupo
+    const prioEstado = ['cancelado','vencido','por_vencer','activo'];
+    const estadoGlobal = items.map(s => s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento))
+      .sort((a, b) => prioEstado.indexOf(a) - prioEstado.indexOf(b))[0];
+
+    // Badges de plataformas
+    const platBadges = items.map(s => {
+      const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+      return plat ? `<span style="display:inline-flex;align-items:center;gap:3px;background:${plat.color}18;color:${plat.color};border-radius:99px;padding:2px 8px;font-size:0.72rem;font-weight:600;white-space:nowrap;">${plat.emoji} ${plat.nombre}</span>` : '';
+    }).join(' ');
+
+    const rowId = `sus-group-${idVenta.replace(/[^a-zA-Z0-9]/g,'_')}`;
+
+    // Fila principal (colapsada)
+    html += `
+    <tr style="cursor:pointer;" onclick="toggleSusGroup('${rowId}')" title="Clic para ver detalle">
+      <td style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.82rem;color:#2563EB;">
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <i class="fa-solid fa-chevron-right" id="icon-${rowId}" style="font-size:0.65rem;color:var(--text-muted);transition:transform 0.2s;"></i>
+          ${idVenta}
+        </div>
+      </td>
       <td>
         <div style="display:flex;align-items:center;gap:0.5rem;">
           <div class="avatar" style="width:28px;height:28px;font-size:0.65rem;">${getInitials(cli?.nombre||'?')}</div>
           <span style="font-weight:600;">${cli?.nombre||'—'}</span>
         </div>
       </td>
-      <td>
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-          <span style="font-size:1rem;">${plat?.emoji||'🎬'}</span>
-          <span style="font-size:0.82rem;font-weight:600;">${plat?.nombre||'—'}</span>
-        </div>
-      </td>
-      <td style="font-weight:700;color:#22C55E;">${formatCurrency(s.precio_venta)}</td>
-      <td style="font-size:0.82rem;">${formatDate(s.fecha_inicio)}</td>
-      <td style="font-size:0.82rem;font-weight:600;">${formatDate(s.fecha_vencimiento)}</td>
-      <td>${badgeEstadoSus(estadoActual, s.fecha_vencimiento)}</td>
+      <td><div style="display:flex;flex-wrap:wrap;gap:3px;">${platBadges}</div></td>
+      <td style="font-weight:700;color:#22C55E;">${formatCurrency(totalMonto)}</td>
+      <td style="font-size:0.82rem;">${formatDate(s0.fecha_inicio)}</td>
+      <td style="font-size:0.82rem;font-weight:600;">${formatDate(s0.fecha_vencimiento)}</td>
+      <td>${badgeEstadoSus(estadoGlobal, s0.fecha_vencimiento)}</td>
       <td>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-          ${estadoActual !== 'cancelado' ? `<button class="btn-primary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;" onclick="abrirModalCobro('${s.id}')"><i class="fa-brands fa-whatsapp"></i> Cobro</button>` : ''}
-          <button class="btn-edit" onclick="openModalStreamingSus('${s.id}')"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn-danger" onclick="deleteStreamingSus('${s.id}')"><i class="fa-solid fa-trash"></i></button>
+          ${estadoGlobal !== 'cancelado' ? `<button class="btn-primary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;" onclick="event.stopPropagation();abrirModalCobro('${s0.id}')"><i class="fa-brands fa-whatsapp"></i> Cobro</button>` : ''}
+          <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${idVenta}')" style="background:rgba(239,68,68,0.1);color:#dc2626;border-color:rgba(239,68,68,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
+          <button class="btn-danger" onclick="event.stopPropagation();deleteStreamingSusGrupo('${idVenta}')"><i class="fa-solid fa-trash"></i></button>
         </div>
       </td>
     </tr>`;
-  }).join('');
+
+    // Filas de detalle (ocultas por defecto)
+    html += `<tr id="${rowId}" style="display:none;">
+      <td colspan="8" style="padding:0;background:var(--input-bg);">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:rgba(37,99,235,0.06);">
+              <th style="padding:6px 12px;font-size:0.72rem;text-align:left;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Plataforma</th>
+              <th style="padding:6px 12px;font-size:0.72rem;text-align:left;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Perfil</th>
+              <th style="padding:6px 12px;font-size:0.72rem;text-align:left;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Precio</th>
+              <th style="padding:6px 12px;font-size:0.72rem;text-align:left;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Estado</th>
+              <th style="padding:6px 12px;font-size:0.72rem;text-align:left;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(s => {
+              const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+              const est = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
+              return `<tr style="border-bottom:1px solid var(--card-border);">
+                <td style="padding:8px 12px;">
+                  <span style="display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:0.82rem;">
+                    ${plat?.emoji||'🎬'} ${plat?.nombre||'—'}
+                  </span>
+                </td>
+                <td style="padding:8px 12px;font-size:0.8rem;color:var(--text-muted);">${s.perfil||'—'}</td>
+                <td style="padding:8px 12px;font-weight:700;color:#22C55E;">${formatCurrency(s.precio_venta)}</td>
+                <td style="padding:8px 12px;">${badgeEstadoSus(est, s.fecha_vencimiento)}</td>
+                <td style="padding:8px 12px;">
+                  <div style="display:flex;gap:0.35rem;">
+                    <button class="btn-edit" style="padding:0.3rem 0.6rem;font-size:0.72rem;" onclick="openModalStreamingSus('${s.id}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.72rem;" onclick="deleteStreamingSus('${s.id}')"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+}
+
+function toggleSusGroup(rowId) {
+  const row = document.getElementById(rowId);
+  const icon = document.getElementById('icon-' + rowId);
+  if (!row) return;
+  const isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : 'table-row';
+  if (icon) icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+}
+
+async function deleteStreamingSusGrupo(idVenta) {
+  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+  if (!items.length) return;
+  const cli = allStClientes.find(c => c.id === items[0].cliente_id);
+  if (!confirm(`¿Eliminar la venta ${idVenta} de ${cli?.nombre||'cliente'} (${items.length} plataforma${items.length>1?'s':''})? Esta acción no se puede deshacer.`)) return;
+  for (const s of items) {
+    await sb.from('streaming_suscripciones').delete().eq('id', s.id);
+  }
+  toast(`Venta ${idVenta} eliminada`, 'success');
+  await loadStreamingSuscripciones();
 }
 
 function renderStSusKpis() {
@@ -7211,12 +7157,25 @@ function calcStRentabilidadPreview() {
 
 function openModalStreamingSus(id = null) {
   editingStSusId = id;
-  document.getElementById('modal-st-sus-title').textContent = id 
-    ? '✏️ Editar Suscripción' 
+  document.getElementById('modal-st-sus-title').textContent = id
+    ? '✏️ Editar Suscripción'
     : '🛒 Nueva Venta de Suscripción';
-  
+
   stSusComboSeleccionadas.clear();
-  
+
+  // Limpiar buscador de clientes
+  const searchInput = document.getElementById('st-sus-cliente-search');
+  const selectedDiv = document.getElementById('st-sus-cliente-selected');
+  const dropdown    = document.getElementById('st-sus-cliente-dropdown');
+  if (searchInput) searchInput.value = '';
+  if (selectedDiv) selectedDiv.style.display = 'none';
+  if (dropdown)    dropdown.style.display = 'none';
+  document.getElementById('st-sus-cliente').value = '';
+
+  // Limpiar filtro de plataformas
+  const platBuscar = document.getElementById('st-sus-plat-buscar');
+  if (platBuscar) platBuscar.value = '';
+
   if (id) {
     // Modo edición: mostrar suscripción existente
     const s = allStSuscripciones.find(x => x.id === id);
@@ -7237,12 +7196,15 @@ function openModalStreamingSus(id = null) {
   } else {
     // Modo creación
     document.getElementById('st-sus-cliente').value = '';
-    document.getElementById('st-sus-inicio').value = todayLocal();
-    document.getElementById('st-sus-vencimiento').value = '';
-    document.getElementById('st-sus-vencimiento-display').value = '';
+    const hoy = todayLocal();
+    document.getElementById('st-sus-inicio').value = hoy;
     document.getElementById('st-sus-notas').value = '';
     document.getElementById('st-sus-duracion').value = '1';
     document.getElementById('st-sus-duracion-custom-row').style.display = 'none';
+    // Calcular vencimiento automático a 1 mes desde hoy
+    const venceAuto = calcVencimiento(hoy, 1);
+    document.getElementById('st-sus-vencimiento').value = venceAuto;
+    document.getElementById('st-sus-vencimiento-display').value = formatDate(venceAuto);
     
     renderStPlataformasSelector();
   }
@@ -7424,7 +7386,8 @@ async function calcularResumenCartera() {
 }
 
 async function renderStAnalytics() {
-  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
+  if (!allStPlataformas.length) await loadStPlataformas();
+  if (!allStClientes.length) await loadStreamingClientes();
 
   // Datos para gráficas
   const byPlat = {};
@@ -7534,54 +7497,9 @@ async function renderStAnalytics() {
 
 // ── CALENDARIO DE VENCIMIENTOS ────────────────────────────────────────
 async function loadStreamingCalendario(filtro = 'semana') {
-  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
-  const hoy      = todayLocal();
-  const enXDias  = d => { const f = new Date(hoy+'T00:00:00'); f.setDate(f.getDate()+d); return f.toISOString().split('T')[0]; };
-
-  let lista = allStSuscripciones.filter(s => s.estado !== 'cancelado');
-  if (filtro === 'hoy')       lista = lista.filter(s => s.fecha_vencimiento === hoy);
-  if (filtro === 'semana')    lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(7));
-  if (filtro === 'mes')       lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(30));
-  if (filtro === 'vencidos')  lista = lista.filter(s => s.fecha_vencimiento < hoy);
-
-  lista.sort((a,b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
-
-  const grid = document.getElementById('st-cal-grid');
-  if (!lista.length) {
-    grid.innerHTML = `<div class="glass-card" style="padding:2rem;text-align:center;color:var(--text-muted);">
-      <div style="font-size:2.5rem;margin-bottom:0.75rem;">✅</div>
-      <div style="font-weight:600;">Sin vencimientos para este período</div>
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = lista.map(s => {
-    const cli    = allStClientes.find(c => c.id === s.cliente_id);
-    const plat   = allStPlataformas.find(p => p.id === s.plataforma_id);
-    const dias   = diasRestantes(s.fecha_vencimiento);
-    const estado = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
-    const borderColor = estado === 'vencido' ? '#EF4444' : estado === 'por_vencer' ? '#FACC15' : '#22C55E';
-    return `
-    <div class="glass-card" style="padding:1.25rem;border-left:4px solid ${borderColor};">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-        <div style="display:flex;align-items:center;gap:0.875rem;">
-          <div style="font-size:1.75rem;">${plat?.emoji||'🎬'}</div>
-          <div>
-            <div style="font-weight:700;font-size:0.95rem;">${cli?.nombre||'—'}</div>
-            <div style="font-size:0.82rem;color:var(--text-muted);">${plat?.nombre||'—'} · ${s.perfil||''} · ${formatCurrency(s.precio_venta)}</div>
-            <div style="font-size:0.8rem;margin-top:0.2rem;">${badgeEstadoSus(estado, s.fecha_vencimiento)}</div>
-          </div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:0.78rem;color:var(--text-muted);">Vence</div>
-          <div style="font-weight:700;font-size:0.9rem;">${formatDate(s.fecha_vencimiento)}</div>
-          <button class="btn-primary" style="margin-top:0.5rem;padding:0.4rem 0.85rem;font-size:0.78rem;" onclick="abrirModalCobro('${s.id}')">
-            <i class="fa-brands fa-whatsapp"></i> Cobrar
-          </button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  // Redirigir al modal de calendario
+  openModalCalendarioCobros();
+  loadStreamingCalendarioModal(filtro);
 }
 
 // ── HISTORIAL DE PAGOS ────────────────────────────────────────────────
@@ -7700,58 +7618,143 @@ function switchStreamingTab(tab) {
 }
 
 function switchStSusTab(tab) {
-  // Ocultar todos los tabs
-  document.querySelectorAll('[id^="tab-"]').forEach(el => {
-    if (el.id.startsWith('tab-') && el.id.includes('-st')) el.style.display = 'none';
-  });
-  
-  // Remover clase active de todos los botones
-  document.querySelectorAll('.profile-tab').forEach(el => el.classList.remove('active'));
-  
-  // Mostrar el tab seleccionado
-  const tabEl = document.getElementById(`tab-${tab}-st`);
-  if (tabEl) tabEl.style.display = 'block';
-  
-  // Marcar botón como activo
-  const btnEl = document.querySelector(`.profile-tab[data-tab="${tab}"]`);
-  if (btnEl) btnEl.classList.add('active');
-
-  // Cargar datos según el tab
-  if (tab === 'dashboard') {
-    calcularResumenCartera();
-    renderStAnalytics();
-  }
-  if (tab === 'suscripciones') loadStreamingSuscripciones();
-  if (tab === 'calendario') loadStreamingCalendario('semana');
-  if (tab === 'analytics') renderStAnalytics();
+  // Tabs eliminados — ahora todo está en una sola vista
+  // Esta función se mantiene por compatibilidad con llamadas existentes
+  loadStreamingSuscripciones();
 }
 
-function renderStPlataformasSelector() {
-  const container = document.getElementById('st-sus-plataformas-grid');
+function renderStPlataformasSelector(filtro = '') {
+  const container = document.getElementById('st-sus-plataformas-lista');
   if (!container) return;
-  
-  container.innerHTML = allStPlataformas.map(p => `
-    <div class="glass-card" style="padding:0.875rem;cursor:pointer;transition:all 0.2s;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;text-align:center;"
+
+  const lista = filtro
+    ? allStPlataformas.filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
+    : allStPlataformas;
+
+  if (!lista.length) {
+    container.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.82rem;">Sin plataformas encontradas</div>`;
+    return;
+  }
+
+  container.innerHTML = lista.map(p => {
+    const selected = stSusComboSeleccionadas.has(p.id);
+    return `
+    <div id="st-plat-row-${p.id}"
          onclick="toggleStPlatCombo('${p.id}', this)"
-         data-plat-id="${p.id}">
-      <div style="font-size:2rem;margin-bottom:0.5rem;">${p.emoji}</div>
-      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.25rem;">${p.nombre}</div>
-      <div style="font-size:0.72rem;color:var(--text-muted);">${formatCurrency(p.costo_real || 0)}/mes</div>
+         data-plat-id="${p.id}"
+         style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-radius:0.65rem;cursor:pointer;border:1.5px solid ${selected ? '#2563EB' : 'var(--card-border)'};background:${selected ? 'rgba(37,99,235,0.07)' : 'var(--card-bg)'};transition:all 0.18s;">
+      <!-- Checkbox visual -->
+      <div style="width:20px;height:20px;border-radius:0.35rem;border:2px solid ${selected ? '#2563EB' : 'var(--card-border)'};background:${selected ? '#2563EB' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.18s;">
+        ${selected ? '<i class="fa-solid fa-check" style="color:white;font-size:0.65rem;"></i>' : ''}
+      </div>
+      <!-- Emoji y nombre -->
+      <div style="font-size:1.25rem;flex-shrink:0;">${p.emoji}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:0.875rem;">${p.nombre}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Costo: ${p.costo_real > 0 ? formatCurrency(p.costo_real) + '/mes' : 'No definido'}</div>
+      </div>
+      <!-- Badge si ya está seleccionada -->
+      ${selected ? `<span class="badge badge-blue" style="font-size:0.68rem;padding:0.2rem 0.5rem;">✓</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function filtrarPlataformasSus(valor) {
+  renderStPlataformasSelector(valor);
+}
+
+// ── BUSCADOR DE CLIENTES EN MODAL NUEVA VENTA ─────────────────────────
+function filtrarClientesSus(valor) {
+  const dropdown = document.getElementById('st-sus-cliente-dropdown');
+  if (!dropdown) return;
+
+  if (!valor || valor.length < 1) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  const v = valor.toLowerCase();
+  const resultados = allStClientes.filter(c =>
+    c.estado === 'activo' &&
+    (c.nombre.toLowerCase().includes(v) || c.whatsapp.includes(v) || (c.ciudad || '').toLowerCase().includes(v))
+  ).slice(0, 8);
+
+  if (!resultados.length) {
+    dropdown.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--text-muted);font-size:0.82rem;">Sin resultados para "${valor}"</div>`;
+    dropdown.style.display = 'block';
+    return;
+  }
+
+  dropdown.innerHTML = resultados.map(c => `
+    <div onclick="seleccionarClienteSus('${c.id}')"
+         style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1rem;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--card-border);"
+         onmouseover="this.style.background='rgba(37,99,235,0.06)'" 
+         onmouseout="this.style.background='transparent'">
+      <div class="avatar" style="width:32px;height:32px;font-size:0.72rem;flex-shrink:0;">${getInitials(c.nombre)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.875rem;">${c.nombre}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">
+          <i class="fa-brands fa-whatsapp" style="color:#22C55E;margin-right:0.25rem;"></i>${c.whatsapp}
+          ${c.ciudad ? ` · ${c.ciudad}` : ''}
+        </div>
+      </div>
     </div>
   `).join('');
+  dropdown.style.display = 'block';
 }
+
+function mostrarDropdownClientes() {
+  const valor = document.getElementById('st-sus-cliente-search')?.value || '';
+  if (valor.length >= 1) filtrarClientesSus(valor);
+}
+
+function seleccionarClienteSus(clienteId) {
+  const c = allStClientes.find(x => x.id === clienteId);
+  if (!c) return;
+
+  document.getElementById('st-sus-cliente').value = clienteId;
+  document.getElementById('st-sus-cliente-search').value = '';
+  document.getElementById('st-sus-cliente-dropdown').style.display = 'none';
+
+  // Mostrar tarjeta del cliente seleccionado
+  const selectedDiv = document.getElementById('st-sus-cliente-selected');
+  selectedDiv.style.display = 'flex';
+  document.getElementById('st-sus-cli-nombre-display').textContent = c.nombre;
+  document.getElementById('st-sus-cli-wa-display').innerHTML = `<i class="fa-brands fa-whatsapp" style="color:#22C55E;margin-right:0.25rem;"></i>${c.whatsapp}`;
+  const avatarEl = document.getElementById('st-sus-cli-avatar');
+  if (avatarEl) avatarEl.textContent = getInitials(c.nombre);
+
+  onStCliComboChange();
+}
+
+function limpiarClienteSus() {
+  document.getElementById('st-sus-cliente').value = '';
+  document.getElementById('st-sus-cliente-search').value = '';
+  document.getElementById('st-sus-cliente-selected').style.display = 'none';
+  document.getElementById('st-sus-cliente-dropdown').style.display = 'none';
+  stSusComboSeleccionadas.clear();
+  renderStPlataformasSelector();
+  actualizarResumenCombo();
+}
+
+// Cerrar dropdown al hacer clic fuera
+document.addEventListener('click', function(e) {
+  const search = document.getElementById('st-sus-cliente-search');
+  const dropdown = document.getElementById('st-sus-cliente-dropdown');
+  if (search && dropdown && !search.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.style.display = 'none';
+  }
+});
 
 function toggleStPlatCombo(platId, el) {
   if (stSusComboSeleccionadas.has(platId)) {
     stSusComboSeleccionadas.delete(platId);
-    el.style.borderColor = 'transparent';
-    el.style.background = 'var(--card-bg)';
   } else {
     stSusComboSeleccionadas.add(platId);
-    el.style.borderColor = '#2563EB';
-    el.style.background = 'rgba(37,99,235,0.05)';
   }
-  
+  // Re-renderizar la fila para actualizar estilos y checkbox
+  const filtroActual = document.getElementById('st-sus-plat-buscar')?.value || '';
+  renderStPlataformasSelector(filtroActual);
   actualizarResumenCombo();
 }
 
@@ -7783,10 +7786,19 @@ function actualizarResumenCombo() {
         <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.75rem;">
           <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">${p.emoji} ${p.nombre}</div>
           <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.4rem;">
-            Perfil: <input type="text" class="field-input" placeholder="Perfil 1" style="padding:0.3rem;font-size:0.75rem;margin-top:0.2rem;" data-plat="${p.id}" class="st-perfil-combo"/>
+            Perfil: <input type="text" class="field-input st-perfil-combo" placeholder="Perfil 1" style="padding:0.3rem;font-size:0.75rem;margin-top:0.2rem;" data-plat="${p.id}" oninput="calcularResumenCombo()"/>
           </div>
           <div style="font-size:0.8rem;color:var(--text-muted);">
-            Precio: <input type="number" class="field-input" value="${p.costo_real||0}" style="padding:0.3rem;font-size:0.75rem;margin-top:0.2rem;width:100%;" data-plat="${p.id}" class="st-precio-combo"/>
+            <span style="display:block;margin-bottom:2px;">Precio ($):</span>
+            <div style="position:relative;">
+              <span style="position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:600;font-size:0.75rem;pointer-events:none;">$</span>
+              <input type="text" inputmode="numeric" class="field-input st-precio-combo" 
+                value="${(p.costo_real||0).toLocaleString('es-CO')}" 
+                data-raw="${p.costo_real||0}"
+                style="padding:0.3rem 0.5rem 0.3rem 1.4rem;font-size:0.8rem;margin-top:0.2rem;width:100%;font-weight:700;" 
+                data-plat="${p.id}" 
+                oninput="formatPrecioComboCOP(this)"/>
+            </div>
           </div>
         </div>
       `).join('')}
@@ -7799,32 +7811,53 @@ function actualizarResumenCombo() {
 }
 
 function calcularResumenCombo() {
-  const meses = parseInt(document.getElementById('st-sus-duracion')?.value || document.getElementById('st-sus-duracion-custom')?.value || '1') || 1;
+  const durSel = document.getElementById('st-sus-duracion')?.value;
+  const meses = durSel === 'custom'
+    ? parseInt(document.getElementById('st-sus-duracion-custom')?.value) || 1
+    : parseInt(durSel) || 1;
   
   let totalPrecio = 0, totalCosto = 0;
-  const precios = {};
 
   document.querySelectorAll('.st-precio-combo').forEach(el => {
     const platId = el.getAttribute('data-plat');
-    const precio = parseFloat(el.value) || 0;
-    precios[platId] = precio;
+    const precio = getPrecioComboCOP(el);
     totalPrecio += precio * meses;
-    
     const plat = allStPlataformas.find(p => p.id === platId);
     totalCosto += (plat?.costo_real || 0) * meses;
   });
 
   const ganancia = totalPrecio - totalCosto;
 
-  document.getElementById('st-combo-count').textContent = stSusComboSeleccionadas.size;
-  document.getElementById('st-combo-total').textContent = formatCurrency(totalPrecio);
-  document.getElementById('st-combo-costo').textContent = formatCurrency(totalCosto);
-  document.getElementById('st-combo-ganancia').textContent = formatCurrency(ganancia);
+  const countEl = document.getElementById('st-combo-count');
+  const totalEl = document.getElementById('st-combo-total');
+  const costoEl = document.getElementById('st-combo-costo');
+  const ganEl   = document.getElementById('st-combo-ganancia');
+  if (countEl) countEl.textContent = stSusComboSeleccionadas.size;
+  if (totalEl) totalEl.textContent = formatCurrency(totalPrecio);
+  if (costoEl) costoEl.textContent = formatCurrency(totalCosto);
+  if (ganEl)   ganEl.textContent   = formatCurrency(ganancia);
+}
+
+function formatPrecioComboCOP(input) {
+  // Permite solo números, formatea con puntos de miles en tiempo real
+  const raw = input.value.replace(/\D/g, '');
+  input.dataset.raw = raw || '0';
+  if (raw === '') { input.value = ''; calcularResumenCombo(); return; }
+  input.value = parseInt(raw, 10).toLocaleString('es-CO');
+  calcularResumenCombo();
+}
+
+function getPrecioComboCOP(input) {
+  if (!input) return 0;
+  // Si tiene data-raw (campo formateado), usar ese
+  if (input.dataset && input.dataset.raw) return parseFloat(input.dataset.raw) || 0;
+  return parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
 }
 
 function onStCliComboChange() {
-  renderStPlataformasSelector();
   stSusComboSeleccionadas.clear();
+  renderStPlataformasSelector();
+  actualizarResumenCombo();
 }
 
 function onStSusDuracionChange() {
@@ -7871,7 +7904,7 @@ async function saveStreamingSusCombo() {
     for (const platId of stSusComboSeleccionadas) {
       const precioInput = document.querySelector(`[data-plat="${platId}"].st-precio-combo`);
       const perfilInput = document.querySelector(`[data-plat="${platId}"].st-perfil-combo`);
-      const precio = parseFloat(precioInput?.value) || 0;
+      const precio = getPrecioComboCOP(precioInput);
       const perfil = perfilInput?.value || 'Perfil 1';
 
       const estado = calcEstadoSus(vence);
@@ -7892,16 +7925,21 @@ async function saveStreamingSusCombo() {
       if (error) throw error;
     }
 
-    toast(`✅ Venta combo registrada con ID: ${idVenta}`, 'success');
-    closeModal('modal-st-sus');
-    stSusComboSeleccionadas.clear();
-    await loadStreamingSuscripciones();
-
-    // 📧 Notificación Telegram
+    // 📧 Construir info ANTES de limpiar
     const cli = allStClientes.find(c => c.id === clienteId);
     const platNames = Array.from(stSusComboSeleccionadas)
       .map(id => allStPlataformas.find(p => p.id === id)?.nombre)
+      .filter(Boolean)
       .join(', ');
+    const totalComboEl = document.getElementById('st-combo-total')?.textContent || '$0';
+
+    toast(`✅ Venta combo registrada con ID: ${idVenta}`, 'success');
+    limpiarClienteSus();
+    stSusComboSeleccionadas.clear();
+    closeModal('modal-st-sus');
+    await loadStreamingSuscripciones();
+
+    // 📧 Notificación Telegram
     
     sendTelegramNotification(`🎬 <b>Haliel Streaming — Nueva Venta Combo</b>
 ━━━━━━━━━━━━━━━━━━
@@ -7909,7 +7947,7 @@ async function saveStreamingSusCombo() {
 👤 <b>Cliente:</b> ${cli?.nombre||'—'}
 📺 <b>Plataformas:</b> ${platNames}
 📅 <b>Vigencia:</b> ${formatDate(inicio)} → ${formatDate(vence)}
-💰 <b>Total:</b> ${document.getElementById('st-combo-total').textContent}
+💰 <b>Total:</b> ${totalComboEl}
 🕐 <b>Hora:</b> ${new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}
 ━━━━━━━━━━━━━━━━━━`);
 
@@ -7920,116 +7958,436 @@ async function saveStreamingSusCombo() {
   }
 }
 
-// 🆔 GENERAR ID VENTA ÚNICO
+// 🆔 GENERAR ID VENTA ÚNICO — Formato profesional NPE-YYYY-XXXXXX
 async function generarIdVentaUnico() {
-  // Formato: VT-YYYY-XXXXXX (VT = Venta, año actual, 6 dígitos secuenciales)
   const año = new Date().getFullYear();
-  const { data, error } = await sb
-    .from('streaming_suscripciones')
-    .select('id_venta')
-    .like('id_venta', `VT-${año}%`)
-    .order('created_at', { ascending: false })
-    .limit(1);
+  try {
+    const { data, error } = await sb
+      .from('streaming_suscripciones')
+      .select('id_venta')
+      .not('id_venta', 'is', null)
+      .like('id_venta', `NPE-${año}-%`)
+      .order('created_at', { ascending: false })
+      .limit(1);
 
-  let numero = 1;
-  if (data && data.length > 0) {
-    const lastId = data[0].id_venta;
-    const match = lastId.match(/VT-\d+-(\d+)/);
-    if (match) numero = parseInt(match[1]) + 1;
+    let numero = 1;
+    if (!error && data && data.length > 0 && data[0].id_venta) {
+      const match = data[0].id_venta.match(/NPE-\d+-(\d+)/);
+      if (match) numero = parseInt(match[1]) + 1;
+    }
+    return `NPE-${año}-${String(numero).padStart(6, '0')}`;
+  } catch(e) {
+    return `NPE-${año}-${Date.now().toString().slice(-6)}`;
   }
-
-  return `VT-${año}-${String(numero).padStart(6, '0')}`;
 }
 
-// 📊 ANALYTICS (Nueva función)
-async function renderStAnalytics() {
-  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
+// 📄 GENERAR FACTURA PDF PROFESIONAL — NetPAYE Streaming
+function generarFacturaPDF(idVenta) {
+  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+  if (!items.length) { toast('No se encontraron datos de la venta', 'error'); return; }
 
-  // Datos para gráficas
+  const s0 = items[0];
+  const cli = allStClientes.find(c => c.id === s0.cliente_id);
+  const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
+  const totalCosto = items.reduce((a, s) => {
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    return a + ((plat?.costo_real || 0) * (s.duracion_meses || 1));
+  }, 0);
+  const ganancia = totalMonto - totalCosto;
+  const fechaEmision = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
+  const horaEmision  = new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+
+  const filasPlataformas = items.map((s, i) => {
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    const bg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+    return `
+    <tr style="background:${bg};">
+      <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;">
+        <span style="display:inline-flex;align-items:center;gap:6px;">
+          <span style="font-size:16px;">${plat?.emoji||'🎬'}</span>
+          <strong>${plat?.nombre||'—'}</strong>
+        </span>
+      </td>
+      <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#64748b;">${s.perfil||'Estándar'}</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:center;">${s.duracion_meses||1} mes${(s.duracion_meses||1)>1?'es':''}</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:right;font-weight:700;color:#16a34a;">${formatCurrency(s.precio_venta)}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Factura ${idVenta}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,Helvetica,sans-serif;background:#f8fafc;color:#0f172a;font-size:14px;}
+  @media print{
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .no-print{display:none!important;}
+  }
+  .no-print{position:fixed;top:16px;right:16px;display:flex;gap:8px;z-index:99;}
+  .btn-p{background:#2563EB;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.4);}
+  .btn-c{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;}
+  .factura{max-width:720px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden;position:relative;}
+
+  /* ══════════════════════════════════════════
+     LOGO DE FONDO — FACTURA
+     Para cambiar el TAMAÑO: modifica width y height abajo (en .factura-watermark)
+     Para cambiar la TRANSPARENCIA: modifica opacity abajo (0.00 = invisible, 1.00 = sólido)
+     Valor recomendado: entre 0.05 y 0.15
+  ══════════════════════════════════════════ */
+  .factura-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;       /* ← CAMBIA AQUÍ EL TAMAÑO (ancho) */
+    height: 480px;      /* ← CAMBIA AQUÍ EL TAMAÑO (alto)  */
+    background-image: url('fondostreaming.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    opacity: 0.30;      /* ← CAMBIA AQUÍ LA TRANSPARENCIA  */
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Todo el contenido de la factura va encima del logo */
+  .factura > *:not(.factura-watermark) { position: relative; z-index: 1; }
+  .header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#2563EB 100%);padding:36px 40px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;}
+  .brand-logo{font-size:28px;font-weight:900;letter-spacing:-1px;font-family:'Arial Black',Arial,sans-serif;}
+  .brand-sub{font-size:11px;opacity:0.7;margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;}
+  .factura-label{text-align:right;}
+  .factura-num{font-size:20px;font-weight:800;letter-spacing:1px;color:#60a5fa;}
+  .factura-tipo{font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;}
+  .estado-band{background:#2563EB;padding:10px 40px;display:flex;justify-content:space-between;align-items:center;}
+  .estado-band span{color:#fff;font-size:12px;opacity:0.85;}
+  .estado-band strong{color:#fff;font-size:12px;}
+  .body{padding:36px 40px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;}
+  .info-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;}
+  .info-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;margin-bottom:10px;}
+  .info-val{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:3px;}
+  .info-muted{font-size:12px;color:#94a3b8;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{background:#1e293b;color:#fff;padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+  thead th:last-child{text-align:right;}
+  .totals{margin-top:20px;display:flex;justify-content:flex-end;}
+  .totals-box{width:280px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;}
+  .total-row{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #e2e8f0;font-size:13px;}
+  .total-row:last-child{border-bottom:none;}
+  .total-final{background:#0f172a;color:#fff;font-weight:800;font-size:15px;}
+  .total-final span:last-child{color:#4ade80;}
+  .notas-box{margin-top:20px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 18px;}
+  .notas-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#2563EB;margin-bottom:6px;}
+  .footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;}
+  .footer-brand{font-size:11px;color:#94a3b8;}
+  .footer-legal{font-size:10px;color:#cbd5e1;text-align:right;}
+  .badge-vigente{background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="btn-p" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  <button class="btn-c" onclick="window.close()">✕ Cerrar</button>
+</div>
+
+<div class="factura">
+
+  <!-- LOGO DE FONDO CENTRADO (transparente) -->
+  <div class="factura-watermark"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="brand-logo">NetPAYE</div>
+      <div class="brand-sub">Streaming Services</div>
+      <div style="margin-top:12px;font-size:12px;opacity:0.6;">
+        📞 3134194976 &nbsp;·&nbsp; ✉️ papeleriahaliel@gmail.com<br/>
+        📍 Bucaramanga, Colombia
+      </div>
+    </div>
+    <div class="factura-label">
+      <div class="factura-tipo">Factura de Venta</div>
+      <div class="factura-num">${idVenta}</div>
+      <div style="font-size:11px;opacity:0.65;margin-top:8px;">Emitida: ${fechaEmision}</div>
+      <div style="font-size:11px;opacity:0.65;">${horaEmision} hrs</div>
+    </div>
+  </div>
+
+  <!-- BANDA ESTADO -->
+  <div class="estado-band">
+    <span>Vigencia: <strong>${formatDate(s0.fecha_inicio)} → ${formatDate(s0.fecha_vencimiento)}</strong></span>
+    <span>${items.length} plataforma${items.length>1?'s':''} · <strong>${s0.duracion_meses||1} mes${(s0.duracion_meses||1)>1?'es':''}</strong></span>
+    <span class="badge-vigente">✓ ACTIVO</span>
+  </div>
+
+  <div class="body">
+
+    <!-- INFO CLIENTE + VENTA -->
+    <div class="grid2">
+      <div class="info-box">
+        <div class="info-title">👤 Datos del Cliente</div>
+        <div class="info-val">${cli?.nombre||'—'}</div>
+        ${cli?.whatsapp ? `<div class="info-muted">📱 ${cli.whatsapp}</div>` : ''}
+        ${cli?.correo   ? `<div class="info-muted">✉️ ${cli.correo}</div>` : ''}
+        ${cli?.ciudad   ? `<div class="info-muted">📍 ${cli.ciudad}</div>` : ''}
+      </div>
+      <div class="info-box">
+        <div class="info-title">🧾 Datos de la Venta</div>
+        <div class="info-val">${idVenta}</div>
+        <div class="info-muted">Fecha inicio: ${formatDate(s0.fecha_inicio)}</div>
+        <div class="info-muted">Vencimiento: ${formatDate(s0.fecha_vencimiento)}</div>
+        <div class="info-muted">Duración: ${s0.duracion_meses||1} mes${(s0.duracion_meses||1)>1?'es':''}</div>
+      </div>
+    </div>
+
+    <!-- TABLA DE SERVICIOS -->
+    <table>
+      <thead>
+        <tr>
+          <th>Plataforma</th>
+          <th>Perfil / Tipo</th>
+          <th style="text-align:center;">Duración</th>
+          <th style="text-align:right;">Precio</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filasPlataformas}
+      </tbody>
+    </table>
+
+    <!-- TOTALES -->
+    <div class="totals">
+      <div class="totals-box">
+        <div class="total-row">
+          <span style="color:#64748b;">Subtotal servicios:</span>
+          <span style="font-weight:600;">${formatCurrency(totalMonto)}</span>
+        </div>
+        ${totalCosto > 0 ? `<div class="total-row">
+          <span style="color:#64748b;">Costo operativo:</span>
+          <span style="color:#dc2626;font-weight:600;">${formatCurrency(totalCosto)}</span>
+        </div>
+        <div class="total-row">
+          <span style="color:#64748b;">Margen neto:</span>
+          <span style="color:#16a34a;font-weight:600;">${formatCurrency(ganancia)}</span>
+        </div>` : ''}
+        <div class="total-row total-final">
+          <span>TOTAL A COBRAR</span>
+          <span>${formatCurrency(totalMonto)}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTAS -->
+    ${s0.notas ? `
+    <div class="notas-box">
+      <div class="notas-title">📝 Notas</div>
+      <div style="font-size:13px;color:#1e40af;">${s0.notas}</div>
+    </div>` : ''}
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">
+      <strong>NetPAYE Streaming</strong> · Haliel Papelería<br/>
+      📞 3134194976 · ✉️ papeleriahaliel@gmail.com
+    </div>
+    <div class="footer-legal">
+      Este documento es un comprobante de servicio.<br/>
+      Generado el ${fechaEmision} · ${horaEmision}
+    </div>
+  </div>
+
+</div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { toast('Activa las ventanas emergentes para generar la factura', 'error'); return; }
+  win.document.write(html);
+  win.document.close();
+  toast('Factura generada ✅ — usa Ctrl+P para guardar como PDF', 'success');
+}
+
+// ── MODAL PLATAFORMAS GESTIÓN ─────────────────────────────────────────
+function openModalStPlataformasGestion() {
+  renderStPlataformasModal();
+  openModal('modal-st-plataformas-gestion');
+}
+
+function renderStPlataformasModal() {
+  const tbody = document.getElementById('st-plat-tabla-tbody');
+  if (tbody) {
+    if (!allStPlataformas.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin plataformas. Agrega la primera.</td></tr>`;
+    } else {
+      tbody.innerHTML = allStPlataformas.map(p => {
+        const cnt = allStSuscripciones.filter(s => s.plataforma_id === p.id && s.estado !== 'cancelado').length;
+        return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:38px;height:38px;border-radius:0.75rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${p.emoji}</div>
+              <div>
+                <div style="font-weight:700;">${p.nombre}</div>
+                <div style="display:flex;align-items:center;gap:0.35rem;margin-top:0.15rem;">
+                  <span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block;"></span>
+                  <span style="font-size:0.72rem;color:var(--text-muted);">${p.color}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td style="font-weight:600;color:#22C55E;">${p.costo_real > 0 ? formatCurrency(p.costo_real) : '<span style="color:var(--text-muted);font-weight:400;">No definido</span>'}</td>
+          <td><span class="badge badge-blue">${cnt} activa${cnt !== 1 ? 's' : ''}</span></td>
+          <td>
+            <div style="display:flex;gap:0.4rem;">
+              <button class="btn-edit" onclick="editStPlatFromModal('${p.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
+              <button class="btn-danger" onclick="deleteStPlataformaModal('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  const rentContainer = document.getElementById('st-plat-rentabilidad-modal');
+  if (!rentContainer) return;
   const byPlat = {};
-  const ingresosMensual = {};
-  const today = todayLocal().substring(0, 7); // YYYY-MM
-
-  allStSuscripciones.forEach(s => {
-    if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = 0;
-    byPlat[s.plataforma_id]++;
-    
-    const mes = s.fecha_inicio.substring(0, 7);
-    if (!ingresosMensual[mes]) ingresosMensual[mes] = 0;
-    ingresosMensual[mes] += s.precio_venta || 0;
+  allStSuscripciones.filter(s => s.estado !== 'cancelado').forEach(s => {
+    if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = { ingresos: 0, cnt: 0 };
+    byPlat[s.plataforma_id].ingresos += s.precio_venta || 0;
+    byPlat[s.plataforma_id].cnt++;
   });
-
-  // Gráfica 1: Ingresos vs Costos
-  destroyChart('st-ingresos-costos');
-  const ctxIC = document.getElementById('chart-st-ingresos-costos');
-  if (ctxIC) {
-    const meses = Object.keys(ingresosMensual).sort().slice(-6); // Últimos 6 meses
-    const ingresos = meses.map(m => ingresosMensual[m] || 0);
-    const costos = meses.map(m => {
-      return allStSuscripciones
-        .filter(s => s.fecha_inicio.substring(0, 7) === m)
-        .reduce((a, s) => {
-          const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-          return a + ((plat?.costo_real || 0) * s.duracion_meses);
-        }, 0);
-    });
-
-    const cc = chartColors();
-    charts['st-ingresos-costos'] = new Chart(ctxIC, {
-      type: 'bar',
-      data: {
-        labels: meses,
-        datasets: [
-          {
-            label: 'Ingresos',
-            data: ingresos,
-            backgroundColor: 'rgba(34,197,94,0.7)',
-            borderRadius: 8
-          },
-          {
-            label: 'Costos Reales',
-            data: costos,
-            backgroundColor: 'rgba(239,68,68,0.7)',
-            borderRadius: 8
-          }
-        ]
-      },
-      options: chartOptions(cc)
-    });
+  const totalIng = Object.values(byPlat).reduce((a, v) => a + v.ingresos, 0);
+  if (!Object.keys(byPlat).length) {
+    rentContainer.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:0.75rem;">Sin suscripciones activas aún</div>';
+    return;
   }
+  rentContainer.innerHTML = Object.entries(byPlat).map(([platId, d]) => {
+    const plat = allStPlataformas.find(p => p.id === platId);
+    if (!plat) return '';
+    const pct = totalIng > 0 ? Math.round((d.ingresos / totalIng) * 100) : 0;
+    return `
+    <div style="margin-bottom:0.75rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+        <span style="font-size:0.85rem;font-weight:600;">${plat.emoji} ${plat.nombre} <span style="color:var(--text-muted);font-weight:400;">(${d.cnt})</span></span>
+        <span style="font-size:0.82rem;font-weight:700;color:#22C55E;">${formatCurrency(d.ingresos)} · ${pct}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${plat.color};"></div></div>
+    </div>`;
+  }).join('');
+}
 
-  // Gráfica 2: Distribución de clientes
-  destroyChart('st-clientes-plat');
-  const ctxCP = document.getElementById('chart-st-clientes-plat');
-  if (ctxCP && Object.keys(byPlat).length) {
-    const labels = Object.keys(byPlat).map(id => allStPlataformas.find(p => p.id === id)?.nombre || 'N/A');
-    const values = Object.values(byPlat);
-    const colors = allStPlataformas.map(p => p.color || '#2563EB').slice(0, labels.length);
+function editStPlatFromModal(id) {
+  closeModal('modal-st-plataformas-gestion');
+  setTimeout(() => openModalStPlataforma(id), 200);
+}
 
-    charts['st-clientes-plat'] = new Chart(ctxCP, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: colors,
-          borderWidth: 0,
-          hoverOffset: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { color: chartColors().text, font: { size: 11 } }
-          }
-        },
-        cutout: '65%'
-      }
-    });
+async function deleteStPlataformaModal(id) {
+  if (!confirm('¿Eliminar esta plataforma?')) return;
+  const { error } = await sb.from('streaming_plataformas').delete().eq('id', id);
+  if (error) { toast('Error al eliminar', 'error'); return; }
+  toast('Plataforma eliminada', 'success');
+  await loadStPlataformas();
+  renderStPlataformasModal();
+}
+
+// ── MODAL CALENDARIO DE COBROS ────────────────────────────────────────
+function openModalCalendarioCobros() {
+  openModal('modal-calendario-cobros');
+  loadStreamingCalendarioModal('semana');
+}
+
+async function loadStreamingCalendarioModal(filtro = 'semana') {
+  if (!allStSuscripciones.length) await loadStreamingSuscripciones();
+  const hoy     = todayLocal();
+  const enXDias = d => { const f = new Date(hoy + 'T00:00:00'); f.setDate(f.getDate() + d); return f.toISOString().split('T')[0]; };
+  let lista = allStSuscripciones.filter(s => s.estado !== 'cancelado');
+  if (filtro === 'hoy')      lista = lista.filter(s => s.fecha_vencimiento === hoy);
+  if (filtro === 'semana')   lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(7));
+  if (filtro === 'mes')      lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(30));
+  if (filtro === 'vencidos') lista = lista.filter(s => s.fecha_vencimiento < hoy);
+  lista.sort((a, b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
+
+  const info = document.getElementById('st-cal-modal-info');
+  const labels = { hoy: 'Vencen hoy', semana: 'Vencen esta semana', mes: 'Vencen este mes', vencidos: 'Ya vencidos' };
+  if (info) info.textContent = `${labels[filtro] || ''} — ${lista.length} resultado${lista.length !== 1 ? 's' : ''}`;
+
+  const grid = document.getElementById('st-cal-modal-grid');
+  if (!lista.length) {
+    grid.innerHTML = `<div class="glass-card" style="padding:2rem;text-align:center;color:var(--text-muted);">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">✅</div>
+      <div style="font-weight:600;">Sin vencimientos para este período</div>
+    </div>`;
+    return;
   }
+  grid.innerHTML = lista.map(s => {
+    const cli   = allStClientes.find(c => c.id === s.cliente_id);
+    const plat  = allStPlataformas.find(p => p.id === s.plataforma_id);
+    const estado = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
+    const borderColor = estado === 'vencido' ? '#EF4444' : estado === 'por_vencer' ? '#FACC15' : '#22C55E';
+    return `
+    <div class="glass-card" style="padding:1rem;border-left:4px solid ${borderColor};">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.65rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="font-size:1.5rem;">${plat?.emoji || '🎬'}</div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">${cli?.nombre || '—'}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">${plat?.nombre || '—'} · ${formatCurrency(s.precio_venta)}</div>
+            <div style="margin-top:0.2rem;">${badgeEstadoSus(estado, s.fecha_vencimiento)}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.75rem;color:var(--text-muted);">Vence</div>
+          <div style="font-weight:700;font-size:0.88rem;">${formatDate(s.fecha_vencimiento)}</div>
+          <button class="btn-primary" style="margin-top:0.4rem;padding:0.35rem 0.75rem;font-size:0.75rem;"
+            onclick="abrirModalCobro('${s.id}');closeModal('modal-calendario-cobros');">
+            <i class="fa-brands fa-whatsapp"></i> Cobrar
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── KPIs UNIFICADOS ────────────────────────────────────────────────────
+function renderStSusAllKpis() {
+  const container = document.getElementById('st-sus-all-kpis');
+  if (!container) return;
+  const activas   = allStSuscripciones.filter(s => s.estado === 'activo').length;
+  const porVencer = allStSuscripciones.filter(s => s.estado === 'por_vencer').length;
+  const vencidas  = allStSuscripciones.filter(s => s.estado === 'vencido').length;
+  const totalCli  = allStClientes.filter(c => c.estado === 'activo').length;
+  const ingresos  = allStSuscripciones.filter(s => s.estado !== 'cancelado').reduce((a, s) => a + (s.precio_venta || 0), 0);
+  const costos    = allStSuscripciones.filter(s => s.estado !== 'cancelado').reduce((a, s) => {
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    return a + ((plat?.costo_real || 0) * (s.duracion_meses || 1));
+  }, 0);
+  const ganancia  = ingresos - costos;
+  const margen    = ingresos > 0 ? Math.round((ganancia / ingresos) * 100) : 0;
+  const totalSus  = allStSuscripciones.filter(s => s.estado !== 'cancelado').length;
+
+  const tarjetas = [
+    { label: 'Clientes activos',  value: totalCli,                icon: '👥', color: '#2563EB' },
+    { label: 'Ingresos activos',  value: formatCurrency(ingresos),icon: '💰', color: '#22C55E' },
+    { label: 'Ganancia neta',     value: formatCurrency(ganancia), icon: '📈', color: '#7C3AED' },
+    { label: 'Margen promedio',   value: margen + '%',             icon: '📊', color: '#FACC15' },
+    { label: 'Activas',           value: activas,                  icon: '✅', color: '#22C55E' },
+    { label: 'Por vencer',        value: porVencer,                icon: '⏰', color: '#ca8a04' },
+    { label: 'Vencidas',          value: vencidas,                 icon: '🔴', color: '#EF4444' },
+    { label: 'Total suscripc.',   value: totalSus,                 icon: '📋', color: '#2563EB' },
+  ];
+
+  container.innerHTML = tarjetas.map(t => `
+    <div class="glass-card" style="padding:0.875rem 0.75rem;text-align:center;border-top:3px solid ${t.color};transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div style="font-size:1.25rem;margin-bottom:0.25rem;">${t.icon}</div>
+      <div style="font-size:1rem;font-weight:800;font-family:'Poppins',sans-serif;color:${t.color};line-height:1.1;">${t.value}</div>
+      <div style="font-size:0.68rem;color:var(--text-muted);margin-top:0.2rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;">${t.label}</div>
+    </div>
+  `).join('');
 }
 
 </script>
