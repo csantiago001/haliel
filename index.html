@@ -442,6 +442,94 @@
 		box-shadow: 0 4px 14px rgba(37,99,235,0.3);
 		transform: translateY(-1px);
 	}
+
+  /* ══ SPLASH SCREEN ══ */
+  #splash-screen {
+    position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);
+    z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity 0.6s ease,visibility 0.6s ease;
+  }
+  #splash-screen.hide { opacity:0;visibility:hidden; }
+  #splash-logo { width:120px;height:120px;border-radius:50%;object-fit:contain;
+    animation:splashPulse 1.5s ease-in-out infinite;box-shadow:0 0 40px rgba(37,99,235,0.4); }
+  @keyframes splashPulse { 0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(37,99,235,0.4);}
+    50%{transform:scale(1.06);box-shadow:0 0 60px rgba(37,99,235,0.7);} }
+  #splash-bar { width:200px;height:3px;background:rgba(255,255,255,0.1);border-radius:99px;margin-top:2rem;overflow:hidden; }
+  #splash-bar-fill { height:100%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:99px;
+    animation:splashLoad 1.8s ease-in-out forwards; }
+  @keyframes splashLoad { 0%{width:0%} 100%{width:100%} }
+
+  /* ══ TRANSICIONES ENTRE SECCIONES ══ */
+  .section { animation:sectionFadeIn 0.3s ease both; }
+  @keyframes sectionFadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ══ MODALES — animación más suave ══ */
+  .modal-overlay { animation:modalBgIn 0.2s ease; }
+  @keyframes modalBgIn { from{opacity:0} to{opacity:1} }
+  .modal-box { animation:modalSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
+  @keyframes modalSlideIn { from{opacity:0;transform:translateY(24px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+  @media(max-width:600px){ .modal-box{max-height:90vh;overflow-y:auto;} }
+
+  /* ══ TOOLTIPS ══ */
+  [data-tip] { position:relative; }
+  [data-tip]::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+    background:#1e293b;color:#fff;font-size:0.7rem;font-weight:600;padding:4px 8px;border-radius:6px;
+    white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:1000;letter-spacing:0.02em; }
+  [data-tip]:hover::after { opacity:1; }
+
+  /* ══ SKELETON LOADERS ══ */
+  .sk { background:linear-gradient(90deg,var(--card-border) 25%,var(--input-bg) 50%,var(--card-border) 75%);
+    background-size:200% 100%;animation:skShimmer 1.4s infinite;border-radius:6px; }
+  @keyframes skShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* ══ BREADCRUMB ══ */
+  #breadcrumb { display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;flex-wrap:wrap; }
+  #breadcrumb span { color:var(--text-primary);font-weight:600; }
+  #breadcrumb i { font-size:0.6rem;opacity:0.5; }
+
+  /* ══ CAMPOS OBLIGATORIOS ══ */
+  .field-label.required::after { content:' *';color:#EF4444;font-weight:700; }
+  .field-input.error { border-color:#EF4444!important;box-shadow:0 0 0 3px rgba(239,68,68,0.12)!important; }
+  .field-error-msg { font-size:0.72rem;color:#EF4444;margin-top:0.25rem;display:none; }
+  .field-error-msg.show { display:block; }
+
+  /* ══ BADGE ALERTA CAJA ══ */
+  .nav-badge { display:inline-flex;align-items:center;justify-content:center;
+    width:8px;height:8px;background:#EF4444;border-radius:50%;margin-left:0.4rem;
+    animation:badgePulse 2s ease-in-out infinite;flex-shrink:0; }
+  @keyframes badgePulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.7} }
+
+  /* ══ MODO OSCURO — fixes ══ */
+  html.dark .glass-card { background:rgba(30,41,59,0.8)!important; }
+  html.dark .modal-box { background:#1e293b!important;border-color:rgba(255,255,255,0.08)!important; }
+  html.dark .field-input { background:#0f172a!important;border-color:rgba(255,255,255,0.1)!important;color:#f1f5f9!important; }
+  html.dark .topbar { background:rgba(15,23,42,0.95)!important; }
+  html.dark .nav-group-header:hover { background:rgba(56,189,248,0.08)!important; }
+  html.dark .premium-table thead tr { background:rgba(15,23,42,0.9)!important; }
+  html.dark .stat-card { background:rgba(30,41,59,0.9)!important; }
+  html.dark #splash-screen { background:linear-gradient(135deg,#020617,#0f172a,#020617); }
+
+  /* ══ KPIs DINÁMICOS (verde/rojo según meta) ══ */
+  .kpi-good .stat-value { color:#22C55E!important; }
+  .kpi-bad  .stat-value { color:#EF4444!important; }
+  .kpi-warn .stat-value { color:#FACC15!important; }
+
+  /* ══ RATE LIMIT BANNER ══ */
+  #rate-limit-banner { display:none;position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);
+    background:#7C3AED;color:white;padding:0.65rem 1.25rem;border-radius:0.875rem;font-size:0.82rem;
+    font-weight:600;z-index:9998;box-shadow:0 4px 20px rgba(124,58,237,0.4);animation:slideUp 0.3s ease; }
+  @keyframes slideUp { from{transform:translateX(-50%) translateY(20px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+
+  /* ══ TABLA ORDENABLE ══ */
+  .sortable-th { cursor:pointer;user-select:none;white-space:nowrap; }
+  .sortable-th:hover { background:rgba(37,99,235,0.1)!important; }
+  .sort-icon { margin-left:0.35rem;font-size:0.65rem;opacity:0.5; }
+  .sort-icon.asc { opacity:1;color:#2563EB; }
+  .sort-icon.desc { opacity:1;color:#2563EB; }
+
+  /* ══ HISTORIAL CLIENTE STREAMING ══ */
+  #modal-cli-historial .modal-box { max-width:680px;max-height:88vh;overflow-y:auto; }
+
 </style>
 </head>
 <body>
@@ -450,8 +538,32 @@
     ⚠️ Sin conexión — los datos pueden no estar actualizados
 </div>
 
-<!-- FONDO STREAMING: div real con position:fixed -->
-<!--<div id="streaming-bg-overlay" style="position:fixed;inset:0;background-image:url('fondostreaming.jpg');background-size:900px auto;background-position:center center;background-repeat:no-repeat;opacity:0;z-index:0;pointer-events:none;transition:opacity 0.5s ease;"></div>-->
+<!-- SPLASH SCREEN -->
+<div id="splash-screen">
+  <img src="logo-redon.png" id="splash-logo" alt="Haliel"/>
+  <div style="color:white;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-top:1.25rem;opacity:0.9;">Haliel Papelería</div>
+  <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-top:0.25rem;text-transform:uppercase;letter-spacing:0.1em;">Sistema Administrativo</div>
+  <div id="splash-bar"><div id="splash-bar-fill"></div></div>
+</div>
+
+<!-- FONDO STREAMING -->
+<!--<div id="streaming-bg-overlay" style="position:fixed;inset:0;background-image:url('fondostreaming.jpg');background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0;z-index:0;pointer-events:none;transition:opacity 0.5s ease;"></div>
+
+<!-- RATE LIMIT BANNER -->
+<div id="rate-limit-banner">⚡ Demasiadas acciones seguidas. Espera un momento.</div>
+
+<!-- MODAL: Historial cliente streaming -->
+<div id="modal-cli-historial" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:680px;max-height:88vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-cli-hist-title">
+        <i class="fa-solid fa-clock-rotate-left" style="color:#2563EB;margin-right:0.5rem;"></i>Historial del Cliente
+      </h3>
+      <button onclick="closeModal('modal-cli-historial')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="modal-cli-hist-body"></div>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div id="login-page">
@@ -659,12 +771,14 @@
           <i class="fa-solid fa-bars"></i>
         </button>
         <div>
-          <h2 id="page-title" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.25rem;">Dashboard</h2>
-		<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.1rem;">
-			<span style="font-size:0.72rem;color:var(--text-muted);opacity:0.6;">Haliel Papelería</span>
-			<span style="font-size:0.72rem;color:var(--text-muted);opacity:0.4;">›</span>
-			<span style="font-size:0.72rem;color:var(--text-muted);" id="page-subtitle">Resumen general</span>
-		</div>
+          <div id="breadcrumb">
+            <i class="fa-solid fa-house" style="font-size:0.7rem;color:var(--text-muted);"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span id="breadcrumb-group">Principal</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span id="breadcrumb-page">Dashboard</span>
+          </div>
+          <h2 id="page-title" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.2rem;margin:0;">Dashboard</h2>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -1062,7 +1176,7 @@
           </div>
           <div style="overflow-x:auto;">
             <table class="premium-table">
-              <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Motivo / Notas</th><th>Registrado por</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Motivo / Notas</th><th>Registrado por</th><th>Acciones</th></tr></thead>
               <tbody id="caja-pap-tbody"></tbody>
             </table>
           </div>
@@ -1117,7 +1231,7 @@
           </div>
           <div style="overflow-x:auto;">
             <table class="premium-table">
-              <thead><tr><th>Fecha</th><th>Tipo</th><th>Plataforma</th><th>Caja</th><th>Total</th><th>Motivo</th><th>Por</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Plataforma</th><th>Caja</th><th>Total</th><th>Motivo</th><th>Por</th><th>Acciones</th></tr></thead>
               <tbody id="caja-giros-tbody"></tbody>
             </table>
           </div>
@@ -1229,6 +1343,8 @@
 
 	<!-- OPERADOR: INICIO -->
 	<div class="section" id="sec-op-inicio">
+	  <!-- Banner bienvenida personalizado -->
+	  <div id="op-welcome-banner" style="display:none;"></div>
 	  <div class="glass-card" style="padding:1.75rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));">
 		<!-- ALERTA BANNER OPERADOR (3PM) -->
 		<div id="op-alert-banner" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;color:#B91C1C;">
@@ -3385,6 +3501,10 @@ async function initApp(user) {
 	initStreamingNav();
     initNavGroups();
 	clearTimeout(window._initAppTimeout);
+    hideSplash();
+    registrarUltimoAcceso();
+    setTimeout(checkCajaBadge, 4000);
+    if(role === 'operador') setTimeout(mostrarBienvenidaOperador, 600);
     
     // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
     setTimeout(() => {
@@ -3457,8 +3577,10 @@ function goSection(key) {
     
     document.getElementById(sec.id).classList.add('active');
 	document.title = `${sec.title} | Haliel Papelería`;
-    document.getElementById('page-title').textContent = sec.title;
-    document.getElementById('page-subtitle').textContent = sec.sub;
+    const ptEl = document.getElementById('page-title');
+    const psEl = document.getElementById('page-subtitle');
+    if (ptEl) ptEl.textContent = sec.title;
+    if (psEl) psEl.textContent = sec.sub;
     
     document.querySelectorAll('.nav-item').forEach(n => {
         n.classList.remove('active');
@@ -3474,6 +3596,9 @@ function goSection(key) {
 
     // 📂 ABRIR GRUPO CORRESPONDIENTE EN SIDEBAR
     openGroupForSection(key);
+
+    // 📍 BREADCRUMB
+    updateBreadcrumb(key);
     
     if (sec.load) sec.load();
     if (window.innerWidth < 768) closeSidebar();
@@ -3766,8 +3891,15 @@ function renderOperadores(filter='') {
     <td>${o.rol==='administrador'?'<span class="badge badge-purple"><i class="fa-solid fa-crown"></i> Admin</span>':'<span class="badge badge-blue">Operador</span>'}</td>
     <td>${o.sucursal?`<span class="badge badge-blue">${o.sucursal}</span>`:'-'}</td>
     <td>${o.estado==='activo'?'<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>':'<span class="badge badge-red">Inactivo</span>'}</td>
-    <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(o.created_at)}</td>
-    <td><div style="display:flex;gap:0.5rem;"><button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-secondary" style="padding:0.5rem 0.75rem;font-size:0.75rem;" onclick="generarPasswordTemporal('${o.id}','${o.nombre||o.correo}','${o.correo}')" title="Generar contraseña temporal"><i class="fa-solid fa-key"></i></button><button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
+    <td style="color:var(--text-muted);font-size:0.78rem;">${o.ultimo_acceso ? formatDateHour(o.ultimo_acceso) : formatDate(o.created_at)}</td>
+    <td><div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+      <button class="btn-edit" data-tip="Editar" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn-secondary" style="padding:0.45rem 0.65rem;font-size:0.75rem;" data-tip="${o.estado==='activo'?'Desactivar':'Activar'}" onclick="toggleEstadoOperador('${o.id}','${o.estado}')">
+        <i class="fa-solid ${o.estado==='activo'?'fa-user-slash':'fa-user-check'}"></i>
+      </button>
+      <button class="btn-secondary" style="padding:0.5rem 0.75rem;font-size:0.75rem;" data-tip="Contraseña temporal" onclick="generarPasswordTemporal('${o.id}','${o.nombre||o.correo}','${o.correo}')"><i class="fa-solid fa-key"></i></button>
+      <button class="btn-danger" data-tip="Eliminar" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button>
+    </div></td>
   </tr>
   `).join('');
   // Refrescar avatares después de insertar en el DOM
@@ -3885,55 +4017,32 @@ async function saveOperador() {
 }
 
 async function deleteOperador(id) {
-    if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
-    
     const userToDelete = allOperadores.find(u => u.id === id);
     const userIdentifier = userToDelete ? (userToDelete.nombre || userToDelete.correo) : id;
-
-    try {
-        const { data: { session }, error: sessionError } = await sb.auth.getSession();
-        if (sessionError || !session) throw new Error('Sesión no válida.');
-
-        // 1. Eliminar registros relacionados PRIMERO
-        console.log('🗑️ Eliminando registros del operador...');
-        const { error: regError } = await sb.from('registros').delete().eq('operador_id', id);
-        if (regError) console.warn('⚠️ registros:', regError.message);
-
-        // 2. Eliminar de auditoría
-        console.log('🗑️ Eliminando auditoría...');
-        const { error: audError } = await sb.from('auditoria').delete().eq('usuario', userIdentifier);
-        if (audError) console.warn('⚠️ auditoria:', audError.message);
-
-        // 3. Eliminar de tabla usuarios
-        console.log('🗑️ Eliminando de tabla usuarios...');
-        const { error: userError } = await sb.from('usuarios').delete().eq('id', id);
-        if (userError) console.warn('⚠️ usuarios:', userError.message);
-
-        // 4. Ahora sí eliminar de Auth via Edge Function
-        console.log('🔐 Eliminando de Auth...');
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-user`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
-            },
-            body: JSON.stringify({ userId: id })
-        });
-
-        const responseData = await res.json();
-        console.log('📡 Status:', res.status);
-        console.log('📦 Respuesta:', JSON.stringify(responseData));
-
-        if (!res.ok) throw new Error(responseData.error || 'Error en Edge Function');
-
-        toast(`Usuario ${userIdentifier} eliminado completamente ✅`, 'success');
-        await logAuditoria('eliminar', `Usuario ${userIdentifier} eliminado`);
-        loadAllUsers();
-
-    } catch (err) {
-        console.error('💥 Error:', err);
-        toast('Error: ' + err.message, 'error');
-    }
+    confirmarEliminar(`¿Eliminar al usuario "${userIdentifier}"? Se eliminarán también todos sus registros.`, async () => {
+        try {
+            const { data: { session }, error: sessionError } = await sb.auth.getSession();
+            if (sessionError || !session) throw new Error('Sesión no válida.');
+            const { error: regError } = await sb.from('registros').delete().eq('operador_id', id);
+            if (regError) console.warn('⚠️ registros:', regError.message);
+            const { error: audError } = await sb.from('auditoria').delete().eq('usuario', userIdentifier);
+            if (audError) console.warn('⚠️ auditoria:', audError.message);
+            const { error: userError } = await sb.from('usuarios').delete().eq('id', id);
+            if (userError) console.warn('⚠️ usuarios:', userError.message);
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+                body: JSON.stringify({ userId: id })
+            });
+            const responseData = await res.json();
+            if (!res.ok) throw new Error(responseData.error || 'Error en Edge Function');
+            toast(`Usuario ${userIdentifier} eliminado ✅`, 'success');
+            await logAuditoria('eliminar', `Usuario ${userIdentifier} eliminado`);
+            loadAllUsers();
+        } catch (err) {
+            toast('Error: ' + err.message, 'error');
+        }
+    });
 }
 
 // =====================================================
@@ -3969,20 +4078,15 @@ async function saveSucursal() {
 }
 
 async function deleteSucursal(id) {
-    if (!confirm('¿Eliminar esta sucursal?')) return;
-    
-    // 👉 Buscar nombre antes de eliminar
     const sucToDelete = allSucursales.find(s => s.id === id);
     const sucNombre = sucToDelete ? sucToDelete.nombre : id;
-    
-    await sb.from('sucursales').delete().eq('id',id);
-    
-    // 👉 LOG DE AUDITORÍA
-    await logAuditoria('eliminar', `Sucursal ${sucNombre} eliminada`);
-    
-    toast('Sucursal eliminada','success');
-    await loadSucursales();
-    renderSucursales();
+    confirmarEliminar(`¿Eliminar la sucursal "${sucNombre}"?`, async () => {
+        await sb.from('sucursales').delete().eq('id',id);
+        await logAuditoria('eliminar', `Sucursal ${sucNombre} eliminada`);
+        toast('Sucursal eliminada','success');
+        await loadSucursales();
+        renderSucursales();
+    });
 }
 
 // =====================================================
@@ -4495,6 +4599,12 @@ function renderRegistros() {
   const pager=document.getElementById('pagination-btns');
   pager.innerHTML='';
   for(let i=1;i<=pages;i++){const btn=document.createElement('button');btn.className=i===regPage?'btn-primary':'btn-secondary';btn.style.cssText='padding:0.4rem 0.75rem;font-size:0.8rem;';btn.textContent=i;btn.onclick=()=>{regPage=i;renderRegistros();};pager.appendChild(btn);}
+  
+  // Totales al pie
+  const totalMov = filtered.reduce((a,r)=>a+(r.movimientos||0),0);
+  const totalPart = filtered.reduce((a,r)=>a+(r.participacion||0),0);
+  const countEl2 = document.getElementById('registros-count');
+  if(countEl2) countEl2.innerHTML = `<span style="font-weight:700;">${total}</span> registros · <span style="color:#2563EB;font-weight:700;">${totalMov.toLocaleString('es-CO')}</span> movimientos · <span style="color:#22C55E;font-weight:700;">${formatCurrency(totalPart)}</span> participación`;
 }
 
 function openEditRegistro(id) {
@@ -4547,21 +4657,15 @@ async function updateRegistro() {
 }
 
 async function deleteRegistro(id) {
-    if (!confirm('¿Eliminar este registro?')) return;
-
-    const { error } = await sb.from('registros').delete().eq('id', id);
-    if (error) { toast('Error al eliminar', 'error'); return; }
-
-    // ✅ Notificación Telegram
-    const mensaje = buildTelegramMensaje('registro_eliminado', {
-        admin: currentProfile?.nombre || currentUser.email,
-        id
+    confirmarEliminar('¿Eliminar este registro? Esta acción no se puede deshacer.', async () => {
+        const { error } = await sb.from('registros').delete().eq('id', id);
+        if (error) { toast('Error al eliminar', 'error'); return; }
+        const mensaje = buildTelegramMensaje('registro_eliminado', { admin: currentProfile?.nombre || currentUser.email, id });
+        sendTelegramNotification(mensaje);
+        toast('Registro eliminado', 'success');
+        await logAuditoria('eliminar', `Registro ${id} eliminado`);
+        loadRegistros();
     });
-    sendTelegramNotification(mensaje);
-
-    toast('Registro eliminado', 'success');
-    await logAuditoria('eliminar', `Registro ${id} eliminado`);
-    loadRegistros();
 }
 
 // =====================================================
@@ -7196,6 +7300,7 @@ function renderStreamingClientes(susCount = {}, filter = '') {
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
           <button class="btn-edit" onclick="openHistorialCliente('${c.id}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
           <button class="btn-edit" onclick="openModalStreamingCliente('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-secondary" style="padding:0.45rem 0.65rem;" data-tip="Ver historial" onclick="verHistorialCliente('${c.id}','${c.nombre}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
           <button class="btn-danger" onclick="deleteStreamingCliente('${c.id}')"><i class="fa-solid fa-trash"></i></button>
         </div>
       </td>
@@ -7376,8 +7481,9 @@ function renderStreamingSuscripciones() {
       <td>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
           ${estadoGlobal !== 'cancelado' ? `<button class="btn-primary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;" onclick="event.stopPropagation();abrirModalCobro('${s0.id}')"><i class="fa-brands fa-whatsapp"></i> Cobro</button>` : ''}
+          ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#22C55E;border-color:rgba(34,197,94,0.3);" data-tip="Renovar 1 mes" onclick="event.stopPropagation();renovarVenta('${idVenta}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
           <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${idVenta}')" style="background:rgba(239,68,68,0.1);color:#dc2626;border-color:rgba(239,68,68,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
-          <button class="btn-danger" onclick="event.stopPropagation();deleteStreamingSusGrupo('${idVenta}')"><i class="fa-solid fa-trash"></i></button>
+          <button class="btn-danger" onclick="event.stopPropagation();confirmarEliminar('¿Eliminar la venta ${idVenta} y todas sus plataformas?',()=>deleteStreamingSusGrupo('${idVenta}'))"><i class="fa-solid fa-trash"></i></button>
         </div>
       </td>
     </tr>`;
@@ -8864,10 +8970,10 @@ async function loadCajaPapeleria() {
   const end=new Date(ano,m,0).toISOString().split('T')[0];
 
   const [{data:cierres},{data:debitos}] = await Promise.all([
-    sb.from('caja_papeleria_cierres').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false}),
-    sb.from('caja_papeleria_debitos').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false})
+    sb.from('caja_papeleria_cierres').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false}),
+    sb.from('caja_papeleria_debitos').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false})
   ]);
-  const {data:uc} = await sb.from('caja_papeleria_cierres').select('*').order('fecha',{ascending:false}).limit(1);
+  const {data:uc} = await sb.from('caja_papeleria_cierres').select('*').order('created_at',{ascending:false}).limit(1);
   const {data:dh} = await sb.from('caja_papeleria_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
   const saldoActual = (uc?.[0]?.monto_cierre||0) - (dh||[]).reduce((a,d)=>a+(d.monto||0),0);
 
@@ -8882,17 +8988,21 @@ async function loadCajaPapeleria() {
   document.getElementById('caja-pap-kpi-debitos').textContent  = formatCurrency(totalDeb);
   document.getElementById('caja-pap-kpi-promedio').textContent = formatCurrency(prom);
 
+  const hoyStr = todayLocal();
+  const isAdmin = currentProfile?.rol === 'administrador';
+  const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))];
   const tbody = document.getElementById('caja-pap-tbody');
-  const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   tbody.innerHTML = !todos.length
-    ? `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    ? `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
     : todos.map((r,i)=>`<tr style="background:${i%2===0?'transparent':'rgba(37,99,235,0.02)'};">
-        <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}</td>
+        <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}${r.fecha===hoyStr?'<span class="badge badge-blue" style="margin-left:0.4rem;font-size:0.65rem;padding:1px 6px;">Hoy</span>':''}</td>
         <td>${r.tipo==='cierre'?'<span class="badge badge-green"><i class="fa-solid fa-lock"></i> Cierre</span>':'<span class="badge badge-red"><i class="fa-solid fa-arrow-up-from-bracket"></i> Débito</span>'}</td>
         <td style="font-weight:700;color:${r.tipo==='cierre'?'#22C55E':'#EF4444'};">${formatCurrency(r.monto_cierre||r.monto)}</td>
         <td style="color:var(--text-muted);font-size:0.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
         <td style="font-size:0.8rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
+        <td>${isAdmin?`<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="eliminarRegistroCaja('papeleria','${r.tipo}','${r.id}')"><i class="fa-solid fa-trash"></i></button>`:'—'}</td>
       </tr>`).join('');
+  checkCajaBadge();
 }
 
 async function loadCajaGiros() {
@@ -8903,10 +9013,10 @@ async function loadCajaGiros() {
   const end=new Date(ano,m,0).toISOString().split('T')[0];
 
   const [{data:cierres},{data:debitos}] = await Promise.all([
-    sb.from('giros_cierres').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false}),
-    sb.from('giros_debitos').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false})
+    sb.from('giros_cierres').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false}),
+    sb.from('giros_debitos').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false})
   ]);
-  const {data:uc} = await sb.from('giros_cierres').select('*').order('fecha',{ascending:false}).limit(1);
+  const {data:uc} = await sb.from('giros_cierres').select('*').order('created_at',{ascending:false}).limit(1);
   const {data:dh} = await sb.from('giros_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
   const totalDH = (dh||[]).reduce((a,d)=>a+(d.monto||0),0);
   const saldoPlat = uc?.[0]?.saldo_plataforma||0;
@@ -8919,18 +9029,21 @@ async function loadCajaGiros() {
     ? `Último cierre: ${formatDate(uc[0].fecha)} · Total: ${formatCurrency(uc[0].total)}`
     : 'Sin cierres registrados';
 
+  const hoyStr = todayLocal();
+  const isAdmin = currentProfile?.rol === 'administrador';
+  const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))];
   const tbody = document.getElementById('caja-giros-tbody');
-  const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   tbody.innerHTML = !todos.length
-    ? `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    ? `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
     : todos.map((r,i)=>`<tr style="background:${i%2===0?'transparent':'rgba(124,58,237,0.02)'};">
-        <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}</td>
+        <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}${r.fecha===hoyStr?'<span class="badge badge-blue" style="margin-left:0.4rem;font-size:0.65rem;padding:1px 6px;">Hoy</span>':''}</td>
         <td>${r.tipo==='cierre'?'<span class="badge badge-green"><i class="fa-solid fa-lock"></i> Cierre</span>':'<span class="badge badge-red"><i class="fa-solid fa-arrow-up-from-bracket"></i> Débito</span>'}</td>
         <td style="font-weight:600;color:#22C55E;">${r.saldo_plataforma!=null?formatCurrency(r.saldo_plataforma):'—'}</td>
         <td style="font-weight:600;color:#2563EB;">${r.saldo_caja!=null?formatCurrency(r.saldo_caja):r.monto!=null?'-'+formatCurrency(r.monto):'—'}</td>
         <td style="font-weight:700;color:#7C3AED;">${r.total!=null?formatCurrency(r.total):'—'}</td>
-        <td style="color:var(--text-muted);font-size:0.82rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
-        <td style="font-size:0.8rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
+        <td style="color:var(--text-muted);font-size:0.8rem;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
+        <td>${isAdmin?`<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="eliminarRegistroCaja('giros','${r.tipo}','${r.id}')"><i class="fa-solid fa-trash"></i></button>`:'—'}</td>
       </tr>`).join('');
 }
 
@@ -8974,8 +9087,6 @@ async function guardarRegistroCaja() {
       if(tipoOp==='cierre'){
         const monto=getCajaInputVal('caja-modal-monto-cierre');
         if(!monto){toast('Ingresa el monto de cierre','error');return;}
-        const {data:ex}=await sb.from('caja_papeleria_cierres').select('id').eq('fecha',fecha).limit(1);
-        if(ex?.length){toast('Ya existe un cierre para esta fecha','error');return;}
         await sb.from('caja_papeleria_cierres').insert({fecha,monto_cierre:monto,notas:motivo,operador_id:currentUser.id,operador_nombre:nombre});
         await sendTelegramNotification(`🔒 *Cierre Caja Papelería*\n📅 ${fecha}\n💰 ${formatCurrency(monto)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
         await logAuditoria('crear',`Cierre Caja Papelería: ${formatCurrency(monto)} — ${fecha}${motivo?' | '+motivo:''}`);
@@ -8996,8 +9107,6 @@ async function guardarRegistroCaja() {
         const sP=getCajaInputVal('caja-modal-saldo-plataforma');
         const sC=getCajaInputVal('caja-modal-saldo-caja');
         if(!sP&&!sC){toast('Ingresa al menos un saldo','error');return;}
-        const {data:ex}=await sb.from('giros_cierres').select('id').eq('fecha',fecha).limit(1);
-        if(ex?.length){toast('Ya existe un cierre de Giros para esta fecha','error');return;}
         const total=sP+sC;
         await sb.from('giros_cierres').insert({fecha,saldo_plataforma:sP,saldo_caja:sC,total,notas:motivo,operador_id:currentUser.id,operador_nombre:nombre});
         await sendTelegramNotification(`🔒 *Cierre Giros Venezuela*\n📅 ${fecha}\n🌐 Plataforma: ${formatCurrency(sP)}\n💵 Caja: ${formatCurrency(sC)}\n💰 Total: ${formatCurrency(total)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
@@ -9074,6 +9183,289 @@ function renderStPlataformasModal(filtro='') {
 }
 
 function filtrarPlataformasModal(v){ renderStPlataformasModal(v); }
+
+// =====================================================
+// SPLASH SCREEN
+// =====================================================
+function hideSplash() {
+  const splash = document.getElementById('splash-screen');
+  if (splash) { splash.classList.add('hide'); setTimeout(()=>splash.remove(), 700); }
+}
+// Ocultar splash después de máximo 3 segundos aunque no cargue
+setTimeout(hideSplash, 3000);
+
+// =====================================================
+// CONFIRMAR ELIMINAR — MODAL ELEGANTE
+// =====================================================
+function confirmarEliminar(msg, onConfirm) {
+  const o = document.createElement('div');
+  o.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:modalBgIn 0.2s ease;';
+  o.innerHTML = `
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:380px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:modalSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+      <div style="width:56px;height:56px;background:rgba(239,68,68,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">🗑️</div>
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.75rem;">¿Confirmar eliminación?</h3>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;line-height:1.5;">${msg}</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;">
+        <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
+        <button id="confirm-del-btn" style="flex:1;background:linear-gradient(135deg,#EF4444,#dc2626);color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">Eliminar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(o);
+  o.querySelector('#confirm-del-btn').onclick = () => { o.remove(); onConfirm(); };
+  o.addEventListener('click', e => { if(e.target===o) o.remove(); });
+}
+
+// =====================================================
+// RATE LIMITING VISUAL
+// =====================================================
+let actionCount = 0, rateLimitTimer = null;
+function trackAction() {
+  actionCount++;
+  if (actionCount > 8) {
+    const b = document.getElementById('rate-limit-banner');
+    if (b) { b.style.display='block'; setTimeout(()=>b.style.display='none', 3000); }
+  }
+  clearTimeout(rateLimitTimer);
+  rateLimitTimer = setTimeout(()=>{ actionCount=0; }, 10000);
+}
+
+// =====================================================
+// BREADCRUMB
+// =====================================================
+const BREADCRUMB_GROUPS = {
+  'principal':'Principal','gestion':'Gestión','streaming':'Streaming','sistema':'Sistema'
+};
+function updateBreadcrumb(sectionKey) {
+  const sec = sectionMap[sectionKey];
+  const group = SECTION_GROUP_MAP[sectionKey];
+  const bgEl = document.getElementById('breadcrumb-group');
+  const pgEl = document.getElementById('breadcrumb-page');
+  if (bgEl) bgEl.textContent = BREADCRUMB_GROUPS[group] || 'Principal';
+  if (pgEl) pgEl.textContent = sec?.title || sectionKey;
+}
+
+// =====================================================
+// BADGE ALERTA CAJA — punto rojo si no hay cierre hoy
+// =====================================================
+async function checkCajaBadge() {
+  try {
+    const hoy = todayLocal();
+    const { data } = await sb.from('caja_papeleria_cierres').select('id').eq('fecha', hoy).limit(1);
+    const badge = document.getElementById('caja-nav-badge');
+    if (!data?.length) {
+      if (!badge) {
+        document.querySelectorAll('.nav-item').forEach(el => {
+          if (el.getAttribute('onclick')?.includes('cerrar-caja')) {
+            el.insertAdjacentHTML('beforeend','<span class="nav-badge" id="caja-nav-badge"></span>');
+          }
+        });
+      }
+    } else {
+      if (badge) badge.remove();
+    }
+  } catch(e) {}
+}
+
+// =====================================================
+// TOGGLE ESTADO OPERADOR (activar/desactivar sin eliminar)
+// =====================================================
+async function toggleEstadoOperador(id, estadoActual) {
+  const nuevoEstado = estadoActual === 'activo' ? 'inactivo' : 'activo';
+  const op = allOperadores.find(o => o.id === id);
+  const nombre = op?.nombre || id;
+  const msg = nuevoEstado === 'inactivo'
+    ? `¿Desactivar a "${nombre}"? No podrá iniciar sesión hasta que lo reactives.`
+    : `¿Activar a "${nombre}"? Podrá iniciar sesión nuevamente.`;
+
+  const o = document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  o.innerHTML=`<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:380px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:modalSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+    <div style="width:56px;height:56px;background:${nuevoEstado==='inactivo'?'rgba(239,68,68,0.1)':'rgba(34,197,94,0.1)'};border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">${nuevoEstado==='inactivo'?'🔒':'✅'}</div>
+    <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.75rem;">${nuevoEstado==='inactivo'?'Desactivar usuario':'Activar usuario'}</h3>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">${msg}</p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;">
+      <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
+      <button id="confirm-toggle-btn" style="flex:1;background:${nuevoEstado==='inactivo'?'linear-gradient(135deg,#EF4444,#dc2626)':'linear-gradient(135deg,#22C55E,#16a34a)'};color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">${nuevoEstado==='inactivo'?'Desactivar':'Activar'}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(o);
+  o.querySelector('#confirm-toggle-btn').onclick = async () => {
+    o.remove();
+    await sb.from('usuarios').update({ estado: nuevoEstado }).eq('id', id);
+    await logAuditoria('editar', `Usuario ${nombre} ${nuevoEstado==='inactivo'?'desactivado':'activado'}`);
+    toast(`${nombre} ${nuevoEstado==='inactivo'?'desactivado':'activado'} ✅`, 'success');
+    loadAllUsers();
+  };
+  o.addEventListener('click', e=>{ if(e.target===o) o.remove(); });
+}
+
+// =====================================================
+// HISTORIAL DE CLIENTE STREAMING
+// =====================================================
+async function verHistorialCliente(clienteId, nombre) {
+  document.getElementById('modal-cli-hist-title').innerHTML =
+    `<i class="fa-solid fa-clock-rotate-left" style="color:#2563EB;margin-right:0.5rem;"></i>Historial de ${nombre}`;
+  document.getElementById('modal-cli-hist-body').innerHTML =
+    `<div style="text-align:center;padding:2rem;color:var(--text-muted);"><span class="spinner" style="border-color:rgba(37,99,235,0.3);border-top-color:#2563EB;"></span></div>`;
+  openModal('modal-cli-historial');
+
+  const { data: sus } = await sb.from('streaming_suscripciones').select('*').eq('cliente_id', clienteId).order('created_at', {ascending:false});
+  if (!sus?.length) {
+    document.getElementById('modal-cli-hist-body').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:var(--text-muted);">Este cliente no tiene ventas registradas.</div>';
+    return;
+  }
+
+  // Agrupar por id_venta
+  const grupos = {};
+  sus.forEach(s => { const k=s.id_venta||s.id; if(!grupos[k])grupos[k]=[]; grupos[k].push(s); });
+  const totalGeneral = sus.reduce((a,s)=>a+(s.precio_venta||0),0);
+
+  document.getElementById('modal-cli-hist-body').innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(37,99,235,0.03));border:1px solid rgba(37,99,235,0.15);border-radius:1rem;padding:1rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:0.85rem;color:var(--text-muted);">${Object.keys(grupos).length} venta${Object.keys(grupos).length!==1?'s':''} registradas</div>
+      <div style="font-weight:800;font-size:1.1rem;color:#22C55E;font-family:'Poppins',sans-serif;">${formatCurrency(totalGeneral)}</div>
+    </div>
+    ${Object.entries(grupos).map(([idVenta,items])=>{
+      const s0=items[0];
+      const total=items.reduce((a,s)=>a+(s.precio_venta||0),0);
+      const platBadges=items.map(s=>{
+        const p=allStPlataformas.find(x=>x.id===s.plataforma_id);
+        return p?`<span style="background:${p.color}18;color:${p.color};border-radius:99px;padding:2px 8px;font-size:0.7rem;font-weight:700;">${p.emoji} ${p.nombre}</span>`:'';
+      }).join(' ');
+      const est=calcEstadoSus(s0.fecha_vencimiento);
+      return `<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.875rem;padding:1rem;margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.88rem;color:#2563EB;">${idVenta}</div>
+          ${badgeEstadoSus(est,s0.fecha_vencimiento)}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.5rem;">${platBadges}</div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);">
+          <span>${formatDate(s0.fecha_inicio)} → ${formatDate(s0.fecha_vencimiento)}</span>
+          <span style="font-weight:700;color:#22C55E;">${formatCurrency(total)}</span>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// =====================================================
+// RENOVAR VENTA CON UN CLIC
+// =====================================================
+async function renovarVenta(idVenta) {
+  const items = allStSuscripciones.filter(s=>(s.id_venta||s.id)===idVenta);
+  if(!items.length){toast('No se encontró la venta','error');return;}
+  const s0=items[0];
+  const cli=allStClientes.find(c=>c.id===s0.cliente_id);
+  const o=document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  o.innerHTML=`<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:400px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:modalSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+    <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:1rem;">🔄 Renovar — ${idVenta}</h3>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">Cliente: <strong>${cli?.nombre||'—'}</strong><br/>Se extenderá 1 mes desde hoy para las ${items.length} plataforma${items.length!==1?'s':''}.</p>
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
+      <button id="btn-confirmar-renovar" class="btn-primary" style="flex:1;background:linear-gradient(135deg,#22C55E,#16a34a);">✅ Confirmar renovación</button>
+    </div>
+  </div>`;
+  document.body.appendChild(o);
+  o.querySelector('#btn-confirmar-renovar').onclick = async () => {
+    o.remove();
+    const hoy=todayLocal();
+    const vence=calcVencimiento(hoy,1);
+    for(const s of items){
+      await sb.from('streaming_suscripciones').update({fecha_inicio:hoy,fecha_vencimiento:vence,estado:'activo'}).eq('id',s.id);
+    }
+    toast(`Venta ${idVenta} renovada hasta ${formatDate(vence)} ✅`,'success');
+    await logAuditoria('editar',`Venta ${idVenta} renovada — nuevo vencimiento: ${vence}`);
+    await loadStreamingSuscripciones();
+  };
+  o.addEventListener('click',e=>{if(e.target===o)o.remove();});
+}
+
+// =====================================================
+// ELIMINAR REGISTRO DE CAJA
+// =====================================================
+async function eliminarRegistroCaja(tipoCaja, tipoOp, id) {
+  if(currentProfile?.rol !== 'administrador'){toast('Solo administradores pueden eliminar','error');return;}
+  confirmarEliminar('¿Eliminar este registro de caja? Esta acción no se puede deshacer.', async () => {
+    const tabla = tipoCaja==='papeleria'
+      ? (tipoOp==='cierre'?'caja_papeleria_cierres':'caja_papeleria_debitos')
+      : (tipoOp==='cierre'?'giros_cierres':'giros_debitos');
+    await sb.from(tabla).delete().eq('id',id);
+    await logAuditoria('eliminar',`Eliminado registro de ${tabla} ID: ${id}`);
+    toast('Registro eliminado','success');
+    if(tipoCaja==='papeleria') loadCajaPapeleria(); else loadCajaGiros();
+  });
+}
+
+// =====================================================
+// ACTUALIZAR goSection CON BREADCRUMB Y SPLASH
+// =====================================================
+const _origGoSection = goSection;
+// Parchear goSection para actualizar breadcrumb
+const _goSectionPatched = function(key) {
+  _origGoSection(key);
+  updateBreadcrumb(key);
+};
+
+// =====================================================
+// REGISTRO DE ÚLTIMO ACCESO
+// =====================================================
+async function registrarUltimoAcceso() {
+  if(!currentUser?.id) return;
+  try {
+    await sb.from('usuarios').update({ ultimo_acceso: new Date().toISOString() }).eq('id', currentUser.id);
+  } catch(e) {}
+}
+
+// =====================================================
+// MENSAJE BIENVENIDA OPERADOR
+// =====================================================
+async function mostrarBienvenidaOperador() {
+  if(currentProfile?.rol !== 'operador') return;
+  const nombre = currentProfile?.nombre?.split(' ')[0] || 'operador';
+  const sucursal = currentProfile?.sucursal || '';
+  const hoy = todayLocal();
+  const { data: regsHoy } = await sb.from('registros').select('movimientos').eq('operador_id', currentUser.id).eq('fecha', hoy);
+  const totalHoy = (regsHoy||[]).reduce((a,r)=>a+(r.movimientos||0),0);
+  const el = document.getElementById('op-welcome-banner');
+  if(el) {
+    el.innerHTML=`<div style="background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06));border:1px solid rgba(37,99,235,0.12);border-radius:1rem;padding:1rem 1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+      <div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;">👋 ¡Hola, ${nombre}!</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">${sucursal?`Sucursal: ${sucursal} · `:''} Hoy llevas <strong style="color:#2563EB;">${totalHoy.toLocaleString('es-CO')} movimientos</strong></div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">${new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</div>
+    </div>`;
+    el.style.display='block';
+  }
+}
+
+// =====================================================
+// ACTUALIZAR loadCajaPapeleria y loadCajaGiros con:
+// botón eliminar, indicador Hoy, múltiples cierres
+// =====================================================
+// Eliminar restricción de 1 solo cierre por día — permitir múltiples
+// (ya implementado directamente en loadCajaPapeleria y loadCajaGiros)
+
+// =====================================================
+// INICIALIZACIÓN FINAL
+// =====================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Ocultar splash cuando la app esté lista
+  document.getElementById('app') && (document.getElementById('app').addEventListener('transitionend', hideSplash));
+
+  // Verificar badge caja periódicamente
+  setInterval(checkCajaBadge, 300000); // cada 5 minutos
+
+  // Escape cierra modales
+  document.addEventListener('keydown', e => {
+    if(e.key==='Escape') {
+      document.querySelectorAll('.modal-overlay').forEach(m=>{
+        if(m.style.display!=='none') closeModal(m.id);
+      });
+    }
+  });
+});
 
 </script>
 
