@@ -573,6 +573,7 @@
 			<div class="nav-item" data-tooltip="Dashboard" data-group="principal" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
 			<div class="nav-item" data-tooltip="Registros" data-group="principal" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
 			<div class="nav-item" data-tooltip="Registrar" data-group="principal" onclick="goSection('admin-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
+			<div class="nav-item" data-tooltip="Cerrar Caja" data-group="principal" onclick="goSection('cerrar-caja')"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text"> Cerrar Caja</span></div>
 			<div class="nav-item" data-tooltip="Estadísticas" data-group="principal" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
 			<div class="nav-item" data-tooltip="Top Días" data-group="principal" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
 		  </div>
@@ -631,6 +632,7 @@
 		<div class="nav-label">Mi espacio</div>
 		<div class="nav-item active" data-tooltip="Inicio" onclick="goSection('op-inicio')"><i class="fa-solid fa-house"></i><span class="nav-item-text"> Inicio</span></div>
 		<div class="nav-item" data-tooltip="Registrar" onclick="goSection('op-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
+		<div class="nav-item" data-tooltip="Cerrar Caja" onclick="goSection('cerrar-caja')"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text"> Cerrar Caja</span></div>
 		<div class="nav-item" data-tooltip="Mis Registros" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i><span class="nav-item-text"> Mis Registros</span></div>
 		<div class="nav-item" data-tooltip="Mi Rendimiento" onclick="goSection('op-rendimiento')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Mi Rendimiento</span></div>
 	  </nav>
@@ -989,13 +991,144 @@
 	</div>
 
 	<!-- STREAMING: CARTERA DE CLIENTES -->
+	<!-- ══════════════════════════════════════════
+         CERRAR CAJA
+    ══════════════════════════════════════════ -->
+    <div class="section" id="sec-cerrar-caja">
+
+      <!-- TABS -->
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:0.35rem;">
+        <button id="caja-tab-btn-papeleria" onclick="switchCajaTab('papeleria')"
+          style="flex:1;padding:0.65rem 1rem;border-radius:0.75rem;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;transition:all 0.2s;background:linear-gradient(135deg,#2563EB,#1d4ed8);color:white;box-shadow:0 2px 8px rgba(37,99,235,0.3);">
+          <i class="fa-solid fa-store"></i> Caja Papelería
+        </button>
+        <button id="caja-tab-btn-giros" onclick="switchCajaTab('giros')"
+          style="flex:1;padding:0.65rem 1rem;border-radius:0.75rem;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);">
+          <i class="fa-solid fa-dollar-sign"></i> Giros Venezuela
+        </button>
+      </div>
+
+      <!-- ─── TAB: PAPELERÍA ─── -->
+      <div id="caja-tab-papeleria">
+        <!-- Saldo actual -->
+        <div style="background:linear-gradient(135deg,#1e3a8a,#2563EB,#1d4ed8);border-radius:1.5rem;padding:1.75rem 2rem;margin-bottom:1.25rem;color:white;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+          <div style="position:absolute;bottom:-30px;right:60px;width:80px;height:80px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+          <div style="font-size:0.8rem;opacity:0.8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Saldo actual — Caja Papelería</div>
+          <div style="font-size:2.5rem;font-weight:900;font-family:'Poppins',sans-serif;" id="caja-pap-saldo-display">$0</div>
+          <div style="font-size:0.8rem;opacity:0.7;margin-top:0.4rem;" id="caja-pap-ultimo-cierre">Sin cierres registrados</div>
+          <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">
+            <button onclick="openModalCajaRegistro('papeleria','cierre')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:0.75rem;color:white;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;backdrop-filter:blur(4px);display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+              <i class="fa-solid fa-lock"></i> Registrar Cierre
+            </button>
+            <button onclick="openModalCajaRegistro('papeleria','debito')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:0.75rem;color:#fca5a5;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i> Registrar Débito
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs papelería -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
+          <div class="glass-card" style="padding:1rem;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:800;font-family:'Poppins',sans-serif;color:#2563EB;" id="caja-pap-kpi-cierres">0</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Cierres este mes</div>
+          </div>
+          <div class="glass-card" style="padding:1rem;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:800;font-family:'Poppins',sans-serif;color:#EF4444;" id="caja-pap-kpi-debitos">$0</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Débitos este mes</div>
+          </div>
+          <div class="glass-card" style="padding:1rem;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:800;font-family:'Poppins',sans-serif;color:#22C55E;" id="caja-pap-kpi-promedio">$0</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Promedio cierre</div>
+          </div>
+        </div>
+
+        <!-- Historial papelería -->
+        <div class="glass-card" style="overflow:hidden;">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;">
+            <h4 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:#2563EB;margin-right:0.5rem;"></i>Historial Caja Papelería</h4>
+            <select class="field-input" style="width:auto;font-size:0.8rem;" onchange="loadCajaPapeleria()" id="caja-pap-filter-mes">
+              <option value="">Este mes</option>
+              <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+              <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+              <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="premium-table">
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Motivo / Notas</th><th>Registrado por</th></tr></thead>
+              <tbody id="caja-pap-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: GIROS VENEZUELA ─── -->
+      <div id="caja-tab-giros" style="display:none;">
+        <!-- Saldos actuales -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:linear-gradient(135deg,#064e3b,#059669);border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
+            <div style="font-size:0.75rem;opacity:0.8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Saldo Plataforma</div>
+            <div style="font-size:1.8rem;font-weight:900;font-family:'Poppins',sans-serif;" id="giros-saldo-plataforma">$0</div>
+            <i class="fa-solid fa-globe" style="position:absolute;right:1rem;bottom:1rem;font-size:2rem;opacity:0.15;"></i>
+          </div>
+          <div style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
+            <div style="font-size:0.75rem;opacity:0.8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Saldo Caja</div>
+            <div style="font-size:1.8rem;font-weight:900;font-family:'Poppins',sans-serif;" id="giros-saldo-caja">$0</div>
+            <i class="fa-solid fa-money-bill-wave" style="position:absolute;right:1rem;bottom:1rem;font-size:2rem;opacity:0.15;"></i>
+          </div>
+          <div style="background:linear-gradient(135deg,#4c1d95,#7C3AED);border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
+            <div style="font-size:0.75rem;opacity:0.8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Total General</div>
+            <div style="font-size:1.8rem;font-weight:900;font-family:'Poppins',sans-serif;" id="giros-saldo-total">$0</div>
+            <i class="fa-solid fa-calculator" style="position:absolute;right:1rem;bottom:1rem;font-size:2rem;opacity:0.15;"></i>
+          </div>
+        </div>
+
+        <!-- Último cierre info -->
+        <div class="glass-card" style="padding:1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+          <div style="font-size:0.85rem;color:var(--text-muted);" id="giros-ultimo-cierre">Sin cierres registrados</div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <button onclick="openModalCajaRegistro('giros','cierre')" class="btn-primary" style="font-size:0.85rem;">
+              <i class="fa-solid fa-lock"></i> Registrar Cierre
+            </button>
+            <button onclick="openModalCajaRegistro('giros','debito')" class="btn-danger" style="font-size:0.85rem;">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i> Registrar Débito
+            </button>
+          </div>
+        </div>
+
+        <!-- Historial giros -->
+        <div class="glass-card" style="overflow:hidden;">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;">
+            <h4 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:#7C3AED;margin-right:0.5rem;"></i>Historial Giros Venezuela</h4>
+            <select class="field-input" style="width:auto;font-size:0.8rem;" onchange="loadCajaGiros()" id="caja-giros-filter-mes">
+              <option value="">Este mes</option>
+              <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+              <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+              <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="premium-table">
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Plataforma</th><th>Caja</th><th>Total</th><th>Motivo</th><th>Por</th></tr></thead>
+              <tbody id="caja-giros-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- FIN CERRAR CAJA -->
+
 	<div class="section" id="sec-streaming-cartera">
 	  <!-- BARRA DE ACCIONES -->
 	  <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1.25rem;">
 		<button class="btn-primary" onclick="openModalStreamingCliente()">
 		  <i class="fa-solid fa-plus"></i> Nuevo Cliente
 		</button>
-		<button class="btn-secondary" onclick="openModalStPlataformasGestion()">
+		<button class="btn-primary" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);" onclick="openModalStPlataformasGestion()">
 		  <i class="fa-solid fa-film"></i> Plataformas
 		</button>
 		<div style="position:relative;flex:1;min-width:200px;max-width:380px;">
@@ -1708,43 +1841,108 @@
 </div>
 
 <!-- Modal: Gestión de Plataformas Streaming -->
+<!-- Modal: Cerrar Caja (Cierre o Débito) -->
+<div id="modal-caja-registro" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:480px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;" id="modal-caja-title">Registrar Cierre</h3>
+      <button onclick="closeModal('modal-caja-registro')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <input type="hidden" id="caja-modal-tipo-caja"/>
+      <input type="hidden" id="caja-modal-tipo-op"/>
+
+      <!-- Fecha -->
+      <div>
+        <label class="field-label">Fecha *</label>
+        <input type="date" id="caja-modal-fecha" class="field-input"/>
+      </div>
+
+      <!-- Monto cierre papelería -->
+      <div id="caja-modal-monto-cierre-row">
+        <label class="field-label">Monto de cierre *</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:700;">$</span>
+          <input type="text" inputmode="numeric" id="caja-modal-monto-cierre" class="field-input" style="padding-left:1.75rem;font-weight:700;font-size:1.1rem;" placeholder="0" oninput="formatCajaInput(this)"/>
+        </div>
+      </div>
+
+      <!-- Saldo plataforma (solo Giros cierre) -->
+      <div id="caja-modal-plataforma-row" style="display:none;">
+        <label class="field-label">Saldo en Plataforma *</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:700;">$</span>
+          <input type="text" inputmode="numeric" id="caja-modal-saldo-plataforma" class="field-input" style="padding-left:1.75rem;font-weight:700;" placeholder="0" oninput="formatCajaInput(this)"/>
+        </div>
+      </div>
+
+      <!-- Saldo caja giros (solo Giros cierre) -->
+      <div id="caja-modal-saldo-caja-row" style="display:none;">
+        <label class="field-label">Saldo en Caja *</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:700;">$</span>
+          <input type="text" inputmode="numeric" id="caja-modal-saldo-caja" class="field-input" style="padding-left:1.75rem;font-weight:700;" placeholder="0" oninput="formatCajaInput(this)"/>
+        </div>
+      </div>
+
+      <!-- Monto débito -->
+      <div id="caja-modal-monto-debito-row" style="display:none;">
+        <label class="field-label">Monto a debitar *</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:#EF4444;font-weight:700;">$</span>
+          <input type="text" inputmode="numeric" id="caja-modal-monto-debito" class="field-input" style="padding-left:1.75rem;font-weight:700;font-size:1.1rem;border-color:rgba(239,68,68,0.3);" placeholder="0" oninput="formatCajaInput(this)"/>
+        </div>
+      </div>
+
+      <!-- Motivo -->
+      <div>
+        <label class="field-label" id="caja-modal-motivo-label">Notas</label>
+        <textarea id="caja-modal-motivo" class="field-input" rows="3" style="resize:none;" placeholder="Describe el motivo o notas relevantes..."></textarea>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+        <button class="btn-secondary" onclick="closeModal('modal-caja-registro')">Cancelar</button>
+        <button class="btn-primary" id="caja-modal-btn-guardar" onclick="guardarRegistroCaja()">
+          <i class="fa-solid fa-save"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="modal-st-plataformas-gestion" class="modal-overlay" style="display:none;">
-  <div class="modal-box" style="max-width:680px;max-height:88vh;overflow-y:auto;">
+  <div class="modal-box" style="max-width:700px;max-height:88vh;overflow-y:auto;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
       <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">
-        <i class="fa-solid fa-film" style="color:#2563EB;margin-right:0.5rem;"></i>Plataformas de Streaming
+        <i class="fa-solid fa-film" style="color:#7C3AED;margin-right:0.5rem;"></i>Plataformas de Streaming
       </h3>
       <button onclick="closeModal('modal-st-plataformas-gestion')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- Distribución de Ingresos ENCIMA de la tabla -->
-    <div class="glass-card" style="padding:1.25rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.02));">
+    <!-- Distribución de Ingresos -->
+    <div class="glass-card" style="padding:1.25rem;margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(37,99,235,0.03));">
       <h4 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:0.875rem;">
-        <i class="fa-solid fa-chart-pie" style="color:#2563EB;margin-right:0.5rem;"></i>Distribución de Ingresos por Plataforma
+        <i class="fa-solid fa-chart-pie" style="color:#7C3AED;margin-right:0.5rem;"></i>Distribución de Ingresos por Plataforma
       </h4>
       <div id="st-plat-rentabilidad-modal"></div>
     </div>
 
-    <!-- Botón agregar -->
-    <div style="display:flex;justify-content:flex-end;margin-bottom:0.875rem;">
-      <button class="btn-primary" onclick="openModalStPlataforma()">
+    <!-- Header con buscador y botón -->
+    <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+      <div style="position:relative;flex:1;min-width:180px;">
+        <i class="fa-solid fa-search" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;"></i>
+        <input type="text" placeholder="Buscar plataforma..." class="field-input" style="padding-left:2.2rem;font-size:0.85rem;" oninput="filtrarPlataformasModal(this.value)"/>
+      </div>
+      <button class="btn-primary" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);white-space:nowrap;" onclick="openModalStPlataforma()">
         <i class="fa-solid fa-plus"></i> Nueva Plataforma
       </button>
     </div>
 
-    <!-- Tabla de plataformas -->
-    <div class="glass-card" style="overflow:hidden;">
-      <table class="premium-table">
-        <thead>
-          <tr>
-            <th>Plataforma</th>
-            <th>Costo Real/mes</th>
-            <th>Suscripciones</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="st-plat-tabla-tbody"></tbody>
-      </table>
+    <!-- Grid de cards responsivo -->
+    <div id="st-plat-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;"></div>
+    <div id="st-plat-empty" style="display:none;text-align:center;padding:2rem;color:var(--text-muted);">
+      <i class="fa-solid fa-film" style="font-size:2rem;opacity:0.3;margin-bottom:0.75rem;display:block;"></i>
+      Sin plataformas. Agrega la primera.
     </div>
   </div>
 </div>
@@ -3174,6 +3372,7 @@ const sectionMap = {
   'admin-registrar': { id:'sec-admin-registrar', title:'Registrar', sub:'Nuevo movimiento (Admin)', load:()=>{ document.getElementById('admin-reg-fecha').value=todayLocal(); buildAdminPlataformaInputs(); } },
   'streaming-cartera': { id:'sec-streaming-cartera', title:'Cartera de Clientes', sub:'Clientes y plataformas disponibles', load:()=>loadStreamingClientes() },
   'streaming-suscripciones': { id:'sec-streaming-suscripciones', title:'Gestión de Suscripciones', sub:'Ventas, vencimientos y rentabilidad', load:()=>loadStreamingSuscripciones() },  
+  'cerrar-caja': { id:'sec-cerrar-caja', title:'Cerrar Caja', sub:'Cierres diarios y control de débitos', load:()=>loadCerrarCaja() },
   'op-inicio': { id:'sec-op-inicio', title:'Inicio', sub:'Tu resumen diario', load:()=>loadOpInicio() },
   'op-registrar': { id:'sec-op-registrar', title:'Registrar', sub:'Nuevo movimiento', load:()=>{ document.getElementById('reg-fecha').value=todayLocal(); buildPlataformaInputs(); } },
   'op-mis-registros': { id:'sec-op-mis-registros', title:'Mis Registros', sub:'Tu historial', load:()=>loadOpMisRegistros() },
@@ -8357,69 +8556,6 @@ function openModalStPlataformasGestion() {
   openModal('modal-st-plataformas-gestion');
 }
 
-function renderStPlataformasModal() {
-  const tbody = document.getElementById('st-plat-tabla-tbody');
-  if (tbody) {
-    if (!allStPlataformas.length) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin plataformas. Agrega la primera.</td></tr>`;
-    } else {
-      tbody.innerHTML = allStPlataformas.map(p => {
-        const cnt = allStSuscripciones.filter(s => s.plataforma_id === p.id && s.estado !== 'cancelado').length;
-        return `
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:0.75rem;">
-              <div style="width:38px;height:38px;border-radius:0.75rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${p.emoji}</div>
-              <div>
-                <div style="font-weight:700;">${p.nombre}</div>
-                <div style="display:flex;align-items:center;gap:0.35rem;margin-top:0.15rem;">
-                  <span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block;"></span>
-                  <span style="font-size:0.72rem;color:var(--text-muted);">${p.color}</span>
-                </div>
-              </div>
-            </div>
-          </td>
-          <td style="font-weight:600;color:#22C55E;">${p.costo_real > 0 ? formatCurrency(p.costo_real) : '<span style="color:var(--text-muted);font-weight:400;">No definido</span>'}</td>
-          <td><span class="badge badge-blue">${cnt} activa${cnt !== 1 ? 's' : ''}</span></td>
-          <td>
-            <div style="display:flex;gap:0.4rem;">
-              <button class="btn-edit" onclick="editStPlatFromModal('${p.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
-              <button class="btn-danger" onclick="deleteStPlataformaModal('${p.id}')"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('');
-    }
-  }
-
-  const rentContainer = document.getElementById('st-plat-rentabilidad-modal');
-  if (!rentContainer) return;
-  const byPlat = {};
-  allStSuscripciones.filter(s => s.estado !== 'cancelado').forEach(s => {
-    if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = { ingresos: 0, cnt: 0 };
-    byPlat[s.plataforma_id].ingresos += s.precio_venta || 0;
-    byPlat[s.plataforma_id].cnt++;
-  });
-  const totalIng = Object.values(byPlat).reduce((a, v) => a + v.ingresos, 0);
-  if (!Object.keys(byPlat).length) {
-    rentContainer.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:0.75rem;">Sin suscripciones activas aún</div>';
-    return;
-  }
-  rentContainer.innerHTML = Object.entries(byPlat).map(([platId, d]) => {
-    const plat = allStPlataformas.find(p => p.id === platId);
-    if (!plat) return '';
-    const pct = totalIng > 0 ? Math.round((d.ingresos / totalIng) * 100) : 0;
-    return `
-    <div style="margin-bottom:0.75rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
-        <span style="font-size:0.85rem;font-weight:600;">${plat.emoji} ${plat.nombre} <span style="color:var(--text-muted);font-weight:400;">(${d.cnt})</span></span>
-        <span style="font-size:0.82rem;font-weight:700;color:#22C55E;">${formatCurrency(d.ingresos)} · ${pct}%</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${plat.color};"></div></div>
-    </div>`;
-  }).join('');
-}
-
 function editStPlatFromModal(id) {
   closeModal('modal-st-plataformas-gestion');
   setTimeout(() => openModalStPlataforma(id), 200);
@@ -8618,7 +8754,7 @@ async function aplicarPasswordTemporal(userId, pwd) {
 
 const SECTION_GROUP_MAP = {
   'dashboard':'principal','registros':'principal','admin-registrar':'principal',
-  'estadisticas':'principal','top-dias':'principal',
+  'estadisticas':'principal','top-dias':'principal','cerrar-caja':'principal',
   'operadores':'gestion','sucursales':'gestion','plataformas':'gestion','reportes':'gestion',
   'streaming-cartera':'streaming','streaming-suscripciones':'streaming',
   'auditoria':'sistema'
@@ -8651,6 +8787,248 @@ function initNavGroups() {
   const saved = localStorage.getItem('haliel-open-group') || 'principal';
   openNavGroup(saved);
 }
+
+// =====================================================
+// MÓDULO: CERRAR CAJA
+// =====================================================
+let cajaTabActual = 'papeleria';
+
+function switchCajaTab(tab) {
+  cajaTabActual = tab;
+  document.getElementById('caja-tab-papeleria').style.display = tab==='papeleria'?'':'none';
+  document.getElementById('caja-tab-giros').style.display     = tab==='giros'?'':'none';
+  const bP = document.getElementById('caja-tab-btn-papeleria');
+  const bG = document.getElementById('caja-tab-btn-giros');
+  if (tab==='papeleria') {
+    bP.style.background='linear-gradient(135deg,#2563EB,#1d4ed8)';bP.style.color='white';bP.style.boxShadow='0 2px 8px rgba(37,99,235,0.3)';
+    bG.style.background='transparent';bG.style.color='var(--text-muted)';bG.style.boxShadow='none';
+  } else {
+    bG.style.background='linear-gradient(135deg,#7C3AED,#6D28D9)';bG.style.color='white';bG.style.boxShadow='0 2px 8px rgba(124,58,237,0.3)';
+    bP.style.background='transparent';bP.style.color='var(--text-muted)';bP.style.boxShadow='none';
+  }
+  if (tab==='papeleria') loadCajaPapeleria(); else loadCajaGiros();
+}
+
+async function loadCerrarCaja() { switchCajaTab('papeleria'); }
+
+async function loadCajaPapeleria() {
+  const mes = document.getElementById('caja-pap-filter-mes')?.value;
+  const hoy = new Date(); const ano = hoy.getFullYear();
+  const m = mes || (hoy.getMonth()+1);
+  const start=`${ano}-${String(m).padStart(2,'0')}-01`;
+  const end=new Date(ano,m,0).toISOString().split('T')[0];
+
+  const [{data:cierres},{data:debitos}] = await Promise.all([
+    sb.from('caja_papeleria_cierres').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false}),
+    sb.from('caja_papeleria_debitos').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false})
+  ]);
+  const {data:uc} = await sb.from('caja_papeleria_cierres').select('*').order('fecha',{ascending:false}).limit(1);
+  const {data:dh} = await sb.from('caja_papeleria_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
+  const saldoActual = (uc?.[0]?.monto_cierre||0) - (dh||[]).reduce((a,d)=>a+(d.monto||0),0);
+
+  document.getElementById('caja-pap-saldo-display').textContent = formatCurrency(saldoActual);
+  document.getElementById('caja-pap-ultimo-cierre').textContent = uc?.[0]
+    ? `Último cierre: ${formatDate(uc[0].fecha)} · ${formatCurrency(uc[0].monto_cierre)}`
+    : 'Sin cierres registrados';
+
+  const totalDeb = (debitos||[]).reduce((a,d)=>a+(d.monto||0),0);
+  const prom = (cierres||[]).length ? Math.round((cierres||[]).reduce((a,c)=>a+(c.monto_cierre||0),0)/(cierres||[]).length) : 0;
+  document.getElementById('caja-pap-kpi-cierres').textContent  = (cierres||[]).length;
+  document.getElementById('caja-pap-kpi-debitos').textContent  = formatCurrency(totalDeb);
+  document.getElementById('caja-pap-kpi-promedio').textContent = formatCurrency(prom);
+
+  const tbody = document.getElementById('caja-pap-tbody');
+  const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  tbody.innerHTML = !todos.length
+    ? `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    : todos.map((r,i)=>`<tr style="background:${i%2===0?'transparent':'rgba(37,99,235,0.02)'};">
+        <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}</td>
+        <td>${r.tipo==='cierre'?'<span class="badge badge-green"><i class="fa-solid fa-lock"></i> Cierre</span>':'<span class="badge badge-red"><i class="fa-solid fa-arrow-up-from-bracket"></i> Débito</span>'}</td>
+        <td style="font-weight:700;color:${r.tipo==='cierre'?'#22C55E':'#EF4444'};">${formatCurrency(r.monto_cierre||r.monto)}</td>
+        <td style="color:var(--text-muted);font-size:0.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
+        <td style="font-size:0.8rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
+      </tr>`).join('');
+}
+
+async function loadCajaGiros() {
+  const mes = document.getElementById('caja-giros-filter-mes')?.value;
+  const hoy = new Date(); const ano = hoy.getFullYear();
+  const m = mes || (hoy.getMonth()+1);
+  const start=`${ano}-${String(m).padStart(2,'0')}-01`;
+  const end=new Date(ano,m,0).toISOString().split('T')[0];
+
+  const [{data:cierres},{data:debitos}] = await Promise.all([
+    sb.from('giros_cierres').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false}),
+    sb.from('giros_debitos').select('*').gte('fecha',start).lte('fecha',end).order('fecha',{ascending:false})
+  ]);
+  const {data:uc} = await sb.from('giros_cierres').select('*').order('fecha',{ascending:false}).limit(1);
+  const {data:dh} = await sb.from('giros_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
+  const totalDH = (dh||[]).reduce((a,d)=>a+(d.monto||0),0);
+  const saldoPlat = uc?.[0]?.saldo_plataforma||0;
+  const saldoCaja = (uc?.[0]?.saldo_caja||0)-totalDH;
+
+  document.getElementById('giros-saldo-plataforma').textContent = formatCurrency(saldoPlat);
+  document.getElementById('giros-saldo-caja').textContent       = formatCurrency(saldoCaja);
+  document.getElementById('giros-saldo-total').textContent      = formatCurrency(saldoPlat+saldoCaja);
+  document.getElementById('giros-ultimo-cierre').textContent    = uc?.[0]
+    ? `Último cierre: ${formatDate(uc[0].fecha)} · Total: ${formatCurrency(uc[0].total)}`
+    : 'Sin cierres registrados';
+
+  const tbody = document.getElementById('caja-giros-tbody');
+  const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  tbody.innerHTML = !todos.length
+    ? `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    : todos.map((r,i)=>`<tr style="background:${i%2===0?'transparent':'rgba(124,58,237,0.02)'};">
+        <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}</td>
+        <td>${r.tipo==='cierre'?'<span class="badge badge-green"><i class="fa-solid fa-lock"></i> Cierre</span>':'<span class="badge badge-red"><i class="fa-solid fa-arrow-up-from-bracket"></i> Débito</span>'}</td>
+        <td style="font-weight:600;color:#22C55E;">${r.saldo_plataforma!=null?formatCurrency(r.saldo_plataforma):'—'}</td>
+        <td style="font-weight:600;color:#2563EB;">${r.saldo_caja!=null?formatCurrency(r.saldo_caja):r.monto!=null?'-'+formatCurrency(r.monto):'—'}</td>
+        <td style="font-weight:700;color:#7C3AED;">${r.total!=null?formatCurrency(r.total):'—'}</td>
+        <td style="color:var(--text-muted);font-size:0.82rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
+        <td style="font-size:0.8rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
+      </tr>`).join('');
+}
+
+function openModalCajaRegistro(tipoCaja,tipoOp) {
+  document.getElementById('caja-modal-tipo-caja').value = tipoCaja;
+  document.getElementById('caja-modal-tipo-op').value   = tipoOp;
+  document.getElementById('caja-modal-fecha').value     = todayLocal();
+  document.getElementById('caja-modal-motivo').value    = '';
+  const esC=tipoOp==='cierre', esG=tipoCaja==='giros';
+  document.getElementById('modal-caja-title').innerHTML = esC
+    ? `<i class="fa-solid fa-lock" style="color:#22C55E;margin-right:0.5rem;"></i>Cierre — ${esG?'Giros Venezuela':'Caja Papelería'}`
+    : `<i class="fa-solid fa-arrow-up-from-bracket" style="color:#EF4444;margin-right:0.5rem;"></i>Débito — ${esG?'Giros Venezuela':'Caja Papelería'}`;
+  document.getElementById('caja-modal-monto-cierre-row').style.display  = esC&&!esG?'':'none';
+  document.getElementById('caja-modal-plataforma-row').style.display    = esC&&esG?'':'none';
+  document.getElementById('caja-modal-saldo-caja-row').style.display    = esC&&esG?'':'none';
+  document.getElementById('caja-modal-monto-debito-row').style.display  = !esC?'':'none';
+  document.getElementById('caja-modal-motivo-label').textContent        = esC?'Notas (opcional)':'Motivo del débito *';
+  ['caja-modal-monto-cierre','caja-modal-saldo-plataforma','caja-modal-saldo-caja','caja-modal-monto-debito']
+    .forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.dataset.raw='0';}});
+  openModal('modal-caja-registro');
+}
+
+function formatCajaInput(input) {
+  const raw=input.value.replace(/\D/g,'');
+  input.dataset.raw=raw||'0';
+  input.value=raw?parseInt(raw).toLocaleString('es-CO'):'';
+}
+function getCajaInputVal(id) { const el=document.getElementById(id); return el?(parseFloat(el.dataset.raw)||0):0; }
+
+async function guardarRegistroCaja() {
+  const tipoCaja=document.getElementById('caja-modal-tipo-caja').value;
+  const tipoOp  =document.getElementById('caja-modal-tipo-op').value;
+  const fecha   =document.getElementById('caja-modal-fecha').value;
+  const motivo  =document.getElementById('caja-modal-motivo').value.trim();
+  const nombre  =currentProfile?.nombre||'Usuario';
+  if(!fecha){toast('Selecciona la fecha','error');return;}
+  const btn=document.getElementById('caja-modal-btn-guardar');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';
+  try {
+    if(tipoCaja==='papeleria'){
+      if(tipoOp==='cierre'){
+        const monto=getCajaInputVal('caja-modal-monto-cierre');
+        if(!monto){toast('Ingresa el monto de cierre','error');return;}
+        const {data:ex}=await sb.from('caja_papeleria_cierres').select('id').eq('fecha',fecha).limit(1);
+        if(ex?.length){toast('Ya existe un cierre para esta fecha','error');return;}
+        await sb.from('caja_papeleria_cierres').insert({fecha,monto_cierre:monto,notas:motivo,operador_id:currentUser.id,operador_nombre:nombre});
+        await sendTelegramNotification(`🔒 *Cierre Caja Papelería*\n📅 ${fecha}\n💰 ${formatCurrency(monto)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
+        await logAuditoria('crear',`Cierre Caja Papelería: ${formatCurrency(monto)} — ${fecha}${motivo?' | '+motivo:''}`);
+      } else {
+        const monto=getCajaInputVal('caja-modal-monto-debito');
+        if(!monto){toast('Ingresa el monto','error');return;}
+        if(!motivo){toast('El motivo es obligatorio','error');return;}
+        const {data:uc}=await sb.from('caja_papeleria_cierres').select('monto_cierre').order('fecha',{ascending:false}).limit(1);
+        const {data:dh}=await sb.from('caja_papeleria_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
+        const sAnt=(uc?.[0]?.monto_cierre||0)-(dh||[]).reduce((a,d)=>a+(d.monto||0),0);
+        const sNuevo=sAnt-monto;
+        await sb.from('caja_papeleria_debitos').insert({fecha,monto,motivo,saldo_anterior:sAnt,saldo_nuevo:sNuevo,operador_id:currentUser.id,operador_nombre:nombre});
+        await sendTelegramNotification(`⚠️ *Débito Caja Papelería*\n📅 ${fecha}\n💸 -${formatCurrency(monto)}\n📝 ${motivo}\n💰 Nuevo saldo: ${formatCurrency(sNuevo)}\n👤 ${nombre}`);
+        await logAuditoria('editar',`Débito Caja Papelería: -${formatCurrency(monto)} | ${motivo} | Nuevo saldo: ${formatCurrency(sNuevo)}`);
+      }
+    } else {
+      if(tipoOp==='cierre'){
+        const sP=getCajaInputVal('caja-modal-saldo-plataforma');
+        const sC=getCajaInputVal('caja-modal-saldo-caja');
+        if(!sP&&!sC){toast('Ingresa al menos un saldo','error');return;}
+        const {data:ex}=await sb.from('giros_cierres').select('id').eq('fecha',fecha).limit(1);
+        if(ex?.length){toast('Ya existe un cierre de Giros para esta fecha','error');return;}
+        const total=sP+sC;
+        await sb.from('giros_cierres').insert({fecha,saldo_plataforma:sP,saldo_caja:sC,total,notas:motivo,operador_id:currentUser.id,operador_nombre:nombre});
+        await sendTelegramNotification(`🔒 *Cierre Giros Venezuela*\n📅 ${fecha}\n🌐 Plataforma: ${formatCurrency(sP)}\n💵 Caja: ${formatCurrency(sC)}\n💰 Total: ${formatCurrency(total)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
+        await logAuditoria('crear',`Cierre Giros Venezuela: Plataforma ${formatCurrency(sP)} + Caja ${formatCurrency(sC)} = ${formatCurrency(total)}`);
+      } else {
+        const monto=getCajaInputVal('caja-modal-monto-debito');
+        if(!monto){toast('Ingresa el monto','error');return;}
+        if(!motivo){toast('El motivo es obligatorio','error');return;}
+        const {data:uc}=await sb.from('giros_cierres').select('saldo_caja').order('fecha',{ascending:false}).limit(1);
+        const {data:dh}=await sb.from('giros_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
+        const sAnt=(uc?.[0]?.saldo_caja||0)-(dh||[]).reduce((a,d)=>a+(d.monto||0),0);
+        const sNuevo=sAnt-monto;
+        await sb.from('giros_debitos').insert({fecha,monto,motivo,saldo_anterior:sAnt,saldo_nuevo:sNuevo,operador_id:currentUser.id,operador_nombre:nombre});
+        await sendTelegramNotification(`⚠️ *Débito Giros Venezuela*\n📅 ${fecha}\n💸 -${formatCurrency(monto)}\n📝 ${motivo}\n💵 Nuevo saldo caja: ${formatCurrency(sNuevo)}\n👤 ${nombre}`);
+        await logAuditoria('editar',`Débito Giros Venezuela: -${formatCurrency(monto)} | ${motivo} | Nuevo saldo caja: ${formatCurrency(sNuevo)}`);
+      }
+    }
+    closeModal('modal-caja-registro');
+    toast('Registro guardado ✅','success');
+    if(tipoCaja==='papeleria') loadCajaPapeleria(); else loadCajaGiros();
+  } catch(err){ toast('Error: '+err.message,'error');
+  } finally { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-save"></i> Guardar'; }
+}
+
+// ── PLATAFORMAS MODAL — CARDS RESPONSIVAS ────────────
+function renderStPlataformasModal(filtro='') {
+  const grid=document.getElementById('st-plat-cards-grid');
+  const empty=document.getElementById('st-plat-empty');
+  if(!grid)return;
+  let plats=allStPlataformas;
+  if(filtro)plats=plats.filter(p=>p.nombre.toLowerCase().includes(filtro.toLowerCase()));
+  if(!plats.length){grid.innerHTML='';if(empty)empty.style.display='';return;}
+  if(empty)empty.style.display='none';
+  grid.innerHTML=plats.map(p=>{
+    const cnt=allStSuscripciones.filter(s=>s.plataforma_id===p.id&&s.estado!=='cancelado').length;
+    return`<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1rem;display:flex;flex-direction:column;gap:0.65rem;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:44px;height:44px;border-radius:0.875rem;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">${p.emoji}</div>
+        <div style="min-width:0;">
+          <div style="font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nombre}</div>
+          <div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.1rem;"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0;"></span><span style="font-size:0.7rem;color:var(--text-muted);">${p.color}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--card-border);padding-top:0.5rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Costo/mes</span>
+        <span style="font-weight:700;color:#22C55E;font-size:0.88rem;">${p.costo_real>0?formatCurrency(p.costo_real):'—'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Suscripciones</span>
+        <span class="badge badge-blue">${cnt} activa${cnt!==1?'s':''}</span>
+      </div>
+      <div style="display:flex;gap:0.4rem;">
+        <button class="btn-edit" style="flex:1;justify-content:center;font-size:0.8rem;" onclick="editStPlatFromModal('${p.id}')"><i class="fa-solid fa-pen"></i> Editar</button>
+        <button class="btn-danger" style="padding:0.45rem 0.7rem;" onclick="deleteStPlataformaModal('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Rentabilidad
+  const rc=document.getElementById('st-plat-rentabilidad-modal');
+  if(!rc)return;
+  const byPlat={};
+  allStSuscripciones.filter(s=>s.estado!=='cancelado').forEach(s=>{
+    if(!byPlat[s.plataforma_id])byPlat[s.plataforma_id]={ingresos:0,cnt:0};
+    byPlat[s.plataforma_id].ingresos+=s.precio_venta||0;byPlat[s.plataforma_id].cnt++;
+  });
+  const tI=Object.values(byPlat).reduce((a,v)=>a+v.ingresos,0);
+  if(!Object.keys(byPlat).length){rc.innerHTML='<div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:0.75rem;">Sin suscripciones activas aún</div>';return;}
+  rc.innerHTML=Object.entries(byPlat).map(([pid,d])=>{
+    const p=allStPlataformas.find(x=>x.id===pid);if(!p)return'';
+    const pct=tI>0?Math.round((d.ingresos/tI)*100):0;
+    return`<div style="margin-bottom:0.65rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;"><span style="font-size:0.82rem;font-weight:600;">${p.emoji} ${p.nombre} <span style="color:var(--text-muted);font-weight:400;">(${d.cnt})</span></span><span style="font-size:0.8rem;font-weight:700;color:#22C55E;">${formatCurrency(d.ingresos)} · ${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${p.color};"></div></div></div>`;
+  }).join('');
+}
+
+function filtrarPlataformasModal(v){ renderStPlataformasModal(v); }
 
 </script>
 
