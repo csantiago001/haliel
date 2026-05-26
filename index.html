@@ -490,6 +490,11 @@
                 <span id="btn-login-text">Iniciar Sesión</span>
                 <span id="btn-login-spinner" style="display:none;"><span class="spinner"></span></span>
             </button>
+			<div id="emergency-reload" style="display:none;text-align:center;margin-top:1rem;">
+			  <button onclick="emergencyClean()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:0.75rem;color:rgba(255,255,255,0.8);padding:0.6rem 1.25rem;font-size:0.8rem;cursor:pointer;">
+				¿Cargando sin entrar? Haz clic aquí
+			  </button>
+			</div>
             
             <div class="text-center mt-4">
                 <button onclick="showForgot()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:0.825rem; cursor:pointer; font-family:'Inter',sans-serif;">¿Olvidaste tu contraseña?</button>
@@ -3050,6 +3055,26 @@ async function doLogin() {
     }
 }
 
+function emergencyClean() {
+    Object.keys(localStorage).filter(k => k.startsWith('sb-')).forEach(k => localStorage.removeItem(k));
+    sessionStorage.clear();
+    window.location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) {
+        btnLogin.addEventListener('click', () => {
+            setTimeout(() => {
+                const spinner = document.getElementById('btn-login-spinner');
+                if (spinner && spinner.style.display !== 'none') {
+                    document.getElementById('emergency-reload').style.display = 'block';
+                }
+            }, 6000);
+        });
+    }
+});
+
 async function doForgot() {
   const email = document.getElementById('forgot-email').value.trim();
   if (!email) { toast('Ingresa tu correo electrónico', 'error'); return; }
@@ -3213,10 +3238,16 @@ window.addEventListener('load', async () => {
         }
     }
     
-    // Verificar sesión existente normal
+    // Verificar sesión existente — con limpieza si el token expiró
     const { data: { session } } = await sb.auth.getSession();
     if (session && session.user) {
-        await initApp(session.user);
+        const expiry = session.expires_at ? session.expires_at * 1000 : 0;
+        if (expiry && Date.now() > expiry) {
+            Object.keys(localStorage).filter(k => k.startsWith('sb-')).forEach(k => localStorage.removeItem(k));
+            await sb.auth.signOut();
+        } else {
+            await initApp(session.user);
+        }
     }
     
     checkMobile();
@@ -3232,6 +3263,13 @@ window.addEventListener('load', async () => {
 // =====================================================
 async function initApp(user) {
     currentUser = user;
+
+    const initTimeout = setTimeout(() => {
+        Object.keys(localStorage).filter(k => k.startsWith('sb-')).forEach(k => localStorage.removeItem(k));
+        toast('La sesión tardó demasiado. Recargando...', 'error');
+        setTimeout(() => window.location.reload(), 1500);
+    }, 12000);
+    window._initAppTimeout = initTimeout;
     
     // 👉 Cargar perfil del usuario
     const { data: prof, error } = await sb.from('usuarios')
@@ -3346,6 +3384,7 @@ async function initApp(user) {
     initSidebarState();
 	initStreamingNav();
     initNavGroups();
+	clearTimeout(window._initAppTimeout);
     
     // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
     setTimeout(() => {
@@ -8783,6 +8822,12 @@ function openGroupForSection(key) {
   openNavGroup(g);
   localStorage.setItem('haliel-open-group', g);
 }
+
+window.addEventListener('beforeunload', () => {
+    try {
+        sb.realtime.getChannels().forEach(ch => sb.removeChannel(ch));
+    } catch(e) {}
+});
 function initNavGroups() {
   const saved = localStorage.getItem('haliel-open-group') || 'principal';
   openNavGroup(saved);
