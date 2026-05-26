@@ -8,7 +8,8 @@
 <link rel="icon" href="logo-redon.png" type="image/png"/>
 <title>Haliel Papelería | Sistema Administrativo</title>
 
-<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Haliel%20Papeler%C3%ADa%22,%22short_name%22:%22Haliel%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%230F172A%22,%22theme_color%22:%22%232563EB%22,%22icons%22:[{%22src%22:%22logo.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="logo-redon.png"/>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -401,6 +402,14 @@
   html.dark .premium-table tbody tr:nth-child(even) { background: rgba(56,189,248,0.03); }
   .premium-table tbody tr { transition: background 0.15s, transform 0.1s; }
   .premium-table tbody tr:hover { background: rgba(37,99,235,0.06) !important; transform: translateX(2px); }
+  /* Tabla operadores — columna acciones compacta */
+	#operadores-tbody td:last-child { white-space: nowrap; }
+	#operadores-tbody .btn-edit,
+	#operadores-tbody .btn-secondary,
+	#operadores-tbody .btn-danger {
+	  padding: 0.4rem 0.55rem !important;
+	  font-size: 0.72rem !important;
+	}
   html.dark .premium-table tbody tr:hover { background: rgba(56,189,248,0.07) !important; }
   .glass-card { transition: transform 0.2s, box-shadow 0.2s; }
   .topbar { position:sticky;top:0;z-index:50;background:var(--card-bg);border-bottom:1px solid var(--card-border);margin:-1.5rem -1.5rem 1.5rem;padding:1rem 1.5rem;backdrop-filter:blur(12px); }
@@ -989,7 +998,7 @@
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
           <table class="premium-table">
-            <thead><tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Sucursal</th><th>Estado</th><th>Registrado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>selección</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Sucursal</th><th>Estado</th><th>Registrado</th><th>Acciones</th></tr></thead>
             <tbody id="operadores-tbody"></tbody>
           </table>
         </div>
@@ -1305,14 +1314,6 @@
 
 	  <!-- TARJETAS COMPACTAS UNIFICADAS: KPIs + Analytics -->
 	  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.65rem;margin-bottom:1.25rem;" id="st-sus-all-kpis"></div>
-
-	  <!-- RENTABILIDAD POR PLATAFORMA -->
-	  <div class="glass-card" style="padding:1.25rem;margin-bottom:1.25rem;">
-		<h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:0.875rem;">
-		  <i class="fa-solid fa-chart-line" style="color:#22C55E;margin-right:0.5rem;"></i>Rentabilidad por Plataforma
-		</h3>
-		<div id="st-rentabilidad-lista"></div>
-	  </div>
 
 	  <!-- TABLA DE SUSCRIPCIONES -->
 	  <div class="glass-card" style="overflow:hidden;">
@@ -3500,6 +3501,7 @@ async function initApp(user) {
     initSidebarState();
 	initStreamingNav();
     initNavGroups();
+	window._navReady = true;
 	clearTimeout(window._initAppTimeout);
     hideSplash();
     registrarUltimoAcceso();
@@ -8922,6 +8924,7 @@ function toggleNavGroup(id) {
   if (!isOpen) openNavGroup(id);
 }
 function openGroupForSection(key) {
+  if (!window._navReady) return;
   const g = SECTION_GROUP_MAP[key];
   if (!g) return;
   ALL_GROUPS.forEach(x => closeNavGroup(x));
@@ -8935,8 +8938,8 @@ window.addEventListener('beforeunload', () => {
     } catch(e) {}
 });
 function initNavGroups() {
-  const saved = localStorage.getItem('haliel-open-group') || 'principal';
-  openNavGroup(saved);
+  const saved = localStorage.getItem('haliel-open-group');
+  if (saved) openNavGroup(saved);
 }
 
 // =====================================================
