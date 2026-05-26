@@ -281,6 +281,42 @@
   .skeleton-row { height: 46px; margin-bottom: 0.5rem; }
   .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: 1rem 2rem 0.35rem; opacity: 0.7; white-space: nowrap; overflow: hidden; }
 
+  /* ── GRUPOS COLAPSABLES DEL SIDEBAR ── */
+  .nav-group { margin: 0.15rem 0; }
+
+  .nav-group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 1.25rem; margin: 0.1rem 0.75rem;
+    border-radius: 0.85rem; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 0.875rem;
+    color: var(--text-muted); user-select: none;
+    transition: all 0.2s;
+  }
+  .nav-group-header:hover { background: rgba(37,99,235,0.08); color: #2563EB; }
+  .nav-group-header.open { color: #2563EB; background: rgba(37,99,235,0.06); }
+  html.dark .nav-group-header.open { color: #38BDF8; background: rgba(56,189,248,0.08); }
+
+  .nav-group-arrow {
+    font-size: 0.7rem; transition: transform 0.25s ease;
+    color: var(--text-muted); flex-shrink: 0;
+  }
+  .nav-group-header.open .nav-group-arrow { transform: rotate(180deg); color: #2563EB; }
+  html.dark .nav-group-header.open .nav-group-arrow { color: #38BDF8; }
+
+  .nav-group-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+  }
+  .nav-group-body.open { max-height: 400px; }
+
+  /* Sidebar colapsado: ocultar cabeceras de grupo y mostrar solo iconos */
+  .sidebar.collapsed .nav-group-header { justify-content: center; padding: 0.7rem; margin: 0.1rem 0.75rem; }
+  .sidebar.collapsed .nav-group-header > div { justify-content: center; }
+  .sidebar.collapsed .nav-group-arrow { display: none; }
+  .sidebar.collapsed .nav-group-body { max-height: 400px !important; }
+  .sidebar.collapsed .nav-group-body .nav-item { justify-content: center; padding: 0.7rem; }
+
   /* Tooltip para sidebar colapsado */
   .nav-item { position: relative; }
   .sidebar.collapsed .nav-item::after { content: attr(data-tooltip); position: absolute; left: 100%; top: 50%; transform: translateY(-50%); background: #1e293b; color: white; padding: 0.4rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 200; margin-left: 0.5rem; }
@@ -359,6 +395,20 @@
 	}
 	.badge-pulse-green { animation: pulseGreen 2.5s ease-in-out infinite; }
 	.badge-pulse-red   { animation: pulseRed 2.5s ease-in-out infinite; }
+
+  /* ── MEJORAS ESTÉTICAS ── */
+  .premium-table tbody tr:nth-child(even) { background: rgba(37,99,235,0.02); }
+  html.dark .premium-table tbody tr:nth-child(even) { background: rgba(56,189,248,0.03); }
+  .premium-table tbody tr { transition: background 0.15s, transform 0.1s; }
+  .premium-table tbody tr:hover { background: rgba(37,99,235,0.06) !important; transform: translateX(2px); }
+  html.dark .premium-table tbody tr:hover { background: rgba(56,189,248,0.07) !important; }
+  .glass-card { transition: transform 0.2s, box-shadow 0.2s; }
+  .topbar { position:sticky;top:0;z-index:50;background:var(--card-bg);border-bottom:1px solid var(--card-border);margin:-1.5rem -1.5rem 1.5rem;padding:1rem 1.5rem;backdrop-filter:blur(12px); }
+  html.dark .topbar { background:rgba(30,41,59,0.95); }
+  .nav-group-header.open { background:linear-gradient(135deg,rgba(37,99,235,0.1),rgba(124,58,237,0.07))!important;border-left:3px solid #2563EB; }
+  html.dark .nav-group-header.open { border-left-color:#38BDF8; }
+  .logro-badge { display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(250,204,21,0.08));border:1px solid rgba(250,204,21,0.3);border-radius:99px;padding:0.3rem 0.875rem;font-size:0.78rem;font-weight:700;color:#92400e; }
+  html.dark .logro-badge { color:#fde047; }
 	
 	.btn-edit, .btn-danger {
 		position: relative;
@@ -401,7 +451,7 @@
 </div>
 
 <!-- FONDO STREAMING: div real con position:fixed -->
-<div id="streaming-bg-overlay" style="position:fixed;inset:0;background-image:url('fondostreaming.jpg');background-size:900px auto;background-position:center center;background-repeat:no-repeat;opacity:0;z-index:0;pointer-events:none;transition:opacity 0.5s ease;"></div>
+<!--<div id="streaming-bg-overlay" style="position:fixed;inset:0;background-image:url('fondostreaming.jpg');background-size:900px auto;background-position:center center;background-repeat:no-repeat;opacity:0;z-index:0;pointer-events:none;transition:opacity 0.5s ease;"></div>-->
 
 <!-- LOGIN -->
 <div id="login-page">
@@ -508,29 +558,72 @@
 		</div>
 
 	  <!-- Admin Nav -->
-	  <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
-		<div class="nav-label">Principal</div>
-		<div class="nav-item active" data-tooltip="Dashboard" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
-		<div class="nav-item" data-tooltip="Registros" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
-		<div class="nav-item" data-tooltip="Registrar" onclick="goSection('admin-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
-		<div class="nav-item" data-tooltip="Estadísticas" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
-		<div class="nav-item" data-tooltip="Top Días" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
-		<div class="nav-label">Gestión</div>
-		<div class="nav-item" data-tooltip="Operadores" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i><span class="nav-item-text"> Operadores</span></div>
-		<div class="nav-item" data-tooltip="Sucursales" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text"> Sucursales</span></div>
-		<div class="nav-item" data-tooltip="Plataformas" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text"> Plataformas</span></div>
-		<div class="nav-item" data-tooltip="Reportes" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text"> Reportes</span></div>
-        <div class="nav-label">Streaming</div>
-        <div class="nav-item" id="nav-streaming-cartera" data-tooltip="Cartera" onclick="goSection('streaming-cartera')">
-		  <i class="fa-solid fa-users-rectangle"></i>
-		  <span class="nav-item-text"> Cartera de Clientes</span>
+	  <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.5rem 0;" class="hidden">
+
+		<!-- GRUPO: PRINCIPAL -->
+		<div class="nav-group" id="group-principal">
+		  <div class="nav-group-header" onclick="toggleNavGroup('principal')">
+			<div style="display:flex;align-items:center;gap:0.65rem;">
+			  <i class="fa-solid fa-house-chimney" style="width:18px;text-align:center;font-size:0.9rem;"></i>
+			  <span class="nav-item-text" style="font-weight:700;">Administración Principal</span>
+			</div>
+			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-principal"></i>
+		  </div>
+		  <div class="nav-group-body" id="body-principal">
+			<div class="nav-item" data-tooltip="Dashboard" data-group="principal" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
+			<div class="nav-item" data-tooltip="Registros" data-group="principal" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
+			<div class="nav-item" data-tooltip="Registrar" data-group="principal" onclick="goSection('admin-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
+			<div class="nav-item" data-tooltip="Estadísticas" data-group="principal" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
+			<div class="nav-item" data-tooltip="Top Días" data-group="principal" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
+		  </div>
 		</div>
-		<div class="nav-item" id="nav-streaming-suscripciones" data-tooltip="Gestión" onclick="goSection('streaming-suscripciones')">
-		  <i class="fa-solid fa-cog"></i>
-		  <span class="nav-item-text"> Gestión de Suscripciones</span>
-		</div>		
-		<div class="nav-label">Sistema</div>
-		<div class="nav-item" data-tooltip="Auditoría" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text"> Auditoría</span></div>
+
+		<!-- GRUPO: GESTIÓN -->
+		<div class="nav-group" id="group-gestion">
+		  <div class="nav-group-header" onclick="toggleNavGroup('gestion')">
+			<div style="display:flex;align-items:center;gap:0.65rem;">
+			  <i class="fa-solid fa-sliders" style="width:18px;text-align:center;font-size:0.9rem;"></i>
+			  <span class="nav-item-text" style="font-weight:700;">Gestión usuarios y plataforma</span>
+			</div>
+			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-gestion"></i>
+		  </div>
+		  <div class="nav-group-body" id="body-gestion">
+			<div class="nav-item" data-tooltip="Operadores" data-group="gestion" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i><span class="nav-item-text"> Operadores</span></div>
+			<div class="nav-item" data-tooltip="Sucursales" data-group="gestion" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text"> Sucursales</span></div>
+			<div class="nav-item" data-tooltip="Plataformas" data-group="gestion" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text"> Plataformas</span></div>
+			<div class="nav-item" data-tooltip="Reportes" data-group="gestion" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text"> Reportes</span></div>
+		  </div>
+		</div>
+
+		<!-- GRUPO: STREAMING -->
+		<div class="nav-group" id="group-streaming">
+		  <div class="nav-group-header" onclick="toggleNavGroup('streaming')">
+			<div style="display:flex;align-items:center;gap:0.65rem;">
+			  <i class="fa-solid fa-play-circle" style="width:18px;text-align:center;font-size:0.9rem;"></i>
+			  <span class="nav-item-text" style="font-weight:700;">Streaming</span>
+			</div>
+			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-streaming"></i>
+		  </div>
+		  <div class="nav-group-body" id="body-streaming">
+			<div class="nav-item" id="nav-streaming-cartera" data-tooltip="Cartera" data-group="streaming" onclick="goSection('streaming-cartera')"><i class="fa-solid fa-users-rectangle"></i><span class="nav-item-text"> Cartera de Clientes</span></div>
+			<div class="nav-item" id="nav-streaming-suscripciones" data-tooltip="Gestión" data-group="streaming" onclick="goSection('streaming-suscripciones')"><i class="fa-solid fa-cog"></i><span class="nav-item-text"> Gestión de Suscripciones</span></div>
+		  </div>
+		</div>
+
+		<!-- GRUPO: SISTEMA -->
+		<div class="nav-group" id="group-sistema">
+		  <div class="nav-group-header" onclick="toggleNavGroup('sistema')">
+			<div style="display:flex;align-items:center;gap:0.65rem;">
+			  <i class="fa-solid fa-gear" style="width:18px;text-align:center;font-size:0.9rem;"></i>
+			  <span class="nav-item-text" style="font-weight:700;">Sistema</span>
+			</div>
+			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-sistema"></i>
+		  </div>
+		  <div class="nav-group-body" id="body-sistema">
+			<div class="nav-item" data-tooltip="Auditoría" data-group="sistema" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text"> Auditoría</span></div>
+		  </div>
+		</div>
+
 	  </nav>
 
 	  <!-- Operator Nav -->
@@ -571,6 +664,9 @@
 	  <button onclick="openHelpModal()" title="Centro de Ayuda" style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:1.1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.background='rgba(37,99,235,0.1)';this.style.color='#2563EB'" onmouseout="this.style.background='var(--input-bg)';this.style.color='var(--text-muted)'">
 		  <i class="fa-solid fa-circle-question"></i>
 		</button>
+      <button onclick="confirmarCerrarSesion()" title="Cerrar sesión" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:#EF4444;font-size:1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.background='#EF4444';this.style.color='white'" onmouseout="this.style.background='rgba(239,68,68,0.08)';this.style.color='#EF4444'">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
         <div style="text-align:right;" id="user-info-top">
           <div style="font-size:0.825rem;font-weight:600;" id="topbar-name">Usuario</div>
           <div style="font-size:0.75rem;color:var(--text-muted);" id="topbar-role">-</div>
@@ -674,6 +770,7 @@
           <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
           <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
         </select>
+        <select id="reg-filter-ano" class="field-input" style="width:auto;" onchange="loadRegistros()"></select>
         <select id="reg-filter-op" class="field-input" style="width:auto;" onchange="loadRegistros()">
           <option value="">Todos los operadores</option>
         </select>
@@ -681,7 +778,7 @@
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
 			<table class="premium-table">
-			<thead><tr><th>Fecha / Hora</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr>
+			<thead><tr><th>Fecha Registro</th><th>Guardado</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr>
 			<tbody id="registros-tbody"></tbody>
 			</table>
 		</div>
@@ -1288,34 +1385,47 @@
 
       <!-- TAB: ESTADÍSTICAS -->
       <div id="tab-stats" class="profile-tab-content" style="display:none;">
-        <div class="grid-3" style="margin-bottom:1.5rem;">
-          <div class="glass-card" style="padding:1rem;text-align:center;">
-            <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#2563EB;" id="stat-total-mov">0</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);">Movimientos totales</div>
+        <!-- KPIs principales -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:linear-gradient(135deg,rgba(37,99,235,0.1),rgba(37,99,235,0.05));border:1px solid rgba(37,99,235,0.2);border-radius:1rem;padding:1rem;text-align:center;">
+            <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#2563EB;" id="stat-total-mov">0</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Movimientos totales</div>
           </div>
-          <div class="glass-card" style="padding:1rem;text-align:center;">
-            <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#22C55E;" id="stat-avg-daily">0</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);">Promedio diario</div>
+          <div style="background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(34,197,94,0.05));border:1px solid rgba(34,197,94,0.2);border-radius:1rem;padding:1rem;text-align:center;">
+            <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#22C55E;" id="stat-avg-daily">0</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Promedio diario</div>
           </div>
-		  <div class="glass-card" style="padding:1rem;text-align:center;border:1px solid rgba(250,204,21,0.2);background:rgba(250,204,21,0.05);">
-			<div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#FACC15;" id="stat-streak">0 🔥</div>
-			<div style="font-size:0.75rem;color:var(--text-muted);">Racha días óptimos</div>
-		  </div>
-          <div class="glass-card" style="padding:1rem;text-align:center;">
-            <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#7C3AED;" id="stat-compliance">0%</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);">Cumplimiento meta</div>
+          <div style="background:linear-gradient(135deg,rgba(250,204,21,0.12),rgba(250,204,21,0.05));border:1px solid rgba(250,204,21,0.3);border-radius:1rem;padding:1rem;text-align:center;">
+            <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#FACC15;" id="stat-streak">0 🔥</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Racha días óptimos</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(124,58,237,0.05));border:1px solid rgba(124,58,237,0.2);border-radius:1rem;padding:1rem;text-align:center;">
+            <div style="font-size:2rem;font-weight:900;font-family:'Poppins',sans-serif;color:#7C3AED;" id="stat-compliance">0%</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Cumplimiento meta</div>
           </div>
         </div>
-        <div style="margin-bottom:1.25rem;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
-            <span style="font-size:0.8rem;font-weight:600;">Meta mensual</span>
-            <span style="font-size:0.8rem;font-weight:700;color:#2563EB;" id="progress-monthly-text">0%</span>
+
+        <!-- Barra progreso meta mensual mejorada -->
+        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1.25rem;margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+            <div>
+              <div style="font-size:0.875rem;font-weight:700;">Meta mensual</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">Progreso hacia ${META_MENSUAL.toLocaleString()} movimientos</div>
+            </div>
+            <span style="font-size:1.25rem;font-weight:900;color:#2563EB;" id="progress-monthly-text">0%</span>
           </div>
-          <div class="progress-bar"><div class="progress-fill" id="progress-monthly" style="width:0%;background:linear-gradient(90deg,#2563EB,#7C3AED);"></div></div>
+          <div style="height:12px;background:var(--card-border);border-radius:99px;overflow:hidden;">
+            <div class="progress-fill" id="progress-monthly" style="width:0%;height:100%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:99px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
+          </div>
         </div>
+
+        <!-- Logros -->
+        <div id="profile-logros" style="margin-bottom:1rem;"></div>
+
+        <!-- Tendencia -->
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.75rem;">Tendencia últimos 7 días</div>
-          <div class="chart-container" style="height:120px;"><canvas id="chart-profile-trend"></canvas></div>
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.75rem;">📈 Tendencia últimos 7 días</div>
+          <div class="chart-container" style="height:130px;"><canvas id="chart-profile-trend"></canvas></div>
         </div>
       </div>
 
@@ -2632,21 +2742,20 @@ initDark();
 
 // 📅 Generación automática de años (desde 2026 hasta año actual)
 function populateYearSelectors() {
-    const START_YEAR = 2026;
+    const START_YEAR = 2024;
     const currentYear = new Date().getFullYear();
-    const selectors = ['filter-ano', 'top-filter-ano']; // Agrega IDs aquí si creas más filtros de año
+    const selectors = ['filter-ano', 'top-filter-ano', 'reg-filter-ano'];
     
     selectors.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
-        sel.innerHTML = ''; // Limpia opciones anteriores
+        sel.innerHTML = '';
         for (let y = START_YEAR; y <= currentYear; y++) {
             const opt = document.createElement('option');
             opt.value = y.toString();
             opt.textContent = y.toString();
             sel.appendChild(opt);
         }
-        // Seleccionar automáticamente el año actual
         sel.value = currentYear.toString();
     });
 }
@@ -2745,12 +2854,38 @@ async function doLogin() {
 
 async function doForgot() {
   const email = document.getElementById('forgot-email').value.trim();
-  if (!email) { toast('Ingresa tu correo', 'error'); return; }
-  const redirectUrl = window.location.origin + window.location.pathname;
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
-  if (error) { toast(error.message, 'error'); return; }
-  toast('Revisa tu correo para restablecer tu contraseña ✉️', 'success');
-  showLogin();
+  if (!email) { toast('Ingresa tu correo electrónico', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('El formato del correo no es válido', 'error'); return; }
+
+  const btn = document.querySelector('#form-forgot .btn-login');
+  if (btn) { btn.textContent = 'Enviando...'; btn.disabled = true; }
+
+  try {
+    const redirectUrl = window.location.origin + window.location.pathname;
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
+    if (error) throw error;
+    // Mostrar mensaje de éxito visual en el formulario
+    document.getElementById('form-forgot').innerHTML = `
+      <div style="text-align:center;padding:1rem 0;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📬</div>
+        <div style="color:white;font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;">¡Correo enviado!</div>
+        <p style="color:rgba(255,255,255,0.7);font-size:0.875rem;margin-bottom:1.5rem;">
+          Revisa tu bandeja de entrada en <strong>${email}</strong>.<br/>
+          Si no lo ves, revisa la carpeta de spam.
+        </p>
+        <button onclick="showLogin()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:0.75rem;color:white;padding:0.7rem 1.5rem;cursor:pointer;font-size:0.875rem;font-weight:600;">
+          <i class="fa-solid fa-arrow-left" style="margin-right:0.4rem;"></i> Volver al inicio de sesión
+        </button>
+      </div>`;
+  } catch(err) {
+    const msg = err.message?.includes('rate limit') 
+      ? 'Demasiados intentos. Espera unos minutos e intenta de nuevo.'
+      : err.message?.includes('not found') || err.message?.includes('user')
+      ? 'No encontramos una cuenta con ese correo.'
+      : 'Error al enviar el correo. Intenta de nuevo.';
+    toast(msg, 'error');
+    if (btn) { btn.textContent = 'Enviar enlace'; btn.disabled = false; }
+  }
 }
 
 async function doLogout() {
@@ -3012,6 +3147,7 @@ async function initApp(user) {
     initInactivityTracking();
     initSidebarState();
 	initStreamingNav();
+    initNavGroups();
     
     // 👉 Inicializar reloj en tiempo real (Requerimiento #1)
     setTimeout(() => {
@@ -3097,6 +3233,9 @@ function goSection(key) {
       const esStreaming = key === 'streaming-cartera' || key === 'streaming-suscripciones';
       _bg.style.opacity = esStreaming ? '0.07' : '0';
     }
+
+    // 📂 ABRIR GRUPO CORRESPONDIENTE EN SIDEBAR
+    openGroupForSection(key);
     
     if (sec.load) sec.load();
     if (window.innerWidth < 768) closeSidebar();
@@ -3390,7 +3529,7 @@ function renderOperadores(filter='') {
     <td>${o.sucursal?`<span class="badge badge-blue">${o.sucursal}</span>`:'-'}</td>
     <td>${o.estado==='activo'?'<span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Activo</span>':'<span class="badge badge-red">Inactivo</span>'}</td>
     <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(o.created_at)}</td>
-    <td><div style="display:flex;gap:0.5rem;"><button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
+    <td><div style="display:flex;gap:0.5rem;"><button class="btn-edit" onclick="openModalOperador('${o.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn-secondary" style="padding:0.5rem 0.75rem;font-size:0.75rem;" onclick="generarPasswordTemporal('${o.id}','${o.nombre||o.correo}','${o.correo}')" title="Generar contraseña temporal"><i class="fa-solid fa-key"></i></button><button class="btn-danger" onclick="deleteOperador('${o.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
   </tr>
   `).join('');
   // Refrescar avatares después de insertar en el DOM
@@ -4073,10 +4212,10 @@ async function loadRegistros() {
   showSkeletons('registros-tbody', 5, 'row');
   const mes = document.getElementById('reg-filter-mes')?.value;
   const opId = document.getElementById('reg-filter-op')?.value;
-  const ano = new Date().getFullYear();
-  // ✅ ORDENAR POR TIMESTAMP EXACTO (CREATED_AT) DE MÁS RECIENTE A MÁS ANTIGUO
-  let query = sb.from('registros').select('*').order('created_at',{ascending:false});
+  const ano = document.getElementById('reg-filter-ano')?.value || new Date().getFullYear().toString();
+  let query = sb.from('registros').select('*').order('fecha',{ascending:false});
   if (mes) { const start=`${ano}-${mes.padStart(2,'0')}-01`;const end=new Date(ano,mes,0).toISOString().split('T')[0];query=query.gte('fecha',start).lte('fecha',end); }
+  else { query=query.gte('fecha',`${ano}-01-01`).lte('fecha',`${ano}-12-31`); }
   if (opId) query=query.eq('operador_id',opId);
   const { data } = await query.limit(500);
   allRegistros = data||[];
@@ -4100,10 +4239,11 @@ function renderRegistros() {
     : `<span style="font-weight:700;">${total}</span> registros en total`;
   }
   const tbody=document.getElementById('registros-tbody');
-  if (!slice.length){ tbody.innerHTML=`<tr><td colspan="9">${emptyState('fa-inbox', 'Sin registros', 'No se encontraron registros para los filtros seleccionados.', currentProfile?.rol==='administrador'?null:null)}</td></tr>`; }
-  else{tbody.innerHTML=slice.map(r=>`
-  <tr>
-    <td style="font-weight:600;font-size:0.82rem;white-space:nowrap;">${formatDateHour(r.created_at || r.fecha)}</td>
+  if (!slice.length){ tbody.innerHTML=`<tr><td colspan="10">${emptyState('fa-inbox', 'Sin registros', 'No se encontraron registros para los filtros seleccionados.')}</td></tr>`; }
+  else{tbody.innerHTML=slice.map((r,idx)=>`
+  <tr style="background:${idx%2===0?'transparent':'rgba(37,99,235,0.02)'};">
+    <td style="font-weight:700;font-size:0.85rem;color:#2563EB;white-space:nowrap;">${formatDate(r.fecha)}</td>
+    <td style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;">${r.created_at ? formatDateHour(r.created_at) : '—'}</td>
     <td><span style="font-weight:700;font-family:'Poppins',sans-serif;">${r.movimientos||0}</span></td>
     <td style="color:#22C55E;font-weight:600;">${formatCurrency(r.participacion)}</td>
     <td>${badgeClasificacion(r.clasificacion||getClasificacion(r.movimientos))}</td>
@@ -4692,19 +4832,45 @@ async function loadProfileStats() {
     const totalMov=regs.reduce((a,r)=>a+(r.movimientos||0),0);
     const avgMov=regs.length?Math.round(totalMov/regs.length):0;
     const compliance=META_DIARIA>0?Math.min(100,Math.round((avgMov/META_DIARIA)*100)):0;
-    
-    // 👉 Calcular y mostrar racha
     const streak = calculateStreak(regs, OPTIMO);
-    const elStreak = document.getElementById('stat-streak');
-    if (elStreak) elStreak.textContent = streak > 0 ? `${streak} 🔥` : '0';
+    const optDays = regs.filter(r => getClasificacion(r.movimientos) === 'optimo').length;
 
-    const el1=document.getElementById('stat-total-mov');const el2=document.getElementById('stat-avg-daily');const el3=document.getElementById('stat-compliance');
-    if(el1)el1.textContent=totalMov.toLocaleString();
-    if(el2)el2.textContent=avgMov.toLocaleString();
-    if(el3)el3.textContent=compliance+'%';
-    const pm=document.getElementById('progress-monthly');const pmt=document.getElementById('progress-monthly-text');
-    if(pm)pm.style.width=compliance+'%';
-    if(pmt)pmt.textContent=compliance+'%';
+    // Actualizar KPIs
+    const el1=document.getElementById('stat-total-mov');
+    const el2=document.getElementById('stat-avg-daily');
+    const el3=document.getElementById('stat-compliance');
+    const elStreak=document.getElementById('stat-streak');
+    if(el1) el1.textContent=totalMov.toLocaleString('es-CO');
+    if(el2) el2.textContent=avgMov.toLocaleString('es-CO');
+    if(el3) el3.textContent=compliance+'%';
+    if(elStreak) elStreak.textContent=streak > 0 ? `${streak} 🔥` : '0';
+
+    // Barra de progreso
+    const pm=document.getElementById('progress-monthly');
+    const pmt=document.getElementById('progress-monthly-text');
+    if(pm) setTimeout(()=>{ pm.style.width=compliance+'%'; }, 100);
+    if(pmt) pmt.textContent=compliance+'%';
+
+    // Logros
+    const logrosEl = document.getElementById('profile-logros');
+    if (logrosEl) {
+      const logros = [];
+      if (totalMov >= 1000) logros.push('🏆 +1.000 movimientos');
+      if (totalMov >= 5000) logros.push('💎 +5.000 movimientos');
+      if (streak >= 5)  logros.push('🔥 Racha 5 días');
+      if (streak >= 10) logros.push('⚡ Racha 10 días');
+      if (optDays >= 20) logros.push('⭐ 20 días óptimos');
+      if (compliance >= 100) logros.push('🎯 Meta cumplida');
+      if (regs.length >= 30) logros.push('📅 30 registros');
+      logrosEl.innerHTML = logros.length ? `
+        <div style="margin-bottom:0.75rem;">
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;">🏅 Logros desbloqueados</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+            ${logros.map(l=>`<span class="logro-badge">${l}</span>`).join('')}
+          </div>
+        </div>` : '';
+    }
+
     renderProfileTrendChart(regs.slice(0,7).reverse());
 }
 
@@ -8029,31 +8195,7 @@ function generarFacturaPDF(idVenta) {
   .no-print{position:fixed;top:16px;right:16px;display:flex;gap:8px;z-index:99;}
   .btn-p{background:#2563EB;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.4);}
   .btn-c{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;}
-  .factura{max-width:720px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden;position:relative;}
-
-  /* ══════════════════════════════════════════
-     LOGO DE FONDO — FACTURA
-     Para cambiar el TAMAÑO: modifica width y height abajo (en .factura-watermark)
-     Para cambiar la TRANSPARENCIA: modifica opacity abajo (0.00 = invisible, 1.00 = sólido)
-     Valor recomendado: entre 0.05 y 0.15
-  ══════════════════════════════════════════ */
-  .factura-watermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 480px;       /* ← CAMBIA AQUÍ EL TAMAÑO (ancho) */
-    height: 480px;      /* ← CAMBIA AQUÍ EL TAMAÑO (alto)  */
-    background-image: url('fondostreaming.jpg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center center;
-    opacity: 0.50;      /* ← CAMBIA AQUÍ LA TRANSPARENCIA  */
-    pointer-events: none;
-    z-index: 0;
-  }
-  /* Todo el contenido de la factura va encima del logo */
-  .factura > *:not(.factura-watermark) { position: relative; z-index: 1; }
+  .factura{max-width:720px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden;}
   .header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#2563EB 100%);padding:36px 40px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;}
   .brand-logo{font-size:28px;font-weight:900;letter-spacing:-1px;font-family:'Arial Black',Arial,sans-serif;}
   .brand-sub{font-size:11px;opacity:0.7;margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;}
@@ -8094,9 +8236,6 @@ function generarFacturaPDF(idVenta) {
 </div>
 
 <div class="factura">
-
-  <!-- LOGO DE FONDO CENTRADO (transparente) -->
-  <div class="factura-watermark"></div>
 
   <!-- HEADER -->
   <div class="header">
@@ -8388,6 +8527,129 @@ function renderStSusAllKpis() {
       <div style="font-size:0.68rem;color:var(--text-muted);margin-top:0.2rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;">${t.label}</div>
     </div>
   `).join('');
+}
+
+// =====================================================
+// CONFIRMACIÓN CERRAR SESIÓN
+// =====================================================
+function confirmarCerrarSesion() {
+  // Modal de confirmación visual
+  const overlay = document.createElement('div');
+  overlay.id = 'confirm-logout-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
+  overlay.innerHTML = `
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:360px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+      <div style="width:56px;height:56px;background:rgba(239,68,68,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">🚪</div>
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;">¿Cerrar sesión?</h3>
+      <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;">Tu sesión se cerrará y deberás iniciar sesión nuevamente.</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;">
+        <button onclick="document.getElementById('confirm-logout-overlay').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
+        <button onclick="document.getElementById('confirm-logout-overlay').remove();doLogout();" style="flex:1;background:linear-gradient(135deg,#EF4444,#dc2626);color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">Cerrar sesión</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+// =====================================================
+// CONTRASEÑA TEMPORAL (Solo Admin)
+// =====================================================
+async function generarPasswordTemporal(userId, userName, userEmail) {
+  if (currentProfile?.rol !== 'administrador') { toast('Solo administradores pueden hacer esto', 'error'); return; }
+
+  // Generar contraseña aleatoria segura
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$';
+  let pwd = '';
+  for (let i = 0; i < 10; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+
+  const overlay = document.createElement('div');
+  overlay.id = 'temp-pwd-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
+  overlay.innerHTML = `
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:420px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.05rem;">🔑 Contraseña Temporal</h3>
+        <button onclick="document.getElementById('temp-pwd-overlay').remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:0.875rem;padding:1rem;margin-bottom:1rem;">
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.4rem;">Usuario: <strong>${userName}</strong></div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Correo: <strong>${userEmail}</strong></div>
+      </div>
+      <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;">Contraseña generada</label>
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+        <input type="text" id="temp-pwd-input" value="${pwd}" readonly class="field-input" style="font-family:monospace;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;color:#2563EB;flex:1;"/>
+        <button onclick="navigator.clipboard.writeText('${pwd}');toast('Copiada ✅','success');" class="btn-secondary" style="white-space:nowrap;"><i class="fa-solid fa-copy"></i></button>
+      </div>
+      <div style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);border-radius:0.75rem;padding:0.75rem;font-size:0.78rem;color:#92400e;margin-bottom:1rem;">
+        ⚠️ Comparte esta contraseña con el usuario de forma segura. Se aplicará al hacer clic en "Establecer".
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <button onclick="document.getElementById('temp-pwd-overlay').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
+        <button onclick="aplicarPasswordTemporal('${userId}','${pwd}')" class="btn-primary" style="flex:1;" id="btn-aplicar-pwd">
+          <i class="fa-solid fa-check"></i> Establecer
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function aplicarPasswordTemporal(userId, pwd) {
+  const btn = document.getElementById('btn-aplicar-pwd');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Aplicando...'; }
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-set-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ userId, password: pwd })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Error al establecer contraseña');
+    toast('Contraseña temporal establecida ✅', 'success');
+    document.getElementById('temp-pwd-overlay')?.remove();
+    await logAuditoria('editar', `Contraseña temporal generada para usuario ID: ${userId}`);
+  } catch(err) {
+    toast('Error: ' + err.message, 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Establecer'; }
+  }
+}
+
+
+const SECTION_GROUP_MAP = {
+  'dashboard':'principal','registros':'principal','admin-registrar':'principal',
+  'estadisticas':'principal','top-dias':'principal',
+  'operadores':'gestion','sucursales':'gestion','plataformas':'gestion','reportes':'gestion',
+  'streaming-cartera':'streaming','streaming-suscripciones':'streaming',
+  'auditoria':'sistema'
+};
+const ALL_GROUPS = ['principal','gestion','streaming','sistema'];
+
+function openNavGroup(id) {
+  document.getElementById('body-'+id)?.classList.add('open');
+  const h = document.querySelector('#group-'+id+' .nav-group-header');
+  if (h) h.classList.add('open');
+}
+function closeNavGroup(id) {
+  document.getElementById('body-'+id)?.classList.remove('open');
+  const h = document.querySelector('#group-'+id+' .nav-group-header');
+  if (h) h.classList.remove('open');
+}
+function toggleNavGroup(id) {
+  const isOpen = document.getElementById('body-'+id)?.classList.contains('open');
+  ALL_GROUPS.forEach(g => closeNavGroup(g));
+  if (!isOpen) openNavGroup(id);
+}
+function openGroupForSection(key) {
+  const g = SECTION_GROUP_MAP[key];
+  if (!g) return;
+  ALL_GROUPS.forEach(x => closeNavGroup(x));
+  openNavGroup(g);
+  localStorage.setItem('haliel-open-group', g);
+}
+function initNavGroups() {
+  const saved = localStorage.getItem('haliel-open-group') || 'principal';
+  openNavGroup(saved);
 }
 
 </script>
