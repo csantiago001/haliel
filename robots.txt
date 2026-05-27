@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://TU-USUARIO.github.io/TU-REPO/sitemap.xml
