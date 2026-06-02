@@ -551,6 +551,140 @@
 
   /* ══ HISTORIAL CLIENTE STREAMING ══ */
   #modal-cli-historial .modal-box { max-width:680px;max-height:88vh;overflow-y:auto; }
+  /* ══════════════════════════════════════════════════════════
+     RESPONSIVE — Haliel Papelería
+     Breakpoints: 1100px · 900px · 768px · 640px · 480px · 390px
+  ══════════════════════════════════════════════════════════ */
+
+  html, body { overflow-x: hidden; }
+  img { max-width: 100%; height: auto; }
+
+  .search-input { width: clamp(160px, 30vw, 220px); }
+  .search-input:focus { width: clamp(180px, 40vw, 280px); }
+
+  .modal-overlay { padding: 0.75rem; align-items: flex-start; padding-top: clamp(0.5rem, 4vh, 2rem); }
+  .modal-box {
+    width: 100%;
+    max-width: min(480px, calc(100vw - 1.5rem));
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .toast { min-width: 260px; max-width: calc(100vw - 1.5rem); }
+  .topbar { flex-wrap: wrap; gap: 0.5rem; }
+
+  @media (max-width: 1100px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .main-content { padding: 1.25rem; }
+    .search-input { width: clamp(140px, 22vw, 200px); }
+    .search-input:focus { width: clamp(160px, 28vw, 240px); }
+    #user-info-top { display: none; }
+  }
+
+  @media (max-width: 900px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .plataforma-grid { grid-template-columns: 1fr; }
+    .main-content { padding: 1rem; }
+    .glass-card { padding: 1.25rem !important; }
+    #breadcrumb { display: none; }
+    #page-title { font-size: 1rem !important; }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .premium-table { min-width: 680px; }
+    .stat-card { padding: 1rem !important; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); width: 260px !important; }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0 !important; padding: 1rem; }
+    #menu-btn { display: flex !important; }
+    .topbar { margin: -1rem -1rem 1rem !important; padding: 0.75rem 1rem; position: sticky; top: 0; z-index: 50; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .modal-overlay { padding: 0; align-items: flex-end; padding-top: 0; }
+    .modal-box { max-width: 100% !important; max-height: 95vh; border-radius: 1.5rem 1.5rem 0 0 !important; margin: 0 !important; }
+    #dashboard-greeting > div { flex-direction: column; gap: 0.5rem; }
+    .field-input[style*="width:auto"] { width: 100% !important; }
+    select.field-input { width: 100% !important; }
+    input[type="date"].field-input { width: 100% !important; }
+    #sec-operadores > div:first-child { flex-direction: column; align-items: flex-start; }
+    .premium-table { min-width: 600px; }
+    .chart-container[style*="height:220px"] { height: 180px !important; }
+    .chart-container[style*="height:240px"] { height: 190px !important; }
+    .chart-container[style*="height:250px"] { height: 200px !important; }
+    .chart-container[style*="height:280px"] { height: 210px !important; }
+    #modal-profile .modal-box { border-radius: 0 !important; max-height: 100vh; max-width: 100% !important; }
+    #tab-info > div:first-child { grid-template-columns: 1fr !important; }
+    #tab-stats > div:first-child { grid-template-columns: 1fr !important; }
+    #tab-sysconfig .grid-2 { grid-template-columns: 1fr !important; }
+    #toast-container { left: 0.5rem; right: 0.5rem; bottom: 0.5rem; }
+    .toast { min-width: unset; width: 100%; }
+    #sec-streaming-suscripciones > div:first-child { flex-direction: column; }
+    #sec-streaming-cartera > div:first-child { flex-direction: column; }
+  }
+
+  @media (max-width: 640px) {
+    .main-content { padding: 0.75rem; }
+    .topbar { padding: 0.6rem 0.75rem; margin: -0.75rem -0.75rem 0.75rem !important; }
+    #page-title { font-size: 0.95rem !important; }
+    .stat-card { padding: 0.875rem !important; }
+    .glass-card { padding: 1rem !important; }
+    .premium-table { min-width: 560px; }
+    #sec-op-registrar .glass-card,
+    #sec-admin-registrar .glass-card,
+    #sec-reportes .glass-card { max-width: 100% !important; padding: 1rem !important; }
+    .btn-primary, .btn-secondary { min-height: 44px; }
+    .btn-danger, .btn-edit { min-height: 38px; padding: 0.5rem 0.75rem !important; }
+    #login-logo img { width: min(320px, 85vw) !important; }
+    #st-cli-kpis { grid-template-columns: repeat(2, 1fr) !important; }
+    #st-sus-all-kpis { grid-template-columns: repeat(2, 1fr) !important; }
+    #modal-st-sus .grid-2 { grid-template-columns: 1fr !important; }
+    #modal-st-historial .table-wrapper { overflow-x: auto; }
+    #modal-profile [style*="display:flex;gap:0;margin-bottom"] { overflow-x: auto; flex-wrap: nowrap; }
+    .profile-tab { white-space: nowrap; font-size: 0.75rem !important; padding: 0.5rem 0.75rem !important; }
+    #sec-cerrar-caja > div:first-child button { flex: unset !important; width: 100%; }
+  }
+
+  @media (max-width: 480px) {
+    .main-content { padding: 0.6rem; }
+    .topbar { padding: 0.5rem 0.6rem; margin: -0.6rem -0.6rem 0.6rem !important; }
+    #user-info-top { display: none !important; }
+    .premium-table { min-width: 480px; font-size: 0.78rem !important; }
+    .premium-table thead th { padding: 0.6rem 0.75rem !important; font-size: 0.68rem !important; }
+    .premium-table tbody td { padding: 0.6rem 0.75rem !important; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr !important; gap: 0.65rem; }
+    #st-cli-kpis, #st-sus-all-kpis { grid-template-columns: 1fr !important; }
+    .modal-box { padding: 1.25rem !important; }
+    .plataforma-grid { grid-template-columns: 1fr !important; }
+    #inactivity-box { padding: 1.5rem 1rem !important; max-width: calc(100vw - 2rem) !important; }
+    #rate-limit-banner { left: 0.5rem; right: 0.5rem; transform: none !important; width: auto !important; text-align: center; bottom: 0.5rem; }
+    .toast { font-size: 0.8rem; padding: 0.65rem 0.875rem; }
+    .login-card { padding: 1.75rem 1.25rem; }
+    #login-logo img { width: min(260px, 80vw) !important; }
+  }
+
+  @media (max-width: 390px) {
+    .main-content { padding: 0.5rem; }
+    .topbar { padding: 0.4rem 0.5rem; margin: -0.5rem -0.5rem 0.5rem !important; }
+    .glass-card { padding: 0.75rem !important; border-radius: 1rem !important; }
+    .modal-box { padding: 1rem !important; border-radius: 1.25rem 1.25rem 0 0 !important; }
+    .btn-primary, .btn-secondary { font-size: 0.8rem !important; padding: 0.6rem 0.875rem !important; }
+    .premium-table { min-width: 420px; font-size: 0.72rem !important; }
+    .login-card { padding: 1.25rem 1rem; border-radius: 1.25rem; }
+    #splash-logo { width: 90px; height: 90px; }
+  }
+
+  @media (pointer: coarse) {
+    .nav-item { min-height: 44px; }
+    .nav-group-header { min-height: 44px; }
+    .btn-primary, .btn-secondary { min-height: 44px; }
+    .btn-danger, .btn-edit { min-height: 40px; }
+    .field-input { min-height: 44px; font-size: 16px; }
+    select.field-input { font-size: 16px; }
+    .toggle-dark { width: 52px; height: 30px; }
+    .toggle-dot { width: 22px; height: 22px; }
+    .toggle-dark.on .toggle-dot { transform: translateX(22px); }
+  }
 
 </style>
 </head>
@@ -1165,6 +1299,9 @@
             <button onclick="openModalCajaRegistro('papeleria','debito')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:0.75rem;color:#fca5a5;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'">
               <i class="fa-solid fa-arrow-up-from-bracket"></i> Registrar Débito
             </button>
+			<button onclick="exportCajaPDF('papeleria')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:0.75rem;color:white;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+              <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+            </button>
           </div>
         </div>
 
@@ -1189,6 +1326,7 @@
           <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;">
             <h4 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:#2563EB;margin-right:0.5rem;"></i>Historial Caja Papelería</h4>
             <select class="field-input" style="width:auto;font-size:0.8rem;" onchange="loadCajaPapeleria()" id="caja-pap-filter-mes">
+              <option value="todos">Todos</option>
               <option value="">Este mes</option>
               <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
               <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
@@ -1236,6 +1374,12 @@
             <button onclick="openModalCajaRegistro('giros','debito')" class="btn-danger" style="font-size:0.85rem;">
               <i class="fa-solid fa-arrow-up-from-bracket"></i> Registrar Débito
             </button>
+            <button onclick="openModalGirosDiarios()" class="btn-secondary" style="font-size:0.85rem;">
+              <i class="fa-solid fa-hashtag"></i> Registrar Giros del Día
+            </button>
+            <button onclick="exportCajaPDF('giros')" class="btn-secondary" style="font-size:0.85rem;color:#dc2626;border-color:rgba(220,38,38,0.3);">
+              <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+            </button>
           </div>
         </div>
 
@@ -1244,6 +1388,7 @@
           <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;">
             <h4 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:#7C3AED;margin-right:0.5rem;"></i>Historial Giros Venezuela</h4>
             <select class="field-input" style="width:auto;font-size:0.8rem;" onchange="loadCajaGiros()" id="caja-giros-filter-mes">
+              <option value="todos">Todos</option>
               <option value="">Este mes</option>
               <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
               <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
@@ -2346,6 +2491,83 @@
     <button class="btn-secondary" onclick="renovarSuscripcion()" id="btn-st-renovar" style="width:100%;justify-content:center;margin-top:0.5rem;color:#22C55E;border-color:rgba(34,197,94,0.3);">
       <i class="fa-solid fa-rotate"></i> Marcar como pagado y renovar
     </button>
+  </div>
+</div>
+
+<!-- Modal: Registro de Giros Diarios -->
+<div id="modal-giros-diarios" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:760px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">
+        <i class="fa-solid fa-hashtag" style="color:#7C3AED;margin-right:0.5rem;"></i>Giros Venezuela — Registro Diario
+      </h3>
+      <button onclick="closeModal('modal-giros-diarios')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Formulario registro -->
+    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:1.25rem;margin-bottom:1.25rem;">
+      <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:1rem;">Registrar giros del día</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+        <div>
+          <label class="field-label">Fecha *</label>
+          <input type="date" id="gd-fecha" class="field-input"/>
+        </div>
+        <div>
+          <label class="field-label">Cantidad de giros *</label>
+          <input type="number" id="gd-cantidad" class="field-input" min="0" placeholder="Ej: 45"/>
+        </div>
+      </div>
+      <div style="margin-bottom:0.75rem;">
+        <label class="field-label">Notas (opcional)</label>
+        <input type="text" id="gd-notas" class="field-input" placeholder="Ej: Día festivo, alta demanda..."/>
+      </div>
+      <button class="btn-primary" onclick="guardarGiroDiario()" style="width:100%;justify-content:center;">
+        <i class="fa-solid fa-save"></i> Guardar
+      </button>
+    </div>
+
+    <!-- Filtros analytics -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;align-items:center;">
+      <select id="gd-filter-tipo" class="field-input" style="width:auto;font-size:0.82rem;" onchange="loadGirosDiarios()">
+        <option value="mes">Este mes</option>
+        <option value="todos">Todos los meses</option>
+        <option value="mes-especifico">Mes específico</option>
+        <option value="dia">Día específico</option>
+      </select>
+      <select id="gd-filter-ano" class="field-input" style="width:auto;font-size:0.82rem;" onchange="loadGirosDiarios()">
+      </select>
+      <select id="gd-filter-mes-esp" class="field-input" style="width:auto;font-size:0.82rem;display:none;" onchange="loadGirosDiarios()">
+        <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+        <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+        <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+      </select>
+      <input type="date" id="gd-filter-dia" class="field-input" style="width:auto;font-size:0.82rem;display:none;" onchange="loadGirosDiarios()"/>
+      <button class="btn-secondary" style="padding:0.45rem 0.875rem;font-size:0.82rem;" onclick="loadGirosDiarios()">
+        <i class="fa-solid fa-rotate"></i> Actualizar
+      </button>
+    </div>
+
+    <!-- KPIs -->
+    <div id="gd-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.6rem;margin-bottom:1rem;"></div>
+
+    <!-- Tabla -->
+    <div class="glass-card" style="overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Giros</th>
+              <th>Notas</th>
+              <th>Registrado por</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="gd-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -7495,7 +7717,7 @@ function renderStreamingSuscripciones() {
       <td>${badgeEstadoSus(estadoGlobal, s0.fecha_vencimiento)}</td>
       <td>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-          ${estadoGlobal !== 'cancelado' ? `<button class="btn-primary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;" onclick="event.stopPropagation();abrirModalCobro('${s0.id}')"><i class="fa-brands fa-whatsapp"></i> Cobro</button>` : ''}
+          ${estadoGlobal !== 'cancelado' ? `<button class=\"btn-primary\" style=\"padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;\" onclick=\"event.stopPropagation();abrirModalCobro('${idVenta}')\"><i class=\"fa-brands fa-whatsapp\"></i> Cobro</button>` : ''}
           ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#22C55E;border-color:rgba(34,197,94,0.3);" data-tip="Renovar 1 mes" onclick="event.stopPropagation();renovarVenta('${idVenta}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
           <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${idVenta}')" style="background:rgba(239,68,68,0.1);color:#dc2626;border-color:rgba(239,68,68,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
           <button class="btn-danger" onclick="event.stopPropagation();confirmarEliminar('¿Eliminar la venta ${idVenta} y todas sus plataformas?',()=>deleteStreamingSusGrupo('${idVenta}'))"><i class="fa-solid fa-trash"></i></button>
@@ -7783,23 +8005,55 @@ async function deleteStreamingSus(id) {
 }
 
 // ── COBRO WHATSAPP ────────────────────────────────────────────────────
-function abrirModalCobro(susId) {
-  const s    = allStSuscripciones.find(x => x.id === susId);
-  if (!s) return;
-  const cli  = allStClientes.find(c => c.id === s.cliente_id);
-  const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-  stCobroActual = s;
+function abrirModalCobro(idVenta) {
+  // Reunir todas las suscripciones del grupo
+  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+  if (!items.length) return;
 
-  const mensaje = `Hola ${cli?.nombre || 'cliente'} 👋
+  const s0  = items[0];
+  const cli = allStClientes.find(c => c.id === s0.cliente_id);
+  stCobroActual = s0; // mantener referencia para renovar/WhatsApp
 
-Te recuerdo que tu suscripción de *${plat?.nombre || 'streaming'}* vence el *${formatDate(s.fecha_vencimiento)}*.
+  // Guardar idVenta en stCobroActual para que renovarVenta lo use
+  stCobroActual._idVenta = idVenta;
 
-El valor de renovación es: *${formatCurrency(s.precio_venta)}*
+  // Total de todas las plataformas
+  const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
 
-Para renovar por favor realiza tu pago y envíame el comprobante.
+  // Construir lista de plataformas
+  const nombrePlataformas = items.map(s => {
+    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+    return plat ? plat.nombre : 'Streaming';
+  });
 
-¡Gracias por confiar en nosotros! 🙌
-— Haliel Papelería`;
+  let listaPlatText;
+  if (nombrePlataformas.length === 1) {
+    listaPlatText = nombrePlataformas[0];
+  } else {
+    const ultimas = nombrePlataformas.slice(-1)[0];
+    const primeras = nombrePlataformas.slice(0, -1).join(', ');
+    listaPlatText = `${primeras} y ${ultimas}`;
+  }
+
+  // Fecha de vencimiento: usar la más próxima entre las activas
+  const fechas = items
+    .map(s => s.fecha_vencimiento)
+    .filter(Boolean)
+    .sort();
+  const fechaDisplay = fechas.length ? formatDate(fechas[0]) : '—';
+
+  const nombreCliente = cli?.nombre || 'cliente';
+
+  const mensaje =
+`Hola!! ${nombreCliente} 📌🍿🍿
+Te informo que el servicio de streaming con el que cuentas de *${listaPlatText}* se venció el día *${fechaDisplay}* 🏆🏆🥇🚦🚦
+Infórmame por favor si deseas continuar con el servicio y seguir disfrutando de las mejores series y películas.
+Escribe un *SI* en el evento de continuar, para lo cual puedes realizar tus pagos a través de los canales disponibles.
+💸💳 *Medios de pago* 💳💸
+*Valor* ${formatCurrency(totalMonto)}
+*Nequi - Daviplata:* 3125255151
+*Bancolombia cuenta ahorros:* 91202859289
+*BBVA ahorros:* 084439199`;
 
   document.getElementById('st-cobro-preview').textContent = mensaje;
   openModal('modal-st-cobro');
@@ -8981,17 +9235,22 @@ async function loadCerrarCaja() { switchCajaTab('papeleria'); }
 async function loadCajaPapeleria() {
   const mes = document.getElementById('caja-pap-filter-mes')?.value;
   const hoy = new Date(); const ano = hoy.getFullYear();
-  const m = mes || (hoy.getMonth()+1);
+  const verTodos = mes === 'todos';
+  const m = (!mes || verTodos) ? (hoy.getMonth()+1) : mes;
   const start=`${ano}-${String(m).padStart(2,'0')}-01`;
   const end=new Date(ano,m,0).toISOString().split('T')[0];
 
-  const [{data:cierres},{data:debitos}] = await Promise.all([
-    sb.from('caja_papeleria_cierres').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false}),
-    sb.from('caja_papeleria_debitos').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false})
-  ]);
+  let qC = sb.from('caja_papeleria_cierres').select('*').order('created_at',{ascending:false});
+  let qD = sb.from('caja_papeleria_debitos').select('*').order('created_at',{ascending:false});
+  if (!verTodos) { qC = qC.gte('fecha',start).lte('fecha',end); qD = qD.gte('fecha',start).lte('fecha',end); }
+  const [{data:cierres},{data:debitos}] = await Promise.all([qC, qD]);
+  
   const {data:uc} = await sb.from('caja_papeleria_cierres').select('*').order('created_at',{ascending:false}).limit(1);
-  const {data:dh} = await sb.from('caja_papeleria_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
-  const saldoActual = (uc?.[0]?.monto_cierre||0) - (dh||[]).reduce((a,d)=>a+(d.monto||0),0);
+  const {data:todosCierres} = await sb.from('caja_papeleria_cierres').select('monto_cierre');
+  const {data:todosDebitos} = await sb.from('caja_papeleria_debitos').select('monto');
+  const totalCierres = (todosCierres||[]).reduce((a,c)=>a+(c.monto_cierre||0),0);
+  const totalDebitos = (todosDebitos||[]).reduce((a,d)=>a+(d.monto||0),0);
+  const saldoActual = totalCierres - totalDebitos;
 
   document.getElementById('caja-pap-saldo-display').textContent = formatCurrency(saldoActual);
   document.getElementById('caja-pap-ultimo-cierre').textContent = uc?.[0]
@@ -9024,19 +9283,22 @@ async function loadCajaPapeleria() {
 async function loadCajaGiros() {
   const mes = document.getElementById('caja-giros-filter-mes')?.value;
   const hoy = new Date(); const ano = hoy.getFullYear();
-  const m = mes || (hoy.getMonth()+1);
+  const verTodos = mes === 'todos';
+  const m = (!mes || verTodos) ? (hoy.getMonth()+1) : mes;
   const start=`${ano}-${String(m).padStart(2,'0')}-01`;
   const end=new Date(ano,m,0).toISOString().split('T')[0];
 
-  const [{data:cierres},{data:debitos}] = await Promise.all([
-    sb.from('giros_cierres').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false}),
-    sb.from('giros_debitos').select('*').gte('fecha',start).lte('fecha',end).order('created_at',{ascending:false})
-  ]);
+  let qC = sb.from('giros_cierres').select('*').order('created_at',{ascending:false});
+  let qD = sb.from('giros_debitos').select('*').order('created_at',{ascending:false});
+  if (!verTodos) { qC = qC.gte('fecha',start).lte('fecha',end); qD = qD.gte('fecha',start).lte('fecha',end); }
+  const [{data:cierres},{data:debitos}] = await Promise.all([qC, qD]);
+  
   const {data:uc} = await sb.from('giros_cierres').select('*').order('created_at',{ascending:false}).limit(1);
-  const {data:dh} = await sb.from('giros_debitos').select('monto').gte('fecha',todayLocal()).lte('fecha',todayLocal());
-  const totalDH = (dh||[]).reduce((a,d)=>a+(d.monto||0),0);
-  const saldoPlat = uc?.[0]?.saldo_plataforma||0;
-  const saldoCaja = (uc?.[0]?.saldo_caja||0)-totalDH;
+  const {data:todosDebitosG} = await sb.from('giros_debitos').select('monto');
+  const totalDH = (todosDebitosG||[]).reduce((a,d)=>a+(d.monto||0),0);
+  const {data:todosCierresG} = await sb.from('giros_cierres').select('saldo_plataforma,saldo_caja');
+  const saldoPlat = (todosCierresG||[]).reduce((a,c)=>a+(c.saldo_plataforma||0),0);
+  const saldoCaja = (todosCierresG||[]).reduce((a,c)=>a+(c.saldo_caja||0),0) - totalDH;
 
   document.getElementById('giros-saldo-plataforma').textContent = formatCurrency(saldoPlat);
   document.getElementById('giros-saldo-caja').textContent       = formatCurrency(saldoCaja);
@@ -9462,6 +9724,316 @@ async function mostrarBienvenidaOperador() {
 // =====================================================
 // Eliminar restricción de 1 solo cierre por día — permitir múltiples
 // (ya implementado directamente en loadCajaPapeleria y loadCajaGiros)
+
+// =====================================================
+// GIROS DIARIOS
+// =====================================================
+async function openModalGirosDiarios() {
+  document.getElementById('gd-fecha').value = todayLocal();
+  document.getElementById('gd-cantidad').value = '';
+  document.getElementById('gd-notas').value = '';
+  document.getElementById('gd-filter-tipo').value = 'mes';
+  document.getElementById('gd-filter-mes-esp').style.display = 'none';
+  document.getElementById('gd-filter-dia').style.display = 'none';
+  await loadGirosDiarios();
+  openModal('modal-giros-diarios');
+}
+
+async function guardarGiroDiario() {
+  const fecha    = document.getElementById('gd-fecha').value;
+  const cantidad = parseInt(document.getElementById('gd-cantidad').value) || 0;
+  const notas    = document.getElementById('gd-notas').value.trim();
+  if (!fecha) { toast('Selecciona la fecha', 'error'); return; }
+  if (!cantidad || cantidad <= 0) { toast('Ingresa una cantidad válida', 'error'); return; }
+  try {
+    await sb.from('giros_registro_diario').insert({
+      fecha, cantidad, notas: notas || null,
+      operador_id: currentUser.id,
+      operador_nombre: currentProfile?.nombre || 'Usuario'
+    });
+    toast('Giros registrados ✅', 'success');
+    document.getElementById('gd-cantidad').value = '';
+    document.getElementById('gd-notas').value = '';
+    document.getElementById('gd-fecha').value = todayLocal();
+    await loadGirosDiarios();
+  } catch(err) { toast('Error: ' + err.message, 'error'); }
+}
+
+async function loadGirosDiarios() {
+  const tipo    = document.getElementById('gd-filter-tipo')?.value || 'mes';
+  const mesEspEl = document.getElementById('gd-filter-mes-esp');
+  const diaEl   = document.getElementById('gd-filter-dia');
+
+  // Mostrar/ocultar controles según filtro
+  mesEspEl.style.display = tipo === 'mes-especifico' ? '' : 'none';
+  diaEl.style.display    = tipo === 'dia' ? '' : 'none';
+
+  const hoy = new Date(); const ano = hoy.getFullYear();
+  let q = sb.from('giros_registro_diario').select('*').order('fecha', {ascending: false});
+
+  if (tipo === 'mes') {
+    const m = hoy.getMonth() + 1;
+    q = q.gte('fecha', `${ano}-${String(m).padStart(2,'0')}-01`)
+         .lte('fecha', new Date(ano, m, 0).toISOString().split('T')[0]);
+  } else if (tipo === 'mes-especifico') {
+    const m = parseInt(mesEspEl.value) || 1;
+    q = q.gte('fecha', `${ano}-${String(m).padStart(2,'0')}-01`)
+         .lte('fecha', new Date(ano, m, 0).toISOString().split('T')[0]);
+  } else if (tipo === 'dia') {
+    const d = diaEl.value || todayLocal();
+    q = q.eq('fecha', d);
+  }
+  // 'todos' → sin filtro de fecha
+
+  const { data, error } = await q;
+  if (error) { toast('Error cargando giros: ' + error.message, 'error'); return; }
+  const rows = data || [];
+
+  // KPIs
+  const total     = rows.reduce((a, r) => a + (r.cantidad || 0), 0);
+  const promedio  = rows.length ? Math.round(total / rows.length) : 0;
+  const maxRow    = rows.reduce((a, r) => (r.cantidad > (a?.cantidad || 0) ? r : a), null);
+  const minRow    = rows.length ? rows.reduce((a, r) => (r.cantidad < (a?.cantidad || Infinity) ? r : a), null) : null;
+
+  document.getElementById('gd-kpis').innerHTML = `
+    <div class="glass-card" style="padding:0.875rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#7C3AED;">${total.toLocaleString('es-CO')}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">Total giros</div>
+    </div>
+    <div class="glass-card" style="padding:0.875rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#2563EB;">${promedio.toLocaleString('es-CO')}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">Promedio por día</div>
+    </div>
+    <div class="glass-card" style="padding:0.875rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#22C55E;">${(maxRow?.cantidad || 0).toLocaleString('es-CO')}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">🏆 Mejor día ${maxRow ? '('+formatDate(maxRow.fecha)+')' : ''}</div>
+    </div>
+    <div class="glass-card" style="padding:0.875rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#EF4444;">${(minRow?.cantidad || 0).toLocaleString('es-CO')}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">📉 Menor día ${minRow ? '('+formatDate(minRow.fecha)+')' : ''}</div>
+    </div>
+    <div class="glass-card" style="padding:0.875rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;font-family:'Poppins',sans-serif;color:#FACC15;">${rows.length}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">Días registrados</div>
+    </div>`;
+
+  // Tabla
+  const isAdmin = currentProfile?.rol === 'administrador';
+  const hoyStr  = todayLocal();
+  document.getElementById('gd-tbody').innerHTML = !rows.length
+    ? `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    : rows.map((r, i) => `
+      <tr style="background:${i%2===0?'transparent':'rgba(124,58,237,0.02)'};">
+        <td style="font-weight:600;font-size:0.85rem;">${formatDate(r.fecha)}${r.fecha===hoyStr?'<span class="badge badge-blue" style="margin-left:0.4rem;font-size:0.65rem;padding:1px 6px;">Hoy</span>':''}</td>
+        <td style="font-weight:800;font-size:1rem;color:#7C3AED;">${(r.cantidad||0).toLocaleString('es-CO')}</td>
+        <td style="color:var(--text-muted);font-size:0.82rem;">${r.notas||'—'}</td>
+        <td style="font-size:0.8rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
+        <td>${isAdmin?`<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="eliminarGiroDiario('${r.id}')"><i class="fa-solid fa-trash"></i></button>`:'—'}</td>
+      </tr>`).join('');
+}
+
+async function eliminarGiroDiario(id) {
+  confirmarEliminar('¿Eliminar este registro de giros?', async () => {
+    await sb.from('giros_registro_diario').delete().eq('id', id);
+    toast('Registro eliminado', 'success');
+    await loadGirosDiarios();
+  });
+}
+
+// =====================================================
+// EXPORTAR PDF CAJA (Papelería y Giros)
+// =====================================================
+async function exportCajaPDF(tipo) {
+  const esPap = tipo === 'papeleria';
+
+  // Cargar logo como base64
+  let logoBase64 = '';
+  try {
+    const resp = await fetch('logo-redon.png');
+    const blob = await resp.blob();
+    logoBase64 = await new Promise(res => {
+      const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob);
+    });
+  } catch(e) { logoBase64 = ''; }
+
+  // Cargar datos históricos completos
+  let cierres = [], debitos = [];
+  if (esPap) {
+    const [{data:c},{data:d}] = await Promise.all([
+      sb.from('caja_papeleria_cierres').select('*').order('fecha',{ascending:true}),
+      sb.from('caja_papeleria_debitos').select('*').order('fecha',{ascending:true})
+    ]);
+    cierres = c||[]; debitos = d||[];
+  } else {
+    const [{data:c},{data:d}] = await Promise.all([
+      sb.from('giros_cierres').select('*').order('fecha',{ascending:true}),
+      sb.from('giros_debitos').select('*').order('fecha',{ascending:true})
+    ]);
+    cierres = c||[]; debitos = d||[];
+  }
+
+  const totalCierres = esPap
+    ? cierres.reduce((a,c)=>a+(c.monto_cierre||0),0)
+    : cierres.reduce((a,c)=>a+(c.total||0),0);
+  const totalDebitos = debitos.reduce((a,d)=>a+(d.monto||0),0);
+  const saldoFinal   = esPap ? totalCierres - totalDebitos
+    : cierres.reduce((a,c)=>a+(c.saldo_plataforma||0),0)
+      + cierres.reduce((a,c)=>a+(c.saldo_caja||0),0)
+      - totalDebitos;
+
+  const fecha  = new Date().toLocaleDateString('es-CO', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const titulo = esPap ? 'Reporte Caja Papelería' : 'Reporte Giros Venezuela';
+
+  // Filas de cierres
+  const filasCierres = cierres.map((r,i) => {
+    const bg = i%2===0 ? '#ffffff' : '#f8fafc';
+    if (esPap) {
+      return `<tr style="background:${bg};">
+        <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#166534;">${formatCurrency(r.monto_cierre)}</td>
+        <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.notas||'—'}</td>
+        <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
+      </tr>`;
+    } else {
+      return `<tr style="background:${bg};">
+        <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#166534;">${formatCurrency(r.saldo_plataforma)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#1d4ed8;">${formatCurrency(r.saldo_caja)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:800;color:#5b21b6;">${formatCurrency(r.total)}</td>
+        <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.notas||'—'}</td>
+        <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
+      </tr>`;
+    }
+  }).join('');
+
+  // Filas de débitos
+  const filasDebitos = debitos.map((r,i) => {
+    const bg = i%2===0 ? '#ffffff' : '#fff5f5';
+    return `<tr style="background:${bg};">
+      <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
+      <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#991b1b;">-${formatCurrency(r.monto)}</td>
+      <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.motivo||r.notas||'—'}</td>
+      <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const headerCierres = esPap
+    ? `<tr style="background:#1e3a8a;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Monto Cierre</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Notas</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
+      </tr>`
+    : `<tr style="background:#4c1d95;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Saldo Plataforma</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Saldo Caja</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Total</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Notas</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
+      </tr>`;
+
+  const colorPrincipal = esPap ? '#1e3a8a' : '#4c1d95';
+  const colorAcento    = esPap ? '#2563EB' : '#7C3AED';
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Segoe UI',Arial,sans-serif; color:#1e293b; background:#f1f5f9; }
+    .page { max-width:780px; margin:30px auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
+    .header { background:linear-gradient(135deg,${colorPrincipal},${colorAcento}); color:white; padding:28px 32px; display:flex; align-items:center; gap:20px; }
+    .header img { width:64px; height:64px; border-radius:50%; border:3px solid rgba(255,255,255,0.4); object-fit:cover; }
+    .header-fallback { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; border:3px solid rgba(255,255,255,0.4); flex-shrink:0; }
+    .header-info { flex:1; }
+    .header-info h1 { font-size:18pt; font-weight:800; margin-bottom:3px; }
+    .header-info p { font-size:9pt; opacity:0.82; }
+    .header-fecha { text-align:right; font-size:8.5pt; opacity:0.8; line-height:1.6; }
+    .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-bottom:2px solid #e2e8f0; }
+    .kpi { padding:18px 16px; text-align:center; border-right:1px solid #e2e8f0; }
+    .kpi:last-child { border-right:none; }
+    .kpi-value { font-size:16pt; font-weight:900; font-family:'Poppins',sans-serif; }
+    .kpi-label { font-size:7.5pt; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; font-weight:600; }
+    .section-title { padding:14px 20px; font-size:10pt; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:white; }
+    .section-cierres { background:${colorPrincipal}; }
+    .section-debitos  { background:#991b1b; }
+    table { width:100%; border-collapse:collapse; }
+    tbody tr:last-child td { border-bottom:none; }
+    td,th { border-bottom:1px solid #e2e8f0; }
+    .footer { padding:16px 20px; background:#f8fafc; border-top:2px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; font-size:8pt; color:#94a3b8; }
+    .saldo-box { margin:0 20px 20px; background:linear-gradient(135deg,${colorPrincipal},${colorAcento}); border-radius:10px; padding:16px 20px; color:white; display:flex; justify-content:space-between; align-items:center; }
+    .saldo-box .label { font-size:9pt; opacity:0.85; text-transform:uppercase; letter-spacing:0.06em; }
+    .saldo-box .valor { font-size:18pt; font-weight:900; font-family:'Poppins',sans-serif; }
+    @media print { body{background:white;} .page{box-shadow:none;margin:0;border-radius:0;} }
+  </style></head><body>
+  <div class="page">
+    <div class="header">
+      ${logoBase64
+        ? `<img src="${logoBase64}" alt="Haliel Papelería"/>`
+        : `<div class="header-fallback">H</div>`}
+      <div class="header-info">
+        <h1>${titulo}</h1>
+        <p>Haliel Papelería — Sistema Administrativo</p>
+        <p style="margin-top:4px;font-size:8pt;opacity:0.75;">Generado por: ${currentProfile?.nombre||'Administrador'}</p>
+      </div>
+      <div class="header-fecha">
+        <div style="font-weight:700;font-size:10pt;">${fecha}</div>
+        <div style="margin-top:4px;">Total cierres: ${cierres.length}</div>
+        <div>Total débitos: ${debitos.length}</div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-value" style="color:${colorAcento};">${formatCurrency(totalCierres)}</div>
+        <div class="kpi-label">Total acumulado cierres</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="color:#991b1b;">${formatCurrency(totalDebitos)}</div>
+        <div class="kpi-label">Total débitos</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="color:${saldoFinal>=0?'#166534':'#991b1b'};">${formatCurrency(saldoFinal)}</div>
+        <div class="kpi-label">Saldo final</div>
+      </div>
+    </div>
+
+    <div class="section-title section-cierres">
+      <i>🔒</i> Historial de Cierres (${cierres.length} registros)
+    </div>
+    <table><thead>${headerCierres}</thead><tbody>${filasCierres||'<tr><td colspan="6" style="padding:14px;text-align:center;color:#94a3b8;">Sin cierres registrados</td></tr>'}</tbody></table>
+
+    <div style="height:20px;"></div>
+    <div class="section-title section-debitos">
+      <i>⚠️</i> Historial de Débitos (${debitos.length} registros)
+    </div>
+    <table>
+      <thead><tr style="background:#991b1b;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Monto</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Motivo</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
+      </tr></thead>
+      <tbody>${filasDebitos||'<tr><td colspan="4" style="padding:14px;text-align:center;color:#94a3b8;">Sin débitos registrados</td></tr>'}</tbody>
+    </table>
+
+    <div style="height:20px;"></div>
+    <div class="saldo-box">
+      <div><div class="label">Saldo final consolidado</div><div style="font-size:8pt;opacity:0.75;margin-top:2px;">Cierres acumulados menos débitos totales</div></div>
+      <div class="valor">${formatCurrency(saldoFinal)}</div>
+    </div>
+
+    <div class="footer">
+      <span>Haliel Papelería © ${new Date().getFullYear()} — Sistema Administrativo</span>
+      <span>Reporte generado: ${new Date().toLocaleString('es-CO')}</span>
+    </div>
+  </div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
 
 // =====================================================
 // INICIALIZACIÓN FINAL
