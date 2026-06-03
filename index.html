@@ -501,6 +501,18 @@
     background:#1e293b;color:#fff;font-size:0.7rem;font-weight:600;padding:4px 8px;border-radius:6px;
     white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:1000;letter-spacing:0.02em; }
   [data-tip]:hover::after { opacity:1; }
+  
+  /* ══ TOOLTIP FLOTANTE GLOBAL (no se recorta en tablas con scroll) ══ */
+  #global-tooltip {
+    position: fixed; z-index: 99999; background:#1e293b; color:#fff;
+    font-size:0.72rem; font-weight:600; padding:5px 9px; border-radius:7px;
+    white-space:nowrap; pointer-events:none; opacity:0; transform:translateY(4px);
+    transition:opacity 0.14s ease, transform 0.14s ease; letter-spacing:0.02em;
+    box-shadow:0 6px 20px rgba(0,0,0,0.25); max-width:240px;
+  }
+  #global-tooltip.show { opacity:1; transform:translateY(0); }
+  /* Desactivar el tooltip CSS viejo para que no salga duplicado */
+  [data-tip]::after, [data-tip]:hover::after { content:none !important; }
 
   /* ══ SKELETON LOADERS ══ */
   .sk { background:linear-gradient(90deg,var(--card-border) 25%,var(--input-bg) 50%,var(--card-border) 75%);
@@ -1320,7 +1332,7 @@
           </div>
           <div class="glass-card" style="padding:1rem;text-align:center;">
             <div style="font-size:1.4rem;font-weight:800;font-family:'Poppins',sans-serif;color:#22C55E;" id="caja-pap-kpi-promedio">$0</div>
-            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Promedio cierre</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Ganancia del mes</div>
           </div>
         </div>
 
@@ -1339,7 +1351,7 @@
           </div>
           <div style="overflow-x:auto;">
             <table class="premium-table">
-              <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Motivo / Notas</th><th>Registrado por</th><th>Acciones</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Ganancia</th><th>Motivo / Notas</th><th>Registrado por</th><th>Acciones</th></tr></thead>
               <tbody id="caja-pap-tbody"></tbody>
             </table>
           </div>
@@ -1401,7 +1413,7 @@
           </div>
           <div style="overflow-x:auto;">
             <table class="premium-table">
-              <thead><tr><th>Fecha</th><th>Tipo</th><th>Plataforma</th><th>Caja</th><th>Total</th><th>Motivo</th><th>Por</th><th>Acciones</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Plataforma</th><th>Caja</th><th>Total</th><th>Ganancia</th><th>Motivo</th><th>Por</th><th>Acciones</th></tr></thead>
               <tbody id="caja-giros-tbody"></tbody>
             </table>
           </div>
@@ -2491,9 +2503,119 @@
       <button class="btn-secondary" onclick="copiarMensajeCobro()" style="flex:1;justify-content:center;"><i class="fa-solid fa-copy"></i> Copiar mensaje</button>
     </div>
     <div style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted);text-align:center;">Al renovar también puedes registrar el pago directamente</div>
-    <button class="btn-secondary" onclick="renovarSuscripcion()" id="btn-st-renovar" style="width:100%;justify-content:center;margin-top:0.5rem;color:#22C55E;border-color:rgba(34,197,94,0.3);">
+    <button class="btn-secondary" onclick="renovarDesdeCobro()" id="btn-st-renovar" style="width:100%;justify-content:center;margin-top:0.5rem;color:#22C55E;border-color:rgba(34,197,94,0.3);">
       <i class="fa-solid fa-rotate"></i> Marcar como pagado y renovar
     </button>
+  </div>
+</div>
+
+<!-- Modal: Renovar Suscripción (fecha manual + edición de combo) -->
+<div id="modal-st-renovar" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">
+        <i class="fa-solid fa-rotate" style="color:#22C55E;margin-right:0.5rem;"></i>Renovar Suscripción
+      </h3>
+      <button onclick="closeModal('modal-st-renovar')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+      <!-- INFO VENTA -->
+      <div style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:0.875rem;padding:0.875rem 1rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.82rem;">
+        <div><span style="color:var(--text-muted);">Cliente:</span> <strong id="renov-cliente-nombre">—</strong></div>
+        <div><span style="color:var(--text-muted);">ID Venta:</span> <strong id="renov-id-venta">—</strong></div>
+        <div><span style="color:var(--text-muted);">Vence actual:</span> <strong id="renov-vence-actual" style="color:#EF4444;">—</strong></div>
+      </div>
+
+      <!-- DURACIÓN + FECHAS -->
+      <div class="grid-2">
+        <div>
+          <label class="field-label">Duración *</label>
+          <select id="renov-duracion" class="field-input" onchange="renovOnDuracionChange()">
+            <option value="1">1 mes</option>
+            <option value="2">2 meses</option>
+            <option value="3">3 meses</option>
+            <option value="6">6 meses</option>
+            <option value="12">12 meses</option>
+            <option value="custom">Personalizado...</option>
+          </select>
+        </div>
+        <div id="renov-duracion-custom-row" style="display:none;">
+          <label class="field-label">Meses</label>
+          <input type="number" id="renov-duracion-custom" class="field-input" min="1" max="36" placeholder="Ej: 4" oninput="renovOnDuracionChange()"/>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label class="field-label">Fecha de inicio de la renovación *</label>
+          <input type="date" id="renov-fecha-inicio" class="field-input" oninput="renovOnDuracionChange()"/>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;">Puede ser anterior, igual o posterior a hoy según lo pida el cliente.</div>
+        </div>
+        <div>
+          <label class="field-label">Fecha de vencimiento</label>
+          <input type="text" id="renov-vencimiento-display" class="field-input" disabled style="opacity:0.7;background:var(--input-bg);font-weight:600;color:#22C55E;"/>
+          <input type="hidden" id="renov-vencimiento"/>
+        </div>
+      </div>
+
+      <!-- SELECTOR DE PLATAFORMAS DEL COMBO -->
+      <div style="background:linear-gradient(135deg,rgba(34,197,94,0.06),rgba(37,99,235,0.04));border:1px solid rgba(34,197,94,0.15);border-radius:1rem;padding:1.25rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;display:flex;align-items:center;gap:0.5rem;">
+            <i class="fa-solid fa-film" style="color:#22C55E;"></i>Plataformas del combo
+          </div>
+          <div style="position:relative;">
+            <i class="fa-solid fa-search" style="position:absolute;left:0.65rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;"></i>
+            <input type="text" id="renov-plat-buscar" class="field-input" placeholder="Filtrar..." style="padding:0.4rem 0.75rem 0.4rem 2rem;font-size:0.8rem;width:160px;" oninput="renovFiltrarPlat(this.value)"/>
+          </div>
+        </div>
+        <div id="renov-plat-lista" style="display:flex;flex-direction:column;gap:0.4rem;max-height:220px;overflow-y:auto;padding-right:0.25rem;"></div>
+        <div style="margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(34,197,94,0.12);">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.04em;">En el combo:</div>
+          <div id="renov-plat-selected" style="display:flex;flex-wrap:wrap;gap:0.4rem;min-height:28px;align-content:flex-start;">
+            <span style="color:var(--text-muted);font-size:0.78rem;opacity:0.6;">Ninguna</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETALLES POR PLATAFORMA -->
+      <div id="renov-detalles" style="display:none;background:var(--input-bg);border-radius:1rem;padding:1rem;"></div>
+
+      <!-- RESUMEN -->
+      <div style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.04));border:1px solid rgba(34,197,94,0.2);border-radius:1rem;padding:1rem;">
+        <h4 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;">💰 Resumen de la renovación</h4>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Total plataformas:</span><span style="font-weight:700;" id="renov-count">0</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Monto total:</span><span style="font-weight:700;color:#22C55E;" id="renov-total">$0</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Costo real (meses):</span><span style="font-weight:700;color:#EF4444;" id="renov-costo">$0</span></div>
+          <div style="border-top:1px solid rgba(34,197,94,0.2);padding-top:0.5rem;display:flex;justify-content:space-between;"><span style="color:var(--text-muted);font-weight:600;">Ganancia neta:</span><span style="font-weight:800;color:#16a34a;font-size:1rem;" id="renov-ganancia">$0</span></div>
+        </div>
+      </div>
+	  
+	  <!-- CAMBIOS RESPECTO AL COMBO ANTERIOR -->
+      <div style="background:var(--input-bg);border-radius:0.75rem;padding:0.75rem 1rem;">
+        <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.5rem;"><i class="fa-solid fa-arrows-rotate" style="margin-right:0.35rem;"></i>Cambios respecto al combo anterior</div>
+        <div id="renov-cambios" style="display:flex;flex-wrap:wrap;gap:0.4rem;align-items:center;">
+          <span style="color:var(--text-muted);font-size:0.8rem;">Sin cambios en el combo</span>
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <div>
+        <label class="field-label">Notas internas (opcional)</label>
+        <textarea id="renov-notas" class="field-input" rows="2" style="resize:none;" placeholder="Ej: cliente cambió de combo, agregó Disney+..."></textarea>
+      </div>
+
+      <!-- BOTONES -->
+      <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
+        <button class="btn-secondary" onclick="closeModal('modal-st-renovar')">Cancelar</button>
+        <button class="btn-primary" id="btn-confirmar-renov" style="background:linear-gradient(135deg,#22C55E,#16a34a);" onclick="confirmarRenovacion()">
+          <i class="fa-solid fa-rotate"></i> Confirmar renovación
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -9235,6 +9357,33 @@ function switchCajaTab(tab) {
 
 async function loadCerrarCaja() { switchCajaTab('papeleria'); }
 
+// ════════════════════════════════════════════════════
+// GANANCIA DIARIA POR CIERRE
+// Ganancia del día = cierre actual − cierre anterior (de su propio módulo).
+// El primer cierre registrado tiene ganancia 0 (no hay base previa).
+// Devuelve un mapa: { [idCierre]: { anterior, actual, ganancia, esPrimero } }
+// ════════════════════════════════════════════════════
+function calcularGananciasCierres(cierres, montoKey) {
+  const ordenados = [...(cierres||[])].sort((a,b) => {
+    if ((a.fecha||'') !== (b.fecha||'')) return (a.fecha||'') < (b.fecha||'') ? -1 : 1;
+    return (a.created_at||'') < (b.created_at||'') ? -1 : 1;
+  });
+  const map = {};
+  let anterior = null;
+  for (const c of ordenados) {
+    const actual = c[montoKey] || 0;
+    const esPrimero = anterior === null;
+    map[c.id] = {
+      anterior:  esPrimero ? null : anterior,
+      actual,
+      ganancia:  esPrimero ? 0 : (actual - anterior),  // ← primer cierre = 0. Cámbialo a `actual` si quieres contarlo completo.
+      esPrimero
+    };
+    anterior = actual;
+  }
+  return map;
+}
+
 async function loadCajaPapeleria() {
   const mes = document.getElementById('caja-pap-filter-mes')?.value;
   const hoy = new Date(); const ano = hoy.getFullYear();
@@ -9243,43 +9392,66 @@ async function loadCajaPapeleria() {
   const start=`${ano}-${String(m).padStart(2,'0')}-01`;
   const end=new Date(ano,m,0).toISOString().split('T')[0];
 
+  // Registros del período (para la tabla)
   let qC = sb.from('caja_papeleria_cierres').select('*').order('created_at',{ascending:false});
   let qD = sb.from('caja_papeleria_debitos').select('*').order('created_at',{ascending:false});
   if (!verTodos) { qC = qC.gte('fecha',start).lte('fecha',end); qD = qD.gte('fecha',start).lte('fecha',end); }
   const [{data:cierres},{data:debitos}] = await Promise.all([qC, qD]);
-  
-  const {data:uc} = await sb.from('caja_papeleria_cierres').select('*').order('created_at',{ascending:false}).limit(1);
-  const {data:todosCierres} = await sb.from('caja_papeleria_cierres').select('monto_cierre');
-  const {data:todosDebitos} = await sb.from('caja_papeleria_debitos').select('monto');
-  const totalCierres = (todosCierres||[]).reduce((a,c)=>a+(c.monto_cierre||0),0);
-  const totalDebitos = (todosDebitos||[]).reduce((a,d)=>a+(d.monto||0),0);
-  const saldoActual = totalCierres - totalDebitos;
+
+  // Histórico COMPLETO (para calcular ganancias y saldo sin que el filtro de mes los corte)
+  const {data:cierresFull} = await sb.from('caja_papeleria_cierres').select('id,fecha,monto_cierre,created_at').order('fecha',{ascending:true}).order('created_at',{ascending:true});
+  const {data:debitosFull} = await sb.from('caja_papeleria_debitos').select('monto,created_at');
+
+  // Mapa de ganancias por cierre (cierre actual − cierre anterior)
+  const gananciaMap = calcularGananciasCierres(cierresFull||[], 'monto_cierre');
+
+  // Saldo actual = ÚLTIMO cierre − débitos posteriores a ese cierre (NO la suma de cierres)
+  const lista = cierresFull||[];
+  const ultimoCierre = lista.length ? lista[lista.length-1] : null;
+  const debitosPost = ultimoCierre
+    ? (debitosFull||[]).filter(d => (d.created_at||'') > (ultimoCierre.created_at||''))
+    : (debitosFull||[]);
+  const totalDebPost = debitosPost.reduce((a,d)=>a+(d.monto||0),0);
+  const saldoActual = (ultimoCierre?.monto_cierre||0) - totalDebPost;
 
   document.getElementById('caja-pap-saldo-display').textContent = formatCurrency(saldoActual);
-  document.getElementById('caja-pap-ultimo-cierre').textContent = uc?.[0]
-    ? `Último cierre: ${formatDate(uc[0].fecha)} · ${formatCurrency(uc[0].monto_cierre)}`
+  document.getElementById('caja-pap-ultimo-cierre').textContent = ultimoCierre
+    ? `Último cierre: ${formatDate(ultimoCierre.fecha)} · ${formatCurrency(ultimoCierre.monto_cierre)}`
     : 'Sin cierres registrados';
 
+  // KPIs del período
   const totalDeb = (debitos||[]).reduce((a,d)=>a+(d.monto||0),0);
-  const prom = (cierres||[]).length ? Math.round((cierres||[]).reduce((a,c)=>a+(c.monto_cierre||0),0)/(cierres||[]).length) : 0;
+  const gananciaMes = (cierres||[]).reduce((a,c)=>a+((gananciaMap[c.id]?.ganancia)||0),0);
   document.getElementById('caja-pap-kpi-cierres').textContent  = (cierres||[]).length;
   document.getElementById('caja-pap-kpi-debitos').textContent  = formatCurrency(totalDeb);
-  document.getElementById('caja-pap-kpi-promedio').textContent = formatCurrency(prom);
+  document.getElementById('caja-pap-kpi-promedio').textContent = formatCurrency(gananciaMes);
 
   const hoyStr = todayLocal();
   const isAdmin = currentProfile?.rol === 'administrador';
   const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))];
   const tbody = document.getElementById('caja-pap-tbody');
   tbody.innerHTML = !todos.length
-    ? `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
-    : todos.map((r,i)=>`<tr style="background:${i%2===0?'transparent':'rgba(37,99,235,0.02)'};">
+    ? `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    : todos.map((r,i)=>{
+        let ganCell = '<td style="color:var(--text-muted);">—</td>';
+        if (r.tipo==='cierre') {
+          const g = gananciaMap[r.id];
+          if (g && g.esPrimero) {
+            ganCell = `<td style="font-size:0.8rem;color:var(--text-muted);">1er cierre</td>`;
+          } else if (g) {
+            const pos = g.ganancia >= 0;
+            ganCell = `<td style="font-weight:700;color:${pos?'#16a34a':'#dc2626'};" title="Anterior: ${formatCurrency(g.anterior)} → Actual: ${formatCurrency(g.actual)}">${pos?'+':''}${formatCurrency(g.ganancia)}</td>`;
+          }
+        }
+        return `<tr style="background:${i%2===0?'transparent':'rgba(37,99,235,0.02)'};">
         <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}${r.fecha===hoyStr?'<span class="badge badge-blue" style="margin-left:0.4rem;font-size:0.65rem;padding:1px 6px;">Hoy</span>':''}</td>
         <td>${r.tipo==='cierre'?'<span class="badge badge-green"><i class="fa-solid fa-lock"></i> Cierre</span>':'<span class="badge badge-red"><i class="fa-solid fa-arrow-up-from-bracket"></i> Débito</span>'}</td>
         <td style="font-weight:700;color:${r.tipo==='cierre'?'#22C55E':'#EF4444'};">${formatCurrency(r.monto_cierre||r.monto)}</td>
+        ${ganCell}
         <td style="color:var(--text-muted);font-size:0.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
         <td style="font-size:0.8rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
         <td>${isAdmin?`<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="eliminarRegistroCaja('papeleria','${r.tipo}','${r.id}')"><i class="fa-solid fa-trash"></i></button>`:'—'}</td>
-      </tr>`).join('');
+      </tr>`;}).join('');
   checkCajaBadge();
 }
 
@@ -9291,23 +9463,34 @@ async function loadCajaGiros() {
   const start=`${ano}-${String(m).padStart(2,'0')}-01`;
   const end=new Date(ano,m,0).toISOString().split('T')[0];
 
+  // Registros del período (para la tabla)
   let qC = sb.from('giros_cierres').select('*').order('created_at',{ascending:false});
   let qD = sb.from('giros_debitos').select('*').order('created_at',{ascending:false});
   if (!verTodos) { qC = qC.gte('fecha',start).lte('fecha',end); qD = qD.gte('fecha',start).lte('fecha',end); }
   const [{data:cierres},{data:debitos}] = await Promise.all([qC, qD]);
-  
-  const {data:uc} = await sb.from('giros_cierres').select('*').order('created_at',{ascending:false}).limit(1);
-  const {data:todosDebitosG} = await sb.from('giros_debitos').select('monto');
-  const totalDH = (todosDebitosG||[]).reduce((a,d)=>a+(d.monto||0),0);
-  const {data:todosCierresG} = await sb.from('giros_cierres').select('saldo_plataforma,saldo_caja');
-  const saldoPlat = (todosCierresG||[]).reduce((a,c)=>a+(c.saldo_plataforma||0),0);
-  const saldoCaja = (todosCierresG||[]).reduce((a,c)=>a+(c.saldo_caja||0),0) - totalDH;
+
+  // Histórico COMPLETO (para ganancias y saldos)
+  const {data:cierresFull} = await sb.from('giros_cierres').select('id,fecha,saldo_plataforma,saldo_caja,total,created_at').order('fecha',{ascending:true}).order('created_at',{ascending:true});
+  const {data:debitosFull} = await sb.from('giros_debitos').select('monto,created_at');
+
+  // Ganancia de giros = total actual − total anterior
+  const gananciaMap = calcularGananciasCierres(cierresFull||[], 'total');
+
+  // Saldos actuales = ÚLTIMO cierre (no la suma). La caja se reduce por débitos posteriores.
+  const lista = cierresFull||[];
+  const ultimoCierre = lista.length ? lista[lista.length-1] : null;
+  const debitosPost = ultimoCierre
+    ? (debitosFull||[]).filter(d => (d.created_at||'') > (ultimoCierre.created_at||''))
+    : (debitosFull||[]);
+  const totalDebPost = debitosPost.reduce((a,d)=>a+(d.monto||0),0);
+  const saldoPlat = ultimoCierre?.saldo_plataforma || 0;
+  const saldoCaja = (ultimoCierre?.saldo_caja || 0) - totalDebPost;
 
   document.getElementById('giros-saldo-plataforma').textContent = formatCurrency(saldoPlat);
   document.getElementById('giros-saldo-caja').textContent       = formatCurrency(saldoCaja);
   document.getElementById('giros-saldo-total').textContent      = formatCurrency(saldoPlat+saldoCaja);
-  document.getElementById('giros-ultimo-cierre').textContent    = uc?.[0]
-    ? `Último cierre: ${formatDate(uc[0].fecha)} · Total: ${formatCurrency(uc[0].total)}`
+  document.getElementById('giros-ultimo-cierre').textContent    = ultimoCierre
+    ? `Último cierre: ${formatDate(ultimoCierre.fecha)} · Total: ${formatCurrency(ultimoCierre.total)}`
     : 'Sin cierres registrados';
 
   const hoyStr = todayLocal();
@@ -9315,17 +9498,29 @@ async function loadCajaGiros() {
   const todos = [...(cierres||[]).map(r=>({...r,tipo:'cierre'})),...(debitos||[]).map(r=>({...r,tipo:'debito'}))];
   const tbody = document.getElementById('caja-giros-tbody');
   tbody.innerHTML = !todos.length
-    ? `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
-    : todos.map((r,i)=>`<tr style="background:${i%2===0?'transparent':'rgba(124,58,237,0.02)'};">
+    ? `<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">Sin registros en este período</td></tr>`
+    : todos.map((r,i)=>{
+        let ganCell = '<td style="color:var(--text-muted);">—</td>';
+        if (r.tipo==='cierre') {
+          const g = gananciaMap[r.id];
+          if (g && g.esPrimero) {
+            ganCell = `<td style="font-size:0.8rem;color:var(--text-muted);">1er cierre</td>`;
+          } else if (g) {
+            const pos = g.ganancia >= 0;
+            ganCell = `<td style="font-weight:700;color:${pos?'#16a34a':'#dc2626'};" title="Total anterior: ${formatCurrency(g.anterior)} → Total actual: ${formatCurrency(g.actual)}">${pos?'+':''}${formatCurrency(g.ganancia)}</td>`;
+          }
+        }
+        return `<tr style="background:${i%2===0?'transparent':'rgba(124,58,237,0.02)'};">
         <td style="font-size:0.85rem;font-weight:600;">${formatDate(r.fecha)}${r.fecha===hoyStr?'<span class="badge badge-blue" style="margin-left:0.4rem;font-size:0.65rem;padding:1px 6px;">Hoy</span>':''}</td>
         <td>${r.tipo==='cierre'?'<span class="badge badge-green"><i class="fa-solid fa-lock"></i> Cierre</span>':'<span class="badge badge-red"><i class="fa-solid fa-arrow-up-from-bracket"></i> Débito</span>'}</td>
         <td style="font-weight:600;color:#22C55E;">${r.saldo_plataforma!=null?formatCurrency(r.saldo_plataforma):'—'}</td>
         <td style="font-weight:600;color:#2563EB;">${r.saldo_caja!=null?formatCurrency(r.saldo_caja):r.monto!=null?'-'+formatCurrency(r.monto):'—'}</td>
         <td style="font-weight:700;color:#7C3AED;">${r.total!=null?formatCurrency(r.total):'—'}</td>
+        ${ganCell}
         <td style="color:var(--text-muted);font-size:0.8rem;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notas||r.motivo||''}">${r.notas||r.motivo||'—'}</td>
         <td style="font-size:0.78rem;color:var(--text-muted);">${r.operador_nombre||'—'}</td>
         <td>${isAdmin?`<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="eliminarRegistroCaja('giros','${r.tipo}','${r.id}')"><i class="fa-solid fa-trash"></i></button>`:'—'}</td>
-      </tr>`).join('');
+      </tr>`;}).join('');
 }
 
 function openModalCajaRegistro(tipoCaja,tipoOp) {
@@ -9629,37 +9824,325 @@ async function verHistorialCliente(clienteId, nombre) {
     }).join('')}`;
 }
 
+// ════════════════════════════════════════════════════
+// RENOVACIÓN AVANZADA — fecha de inicio manual + edición de combo
+// Conserva el mismo id_venta (sin ventas nuevas ni duplicados).
+// ════════════════════════════════════════════════════
+let renovIdVenta = null;
+let renovClienteId = null;
+let renovItems = [];
+let renovSeleccionadas = new Set();
+let renovValores = {}; // { [platId]: { precio, perfil } }
+
+function abrirModalRenovar(idVenta) {
+  if (!idVenta) { toast('No se encontró la venta', 'error'); return; }
+  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+  if (!items.length) { toast('No se encontró la venta', 'error'); return; }
+
+  renovIdVenta = idVenta;
+  renovItems = items;
+  renovClienteId = items[0].cliente_id;
+  renovSeleccionadas = new Set(items.map(s => s.plataforma_id));
+  renovValores = {};
+  items.forEach(s => { renovValores[s.plataforma_id] = { precio: s.precio_venta || 0, perfil: s.perfil || 'Perfil 1' }; });
+
+  const cli = allStClientes.find(c => c.id === renovClienteId);
+  const venceActual = items.map(s => s.fecha_vencimiento).filter(Boolean).sort()[0];
+  const mesesPrevios = items[0].duracion_meses || 1;
+
+  document.getElementById('renov-cliente-nombre').textContent = cli?.nombre || '—';
+  document.getElementById('renov-id-venta').textContent = idVenta;
+  document.getElementById('renov-vence-actual').textContent = venceActual ? formatDate(venceActual) : '—';
+  document.getElementById('renov-notas').value = items[0].notas || '';
+
+  const dur = document.getElementById('renov-duracion');
+  const opciones = ['1','2','3','6','12'];
+  if (opciones.includes(String(mesesPrevios))) {
+    dur.value = String(mesesPrevios);
+    document.getElementById('renov-duracion-custom-row').style.display = 'none';
+  } else {
+    dur.value = 'custom';
+    document.getElementById('renov-duracion-custom-row').style.display = 'block';
+    document.getElementById('renov-duracion-custom').value = mesesPrevios;
+  }
+
+  // Por defecto la renovación arranca donde terminó la vigencia actual, pero es editable.
+  document.getElementById('renov-fecha-inicio').value = venceActual || todayLocal();
+
+  const buscar = document.getElementById('renov-plat-buscar');
+  if (buscar) buscar.value = '';
+
+  renovOnDuracionChange();
+  renovRenderSelector();
+  renovActualizarDetalles();
+  openModal('modal-st-renovar');
+}
+
+function renovRenderSelector(filtro = '') {
+  const container = document.getElementById('renov-plat-lista');
+  if (!container) return;
+  const lista = filtro
+    ? allStPlataformas.filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
+    : allStPlataformas;
+  if (!lista.length) {
+    container.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.82rem;">Sin plataformas encontradas</div>`;
+    return;
+  }
+  container.innerHTML = lista.map(p => {
+    const selected = renovSeleccionadas.has(p.id);
+    const yaEstaba = renovItems.some(s => s.plataforma_id === p.id);
+    return `
+    <div onclick="renovTogglePlat('${p.id}')"
+         style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-radius:0.65rem;cursor:pointer;border:1.5px solid ${selected ? '#22C55E' : 'var(--card-border)'};background:${selected ? 'rgba(34,197,94,0.07)' : 'var(--card-bg)'};transition:all 0.18s;">
+      <div style="width:20px;height:20px;border-radius:0.35rem;border:2px solid ${selected ? '#22C55E' : 'var(--card-border)'};background:${selected ? '#22C55E' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        ${selected ? '<i class="fa-solid fa-check" style="color:white;font-size:0.65rem;"></i>' : ''}
+      </div>
+      <div style="font-size:1.25rem;flex-shrink:0;">${p.emoji}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:0.875rem;">${p.nombre}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Costo: ${p.costo_real > 0 ? formatCurrency(p.costo_real) + '/mes' : 'No definido'}</div>
+      </div>
+      ${yaEstaba ? '<span class="badge" style="font-size:0.62rem;padding:0.2rem 0.45rem;background:rgba(124,58,237,0.12);color:#7C3AED;">Actual</span>' : '<span class="badge badge-blue" style="font-size:0.62rem;padding:0.2rem 0.45rem;">Nueva</span>'}
+    </div>`;
+  }).join('');
+}
+
+function renovFiltrarPlat(valor) { renovRenderSelector(valor); }
+
+function renovCapturarInputs() {
+  document.querySelectorAll('#renov-detalles .renov-precio').forEach(el => {
+    const id = el.getAttribute('data-plat');
+    if (!renovValores[id]) renovValores[id] = {};
+    renovValores[id].precio = parseFloat(el.dataset.raw) || 0;
+  });
+  document.querySelectorAll('#renov-detalles .renov-perfil').forEach(el => {
+    const id = el.getAttribute('data-plat');
+    if (!renovValores[id]) renovValores[id] = {};
+    renovValores[id].perfil = el.value || 'Perfil 1';
+  });
+}
+
+function renovTogglePlat(platId) {
+  renovCapturarInputs(); // no perder ediciones de las que siguen seleccionadas
+  if (renovSeleccionadas.has(platId)) {
+    renovSeleccionadas.delete(platId);
+  } else {
+    renovSeleccionadas.add(platId);
+    if (!renovValores[platId]) {
+      const plat = allStPlataformas.find(p => p.id === platId);
+      renovValores[platId] = { precio: plat?.costo_real || 0, perfil: 'Perfil 1' };
+    }
+  }
+  const filtro = document.getElementById('renov-plat-buscar')?.value || '';
+  renovRenderSelector(filtro);
+  renovActualizarDetalles();
+}
+
+function renovActualizarDetalles() {
+  renovRenderCambios();
+  const selectedEl = document.getElementById('renov-plat-selected');
+  const detallesEl = document.getElementById('renov-detalles');
+  if (renovSeleccionadas.size === 0) {
+    selectedEl.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;opacity:0.6;">Ninguna</span>';
+    detallesEl.style.display = 'none';
+    renovCalcResumen();
+    return;
+  }
+  const plats = Array.from(renovSeleccionadas).map(id => allStPlataformas.find(p => p.id === id)).filter(Boolean);
+  selectedEl.innerHTML = plats.map(p => `<span class="badge badge-green">${p.emoji} ${p.nombre}</span>`).join('');
+  detallesEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;">
+      ${plats.map(p => {
+        const v = renovValores[p.id] || { precio: p.costo_real || 0, perfil: 'Perfil 1' };
+        return `
+        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.75rem;">
+          <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">${p.emoji} ${p.nombre}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.4rem;">
+            Perfil: <input type="text" class="field-input renov-perfil" value="${(v.perfil||'').replace(/"/g,'&quot;')}" placeholder="Perfil 1" style="padding:0.3rem;font-size:0.75rem;margin-top:0.2rem;" data-plat="${p.id}"/>
+          </div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">
+            <span style="display:block;margin-bottom:2px;">Precio ($):</span>
+            <div style="position:relative;">
+              <span style="position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:600;font-size:0.75rem;pointer-events:none;">$</span>
+              <input type="text" inputmode="numeric" class="field-input renov-precio"
+                value="${(v.precio||0).toLocaleString('es-CO')}" data-raw="${v.precio||0}"
+                style="padding:0.3rem 0.5rem 0.3rem 1.4rem;font-size:0.8rem;margin-top:0.2rem;width:100%;font-weight:700;"
+                data-plat="${p.id}" oninput="renovFormatPrecio(this)"/>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  detallesEl.style.display = 'block';
+  renovCalcResumen();
+}
+
+function renovRenderCambios() {
+  const el = document.getElementById('renov-cambios');
+  if (!el) return;
+  const originales = new Set(renovItems.map(s => s.plataforma_id));
+  const nombre = id => allStPlataformas.find(p => p.id === id)?.nombre || 'Plataforma';
+  const agregadas = Array.from(renovSeleccionadas).filter(id => !originales.has(id));
+  const quitadas  = Array.from(originales).filter(id => !renovSeleccionadas.has(id));
+
+  if (!agregadas.length && !quitadas.length) {
+    el.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;">Sin cambios en el combo</span>';
+    return;
+  }
+  const chips = [
+    ...agregadas.map(id => `<span style="font-size:0.78rem;font-weight:700;color:#16a34a;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:0.5rem;padding:0.2rem 0.55rem;">+ ${nombre(id)}</span>`),
+    ...quitadas.map(id  => `<span style="font-size:0.78rem;font-weight:700;color:#dc2626;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:0.5rem;padding:0.2rem 0.55rem;">− ${nombre(id)}</span>`)
+  ];
+  el.innerHTML = chips.join(' ');
+}
+
+function renovFormatPrecio(input) {
+  const raw = input.value.replace(/\D/g, '');
+  input.dataset.raw = raw || '0';
+  input.value = raw === '' ? '' : parseInt(raw, 10).toLocaleString('es-CO');
+  renovCalcResumen();
+}
+
+function renovGetMeses() {
+  const durSel = document.getElementById('renov-duracion')?.value;
+  return durSel === 'custom'
+    ? parseInt(document.getElementById('renov-duracion-custom')?.value) || 1
+    : parseInt(durSel) || 1;
+}
+
+function renovCalcResumen() {
+  const meses = renovGetMeses();
+  let totalPrecio = 0, totalCosto = 0;
+  document.querySelectorAll('#renov-detalles .renov-precio').forEach(el => {
+    const platId = el.getAttribute('data-plat');
+    const precio = parseFloat(el.dataset.raw) || 0;
+    totalPrecio += precio * meses;
+    const plat = allStPlataformas.find(p => p.id === platId);
+    totalCosto += (plat?.costo_real || 0) * meses;
+  });
+  const ganancia = totalPrecio - totalCosto;
+  const c = document.getElementById('renov-count');
+  const t = document.getElementById('renov-total');
+  const co = document.getElementById('renov-costo');
+  const g = document.getElementById('renov-ganancia');
+  if (c) c.textContent = renovSeleccionadas.size;
+  if (t) t.textContent = formatCurrency(totalPrecio);
+  if (co) co.textContent = formatCurrency(totalCosto);
+  if (g) g.textContent = formatCurrency(ganancia);
+}
+
+function renovOnDuracionChange() {
+  const durSel = document.getElementById('renov-duracion')?.value;
+  const customRow = document.getElementById('renov-duracion-custom-row');
+  customRow.style.display = (durSel === 'custom') ? 'block' : 'none';
+  const meses = renovGetMeses();
+  const inicio = document.getElementById('renov-fecha-inicio')?.value;
+  if (inicio && meses) {
+    const vence = calcVencimiento(inicio, meses);
+    document.getElementById('renov-vencimiento').value = vence;
+    document.getElementById('renov-vencimiento-display').value = formatDate(vence);
+  }
+  renovCalcResumen();
+}
+
+// Entrada desde el modal de cobro
+function renovarDesdeCobro() {
+  const v = (typeof stCobroActual !== 'undefined' && stCobroActual) ? stCobroActual._idVenta : null;
+  closeModal('modal-st-cobro');
+  abrirModalRenovar(v);
+}
+
+async function confirmarRenovacion() {
+  renovCapturarInputs();
+  const inicio = document.getElementById('renov-fecha-inicio').value;
+  const vence = document.getElementById('renov-vencimiento').value;
+  const meses = renovGetMeses();
+  const notas = document.getElementById('renov-notas').value.trim();
+
+  if (!inicio) { toast('Define la fecha de inicio de la renovación', 'error'); return; }
+  if (renovSeleccionadas.size === 0) { toast('El combo debe tener al menos una plataforma', 'error'); return; }
+  if (!vence) { toast('No se pudo calcular el vencimiento', 'error'); return; }
+
+  const btn = document.getElementById('btn-confirmar-renov');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Renovando...'; }
+
+  try {
+    const estado = calcEstadoSus(vence);
+    const existentesPorPlat = {};
+    renovItems.forEach(s => { existentesPorPlat[s.plataforma_id] = s; });
+
+    // 1) Plataformas seleccionadas: actualizar las existentes o crear las nuevas (mismo id_venta)
+    for (const platId of renovSeleccionadas) {
+      const plat = allStPlataformas.find(p => p.id === platId);
+      const v = renovValores[platId] || { precio: plat?.costo_real || 0, perfil: 'Perfil 1' };
+      const precio = v.precio || 0;
+      const perfil = v.perfil || 'Perfil 1';
+      const fila = existentesPorPlat[platId];
+
+      let suscripcionId;
+      if (fila) {
+        const { error } = await sb.from('streaming_suscripciones').update({
+          fecha_inicio: inicio, fecha_vencimiento: vence, duracion_meses: meses,
+          precio_venta: precio, perfil, estado, notas: notas || null
+        }).eq('id', fila.id);
+        if (error) throw error;
+        suscripcionId = fila.id;
+      } else {
+        const { data, error } = await sb.from('streaming_suscripciones').insert({
+          id_venta: renovIdVenta, cliente_id: renovClienteId, plataforma_id: platId,
+          perfil, precio_venta: precio, duracion_meses: meses,
+          fecha_inicio: inicio, fecha_vencimiento: vence, estado, notas: notas || null
+        }).select('id').single();
+        if (error) throw error;
+        suscripcionId = data?.id;
+      }
+
+      // Registrar el pago en el historial (continuidad de la cuenta)
+      await sb.from('streaming_pagos').insert({
+        suscripcion_id: suscripcionId, cliente_id: renovClienteId, plataforma_id: platId,
+        monto: precio, costo_real: plat?.costo_real || 0, duracion_meses: meses,
+        fecha_pago: todayLocal(), notas: `Renovación combo ${renovIdVenta}`
+      });
+    }
+
+    // 2) Plataformas quitadas del combo: eliminar su fila (los pagos quedan en el historial)
+    for (const fila of renovItems) {
+      if (!renovSeleccionadas.has(fila.plataforma_id)) {
+        await sb.from('streaming_suscripciones').delete().eq('id', fila.id);
+      }
+    }
+
+    const cli = allStClientes.find(c => c.id === renovClienteId);
+    const platNames = Array.from(renovSeleccionadas)
+      .map(id => allStPlataformas.find(p => p.id === id)?.nombre).filter(Boolean).join(', ');
+
+    toast(`✅ Renovado hasta ${formatDate(vence)}`, 'success');
+    await logAuditoria('editar', `Renovación venta ${renovIdVenta} — inicio ${inicio}, vence ${vence}, plataformas: ${platNames}`);
+    closeModal('modal-st-renovar');
+    await loadStreamingSuscripciones();
+
+    sendTelegramNotification(`🎬 <b>Haliel Streaming — Renovación</b>
+━━━━━━━━━━━━━━━━━━
+🆔 <b>ID Venta:</b> ${renovIdVenta}
+👤 <b>Cliente:</b> ${cli?.nombre || '—'}
+📺 <b>Plataformas:</b> ${platNames}
+📅 <b>Nueva vigencia:</b> ${formatDate(inicio)} → ${formatDate(vence)}
+🕐 <b>Hora:</b> ${new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}
+━━━━━━━━━━━━━━━━━━`);
+
+    renovItems = []; renovSeleccionadas = new Set(); renovValores = {}; renovIdVenta = null;
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Confirmar renovación'; }
+  }
+}
+
 // =====================================================
 // RENOVAR VENTA CON UN CLIC
 // =====================================================
 async function renovarVenta(idVenta) {
-  const items = allStSuscripciones.filter(s=>(s.id_venta||s.id)===idVenta);
-  if(!items.length){toast('No se encontró la venta','error');return;}
-  const s0=items[0];
-  const cli=allStClientes.find(c=>c.id===s0.cliente_id);
-  const o=document.createElement('div');
-  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  o.innerHTML=`<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:400px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:modalSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-    <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:1rem;">🔄 Renovar — ${idVenta}</h3>
-    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">Cliente: <strong>${cli?.nombre||'—'}</strong><br/>Se extenderá 1 mes desde hoy para las ${items.length} plataforma${items.length!==1?'s':''}.</p>
-    <div style="display:flex;gap:0.75rem;">
-      <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
-      <button id="btn-confirmar-renovar" class="btn-primary" style="flex:1;background:linear-gradient(135deg,#22C55E,#16a34a);">✅ Confirmar renovación</button>
-    </div>
-  </div>`;
-  document.body.appendChild(o);
-  o.querySelector('#btn-confirmar-renovar').onclick = async () => {
-    o.remove();
-    const hoy=todayLocal();
-    const vence=calcVencimiento(hoy,1);
-    for(const s of items){
-      await sb.from('streaming_suscripciones').update({fecha_inicio:hoy,fecha_vencimiento:vence,estado:'activo'}).eq('id',s.id);
-    }
-    toast(`Venta ${idVenta} renovada hasta ${formatDate(vence)} ✅`,'success');
-    await logAuditoria('editar',`Venta ${idVenta} renovada — nuevo vencimiento: ${vence}`);
-    await loadStreamingSuscripciones();
-  };
-  o.addEventListener('click',e=>{if(e.target===o)o.remove();});
+  abrirModalRenovar(idVenta);
 }
 
 // =====================================================
@@ -9859,41 +10342,47 @@ async function exportCajaPDF(tipo) {
     });
   } catch(e) { logoBase64 = ''; }
 
-  // Cargar datos históricos completos
+  // Cargar datos históricos completos (orden ascendente para calcular ganancias)
   let cierres = [], debitos = [];
   if (esPap) {
     const [{data:c},{data:d}] = await Promise.all([
-      sb.from('caja_papeleria_cierres').select('*').order('fecha',{ascending:true}),
+      sb.from('caja_papeleria_cierres').select('*').order('fecha',{ascending:true}).order('created_at',{ascending:true}),
       sb.from('caja_papeleria_debitos').select('*').order('fecha',{ascending:true})
     ]);
     cierres = c||[]; debitos = d||[];
   } else {
     const [{data:c},{data:d}] = await Promise.all([
-      sb.from('giros_cierres').select('*').order('fecha',{ascending:true}),
+      sb.from('giros_cierres').select('*').order('fecha',{ascending:true}).order('created_at',{ascending:true}),
       sb.from('giros_debitos').select('*').order('fecha',{ascending:true})
     ]);
     cierres = c||[]; debitos = d||[];
   }
 
-  const totalCierres = esPap
-    ? cierres.reduce((a,c)=>a+(c.monto_cierre||0),0)
-    : cierres.reduce((a,c)=>a+(c.total||0),0);
+  // Ganancia por cierre y ganancia total del período (telescópica = último − primero)
+  const montoKey = esPap ? 'monto_cierre' : 'total';
+  const gananciaMap = calcularGananciasCierres(cierres, montoKey);
+  const gananciaTotal = cierres.reduce((a,c)=>a+((gananciaMap[c.id]?.ganancia)||0),0);
+
+  // Saldo actual = último cierre − débitos posteriores
   const totalDebitos = debitos.reduce((a,d)=>a+(d.monto||0),0);
-  const saldoFinal   = esPap ? totalCierres - totalDebitos
-    : cierres.reduce((a,c)=>a+(c.saldo_plataforma||0),0)
-      + cierres.reduce((a,c)=>a+(c.saldo_caja||0),0)
-      - totalDebitos;
+  const ultimoCierre = cierres.length ? cierres[cierres.length-1] : null;
+  const debPost = ultimoCierre ? debitos.filter(d => (d.created_at||'') > (ultimoCierre.created_at||'')) : debitos;
+  const saldoFinal = (ultimoCierre?.[montoKey]||0) - debPost.reduce((a,d)=>a+(d.monto||0),0);
 
   const fecha  = new Date().toLocaleDateString('es-CO', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const titulo = esPap ? 'Reporte Caja Papelería' : 'Reporte Giros Venezuela';
 
-  // Filas de cierres
+  // Filas de cierres (con columna de ganancia diaria)
   const filasCierres = cierres.map((r,i) => {
     const bg = i%2===0 ? '#ffffff' : '#f8fafc';
+    const g = gananciaMap[r.id];
+    const ganTxt   = g ? (g.esPrimero ? '1er cierre' : `${g.ganancia>=0?'+':''}${formatCurrency(g.ganancia)}`) : '—';
+    const ganColor = (g && !g.esPrimero) ? (g.ganancia>=0?'#166534':'#991b1b') : '#64748b';
     if (esPap) {
       return `<tr style="background:${bg};">
         <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
         <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#166534;">${formatCurrency(r.monto_cierre)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:${ganColor};">${ganTxt}</td>
         <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.notas||'—'}</td>
         <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
       </tr>`;
@@ -9903,6 +10392,7 @@ async function exportCajaPDF(tipo) {
         <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#166534;">${formatCurrency(r.saldo_plataforma)}</td>
         <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#1d4ed8;">${formatCurrency(r.saldo_caja)}</td>
         <td style="padding:7px 10px;font-size:10pt;font-weight:800;color:#5b21b6;">${formatCurrency(r.total)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:${ganColor};">${ganTxt}</td>
         <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.notas||'—'}</td>
         <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
       </tr>`;
@@ -9923,7 +10413,8 @@ async function exportCajaPDF(tipo) {
   const headerCierres = esPap
     ? `<tr style="background:#1e3a8a;color:white;">
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
-        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Monto Cierre</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Cierre (saldo)</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Ganancia día</th>
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Notas</th>
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
       </tr>`
@@ -9932,10 +10423,12 @@ async function exportCajaPDF(tipo) {
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Saldo Plataforma</th>
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Saldo Caja</th>
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Total</th>
+        <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Ganancia día</th>
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Notas</th>
         <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
       </tr>`;
 
+  const colspanCierres = esPap ? 5 : 7;
   const colorPrincipal = esPap ? '#1e3a8a' : '#4c1d95';
   const colorAcento    = esPap ? '#2563EB' : '#7C3AED';
 
@@ -9987,8 +10480,8 @@ async function exportCajaPDF(tipo) {
 
     <div class="kpis">
       <div class="kpi">
-        <div class="kpi-value" style="color:${colorAcento};">${formatCurrency(totalCierres)}</div>
-        <div class="kpi-label">Total acumulado cierres</div>
+        <div class="kpi-value" style="color:${gananciaTotal>=0?'#166534':'#991b1b'};">${formatCurrency(gananciaTotal)}</div>
+        <div class="kpi-label">Ganancia total del período</div>
       </div>
       <div class="kpi">
         <div class="kpi-value" style="color:#991b1b;">${formatCurrency(totalDebitos)}</div>
@@ -9996,14 +10489,14 @@ async function exportCajaPDF(tipo) {
       </div>
       <div class="kpi">
         <div class="kpi-value" style="color:${saldoFinal>=0?'#166534':'#991b1b'};">${formatCurrency(saldoFinal)}</div>
-        <div class="kpi-label">Saldo final</div>
+        <div class="kpi-label">Saldo actual en caja</div>
       </div>
     </div>
 
     <div class="section-title section-cierres">
       <i>🔒</i> Historial de Cierres (${cierres.length} registros)
     </div>
-    <table><thead>${headerCierres}</thead><tbody>${filasCierres||'<tr><td colspan="6" style="padding:14px;text-align:center;color:#94a3b8;">Sin cierres registrados</td></tr>'}</tbody></table>
+    <table><thead>${headerCierres}</thead><tbody>${filasCierres||`<tr><td colspan="${colspanCierres}" style="padding:14px;text-align:center;color:#94a3b8;">Sin cierres registrados</td></tr>`}</tbody></table>
 
     <div style="height:20px;"></div>
     <div class="section-title section-debitos">
@@ -10021,7 +10514,7 @@ async function exportCajaPDF(tipo) {
 
     <div style="height:20px;"></div>
     <div class="saldo-box">
-      <div><div class="label">Saldo final consolidado</div><div style="font-size:8pt;opacity:0.75;margin-top:2px;">Cierres acumulados menos débitos totales</div></div>
+      <div><div class="label">Saldo actual en caja</div><div style="font-size:8pt;opacity:0.75;margin-top:2px;">Último cierre registrado menos débitos posteriores</div></div>
       <div class="valor">${formatCurrency(saldoFinal)}</div>
     </div>
 
@@ -10037,6 +10530,106 @@ async function exportCajaPDF(tipo) {
   w.document.write(html);
   w.document.close();
 }
+
+// ════════════ TOOLTIPS GLOBALES + CERRAR MODAL AL CLIC FUERA ════════════
+(function initUXGlobal() {
+  // ---------- 1. TOOLTIPS EN BOTONES DE ÍCONO ----------
+  const ICON_LABELS = [
+    [/fa-trash|fa-trash-can/, 'Eliminar'],
+    [/fa-pen-to-square|fa-pen\b|fa-pencil|fa-edit/, 'Editar'],
+    [/fa-eye-slash/, 'Ocultar'],
+    [/fa-eye\b/, 'Ver'],
+    [/fa-file-pdf/, 'Exportar PDF'],
+    [/fa-file-export|fa-download/, 'Descargar'],
+    [/fa-print/, 'Imprimir'],
+    [/fa-rotate|fa-arrows-rotate|fa-arrow-rotate/, 'Renovar'],
+    [/fa-whatsapp/, 'Enviar por WhatsApp'],
+    [/fa-paper-plane/, 'Enviar'],
+    [/fa-copy|fa-clone/, 'Copiar'],
+    [/fa-floppy-disk|fa-save/, 'Guardar'],
+    [/fa-arrow-up-from-bracket/, 'Registrar débito'],
+    [/fa-lock\b/, 'Registrar cierre'],
+    [/fa-unlock/, 'Desbloquear'],
+    [/fa-hashtag/, 'Registrar'],
+    [/fa-plus-circle|fa-circle-plus|fa-plus\b/, 'Agregar'],
+    [/fa-minus/, 'Quitar'],
+    [/fa-circle-check|fa-check\b/, 'Confirmar'],
+    [/fa-xmark|fa-times/, 'Cerrar'],
+    [/fa-key/, 'Cambiar contraseña'],
+    [/fa-gear|fa-cog/, 'Configuración'],
+    [/fa-share/, 'Compartir'],
+    [/fa-circle-info|fa-info/, 'Información'],
+    [/fa-ban/, 'Cancelar'],
+    [/fa-calendar/, 'Calendario'],
+    [/fa-bell/, 'Notificaciones']
+  ];
+
+  function inferFromIcon(el) {
+    const icon = el.querySelector('i[class*="fa-"]');
+    if (!icon) return null;
+    const cls = icon.className;
+    for (const [re, label] of ICON_LABELS) { if (re.test(cls)) return label; }
+    return null;
+  }
+  function resolveLabel(el) {
+    if (el.dataset && el.dataset.tip) return el.dataset.tip;          // respeta data-tip explícito
+    const title = el.getAttribute && el.getAttribute('title');
+    if (title) { el.dataset.tip = title; el.removeAttribute('title'); return title; } // respeta title
+    const txt = (el.textContent || '').trim();
+    if (txt.length === 0) return inferFromIcon(el);                   // solo botones de ícono
+    return null;                                                      // botones con texto: no hace falta
+  }
+
+  let tip = document.getElementById('global-tooltip');
+  if (!tip) { tip = document.createElement('div'); tip.id = 'global-tooltip'; document.body.appendChild(tip); }
+  let current = null;
+
+  function show(el) {
+    const label = resolveLabel(el);
+    if (!label) { hide(); return; }
+    tip.textContent = label;
+    tip.classList.add('show');
+    const r = el.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      const tr = tip.getBoundingClientRect();
+      let left = r.left + r.width / 2 - tr.width / 2;
+      let top  = r.top - tr.height - 8;
+      left = Math.max(6, Math.min(left, window.innerWidth - tr.width - 6));
+      if (top < 6) top = r.bottom + 8; // si no cabe arriba, lo pone abajo
+      tip.style.left = left + 'px';
+      tip.style.top  = top + 'px';
+    });
+  }
+  function hide() { tip.classList.remove('show'); current = null; }
+
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('button, a, [data-tip]');
+    if (!el || el === current) return;
+    current = el;
+    show(el);
+  });
+  document.addEventListener('mouseout', e => {
+    const el = e.target.closest('button, a, [data-tip]');
+    if (!el) return;
+    if (e.relatedTarget && el.contains(e.relatedTarget)) return; // sigue dentro del mismo botón
+    if (el === current) hide();
+  });
+  window.addEventListener('scroll', hide, true);
+  document.addEventListener('click', hide, true);
+
+  // ---------- 2. CERRAR MODAL AL HACER CLIC FUERA ----------
+  let downOnOverlay = false;
+  document.addEventListener('mousedown', e => {
+    // Guardamos si el clic ARRANCÓ sobre el fondo (evita cierres al seleccionar texto dentro y soltar fuera)
+    downOnOverlay = !!(e.target.classList && e.target.classList.contains('modal-overlay'));
+  });
+  document.addEventListener('click', e => {
+    if (downOnOverlay && e.target.classList && e.target.classList.contains('modal-overlay') && e.target.style.display !== 'none') {
+      closeModal(e.target.id);
+    }
+    downOnOverlay = false;
+  });
+})();
 
 // =====================================================
 // INICIALIZACIÓN FINAL
