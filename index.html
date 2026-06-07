@@ -1314,7 +1314,7 @@
             <button onclick="openModalCajaRegistro('papeleria','debito')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:0.75rem;color:#fca5a5;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'">
               <i class="fa-solid fa-arrow-up-from-bracket"></i> Registrar Débito
             </button>
-			<button onclick="exportCajaPDF('papeleria')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:0.75rem;color:white;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+			<button onclick="exportCajaPDFCombinado()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:0.75rem;color:white;padding:0.6rem 1.1rem;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
               <i class="fa-solid fa-file-pdf"></i> Exportar PDF
             </button>
           </div>
@@ -1392,7 +1392,7 @@
             <button onclick="openModalGirosDiarios()" class="btn-secondary" style="font-size:0.85rem;">
               <i class="fa-solid fa-hashtag"></i> Registrar Giros del Día
             </button>
-            <button onclick="exportCajaPDF('giros')" class="btn-secondary" style="font-size:0.85rem;color:#dc2626;border-color:rgba(220,38,38,0.3);">
+            <button onclick="exportCajaPDFCombinado()" class="btn-secondary" style="font-size:0.85rem;color:#dc2626;border-color:rgba(220,38,38,0.3);">
               <i class="fa-solid fa-file-pdf"></i> Exportar PDF
             </button>
           </div>
@@ -8472,6 +8472,8 @@ async function openHistorialCliente(clienteId) {
 // ── ALERTAS TELEGRAM DIARIAS ─────────────────────────────────────────
 async function checkStreamingAlertas() {
   if (!hasStreamingAccess()) return;
+  if (!allStPlataformas.length) await loadStPlataformas();
+  if (!allStClientes.length)    await loadStreamingClientes();
   if (!allStSuscripciones.length) {
     const { data } = await sb.from('streaming_suscripciones').select('*');
     allStSuscripciones = data || [];
@@ -10518,6 +10520,239 @@ async function exportCajaPDF(tipo) {
       <div class="valor">${formatCurrency(saldoFinal)}</div>
     </div>
 
+    <div class="footer">
+      <span>Haliel Papelería © ${new Date().getFullYear()} — Sistema Administrativo</span>
+      <span>Reporte generado: ${new Date().toLocaleString('es-CO')}</span>
+    </div>
+  </div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ── PDF COMBINADO: ambas cajas en un solo documento ──────────────────
+async function exportCajaPDFCombinado() {
+  // Logo
+  let logoBase64 = '';
+  try {
+    const resp = await fetch('logo-redon.png');
+    const blob = await resp.blob();
+    logoBase64 = await new Promise(res => {
+      const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob);
+    });
+  } catch(e) { logoBase64 = ''; }
+
+  // Cargar datos de AMBAS cajas en paralelo
+  const [
+    {data:papC}, {data:papD},
+    {data:girC}, {data:girD}
+  ] = await Promise.all([
+    sb.from('caja_papeleria_cierres').select('*').order('fecha',{ascending:true}).order('created_at',{ascending:true}),
+    sb.from('caja_papeleria_debitos').select('*').order('fecha',{ascending:true}),
+    sb.from('giros_cierres').select('*').order('fecha',{ascending:true}).order('created_at',{ascending:true}),
+    sb.from('giros_debitos').select('*').order('fecha',{ascending:true})
+  ]);
+
+  // Helper: arma el bloque HTML de una caja y devuelve sus totales
+  const buildSeccion = (esPap, cierres, debitos) => {
+    cierres = cierres||[]; debitos = debitos||[];
+    const montoKey = esPap ? 'monto_cierre' : 'total';
+    const gananciaMap   = calcularGananciasCierres(cierres, montoKey);
+    const gananciaTotal = cierres.reduce((a,c)=>a+((gananciaMap[c.id]?.ganancia)||0),0);
+    const totalDebitos  = debitos.reduce((a,d)=>a+(d.monto||0),0);
+    const ultimoCierre  = cierres.length ? cierres[cierres.length-1] : null;
+    const debPost       = ultimoCierre ? debitos.filter(d => (d.created_at||'') > (ultimoCierre.created_at||'')) : debitos;
+    const saldoFinal    = (ultimoCierre?.[montoKey]||0) - debPost.reduce((a,d)=>a+(d.monto||0),0);
+
+    const titulo         = esPap ? 'Caja Papelería' : 'Giros Venezuela';
+    const colorPrincipal = esPap ? '#1e3a8a' : '#4c1d95';
+    const colorAcento    = esPap ? '#2563EB' : '#7C3AED';
+    const colspanCierres = esPap ? 5 : 7;
+
+    const filasCierres = cierres.map((r,i) => {
+      const bg = i%2===0 ? '#ffffff' : '#f8fafc';
+      const g = gananciaMap[r.id];
+      const ganTxt   = g ? (g.esPrimero ? '1er cierre' : `${g.ganancia>=0?'+':''}${formatCurrency(g.ganancia)}`) : '—';
+      const ganColor = (g && !g.esPrimero) ? (g.ganancia>=0?'#166534':'#991b1b') : '#64748b';
+      if (esPap) {
+        return `<tr style="background:${bg};">
+          <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
+          <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#166534;">${formatCurrency(r.monto_cierre)}</td>
+          <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:${ganColor};">${ganTxt}</td>
+          <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.notas||'—'}</td>
+          <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
+        </tr>`;
+      } else {
+        return `<tr style="background:${bg};">
+          <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
+          <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#166534;">${formatCurrency(r.saldo_plataforma)}</td>
+          <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#1d4ed8;">${formatCurrency(r.saldo_caja)}</td>
+          <td style="padding:7px 10px;font-size:10pt;font-weight:800;color:#5b21b6;">${formatCurrency(r.total)}</td>
+          <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:${ganColor};">${ganTxt}</td>
+          <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.notas||'—'}</td>
+          <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
+        </tr>`;
+      }
+    }).join('');
+
+    const headerCierres = esPap
+      ? `<tr style="background:${colorPrincipal};color:white;">
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Cierre (saldo)</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Ganancia día</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Notas</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
+        </tr>`
+      : `<tr style="background:${colorPrincipal};color:white;">
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Saldo Plataforma</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Saldo Caja</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Total</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Ganancia día</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Notas</th>
+          <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
+        </tr>`;
+
+    const filasDebitos = debitos.map((r,i) => {
+      const bg = i%2===0 ? '#ffffff' : '#fff5f5';
+      return `<tr style="background:${bg};">
+        <td style="padding:7px 10px;font-size:10pt;">${formatDate(r.fecha)}</td>
+        <td style="padding:7px 10px;font-size:10pt;font-weight:700;color:#991b1b;">-${formatCurrency(r.monto)}</td>
+        <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.motivo||r.notas||'—'}</td>
+        <td style="padding:7px 10px;font-size:10pt;color:#64748b;">${r.operador_nombre||'—'}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `
+      <div class="caja-bloque">
+        <div class="caja-band" style="background:linear-gradient(135deg,${colorPrincipal},${colorAcento});">
+          <span>${titulo}</span>
+          <span style="font-size:8.5pt;font-weight:600;opacity:0.85;">${cierres.length} cierres · ${debitos.length} débitos</span>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpi-value" style="color:${gananciaTotal>=0?'#166534':'#991b1b'};">${formatCurrency(gananciaTotal)}</div>
+            <div class="kpi-label">Ganancia del período</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value" style="color:#991b1b;">${formatCurrency(totalDebitos)}</div>
+            <div class="kpi-label">Total débitos</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value" style="color:${saldoFinal>=0?'#166534':'#991b1b'};">${formatCurrency(saldoFinal)}</div>
+            <div class="kpi-label">Saldo actual en caja</div>
+          </div>
+        </div>
+
+        <div class="section-title" style="background:${colorPrincipal};">🔒 Historial de Cierres (${cierres.length} registros)</div>
+        <table><thead>${headerCierres}</thead><tbody>${filasCierres||`<tr><td colspan="${colspanCierres}" style="padding:14px;text-align:center;color:#94a3b8;">Sin cierres registrados</td></tr>`}</tbody></table>
+
+        <div style="height:16px;"></div>
+        <div class="section-title" style="background:#991b1b;">⚠️ Historial de Débitos (${debitos.length} registros)</div>
+        <table>
+          <thead><tr style="background:#991b1b;color:white;">
+            <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Fecha</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Monto</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Motivo</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9pt;text-transform:uppercase;">Registrado por</th>
+          </tr></thead>
+          <tbody>${filasDebitos||'<tr><td colspan="4" style="padding:14px;text-align:center;color:#94a3b8;">Sin débitos registrados</td></tr>'}</tbody>
+        </table>
+
+        <div style="height:14px;"></div>
+        <div class="saldo-box" style="background:linear-gradient(135deg,${colorPrincipal},${colorAcento});">
+          <div><div class="label">Saldo actual — ${titulo}</div><div style="font-size:8pt;opacity:0.75;margin-top:2px;">Último cierre menos débitos posteriores</div></div>
+          <div class="valor">${formatCurrency(saldoFinal)}</div>
+        </div>
+      </div>`;
+
+    return { gananciaTotal, totalDebitos, saldoFinal, html };
+  };
+
+  const secPap = buildSeccion(true,  papC, papD);
+  const secGir = buildSeccion(false, girC, girD);
+
+  // Totales consolidados de ambas cajas
+  const gananciaGlobal = secPap.gananciaTotal + secGir.gananciaTotal;
+  const debitosGlobal  = secPap.totalDebitos  + secGir.totalDebitos;
+  const saldoGlobal     = secPap.saldoFinal   + secGir.saldoFinal;
+
+  const fecha = new Date().toLocaleDateString('es-CO', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Segoe UI',Arial,sans-serif; color:#1e293b; background:#f1f5f9; }
+    .page { max-width:780px; margin:30px auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
+    .header { background:linear-gradient(135deg,#1e3a8a,#4c1d95); color:white; padding:28px 32px; display:flex; align-items:center; gap:20px; }
+    .header img { width:64px; height:64px; border-radius:50%; border:3px solid rgba(255,255,255,0.4); object-fit:cover; }
+    .header-fallback { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; border:3px solid rgba(255,255,255,0.4); flex-shrink:0; }
+    .header-info { flex:1; }
+    .header-info h1 { font-size:18pt; font-weight:800; margin-bottom:3px; }
+    .header-info p { font-size:9pt; opacity:0.82; }
+    .header-fecha { text-align:right; font-size:8.5pt; opacity:0.8; line-height:1.6; }
+    .resumen-global { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-bottom:3px solid #e2e8f0; background:#f8fafc; }
+    .rg { padding:18px 16px; text-align:center; border-right:1px solid #e2e8f0; }
+    .rg:last-child { border-right:none; }
+    .rg-value { font-size:17pt; font-weight:900; font-family:'Poppins',sans-serif; }
+    .rg-label { font-size:7.5pt; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; font-weight:700; }
+    .caja-band { color:white; padding:13px 22px; font-size:13pt; font-weight:800; font-family:'Poppins',sans-serif; display:flex; justify-content:space-between; align-items:center; }
+    .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-bottom:2px solid #e2e8f0; }
+    .kpi { padding:16px; text-align:center; border-right:1px solid #e2e8f0; }
+    .kpi:last-child { border-right:none; }
+    .kpi-value { font-size:15pt; font-weight:900; font-family:'Poppins',sans-serif; }
+    .kpi-label { font-size:7.5pt; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; font-weight:600; }
+    .section-title { padding:12px 20px; font-size:10pt; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:white; }
+    table { width:100%; border-collapse:collapse; }
+    tbody tr:last-child td { border-bottom:none; }
+    td,th { border-bottom:1px solid #e2e8f0; }
+    .saldo-box { margin:0 20px; border-radius:10px; padding:16px 20px; color:white; display:flex; justify-content:space-between; align-items:center; }
+    .saldo-box .label { font-size:9pt; opacity:0.85; text-transform:uppercase; letter-spacing:0.06em; }
+    .saldo-box .valor { font-size:18pt; font-weight:900; font-family:'Poppins',sans-serif; }
+    .divisor { height:34px; }
+    .footer { padding:16px 20px; background:#f8fafc; border-top:2px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; font-size:8pt; color:#94a3b8; }
+    @media print { body{background:white;} .page{box-shadow:none;margin:0;border-radius:0;} .caja-bloque{page-break-inside:avoid;} }
+  </style></head><body>
+  <div class="page">
+    <div class="header">
+      ${logoBase64
+        ? `<img src="${logoBase64}" alt="Haliel Papelería"/>`
+        : `<div class="header-fallback">H</div>`}
+      <div class="header-info">
+        <h1>Reporte General de Cajas</h1>
+        <p>Haliel Papelería — Sistema Administrativo</p>
+        <p style="margin-top:4px;font-size:8pt;opacity:0.75;">Generado por: ${currentProfile?.nombre||'Administrador'}</p>
+      </div>
+      <div class="header-fecha">
+        <div style="font-weight:700;font-size:10pt;">${fecha}</div>
+        <div style="margin-top:4px;">Caja Papelería + Giros Venezuela</div>
+      </div>
+    </div>
+
+    <div class="resumen-global">
+      <div class="rg">
+        <div class="rg-value" style="color:${gananciaGlobal>=0?'#166534':'#991b1b'};">${formatCurrency(gananciaGlobal)}</div>
+        <div class="rg-label">Ganancia total consolidada</div>
+      </div>
+      <div class="rg">
+        <div class="rg-value" style="color:#991b1b;">${formatCurrency(debitosGlobal)}</div>
+        <div class="rg-label">Débitos totales</div>
+      </div>
+      <div class="rg">
+        <div class="rg-value" style="color:${saldoGlobal>=0?'#166534':'#991b1b'};">${formatCurrency(saldoGlobal)}</div>
+        <div class="rg-label">Saldo total en cajas</div>
+      </div>
+    </div>
+
+    ${secPap.html}
+    <div class="divisor"></div>
+    ${secGir.html}
+
+    <div style="height:20px;"></div>
     <div class="footer">
       <span>Haliel Papelería © ${new Date().getFullYear()} — Sistema Administrativo</span>
       <span>Reporte generado: ${new Date().toLocaleString('es-CO')}</span>
