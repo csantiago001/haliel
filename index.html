@@ -9564,7 +9564,7 @@ async function guardarRegistroCaja() {
         const monto=getCajaInputVal('caja-modal-monto-cierre');
         if(!monto){toast('Ingresa el monto de cierre','error');return;}
         await sb.from('caja_papeleria_cierres').insert({fecha,monto_cierre:monto,notas:motivo,operador_id:currentUser.id,operador_nombre:nombre});
-        await sendTelegramNotification(`🔒 *Cierre Caja Papelería*\n📅 ${fecha}\n💰 ${formatCurrency(monto)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
+        await sendTelegramNotification(`🔒 **Cierre Caja Papelería**\n📅 ${fecha}\n💰 ${formatCurrency(monto)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
         await logAuditoria('crear',`Cierre Caja Papelería: ${formatCurrency(monto)} — ${fecha}${motivo?' | '+motivo:''}`);
       } else {
         const monto=getCajaInputVal('caja-modal-monto-debito');
@@ -9575,7 +9575,7 @@ async function guardarRegistroCaja() {
         const sAnt=(uc?.[0]?.monto_cierre||0)-(dh||[]).reduce((a,d)=>a+(d.monto||0),0);
         const sNuevo=sAnt-monto;
         await sb.from('caja_papeleria_debitos').insert({fecha,monto,motivo,saldo_anterior:sAnt,saldo_nuevo:sNuevo,operador_id:currentUser.id,operador_nombre:nombre});
-        await sendTelegramNotification(`⚠️ *Débito Caja Papelería*\n📅 ${fecha}\n💸 -${formatCurrency(monto)}\n📝 ${motivo}\n💰 Nuevo saldo: ${formatCurrency(sNuevo)}\n👤 ${nombre}`);
+        await sendTelegramNotification(`⚠️ **Débito Caja Papelería**\n📅 ${fecha}\n💸 -${formatCurrency(monto)}\n📝 ${motivo}\n💰 Nuevo saldo: ${formatCurrency(sNuevo)}\n👤 ${nombre}`);
         await logAuditoria('editar',`Débito Caja Papelería: -${formatCurrency(monto)} | ${motivo} | Nuevo saldo: ${formatCurrency(sNuevo)}`);
       }
     } else {
@@ -9585,7 +9585,7 @@ async function guardarRegistroCaja() {
         if(!sP&&!sC){toast('Ingresa al menos un saldo','error');return;}
         const total=sP+sC;
         await sb.from('giros_cierres').insert({fecha,saldo_plataforma:sP,saldo_caja:sC,total,notas:motivo,operador_id:currentUser.id,operador_nombre:nombre});
-        await sendTelegramNotification(`🔒 *Cierre Giros Venezuela*\n📅 ${fecha}\n🌐 Plataforma: ${formatCurrency(sP)}\n💵 Caja: ${formatCurrency(sC)}\n💰 Total: ${formatCurrency(total)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
+        await sendTelegramNotification(`🔒 **Cierre Giros Venezuela**\n📅 ${fecha}\n🌐 Plataforma: ${formatCurrency(sP)}\n💵 Caja: ${formatCurrency(sC)}\n💰 Total: ${formatCurrency(total)}${motivo?'\n📝 '+motivo:''}\n👤 ${nombre}`);
         await logAuditoria('crear',`Cierre Giros Venezuela: Plataforma ${formatCurrency(sP)} + Caja ${formatCurrency(sC)} = ${formatCurrency(total)}`);
       } else {
         const monto=getCajaInputVal('caja-modal-monto-debito');
