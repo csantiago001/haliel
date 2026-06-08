@@ -3790,7 +3790,7 @@ async function initApp(user) {
     // Cargar datos compartidos
     await loadPlataformas();
 	await loadStPlataformas();
-    setTimeout(() => checkStreamingAlertas(), 3000);
+    //setTimeout(() => checkStreamingAlertas(), 3000);// envio de mensaje a telegram de los vencimientos en strewaming 
     initSmartDates();
     
     // Configurar navegación según rol
