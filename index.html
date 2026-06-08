@@ -3092,21 +3092,22 @@ async function queueOfflineAction(actionName, data) {
     if (overlay) { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 2000); }
 }
 async function syncOfflineQueue() {
-    if (offlineQueue.length === 0 || !navigator.onLine) return;
+    if (window.isSyncing || offlineQueue.length === 0 || !navigator.onLine) return;
+    window.isSyncing = true;
     toast('🔄 Sincronizando datos pendientes...', 'info');
     const pending = [...offlineQueue];
     offlineQueue.length = 0;
     for (const item of pending) {
         try {
-            if (item.action === 'registro') {
-                const { error } = await sb.from('registros').insert(item.data);
-                if (error) throw error;
-            }
+            // Todas las acciones offline actuales son registros del día
+            const { error } = await sb.from('registros').insert(item.data);
+            if (error) throw error;
         } catch (e) {
             offlineQueue.push(item); // Re-encolar si falla
         }
     }
     localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
+    window.isSyncing = false;
     if (pending.length > offlineQueue.length) {
         toast('✅ Datos sincronizados correctamente', 'success');
         if (document.getElementById('sec-dashboard').classList.contains('active')) loadDashboard();
@@ -3232,41 +3233,7 @@ function toast(msg, type = 'info') {
   c.appendChild(t);
   setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(40px)'; t.style.transition='0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
 }
-function queueOfflineAction(actionFn, actionName) {
-    offlineQueue.push({ fn: actionFn, name: actionName, timestamp: Date.now() });
-    localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
-    toast(`📭 ${actionName} guardado localmente. Se sincronizará al reconectar.`, 'info');
-}
-async function syncOfflineQueue() {
-    if(window.isSyncing || offlineQueue.length === 0) return;
-    window.isSyncing = true;
-    toast('🔄 Sincronizando cambios pendientes...', 'info');
-    
-    const queue = [...offlineQueue];
-    offlineQueue.length = 0;
-    
-    for(const item of queue) {
-        try {
-            if (typeof item.fn === 'function') {
-                await item.fn();
-                toast(`✅ ${item.name} sincronizado`, 'success');
-            } else if (item.action === 'registro') {
-                const { error } = await sb.from('registros').insert(item.data);
-                if (error) throw error;
-            }
-        } catch(err) {
-            offlineQueue.push(item);
-            toast(`⚠️ ${item.name || item.action} pendiente de sincronizar`, 'error');
-        }
-    }
-    
-    localStorage.setItem('haliel-offline-queue', JSON.stringify(offlineQueue));
-    window.isSyncing = false;
-    
-    if(currentProfile?.rol === 'administrador' && document.querySelector('.section.active')?.id === 'sec-dashboard') {
-        loadDashboard();
-    }
-}
+
 function showError(fieldId, message) {
     const field = document.getElementById(fieldId);
     if(field) {
@@ -3790,7 +3757,7 @@ async function initApp(user) {
     // Cargar datos compartidos
     await loadPlataformas();
 	await loadStPlataformas();
-    //setTimeout(() => checkStreamingAlertas(), 3000);// envio de mensaje a telegram de los vencimientos en strewaming 
+    //setTimeout(() => checkStreamingAlertas(), 3000);//
     initSmartDates();
     
     // Configurar navegación según rol
