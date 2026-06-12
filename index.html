@@ -8085,7 +8085,7 @@ async function saveStreamingSus() {
   if (result.error) { toast('Error: ' + result.error.message, 'error'); return; }
   toast(editingStSusId ? 'Suscripción actualizada ✅' : 'Suscripción creada ✅', 'success');
   closeModal('modal-st-sus');
-  await loadStreamingSuscripciones();
+  try { await loadStreamingSuscripciones(); } catch (e) { console.warn('⚠️ Reload streaming falló (la venta ya se guardó):', e); }
 }
 
 async function deleteStreamingSus(id) {
@@ -8205,8 +8205,8 @@ async function renovarSuscripcion() {
   toast('✅ Renovada hasta ' + formatDate(nuevaFechaVence), 'success');
   closeModal('modal-st-cobro');
   stCobroActual = null;
-  await loadStreamingSuscripciones();
-
+  try { await loadStreamingSuscripciones(); } catch (e) { console.warn('⚠️ Reload streaming falló (la renovación ya se guardó):', e); }
+	
   // Notificación Telegram
   const cli = allStClientes.find(c => c.id === s.cliente_id);
   const hora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
@@ -10088,7 +10088,7 @@ async function confirmarRenovacion() {
     toast(`✅ Renovado hasta ${formatDate(vence)}`, 'success');
     await logAuditoria('editar', `Renovación venta ${renovIdVenta} — inicio ${inicio}, vence ${vence}, plataformas: ${platNames}`);
     closeModal('modal-st-renovar');
-    await loadStreamingSuscripciones();
+    try { await loadStreamingSuscripciones(); } catch (e) { console.warn('⚠️ Reload streaming falló (la renovación ya se guardó):', e); }
 
     sendTelegramNotification(`🎬 <b>Haliel Streaming — Renovación</b>
 ━━━━━━━━━━━━━━━━━━
