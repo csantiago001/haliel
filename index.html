@@ -8102,18 +8102,30 @@ function abrirModalCobro(idVenta) {
   const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
   if (!items.length) return;
 
-  const s0  = items[0];
+  // ── DISCRIMINACIÓN AUTOMÁTICA POR ESTADO ────────────────────────────
+  // Solo se cobran las plataformas VENCIDAS o POR VENCER. Las activas y las
+  // canceladas quedan fuera. Si ninguna está vencida/por vencer (clic en un
+  // combo totalmente activo), se usan todas las no canceladas como respaldo.
+  const noCancelados = items.filter(s => s.estado !== 'cancelado');
+  const cobrables = noCancelados.filter(s => {
+    const est = calcEstadoSus(s.fecha_vencimiento);
+    return est === 'vencido' || est === 'por_vencer';
+  });
+  const objetivo = cobrables.length ? cobrables : noCancelados;
+  if (!objetivo.length) return;
+
+  const s0  = objetivo[0];
   const cli = allStClientes.find(c => c.id === s0.cliente_id);
   stCobroActual = s0; // mantener referencia para renovar/WhatsApp
 
   // Guardar idVenta en stCobroActual para que renovarVenta lo use
   stCobroActual._idVenta = idVenta;
 
-  // Total de todas las plataformas
-  const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
+  // Total SOLO de las plataformas a cobrar
+  const totalMonto = objetivo.reduce((a, s) => a + (s.precio_venta || 0), 0);
 
-  // Construir lista de plataformas
-  const nombrePlataformas = items.map(s => {
+  // Construir lista de plataformas (solo las que se cobran)
+  const nombrePlataformas = objetivo.map(s => {
     const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
     return plat ? plat.nombre : 'Streaming';
   });
@@ -8127,8 +8139,8 @@ function abrirModalCobro(idVenta) {
     listaPlatText = `${primeras} y ${ultimas}`;
   }
 
-  // Fecha de vencimiento: usar la más próxima entre las activas
-  const fechas = items
+  // Fecha de vencimiento: la más próxima entre las plataformas a cobrar
+  const fechas = objetivo
     .map(s => s.fecha_vencimiento)
     .filter(Boolean)
     .sort();
@@ -9811,7 +9823,18 @@ function abrirModalRenovar(idVenta) {
   renovIdVenta = idVenta;
   renovItems = items;
   renovClienteId = items[0].cliente_id;
-  renovSeleccionadas = new Set(items.map(s => s.plataforma_id));
+
+  // ── DISCRIMINACIÓN AUTOMÁTICA POR ESTADO ────────────────────────────
+  // Se marcan por defecto SOLO las plataformas vencidas o por vencer. Las
+  // activas quedan desmarcadas (puedes añadirlas a mano si quieres renovarlas
+  // por adelantado). Si ninguna está vencida/por vencer, se marcan todas.
+  const vencidasRenov = items.filter(s => {
+    const est = calcEstadoSus(s.fecha_vencimiento);
+    return est === 'vencido' || est === 'por_vencer';
+  });
+  const baseRenov = vencidasRenov.length ? vencidasRenov : items;
+  renovSeleccionadas = new Set(baseRenov.map(s => s.plataforma_id));
+
   renovValores = {};
   items.forEach(s => { renovValores[s.plataforma_id] = { precio: s.precio_venta || 0, perfil: s.perfil || 'Perfil 1' }; });
 
@@ -10074,9 +10097,14 @@ async function confirmarRenovacion() {
       });
     }
 
-    // 2) Plataformas quitadas del combo: eliminar su fila (los pagos quedan en el historial)
+    // 2) Plataformas quitadas del combo: eliminar su fila (los pagos quedan en el historial).
+    //    BLINDAJE: nunca se elimina una plataforma ACTIVA aunque quede sin marcar,
+    //    porque pudo quedar desmarcada solo por la discriminación automática.
+    //    Solo se elimina una vencida/por vencer que se haya quitado a propósito.
     for (const fila of renovItems) {
       if (!renovSeleccionadas.has(fila.plataforma_id)) {
+        const estFila = calcEstadoSus(fila.fecha_vencimiento);
+        if (estFila === 'activo') continue; // se conserva intacta con su propia fecha
         await sb.from('streaming_suscripciones').delete().eq('id', fila.id);
       }
     }
