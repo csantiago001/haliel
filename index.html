@@ -7557,12 +7557,13 @@ async function saveStPlataforma() {
   }
 }
 
-async function deleteStPlataforma(id) {
-  if (!confirm('¿Eliminar esta plataforma? Las suscripciones asociadas quedarán sin plataforma.')) return;
-  const { error } = await sb.from('streaming_plataformas').delete().eq('id', id);
-  if (error) { toast('Error al eliminar', 'error'); return; }
-  toast('Plataforma eliminada', 'success');
-  await loadStPlataformas();
+function deleteStPlataforma(id) {
+  confirmarEliminar('¿Eliminar esta plataforma? Las suscripciones asociadas quedarán sin plataforma.', async () => {
+    const { error } = await sb.from('streaming_plataformas').delete().eq('id', id);
+    if (error) { toast('Error al eliminar', 'error'); return; }
+    toast('Plataforma eliminada', 'success');
+    await loadStPlataformas();
+  });
 }
 
 // ── CLIENTES ──────────────────────────────────────────────────────────
@@ -7707,12 +7708,13 @@ async function saveStreamingCliente() {
   await loadStreamingClientes();
 }
 
-async function deleteStreamingCliente(id) {
-  if (!confirm('¿Eliminar este cliente? Se eliminarán también todas sus suscripciones e historial.')) return;
-  const { error } = await sb.from('streaming_clientes').delete().eq('id', id);
-  if (error) { toast('Error al eliminar: ' + error.message, 'error'); return; }
-  toast('Cliente eliminado', 'success');
-  await loadStreamingClientes();
+function deleteStreamingCliente(id) {
+  confirmarEliminar('¿Eliminar este cliente? Se eliminarán también todas sus suscripciones e historial.', async () => {
+    const { error } = await sb.from('streaming_clientes').delete().eq('id', id);
+    if (error) { toast('Error al eliminar: ' + error.message, 'error'); return; }
+    toast('Cliente eliminado', 'success');
+    await loadStreamingClientes();
+  });
 }
 
 // ── SUSCRIPCIONES ─────────────────────────────────────────────────────
@@ -7774,10 +7776,18 @@ function renderStreamingSuscripciones() {
     const s0 = items[0];
     const cli = allStClientes.find(c => c.id === s0.cliente_id);
     const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
-    // Estado global: el peor estado del grupo
-    const prioEstado = ['cancelado','vencido','por_vencer','activo'];
-    const estadoGlobal = items.map(s => s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento))
-      .sort((a, b) => prioEstado.indexOf(a) - prioEstado.indexOf(b))[0];
+    // Estado global: solo es 'cancelado' si TODAS lo están; si no, el peor
+    // estado entre las plataformas vivas. Así una cancelada no oculta el
+    // cobro/renovación de las demás del combo.
+    const _vivas = items.filter(s => s.estado !== 'cancelado');
+    let estadoGlobal;
+    if (!_vivas.length) {
+      estadoGlobal = 'cancelado';
+    } else {
+      const prioEstado = ['vencido','por_vencer','activo'];
+      estadoGlobal = _vivas.map(s => calcEstadoSus(s.fecha_vencimiento))
+        .sort((a, b) => prioEstado.indexOf(a) - prioEstado.indexOf(b))[0];
+    }
 
     // Badges de plataformas
     const platBadges = items.map(s => {
@@ -7810,7 +7820,7 @@ function renderStreamingSuscripciones() {
       <td>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
           ${estadoGlobal !== 'cancelado' ? `<button class=\"btn-primary\" style=\"padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;\" onclick=\"event.stopPropagation();abrirModalCobro('${idVenta}')\"><i class=\"fa-brands fa-whatsapp\"></i> Cobro</button>` : ''}
-          ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#22C55E;border-color:rgba(34,197,94,0.3);" data-tip="Renovar 1 mes" onclick="event.stopPropagation();renovarVenta('${idVenta}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
+          ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#22C55E;border-color:rgba(34,197,94,0.3);" data-tip="Renovar" onclick="event.stopPropagation();renovarVenta('${idVenta}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
           <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${idVenta}')" style="background:rgba(239,68,68,0.1);color:#dc2626;border-color:rgba(239,68,68,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
           <button class="btn-danger" onclick="event.stopPropagation();confirmarEliminar('¿Eliminar la venta ${idVenta} y todas sus plataformas?',()=>deleteStreamingSusGrupo('${idVenta}'))"><i class="fa-solid fa-trash"></i></button>
         </div>
@@ -7881,29 +7891,6 @@ async function deleteStreamingSusGrupo(idVenta) {
   await loadStreamingSuscripciones();
 }
 
-function renderStSusKpis() {
-  const activas    = allStSuscripciones.filter(s => s.estado === 'activo').length;
-  const porVencer  = allStSuscripciones.filter(s => s.estado === 'por_vencer').length;
-  const vencidas   = allStSuscripciones.filter(s => s.estado === 'vencido').length;
-  const ingresos   = allStSuscripciones
-    .filter(s => s.estado !== 'cancelado')
-    .reduce((a,s) => a + (s.precio_venta || 0), 0);
-  const container  = document.getElementById('st-sus-kpis');
-  if (!container) return;
-  container.innerHTML = [
-    { label:'Ingresos del mes', value:formatCurrency(ingresos), icon:'fa-dollar-sign', color:'#22C55E', bg:'rgba(34,197,94,0.1)' },
-    { label:'Activas',          value:activas,                  icon:'fa-circle-check', color:'#2563EB', bg:'rgba(37,99,235,0.1)' },
-    { label:'Por vencer',       value:porVencer,                icon:'fa-clock',        color:'#FACC15', bg:'rgba(250,204,21,0.1)' },
-    { label:'Vencidas',         value:vencidas,                 icon:'fa-circle-xmark', color:'#EF4444', bg:'rgba(239,68,68,0.1)' },
-  ].map(c => `
-    <div class="stat-card">
-      <div class="stat-icon" style="background:${c.bg};color:${c.color};"><i class="fa-solid ${c.icon}"></i></div>
-      <div style="font-size:1.6rem;font-weight:800;font-family:'Poppins',sans-serif;">${c.value}</div>
-      <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.35rem;">${c.label}</div>
-    </div>
-  `).join('');
-}
-
 function renderStRentabilidad() {
   const container = document.getElementById('st-rentabilidad-lista');
   if (!container) return;
@@ -7945,55 +7932,6 @@ function renderStRentabilidad() {
 }
 
 // Suscripción: modal
-function onStSusPlataformaChange() {
-  calcStRentabilidadPreview();
-}
-
-function calcStVencimiento() {
-  const inicio = document.getElementById('st-sus-inicio')?.value;
-  const durSel = document.getElementById('st-sus-duracion')?.value;
-  const durCustomRow = document.getElementById('st-sus-duracion-custom-row');
-  let meses;
-  if (durSel === 'custom') {
-    if (durCustomRow) durCustomRow.style.display = 'block';
-    meses = parseInt(document.getElementById('st-sus-duracion-custom')?.value) || 0;
-  } else {
-    if (durCustomRow) durCustomRow.style.display = 'none';
-    meses = parseInt(durSel) || 1;
-  }
-  if (!inicio || !meses) return;
-  const vence = calcVencimiento(inicio, meses);
-  document.getElementById('st-sus-vencimiento').value = vence;
-  document.getElementById('st-sus-vencimiento-display').value = formatDate(vence);
-  calcStRentabilidadPreview();
-}
-
-function calcStRentabilidadPreview() {
-  const platId  = document.getElementById('st-sus-plataforma')?.value;
-  const precio  = parseFloat(document.getElementById('st-sus-precio')?.value) || 0;
-  const durSel  = document.getElementById('st-sus-duracion')?.value;
-  const meses   = durSel === 'custom'
-    ? parseInt(document.getElementById('st-sus-duracion-custom')?.value) || 1
-    : parseInt(durSel) || 1;
-  const preview = document.getElementById('st-sus-rentabilidad-preview');
-  if (!preview) return;
-  if (!platId || precio <= 0) { preview.style.display = 'none'; return; }
-  const plat = allStPlataformas.find(p => p.id === platId);
-  if (!plat) { preview.style.display = 'none'; return; }
-  const costoTotal = (plat.costo_real || 0) * meses;
-  const ganancia   = (precio * meses) - costoTotal;
-  const isPos      = ganancia >= 0;
-  preview.style.display = 'block';
-  preview.innerHTML = `
-    <div style="display:flex;gap:1.25rem;flex-wrap:wrap;font-size:0.82rem;">
-      <div><span style="color:var(--text-muted);">Ingresos totales:</span> <strong style="color:#22C55E;">${formatCurrency(precio*meses)}</strong></div>
-      ${plat.costo_real > 0 ? `
-      <div><span style="color:var(--text-muted);">Costo real (${meses}m):</span> <strong style="color:#EF4444;">${formatCurrency(costoTotal)}</strong></div>
-      <div><span style="color:var(--text-muted);">Ganancia:</span> <strong style="color:${isPos?'#16a34a':'#dc2626'};">${formatCurrency(ganancia)}</strong></div>
-      ` : '<div style="color:var(--text-muted);">Define el costo en la plataforma para ver rentabilidad</div>'}
-    </div>`;
-}
-
 function openModalStreamingSus(id = null) {
   editingStSusId = id;
   document.getElementById('modal-st-sus-title').textContent = id
@@ -8020,17 +7958,42 @@ function openModalStreamingSus(id = null) {
     const s = allStSuscripciones.find(x => x.id === id);
     if (s) {
       document.getElementById('st-sus-cliente').value = s.cliente_id;
+      // Mostrar tarjeta del cliente seleccionado
+      const _cliEdit = allStClientes.find(c => c.id === s.cliente_id);
+      if (_cliEdit && selectedDiv) {
+        selectedDiv.style.display = 'flex';
+        const _nEl = document.getElementById('st-sus-cli-nombre-display'); if (_nEl) _nEl.textContent = _cliEdit.nombre;
+        const _wEl = document.getElementById('st-sus-cli-wa-display'); if (_wEl) _wEl.innerHTML = '<i class="fa-brands fa-whatsapp" style="color:#22C55E;margin-right:0.25rem;"></i>' + _cliEdit.whatsapp;
+        const _aEl = document.getElementById('st-sus-cli-avatar'); if (_aEl) _aEl.textContent = getInitials(_cliEdit.nombre);
+      }
       document.getElementById('st-sus-inicio').value = s.fecha_inicio;
       document.getElementById('st-sus-vencimiento').value = s.fecha_vencimiento;
       document.getElementById('st-sus-vencimiento-display').value = formatDate(s.fecha_vencimiento);
       document.getElementById('st-sus-notas').value = s.notas || '';
-      
-      // Para edición: mostrar plataforma como read-only
-      const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+
+      // Duración previa
+      const _durEl = document.getElementById('st-sus-duracion');
+      const _durRow = document.getElementById('st-sus-duracion-custom-row');
+      if (['1','2','3','6','12'].includes(String(s.duracion_meses))) {
+        if (_durEl) _durEl.value = String(s.duracion_meses);
+        if (_durRow) _durRow.style.display = 'none';
+      } else {
+        if (_durEl) _durEl.value = 'custom';
+        if (_durRow) _durRow.style.display = 'block';
+        const _durC = document.getElementById('st-sus-duracion-custom'); if (_durC) _durC.value = s.duracion_meses || 1;
+      }
+
+      // En edición solo se gestiona la plataforma de esta suscripción
       stSusComboSeleccionadas.add(s.plataforma_id);
-      
       renderStPlataformasSelector();
       actualizarResumenCombo();
+
+      // Precargar precio y perfil existentes en los inputs del combo
+      const _pIn = document.querySelector('[data-plat="' + s.plataforma_id + '"].st-precio-combo');
+      if (_pIn) { _pIn.value = (s.precio_venta || 0).toLocaleString('es-CO'); _pIn.dataset.raw = String(s.precio_venta || 0); }
+      const _perfIn = document.querySelector('[data-plat="' + s.plataforma_id + '"].st-perfil-combo');
+      if (_perfIn) _perfIn.value = s.perfil || 'Perfil 1';
+      calcularResumenCombo();
     }
   } else {
     // Modo creación
@@ -8051,49 +8014,13 @@ function openModalStreamingSus(id = null) {
   openModal('modal-st-sus');
 }
 
-async function saveStreamingSus() {
-  const clienteId  = document.getElementById('st-sus-cliente').value;
-  const platId     = document.getElementById('st-sus-plataforma').value;
-  const perfil     = document.getElementById('st-sus-perfil').value.trim() || 'Perfil 1';
-  const precio     = parseFloat(document.getElementById('st-sus-precio').value) || 0;
-  const inicio     = document.getElementById('st-sus-inicio').value;
-  const notas      = document.getElementById('st-sus-notas').value.trim();
-  const durSel     = document.getElementById('st-sus-duracion').value;
-  const meses      = durSel === 'custom'
-    ? parseInt(document.getElementById('st-sus-duracion-custom').value) || 1
-    : parseInt(durSel) || 1;
-  const vence      = document.getElementById('st-sus-vencimiento').value;
-
-  if (!clienteId) { toast('Selecciona un cliente', 'error'); return; }
-  if (!platId)    { toast('Selecciona una plataforma', 'error'); return; }
-  if (!inicio)    { toast('Define la fecha de inicio', 'error'); return; }
-  if (precio <= 0){ toast('El precio debe ser mayor a 0', 'error'); return; }
-  if (!vence)     { calcStVencimiento(); }
-
-  const fechaVence = document.getElementById('st-sus-vencimiento').value;
-  if (!fechaVence) { toast('No se pudo calcular la fecha de vencimiento', 'error'); return; }
-
-  const estado = calcEstadoSus(fechaVence);
-  const payload = {
-    cliente_id: clienteId, plataforma_id: platId, perfil, precio_venta: precio,
-    duracion_meses: meses, fecha_inicio: inicio, fecha_vencimiento: fechaVence,
-    estado, notas: notas || null
-  };
-  const result = editingStSusId
-    ? await sb.from('streaming_suscripciones').update(payload).eq('id', editingStSusId)
-    : await sb.from('streaming_suscripciones').insert(payload);
-  if (result.error) { toast('Error: ' + result.error.message, 'error'); return; }
-  toast(editingStSusId ? 'Suscripción actualizada ✅' : 'Suscripción creada ✅', 'success');
-  closeModal('modal-st-sus');
-  try { await loadStreamingSuscripciones(); } catch (e) { console.warn('⚠️ Reload streaming falló (la venta ya se guardó):', e); }
-}
-
-async function deleteStreamingSus(id) {
-  if (!confirm('¿Eliminar esta suscripción?')) return;
-  const { error } = await sb.from('streaming_suscripciones').delete().eq('id', id);
-  if (error) { toast('Error: ' + error.message, 'error'); return; }
-  toast('Suscripción eliminada', 'success');
-  await loadStreamingSuscripciones();
+function deleteStreamingSus(id) {
+  confirmarEliminar('¿Eliminar esta suscripción?', async () => {
+    const { error } = await sb.from('streaming_suscripciones').delete().eq('id', id);
+    if (error) { toast('Error: ' + error.message, 'error'); return; }
+    toast('Suscripción eliminada', 'success');
+    await loadStreamingSuscripciones();
+  });
 }
 
 // ── COBRO WHATSAPP ────────────────────────────────────────────────────
@@ -8185,55 +8112,6 @@ function copiarMensajeCobro() {
   });
 }
 
-async function renovarSuscripcion() {
-  if (!stCobroActual) return;
-  const s    = stCobroActual;
-  const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-  if (!confirm(`¿Marcar como pagado y renovar ${s.duracion_meses} mes(es) más?`)) return;
-
-  const nuevaFechaInicio = s.fecha_vencimiento;
-  const nuevaFechaVence  = calcVencimiento(nuevaFechaInicio, s.duracion_meses);
-  const nuevoEstado      = calcEstadoSus(nuevaFechaVence);
-
-  // Registrar pago en historial
-  await sb.from('streaming_pagos').insert({
-    suscripcion_id: s.id,
-    cliente_id:     s.cliente_id,
-    plataforma_id:  s.plataforma_id,
-    monto:          s.precio_venta,
-    costo_real:     plat?.costo_real || 0,
-    duracion_meses: s.duracion_meses,
-    fecha_pago:     todayLocal(),
-    notas:          'Renovación desde modal de cobro'
-  });
-
-  // Actualizar fechas de la suscripción
-  await sb.from('streaming_suscripciones').update({
-    fecha_inicio:       nuevaFechaInicio,
-    fecha_vencimiento:  nuevaFechaVence,
-    estado:             nuevoEstado
-  }).eq('id', s.id);
-
-  toast('✅ Renovada hasta ' + formatDate(nuevaFechaVence), 'success');
-  closeModal('modal-st-cobro');
-  stCobroActual = null;
-  try { await loadStreamingSuscripciones(); } catch (e) { console.warn('⚠️ Reload streaming falló (la renovación ya se guardó):', e); }
-	
-  // Notificación Telegram
-  const cli = allStClientes.find(c => c.id === s.cliente_id);
-  const hora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-  sendTelegramNotification(`🎬 <b>Haliel Streaming</b>
-━━━━━━━━━━━━━━━━━━
-✅ <b>Suscripción Renovada</b>
-
-👤 <b>Cliente:</b> ${cli?.nombre||'—'}
-📺 <b>Plataforma:</b> ${plat?.emoji||''} ${plat?.nombre||'—'}
-💰 <b>Monto:</b> ${formatCurrency(s.precio_venta)}
-📅 <b>Nueva vigencia:</b> ${formatDate(nuevaFechaInicio)} → ${formatDate(nuevaFechaVence)}
-🕐 <b>Hora:</b> ${hora}
-━━━━━━━━━━━━━━━━━━`);
-}
-
 // =====================================================
 // 📊 DASHBOARD DE STREAMING - CÁLCULO DE RESUMEN
 // =====================================================
@@ -8280,6 +8158,7 @@ async function renderStAnalytics() {
     if (!byPlat[s.plataforma_id]) byPlat[s.plataforma_id] = 0;
     byPlat[s.plataforma_id]++;
     
+    if (!s.fecha_inicio) return;
     const mes = s.fecha_inicio.substring(0, 7);
     if (!ingresosMensual[mes]) ingresosMensual[mes] = 0;
     ingresosMensual[mes] += s.precio_venta || 0;
@@ -8293,7 +8172,7 @@ async function renderStAnalytics() {
     const ingresos = meses.map(m => ingresosMensual[m] || 0);
     const costos = meses.map(m => {
       return allStSuscripciones
-        .filter(s => s.fecha_inicio.substring(0, 7) === m && s.estado !== 'cancelado')
+        .filter(s => s.fecha_inicio && s.fecha_inicio.substring(0, 7) === m && s.estado !== 'cancelado')
         .reduce((a, s) => {
           const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
           return a + ((plat?.costo_real || 0) * s.duracion_meses);
@@ -8783,6 +8662,29 @@ async function saveStreamingSusCombo() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando...'; }
 
   try {
+    // ── MODO EDICIÓN: actualizar la suscripción existente (no crear duplicado) ──
+    if (editingStSusId) {
+      const _platId = Array.from(stSusComboSeleccionadas)[0];
+      const _pIn = document.querySelector('[data-plat="' + _platId + '"].st-precio-combo');
+      const _perfIn = document.querySelector('[data-plat="' + _platId + '"].st-perfil-combo');
+      const _precioEd = getPrecioComboCOP(_pIn);
+      const _perfilEd = _perfIn?.value || 'Perfil 1';
+      const _estadoEd = calcEstadoSus(vence);
+      const { error: _errEd } = await sb.from('streaming_suscripciones').update({
+        plataforma_id: _platId, perfil: _perfilEd, precio_venta: _precioEd,
+        duracion_meses: meses, fecha_inicio: inicio, fecha_vencimiento: vence,
+        estado: _estadoEd, notas: notas || null
+      }).eq('id', editingStSusId);
+      if (_errEd) throw _errEd;
+      editingStSusId = null;
+      toast('Suscripción actualizada ✅', 'success');
+      limpiarClienteSus();
+      stSusComboSeleccionadas.clear();
+      closeModal('modal-st-sus');
+      await loadStreamingSuscripciones();
+      return;
+    }
+
     const idVenta = await generarIdVentaUnico();
     
     // Guardar un registro por cada plataforma
@@ -8879,6 +8781,17 @@ function generarFacturaPDF(idVenta) {
     return a + ((plat?.costo_real || 0) * (s.duracion_meses || 1));
   }, 0);
   const ganancia = totalMonto - totalCosto;
+  // Estado real de la venta para el badge de la factura
+  const _factEstado = items.every(s => s.estado === 'cancelado')
+    ? 'cancelado'
+    : (items.filter(s => s.estado !== 'cancelado').map(s => calcEstadoSus(s.fecha_vencimiento))
+        .sort((a,b)=>['vencido','por_vencer','activo'].indexOf(a)-['vencido','por_vencer','activo'].indexOf(b))[0] || 'activo');
+  const _factBadge = ({
+    activo:     ['#dcfce7','#16a34a','✓ ACTIVO'],
+    por_vencer: ['#fef9c3','#ca8a04','⏳ POR VENCER'],
+    vencido:    ['#fee2e2','#dc2626','● VENCIDO'],
+    cancelado:  ['#e2e8f0','#64748b','⊘ CANCELADO']
+  })[_factEstado] || ['#dcfce7','#16a34a','✓ ACTIVO'];
   const fechaEmision = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
   const horaEmision  = new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
 
@@ -8978,7 +8891,7 @@ function generarFacturaPDF(idVenta) {
   <div class="estado-band">
     <span>Vigencia: <strong>${formatDate(s0.fecha_inicio)} → ${formatDate(s0.fecha_vencimiento)}</strong></span>
     <span>${items.length} plataforma${items.length>1?'s':''} · <strong>${s0.duracion_meses||1} mes${(s0.duracion_meses||1)>1?'es':''}</strong></span>
-    <span class="badge-vigente">✓ ACTIVO</span>
+    <span style="background:${_factBadge[0]};color:${_factBadge[1]};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">${_factBadge[2]}</span>
   </div>
 
   <div class="body">
@@ -10093,6 +10006,7 @@ async function confirmarRenovacion() {
       await sb.from('streaming_pagos').insert({
         suscripcion_id: suscripcionId, cliente_id: renovClienteId, plataforma_id: platId,
         monto: precio, costo_real: plat?.costo_real || 0, duracion_meses: meses,
+        ganancia: (precio || 0) - ((plat?.costo_real || 0) * (meses || 1)),
         fecha_pago: todayLocal(), notas: `Renovación combo ${renovIdVenta}`
       });
     }
