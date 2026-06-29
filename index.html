@@ -7762,18 +7762,22 @@ function renderStreamingSuscripciones() {
     return;
   }
 
-  // Agrupar por id_venta
+  // Agrupar por id_venta + cliente_id. Incluir el cliente en la clave evita
+  // que dos ventas distintas con el mismo id_venta (clientes diferentes)
+  // queden mezcladas en el mismo grupo y se editen registros cruzados.
   const grupos = {};
   list.forEach(s => {
-    const key = s.id_venta || s.id;
+    const idV = s.id_venta || s.id;
+    const key = `${idV}__${s.cliente_id}`;
     if (!grupos[key]) grupos[key] = [];
     grupos[key].push(s);
   });
 
   let html = '';
-  Object.entries(grupos).forEach(([idVenta, items]) => {
+  Object.values(grupos).forEach((items, grpIdx) => {
     // Tomar datos comunes del primer item
     const s0 = items[0];
+    const idVenta = s0.id_venta || s0.id;           // id de venta "limpio" para mostrar
     const cli = allStClientes.find(c => c.id === s0.cliente_id);
     const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
     // Estado global: solo es 'cancelado' si TODAS lo están; si no, el peor
@@ -7795,7 +7799,8 @@ function renderStreamingSuscripciones() {
       return plat ? `<span style="display:inline-flex;align-items:center;gap:3px;background:${plat.color}18;color:${plat.color};border-radius:99px;padding:2px 8px;font-size:0.72rem;font-weight:600;white-space:nowrap;">${plat.emoji} ${plat.nombre}</span>` : '';
     }).join(' ');
 
-    const rowId = `sus-group-${idVenta.replace(/[^a-zA-Z0-9]/g,'_')}`;
+    // ID de fila por índice de grupo: único garantizado (evita colisiones DOM).
+    const rowId = `sus-group-${grpIdx}`;
 
     // Fila principal (colapsada)
     html += `
@@ -7956,45 +7961,50 @@ function openModalStreamingSus(id = null) {
   if (id) {
     // Modo edición: mostrar suscripción existente
     const s = allStSuscripciones.find(x => x.id === id);
-    if (s) {
-      document.getElementById('st-sus-cliente').value = s.cliente_id;
-      // Mostrar tarjeta del cliente seleccionado
-      const _cliEdit = allStClientes.find(c => c.id === s.cliente_id);
-      if (_cliEdit && selectedDiv) {
-        selectedDiv.style.display = 'flex';
-        const _nEl = document.getElementById('st-sus-cli-nombre-display'); if (_nEl) _nEl.textContent = _cliEdit.nombre;
-        const _wEl = document.getElementById('st-sus-cli-wa-display'); if (_wEl) _wEl.innerHTML = '<i class="fa-brands fa-whatsapp" style="color:#22C55E;margin-right:0.25rem;"></i>' + _cliEdit.whatsapp;
-        const _aEl = document.getElementById('st-sus-cli-avatar'); if (_aEl) _aEl.textContent = getInitials(_cliEdit.nombre);
-      }
-      document.getElementById('st-sus-inicio').value = s.fecha_inicio;
-      document.getElementById('st-sus-vencimiento').value = s.fecha_vencimiento;
-      document.getElementById('st-sus-vencimiento-display').value = formatDate(s.fecha_vencimiento);
-      document.getElementById('st-sus-notas').value = s.notas || '';
-
-      // Duración previa
-      const _durEl = document.getElementById('st-sus-duracion');
-      const _durRow = document.getElementById('st-sus-duracion-custom-row');
-      if (['1','2','3','6','12'].includes(String(s.duracion_meses))) {
-        if (_durEl) _durEl.value = String(s.duracion_meses);
-        if (_durRow) _durRow.style.display = 'none';
-      } else {
-        if (_durEl) _durEl.value = 'custom';
-        if (_durRow) _durRow.style.display = 'block';
-        const _durC = document.getElementById('st-sus-duracion-custom'); if (_durC) _durC.value = s.duracion_meses || 1;
-      }
-
-      // En edición solo se gestiona la plataforma de esta suscripción
-      stSusComboSeleccionadas.add(s.plataforma_id);
-      renderStPlataformasSelector();
-      actualizarResumenCombo();
-
-      // Precargar precio y perfil existentes en los inputs del combo
-      const _pIn = document.querySelector('[data-plat="' + s.plataforma_id + '"].st-precio-combo');
-      if (_pIn) { _pIn.value = (s.precio_venta || 0).toLocaleString('es-CO'); _pIn.dataset.raw = String(s.precio_venta || 0); }
-      const _perfIn = document.querySelector('[data-plat="' + s.plataforma_id + '"].st-perfil-combo');
-      if (_perfIn) _perfIn.value = s.perfil || 'Perfil 1';
-      calcularResumenCombo();
+    if (!s) {                                   // ← BLINDAJE
+      toast('No se encontró la suscripción a editar', 'error');
+      editingStSusId = null;
+      return;                                   // no abrir el modal con datos ajenos
     }
+
+    document.getElementById('st-sus-cliente').value = s.cliente_id;
+    // Mostrar tarjeta del cliente seleccionado
+    const _cliEdit = allStClientes.find(c => c.id === s.cliente_id);
+    if (_cliEdit && selectedDiv) {
+      selectedDiv.style.display = 'flex';
+      const _nEl = document.getElementById('st-sus-cli-nombre-display'); if (_nEl) _nEl.textContent = _cliEdit.nombre;
+      const _wEl = document.getElementById('st-sus-cli-wa-display'); if (_wEl) _wEl.innerHTML = '<i class="fa-brands fa-whatsapp" style="color:#22C55E;margin-right:0.25rem;"></i>' + _cliEdit.whatsapp;
+      const _aEl = document.getElementById('st-sus-cli-avatar'); if (_aEl) _aEl.textContent = getInitials(_cliEdit.nombre);
+    }
+    document.getElementById('st-sus-inicio').value = s.fecha_inicio;
+    document.getElementById('st-sus-vencimiento').value = s.fecha_vencimiento;
+    document.getElementById('st-sus-vencimiento-display').value = formatDate(s.fecha_vencimiento);
+    document.getElementById('st-sus-notas').value = s.notas || '';
+
+    // Duración previa
+    const _durEl = document.getElementById('st-sus-duracion');
+    const _durRow = document.getElementById('st-sus-duracion-custom-row');
+    if (['1','2','3','6','12'].includes(String(s.duracion_meses))) {
+      if (_durEl) _durEl.value = String(s.duracion_meses);
+      if (_durRow) _durRow.style.display = 'none';
+    } else {
+      if (_durEl) _durEl.value = 'custom';
+      if (_durRow) _durRow.style.display = 'block';
+      const _durC = document.getElementById('st-sus-duracion-custom'); if (_durC) _durC.value = s.duracion_meses || 1;
+    }
+
+    // En edición solo se gestiona la plataforma de esta suscripción
+    stSusComboSeleccionadas.add(s.plataforma_id);
+    renderStPlataformasSelector();
+    actualizarResumenCombo();
+
+    // Precargar precio y perfil existentes en los inputs del combo
+    const _pIn = document.querySelector('[data-plat="' + s.plataforma_id + '"].st-precio-combo');
+    if (_pIn) { _pIn.value = (s.precio_venta || 0).toLocaleString('es-CO'); _pIn.dataset.raw = String(s.precio_venta || 0); }
+    const _perfIn = document.querySelector('[data-plat="' + s.plataforma_id + '"].st-perfil-combo');
+    if (_perfIn) _perfIn.value = s.perfil || 'Perfil 1';
+    calcularResumenCombo();
+
   } else {
     // Modo creación
     document.getElementById('st-sus-cliente').value = '';
@@ -8007,10 +8017,10 @@ function openModalStreamingSus(id = null) {
     const venceAuto = calcVencimiento(hoy, 1);
     document.getElementById('st-sus-vencimiento').value = venceAuto;
     document.getElementById('st-sus-vencimiento-display').value = formatDate(venceAuto);
-    
+
     renderStPlataformasSelector();
   }
-  
+
   openModal('modal-st-sus');
 }
 
