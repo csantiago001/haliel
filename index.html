@@ -7480,6 +7480,15 @@ function calcEstadoSus(fechaVence) {
   return 'activo';
 }
 
+// Extrae el número correlativo de un id_venta (lo que va después del último guion).
+// "NPE-2026-000054" → 54. Ignora el prefijo "NPE-AAAA-" y el año.
+// Si no hay id_venta o no hay número, lo manda al final del orden.
+function _numVenta(idVenta) {
+  if (!idVenta) return Number.MAX_SAFE_INTEGER;
+  const m = String(idVenta).match(/(\d+)\s*$/); // último bloque de dígitos
+  return m ? parseInt(m[1], 10) : Number.MAX_SAFE_INTEGER;
+}
+
 function badgeEstadoSus(estado, fechaVence) {
   const dias = diasRestantes(fechaVence);
   const map = {
@@ -7725,7 +7734,7 @@ async function loadStreamingSuscripciones() {
   if (!allStPlataformas.length) await loadStPlataformas();
   if (!allStClientes.length)    await loadStreamingClientes();
   const { data } = await sb.from('streaming_suscripciones').select('*')
-  .order('id_venta', { ascending: false })       // orden por número de venta (000001, 000002, …)
+  .order('id_venta', { ascending: true })       // orden por número de venta (000001, 000002, …)
   .order('fecha_vencimiento', { ascending: true }); // orden secundario dentro de cada venta
   allStSuscripciones = data || [];
   for (const s of allStSuscripciones) {
@@ -7763,6 +7772,9 @@ function renderStreamingSuscripciones() {
     tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','openModalStreamingSus()','+ Nueva venta')}</td></tr>`;
     return;
   }
+
+  // Ordenar por número de venta (ignora "NPE-AAAA-", solo cuenta el correlativo).
+  list.sort((a, b) => _numVenta(b.id_venta) - _numVenta(a.id_venta));
 
   // Agrupar por id_venta + cliente_id. Incluir el cliente en la clave evita
   // que dos ventas distintas con el mismo id_venta (clientes diferentes)
