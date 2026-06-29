@@ -7725,7 +7725,7 @@ async function loadStreamingSuscripciones() {
   if (!allStPlataformas.length) await loadStPlataformas();
   if (!allStClientes.length)    await loadStreamingClientes();
   const { data } = await sb.from('streaming_suscripciones').select('*')
-  .order('id_venta', { ascending: true })       // orden por número de venta (000001, 000002, …)
+  .order('id_venta', { ascending: false })       // orden por número de venta (000001, 000002, …)
   .order('fecha_vencimiento', { ascending: true }); // orden secundario dentro de cada venta
   allStSuscripciones = data || [];
   for (const s of allStSuscripciones) {
