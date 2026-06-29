@@ -1494,15 +1494,15 @@
 		  <table class="premium-table">
 			<thead>
 			  <tr>
-				<th>ID Venta</th>
-				<th>Cliente</th>
-				<th>Plataforma</th>
-				<th>Monto Total</th>
-				<th>Inicio</th>
-				<th>Vencimiento</th>
-				<th>Estado</th>
-				<th>Acciones</th>
-			  </tr>
+					<th onclick="ordenarSusPor('idventa')" style="cursor:pointer;user-select:none;white-space:nowrap;">ID Venta<span id="th-arrow-idventa" style="opacity:0.3;"> ↕</span></th>
+					<th onclick="ordenarSusPor('cliente')" style="cursor:pointer;user-select:none;white-space:nowrap;">Cliente<span id="th-arrow-cliente" style="opacity:0.3;"> ↕</span></th>
+					<th>Plataforma</th>
+					<th onclick="ordenarSusPor('total')" style="cursor:pointer;user-select:none;white-space:nowrap;">Monto Total<span id="th-arrow-total" style="opacity:0.3;"> ↕</span></th>
+					<th onclick="ordenarSusPor('inicio')" style="cursor:pointer;user-select:none;white-space:nowrap;">Inicio<span id="th-arrow-inicio" style="opacity:0.3;"> ↕</span></th>
+					<th onclick="ordenarSusPor('vencimiento')" style="cursor:pointer;user-select:none;white-space:nowrap;">Vencimiento<span id="th-arrow-vencimiento" style="opacity:0.3;"> ↕</span></th>
+					<th onclick="ordenarSusPor('estado')" style="cursor:pointer;user-select:none;white-space:nowrap;">Estado<span id="th-arrow-estado" style="opacity:0.3;"> ↕</span></th>
+					<th>Acciones</th>
+				  </tr>
 			</thead>
 			<tbody id="st-sus-tbody"></tbody>
 		  </table>
@@ -7755,6 +7755,72 @@ function filterStreamingSuscripciones() {
   renderStreamingSuscripciones();
 }
 
+// ── ORDENAMIENTO DE LA TABLA DE SUSCRIPCIONES (solo en memoria) ──────────
+// Por defecto: número de venta descendente (la más reciente arriba: 5,4,3,2,1).
+// No se guarda nada; al recargar/cerrar el navegador vuelve a este orden.
+let stSusSort = { col: 'idventa', dir: 'desc' };
+
+// Dirección inicial sensata al hacer clic por primera vez en cada columna.
+const _stSusDefDir = { idventa:'desc', cliente:'asc', total:'desc', inicio:'desc', vencimiento:'asc', estado:'asc' };
+
+function ordenarSusPor(col) {
+  if (stSusSort.col === col) {
+    // Mismo encabezado: invierte el sentido.
+    stSusSort.dir = stSusSort.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Columna nueva: aplica su dirección por defecto.
+    stSusSort.col = col;
+    stSusSort.dir = _stSusDefDir[col] || 'asc';
+  }
+  renderStreamingSuscripciones();
+}
+
+// Valor comparable de un GRUPO de venta según la columna elegida.
+function _susSortValue(items, col) {
+  const s0 = items[0];
+  switch (col) {
+    case 'cliente': {
+      const cli = allStClientes.find(c => c.id === s0.cliente_id);
+      return (cli?.nombre || '').toLowerCase();
+    }
+    case 'total':
+      return items.reduce((a, s) => a + (s.precio_venta || 0), 0);
+    case 'inicio':
+      return s0.fecha_inicio || '';
+    case 'vencimiento':
+      return s0.fecha_vencimiento || '';
+    case 'estado': {
+      const _vivas = items.filter(s => s.estado !== 'cancelado');
+      let est;
+      if (!_vivas.length) est = 'cancelado';
+      else {
+        const prio = ['vencido','por_vencer','activo'];
+        est = _vivas.map(s => calcEstadoSus(s.fecha_vencimiento))
+          .sort((a,b)=>prio.indexOf(a)-prio.indexOf(b))[0];
+      }
+      return ({ vencido:0, por_vencer:1, activo:2, cancelado:3 })[est] ?? 9;
+    }
+    case 'idventa':
+    default:
+      return _numVenta(s0.id_venta);
+  }
+}
+
+// Pinta las flechas ▲ / ▼ / ↕ en los encabezados según el orden activo.
+function actualizarFlechasSus() {
+  ['idventa','cliente','total','inicio','vencimiento','estado'].forEach(c => {
+    const el = document.getElementById('th-arrow-' + c);
+    if (!el) return;
+    if (stSusSort.col === c) {
+      el.textContent = stSusSort.dir === 'asc' ? ' ▲' : ' ▼';
+      el.style.opacity = '1';
+    } else {
+      el.textContent = ' ↕';
+      el.style.opacity = '0.3';
+    }
+  });
+}
+
 function renderStreamingSuscripciones() {
   const tbody = document.getElementById('st-sus-tbody');
   const search = document.getElementById('st-sus-search')?.value.toLowerCase() || '';
@@ -7770,11 +7836,9 @@ function renderStreamingSuscripciones() {
 
   if (!list.length) {
     tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','openModalStreamingSus()','+ Nueva venta')}</td></tr>`;
+    actualizarFlechasSus();
     return;
   }
-
-  // Ordenar por número de venta (ignora "NPE-AAAA-", solo cuenta el correlativo).
-  list.sort((a, b) => _numVenta(b.id_venta) - _numVenta(a.id_venta));
 
   // Agrupar por id_venta + cliente_id. Incluir el cliente en la clave evita
   // que dos ventas distintas con el mismo id_venta (clientes diferentes)
@@ -7787,8 +7851,21 @@ function renderStreamingSuscripciones() {
     grupos[key].push(s);
   });
 
+  // Ordenar los GRUPOS según la columna/dirección elegida por el usuario.
+  // Por defecto: número de venta descendente (la más reciente arriba).
+  const gruposArr = Object.values(grupos);
+  const _dir = stSusSort.dir === 'asc' ? 1 : -1;
+  gruposArr.sort((ga, gb) => {
+    const va = _susSortValue(ga, stSusSort.col);
+    const vb = _susSortValue(gb, stSusSort.col);
+    if (va < vb) return -1 * _dir;
+    if (va > vb) return  1 * _dir;
+    // Desempate estable por número de venta.
+    return (_numVenta(ga[0].id_venta) - _numVenta(gb[0].id_venta)) * _dir;
+  });
+
   let html = '';
-  Object.values(grupos).forEach((items, grpIdx) => {
+  gruposArr.forEach((items, grpIdx) => {
     // Tomar datos comunes del primer item
     const s0 = items[0];
     const idVenta = s0.id_venta || s0.id;           // id de venta "limpio" para mostrar
@@ -7887,6 +7964,7 @@ function renderStreamingSuscripciones() {
   });
 
   tbody.innerHTML = html;
+  actualizarFlechasSus();   // ← refresca las flechas ▲/▼ de los encabezados
 }
 
 function toggleSusGroup(rowId) {
