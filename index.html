@@ -7161,10 +7161,41 @@ function openHelpModal() {
 // PWA
 // =====================================================
 if('serviceWorker' in navigator){
-  const swContent=`const CACHE='haliel-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));`;
-  const blob=new Blob([swContent],{type:'application/javascript'});
-  const swUrl=URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(()=>{});
+  // Limpieza de versiones viejas: elimina cualquier SW registrado desde blob:
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => {
+      const u = r.active && r.active.scriptURL;
+      if (u && u.startsWith('blob:')) r.unregister();
+    });
+  });
+
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    reg.update(); // busca versión nueva al arrancar
+    reg.addEventListener('updatefound', () => {
+      const nuevo = reg.installing;
+      if (!nuevo) return;
+      nuevo.addEventListener('statechange', () => {
+        if (nuevo.state === 'installed' && navigator.serviceWorker.controller) {
+          nuevo.postMessage('SKIP_WAITING'); // hay versión nueva → actívala ya
+        }
+      });
+    });
+  }).catch(() => {});
+
+  // Cuando el SW nuevo toma control, recarga una sola vez para mostrar el código fresco
+  let _recargado = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_recargado) return;
+    _recargado = true;
+    location.reload();
+  });
+
+  // Al volver a enfocar la app, revisa si hay actualización
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      navigator.serviceWorker.getRegistration().then(r => r && r.update());
+    }
+  });
 }
 
 function updateConnectionStatus() {
