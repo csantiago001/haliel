@@ -1,20 +1,26 @@
 {
-  "name": "Haliel Papelería",
+  "name": "Haliel Papelería — Sistema Administrativo",
   "short_name": "Haliel",
-  "start_url": "https://csantiago001.github.io/haliel/",
+  "description": "Gestión de ventas, caja, clientes y streaming.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0F172A",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
   "theme_color": "#2563EB",
+  "lang": "es",
   "icons": [
     {
       "src": "https://csantiago001.github.io/haliel/logo-redon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "https://csantiago001.github.io/haliel/logo-redon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
