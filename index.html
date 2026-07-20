@@ -7915,7 +7915,7 @@ function renderStreamingSuscripciones() {
       <td>${badgeEstadoSus(estadoGlobal, s0.fecha_vencimiento)}</td>
       <td>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-          ${estadoGlobal !== 'cancelado' ? `<button class=\"btn-primary\" style=\"padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;\" onclick=\"event.stopPropagation();abrirModalCobro('${idVenta}')\"><i class=\"fa-brands fa-whatsapp\"></i> Cobro</button>` : ''}
+          ${estadoGlobal !== 'cancelado' ? `<button class=\"btn-primary\" style=\"padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;\" onclick=\"event.stopPropagation();abrirModalCobro('${idVenta}','${s0.cliente_id}')\"><i class=\"fa-brands fa-whatsapp\"></i> Cobro</button>` : ''}
           ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#22C55E;border-color:rgba(34,197,94,0.3);" data-tip="Renovar" onclick="event.stopPropagation();renovarVenta('${idVenta}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
           <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${idVenta}')" style="background:rgba(239,68,68,0.1);color:#dc2626;border-color:rgba(239,68,68,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
           <button class="btn-danger" onclick="event.stopPropagation();confirmarEliminar('¿Eliminar la venta ${idVenta} y todas sus plataformas?',()=>deleteStreamingSusGrupo('${idVenta}'))"><i class="fa-solid fa-trash"></i></button>
@@ -8126,9 +8126,16 @@ function deleteStreamingSus(id) {
 }
 
 // ── COBRO WHATSAPP ────────────────────────────────────────────────────
-function abrirModalCobro(idVenta) {
-  // Reunir todas las suscripciones del grupo
-  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+function abrirModalCobro(idVenta, clienteId = null) {
+  // Reunir las suscripciones del grupo. Se filtra por id_venta Y cliente_id
+  // para evitar que dos ventas distintas con el mismo id_venta (clientes
+  // diferentes) se mezclen y se cobre/notifique al cliente equivocado.
+  const items = allStSuscripciones.filter(s => {
+    const idV = s.id_venta || s.id;
+    const matchVenta   = idV === idVenta;
+    const matchCliente = clienteId == null || s.cliente_id === clienteId;
+    return matchVenta && matchCliente;
+  });
   if (!items.length) return;
 
   // ── DISCRIMINACIÓN AUTOMÁTICA POR ESTADO ────────────────────────────
@@ -9154,7 +9161,7 @@ async function loadStreamingCalendarioModal(filtro = 'semana') {
           <div style="font-size:0.75rem;color:var(--text-muted);">Vence</div>
           <div style="font-weight:700;font-size:0.88rem;">${formatDate(s.fecha_vencimiento)}</div>
           <button class="btn-primary" style="margin-top:0.4rem;padding:0.35rem 0.75rem;font-size:0.75rem;"
-            onclick="abrirModalCobro('${s.id}');closeModal('modal-calendario-cobros');">
+            onclick="abrirModalCobro('${s.id_venta || s.id}','${s.cliente_id}');closeModal('modal-calendario-cobros');">
             <i class="fa-brands fa-whatsapp"></i> Cobrar
           </button>
         </div>
