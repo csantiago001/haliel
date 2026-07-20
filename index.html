@@ -7198,6 +7198,42 @@ if('serviceWorker' in navigator){
   });
 }
 
+// ── BOTÓN DE INSTALACIÓN PWA ─────────────────────────────────────────
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();          // evita el mini-banner por defecto
+  deferredPrompt = e;          // guardamos el evento para dispararlo nosotros
+  mostrarBotonInstalar();
+});
+
+function mostrarBotonInstalar() {
+  if (document.getElementById('btn-instalar-pwa')) return;
+  const btn = document.createElement('button');
+  btn.id = 'btn-instalar-pwa';
+  btn.innerHTML = '<i class="fa-solid fa-download"></i> Instalar app';
+  btn.style.cssText =
+    'position:fixed;bottom:1.2rem;right:1.2rem;z-index:9999;' +
+    'background:#2563EB;color:#fff;border:none;border-radius:99px;' +
+    'padding:0.7rem 1.1rem;font-size:0.9rem;font-weight:600;cursor:pointer;' +
+    'box-shadow:0 6px 20px rgba(37,99,235,0.4);display:flex;align-items:center;gap:0.5rem;';
+  btn.onclick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();                     // muestra el diálogo nativo
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') btn.remove();
+  };
+  document.body.appendChild(btn);
+}
+
+// Cuando ya se instaló, ocultar el botón
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('btn-instalar-pwa');
+  if (btn) btn.remove();
+  deferredPrompt = null;
+});
+
 function updateConnectionStatus() {
     const banner = document.getElementById('offline-banner');
     const main = document.getElementById('main-content');
