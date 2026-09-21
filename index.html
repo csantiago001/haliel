@@ -7939,10 +7939,21 @@ function renderStreamingSuscripciones() {
   gruposArr.sort((ga, gb) => {
     const va = _susSortValue(ga, stSusSort.col);
     const vb = _susSortValue(gb, stSusSort.col);
-    if (va < vb) return -1 * _dir;
-    if (va > vb) return  1 * _dir;
-    // Desempate estable por número de venta.
-    return (_numVenta(ga[0].id_venta) - _numVenta(gb[0].id_venta)) * _dir;
+    // Comparación numérica para números, lexicográfica para strings
+    if (typeof va === 'number' && typeof vb === 'number') {
+      if (va !== vb) return (va - vb) * _dir;
+    } else {
+      if (va < vb) return -1 * _dir;
+      if (va > vb) return  1 * _dir;
+    }
+    // Desempate: por días restantes cuando la columna activa no es estado/vencimiento
+    if (stSusSort.col !== 'estado' && stSusSort.col !== 'vencimiento') {
+      return (_numVenta(ga[0].id_venta) - _numVenta(gb[0].id_venta)) * _dir;
+    }
+    // Desempate en estado/vencimiento: por días exactos para no perder el orden
+    const da = Math.min(...ga.filter(s => s.estado !== 'cancelado').map(s => diasRestantes(s.fecha_vencimiento)));
+    const db = Math.min(...gb.filter(s => s.estado !== 'cancelado').map(s => diasRestantes(s.fecha_vencimiento)));
+    return (da - db) * _dir;
   });
 
   let html = '';
