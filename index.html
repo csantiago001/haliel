@@ -1504,6 +1504,17 @@
 					<th>Acciones</th>
 				  </tr>
 			</thead>
+			<!-- Banner contexto activo -->
+			<div id="st-sus-banner-ctx" style="display:none;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(34,197,94,0.10),rgba(34,197,94,0.02));border:1px solid rgba(34,197,94,0.3);border-radius:0.75rem;padding:0.6rem 1rem;margin-bottom:0.75rem;font-size:0.82rem;">
+			  <div style="width:8px;height:8px;border-radius:50%;background:#22C55E;flex-shrink:0;"></div>
+			  <span style="color:#15803d;font-weight:600;">Viendo:</span>
+			  <span id="st-sus-banner-nombre" style="font-weight:700;color:var(--text-primary);"></span>
+			  <span id="st-sus-banner-id" style="color:var(--text-muted);font-size:0.78rem;"></span>
+			  <span style="color:var(--text-muted);font-size:0.75rem;margin-left:4px;">·</span>
+			  <span style="color:var(--text-muted);font-size:0.75rem;">Vence:</span>
+			  <span id="st-sus-banner-vence" style="font-weight:600;color:var(--text-primary);font-size:0.78rem;"></span>
+			  <button onclick="cerrarBannerCtx()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;padding:0 4px;line-height:1;" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+			</div>
 			<tbody id="st-sus-tbody"></tbody>
 		  </table>
 		</div>
@@ -7962,7 +7973,7 @@ function renderStreamingSuscripciones() {
 
     // Fila principal (colapsada)
     html += `
-    <tr style="cursor:pointer;" onclick="toggleSusGroup('${rowId}')" title="Clic para ver detalle">
+    <tr id="main-${rowId}" style="cursor:pointer;transition:background 0.15s;" onclick="toggleSusGroup('${rowId}','${idVenta}','${s0.cliente_id}','${s0.fecha_vencimiento}')" title="Clic para ver detalle">
       <td style="font-family:'Poppins',sans-serif;font-weight:700;font-size:0.82rem;color:#2563EB;">
         <div style="display:flex;align-items:center;gap:0.4rem;">
           <i class="fa-solid fa-chevron-right" id="icon-${rowId}" style="font-size:0.65rem;color:var(--text-muted);transition:transform 0.2s;"></i>
@@ -8034,13 +8045,67 @@ function renderStreamingSuscripciones() {
   actualizarFlechasSus();   // ← refresca las flechas ▲/▼ de los encabezados
 }
 
-function toggleSusGroup(rowId) {
+function toggleSusGroup(rowId, idVenta, clienteId, fechaVence) {
   const row = document.getElementById(rowId);
   const icon = document.getElementById('icon-' + rowId);
+  const mainRow = document.getElementById('main-' + rowId);
   if (!row) return;
   const isOpen = row.style.display !== 'none';
-  row.style.display = isOpen ? 'none' : 'table-row';
-  if (icon) icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+
+  // Cerrar todos los grupos abiertos primero
+  document.querySelectorAll('[id^="sus-group-"]').forEach(r => {
+    r.style.display = 'none';
+  });
+  document.querySelectorAll('[id^="icon-sus-group-"]').forEach(ic => {
+    ic.style.transform = 'rotate(0deg)';
+  });
+  document.querySelectorAll('[id^="main-sus-group-"]').forEach(mr => {
+    mr.style.background = '';
+    mr.style.borderLeft = '';
+  });
+
+  if (isOpen) {
+    // Si ya estaba abierto, solo cerrar y ocultar banner
+    cerrarBannerCtx();
+    return;
+  }
+
+  // Abrir el grupo seleccionado
+  row.style.display = 'table-row';
+  if (icon) icon.style.transform = 'rotate(90deg)';
+
+  // Resaltar fila principal seleccionada
+  if (mainRow) {
+    mainRow.style.background = 'rgba(34,197,94,0.05)';
+    mainRow.style.borderLeft = '3px solid #22C55E';
+  }
+
+  // Mostrar banner de contexto
+  const cli = allStClientes.find(c => c.id === clienteId);
+  const banner = document.getElementById('st-sus-banner-ctx');
+  if (banner) {
+    document.getElementById('st-sus-banner-nombre').textContent = cli?.nombre || '—';
+    document.getElementById('st-sus-banner-id').textContent = '· ' + idVenta;
+    document.getElementById('st-sus-banner-vence').textContent = fechaVence ? formatDate(fechaVence) : '—';
+    banner.style.display = 'flex';
+  }
+}
+
+function cerrarBannerCtx() {
+  const banner = document.getElementById('st-sus-banner-ctx');
+  if (banner) banner.style.display = 'none';
+  // Quitar resaltado de todas las filas principales
+  document.querySelectorAll('[id^="main-sus-group-"]').forEach(mr => {
+    mr.style.background = '';
+    mr.style.borderLeft = '';
+  });
+  // Cerrar todos los detalles abiertos
+  document.querySelectorAll('[id^="sus-group-"]').forEach(r => {
+    r.style.display = 'none';
+  });
+  document.querySelectorAll('[id^="icon-sus-group-"]').forEach(ic => {
+    ic.style.transform = 'rotate(0deg)';
+  });
 }
 
 async function deleteStreamingSusGrupo(idVenta) {
