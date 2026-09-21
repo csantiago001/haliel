@@ -9906,35 +9906,46 @@ let renovValores = {}; // { [platId]: { precio, perfil } }
 
 function abrirModalRenovar(idVenta) {
   if (!idVenta) { toast('No se encontró la venta', 'error'); return; }
-  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+
+  // ── FIX: filtrar SOLO por id_venta (campo de negocio), nunca por s.id
+  // Si la suscripción no tiene id_venta todavía, solo se incluye si su
+  // propio id coincide con idVenta Y su cliente_id coincide — doble guarda.
+  const items = allStSuscripciones.filter(s => {
+    if (s.id_venta) return s.id_venta === idVenta;          // caso normal
+    return s.id === idVenta;                                 // caso legado: solo si el propio id coincide
+  });
+
   if (!items.length) { toast('No se encontró la venta', 'error'); return; }
 
-  renovIdVenta = idVenta;
-  renovItems = items;
-  renovClienteId = items[0].cliente_id;
+  // Seguridad extra: todos los items deben ser del mismo cliente
+  const clienteIdBase = items[0].cliente_id;
+  const itemsFiltrados = items.filter(s => s.cliente_id === clienteIdBase);
+  if (itemsFiltrados.length !== items.length) {
+    console.warn('⚠️ renovar: se descartaron filas de clientes distintos para idVenta', idVenta);
+  }
 
-  // ── DISCRIMINACIÓN AUTOMÁTICA POR ESTADO ────────────────────────────
-  // Se marcan por defecto SOLO las plataformas vencidas o por vencer. Las
-  // activas quedan desmarcadas (puedes añadirlas a mano si quieres renovarlas
-  // por adelantado). Si ninguna está vencida/por vencer, se marcan todas.
-  const vencidasRenov = items.filter(s => {
+  renovIdVenta = idVenta;
+  renovItems = itemsFiltrados;
+  renovClienteId = clienteIdBase;
+
+  const vencidasRenov = renovItems.filter(s => {
     const est = calcEstadoSus(s.fecha_vencimiento);
     return est === 'vencido' || est === 'por_vencer';
   });
-  const baseRenov = vencidasRenov.length ? vencidasRenov : items;
+  const baseRenov = vencidasRenov.length ? vencidasRenov : renovItems;
   renovSeleccionadas = new Set(baseRenov.map(s => s.plataforma_id));
 
   renovValores = {};
-  items.forEach(s => { renovValores[s.plataforma_id] = { precio: s.precio_venta || 0, perfil: s.perfil || 'Perfil 1' }; });
+  renovItems.forEach(s => { renovValores[s.plataforma_id] = { precio: s.precio_venta || 0, perfil: s.perfil || 'Perfil 1' }; });
 
   const cli = allStClientes.find(c => c.id === renovClienteId);
-  const venceActual = items.map(s => s.fecha_vencimiento).filter(Boolean).sort()[0];
-  const mesesPrevios = items[0].duracion_meses || 1;
+  const venceActual = renovItems.map(s => s.fecha_vencimiento).filter(Boolean).sort()[0];
+  const mesesPrevios = renovItems[0].duracion_meses || 1;
 
   document.getElementById('renov-cliente-nombre').textContent = cli?.nombre || '—';
   document.getElementById('renov-id-venta').textContent = idVenta;
   document.getElementById('renov-vence-actual').textContent = venceActual ? formatDate(venceActual) : '—';
-  document.getElementById('renov-notas').value = items[0].notas || '';
+  document.getElementById('renov-notas').value = renovItems[0].notas || '';
 
   const dur = document.getElementById('renov-duracion');
   const opciones = ['1','2','3','6','12'];
@@ -9947,7 +9958,6 @@ function abrirModalRenovar(idVenta) {
     document.getElementById('renov-duracion-custom').value = mesesPrevios;
   }
 
-  // Por defecto la renovación arranca donde terminó la vigencia actual, pero es editable.
   document.getElementById('renov-fecha-inicio').value = venceActual || todayLocal();
 
   const buscar = document.getElementById('renov-plat-buscar');
@@ -10188,13 +10198,26 @@ async function confirmarRenovacion() {
     }
 
     // 2) Plataformas quitadas del combo: eliminar su fila (los pagos quedan en el historial).
-    //    BLINDAJE: nunca se elimina una plataforma ACTIVA aunque quede sin marcar,
-    //    porque pudo quedar desmarcada solo por la discriminación automática.
-    //    Solo se elimina una vencida/por vencer que se haya quitado a propósito.
+    //    BLINDAJE TRIPLE:
+    //    a) Solo se procesan filas que pertenecen a este cliente (cliente_id)
+    //    b) Solo se procesan filas que pertenecen a esta venta (id_venta o id)
+    //    c) Nunca se elimina una plataforma ACTIVA
     for (const fila of renovItems) {
+      // Guarda a: verificar que la fila pertenece al cliente correcto
+      if (fila.cliente_id !== renovClienteId) {
+        console.warn('⚠️ confirmarRenovacion: fila de cliente ajeno detectada, se omite', fila);
+        continue;
+      }
+      // Guarda b: verificar que la fila pertenece a esta venta
+      const ventaFila = fila.id_venta || fila.id;
+      if (ventaFila !== renovIdVenta) {
+        console.warn('⚠️ confirmarRenovacion: fila de venta ajena detectada, se omite', fila);
+        continue;
+      }
       if (!renovSeleccionadas.has(fila.plataforma_id)) {
+        // Guarda c: no eliminar plataformas activas
         const estFila = calcEstadoSus(fila.fecha_vencimiento);
-        if (estFila === 'activo') continue; // se conserva intacta con su propia fecha
+        if (estFila === 'activo') continue;
         await sb.from('streaming_suscripciones').delete().eq('id', fila.id);
       }
     }
