@@ -1493,10 +1493,10 @@
 		<div class="table-wrapper" style="overflow-x:auto;">
 		  <table class="premium-table">
 			<thead>
-			  <tr>
+				  <tr>
 					<th onclick="ordenarSusPor('idventa')" style="cursor:pointer;user-select:none;white-space:nowrap;">ID Venta<span id="th-arrow-idventa" style="opacity:0.3;"> ↕</span></th>
 					<th onclick="ordenarSusPor('cliente')" style="cursor:pointer;user-select:none;white-space:nowrap;">Cliente<span id="th-arrow-cliente" style="opacity:0.3;"> ↕</span></th>
-					<th>Plataforma</th>
+					<th onclick="ordenarSusPor('plataforma')" style="cursor:pointer;user-select:none;white-space:nowrap;">Plataforma<span id="th-arrow-plataforma" style="opacity:0.3;"> ↕</span></th>
 					<th onclick="ordenarSusPor('total')" style="cursor:pointer;user-select:none;white-space:nowrap;">Monto Total<span id="th-arrow-total" style="opacity:0.3;"> ↕</span></th>
 					<th onclick="ordenarSusPor('inicio')" style="cursor:pointer;user-select:none;white-space:nowrap;">Inicio<span id="th-arrow-inicio" style="opacity:0.3;"> ↕</span></th>
 					<th onclick="ordenarSusPor('vencimiento')" style="cursor:pointer;user-select:none;white-space:nowrap;">Vencimiento<span id="th-arrow-vencimiento" style="opacity:0.3;"> ↕</span></th>
@@ -7839,7 +7839,7 @@ function filterStreamingSuscripciones() {
 let stSusSort = { col: 'idventa', dir: 'desc' };
 
 // Dirección inicial sensata al hacer clic por primera vez en cada columna.
-const _stSusDefDir = { idventa:'desc', cliente:'asc', total:'desc', inicio:'desc', vencimiento:'asc', estado:'asc' };
+const _stSusDefDir = { idventa:'desc', cliente:'asc', plataforma:'asc', total:'desc', inicio:'desc', vencimiento:'asc', estado:'asc' };
 
 function ordenarSusPor(col) {
   if (stSusSort.col === col) {
@@ -7878,6 +7878,11 @@ function _susSortValue(items, col) {
       }
       return ({ vencido:0, por_vencer:1, activo:2, cancelado:3 })[est] ?? 9;
     }
+    case 'plataforma': {
+      // Ordena por el nombre de la primera plataforma del combo (alfabético)
+      const firstPlat = allStPlataformas.find(p => p.id === s0.plataforma_id);
+      return (firstPlat?.nombre || '').toLowerCase();
+    }
     case 'idventa':
     default:
       return _numVenta(s0.id_venta);
@@ -7886,7 +7891,7 @@ function _susSortValue(items, col) {
 
 // Pinta las flechas ▲ / ▼ / ↕ en los encabezados según el orden activo.
 function actualizarFlechasSus() {
-  ['idventa','cliente','total','inicio','vencimiento','estado'].forEach(c => {
+    ['idventa','cliente','plataforma','total','inicio','vencimiento','estado'].forEach(c => {
     const el = document.getElementById('th-arrow-' + c);
     if (!el) return;
     if (stSusSort.col === c) {
