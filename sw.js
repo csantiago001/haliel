@@ -1,7 +1,14 @@
 // sw.js — Haliel PWA
-const VERSION = 'haliel-v3';   // ⬅️ SÚBELE EL NÚMERO EN CADA DESPLIEGUE (v4, v5, …)
+const VERSION = 'haliel-v4';   // ⬅️ SÚBELE EL NÚMERO EN CADA DESPLIEGUE (v5, v6, …)
 
-self.addEventListener('install', e => {
+// Solo se guardan en caché archivos estáticos: la app y las librerías de CDN.
+// Los datos (Supabase, Telegram) SIEMPRE van a la red para no mostrar información vieja.
+const CDN_ESTATICOS = [
+  'fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
+  'cdn.jsdelivr.net', 'cdn.sheetjs.com'
+];
+
+self.addEventListener('install', () => {
   self.skipWaiting();          // el SW nuevo no se queda "esperando"
 });
 
@@ -17,6 +24,11 @@ self.addEventListener('message', e => {
 
 self.addEventListener('fetch', e => {
   const req = e.request;
+  if (req.method !== 'GET') return;                       // POST/PATCH/DELETE: directo a la red
+  const url = new URL(req.url);
+  const mismoOrigen = url.origin === self.location.origin;
+  if (!mismoOrigen && !CDN_ESTATICOS.includes(url.hostname)) return; // Supabase, Telegram, etc.
+
   const esHTML = req.mode === 'navigate' ||
                  (req.headers.get('accept') || '').includes('text/html');
 
@@ -25,23 +37,32 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       try {
         const fresh = await fetch(req);
-        const c = await caches.open(VERSION);
-        c.put(req, fresh.clone());
+        if (fresh.ok) {
+          const copia = fresh.clone();
+          caches.open(VERSION).then(c => c.put(req, copia));
+        }
         return fresh;
       } catch (_) {
-        return (await caches.match(req)) || (await caches.match('/')) || Response.error();
+        return (await caches.match(req)) ||
+               (await caches.match(new URL('./', self.registration.scope).href)) ||
+               (await caches.match(new URL('./index.html', self.registration.scope).href)) ||
+               Response.error();
       }
     })());
     return;
   }
 
-  // Resto de recursos: caché primero, con relleno en segundo plano
+  // Recursos estáticos: caché primero, con actualización en segundo plano
   e.respondWith((async () => {
     const cached = await caches.match(req);
     const net = fetch(req).then(r => {
-      caches.open(VERSION).then(c => c.put(req, r.clone()));
+      if (r && (r.ok || r.type === 'opaque')) {
+        const copia = r.clone();                            // clonar antes de entregar la respuesta
+        caches.open(VERSION).then(c => c.put(req, copia));
+      }
       return r;
-    }).catch(() => cached);
-    return cached || net;
+    }).catch(() => cached || Response.error());
+    if (cached) { e.waitUntil(net.catch(() => {})); return cached; }
+    return net;
   })());
 });
