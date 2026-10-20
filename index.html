@@ -921,6 +921,127 @@
   .busqueda-pie { display: flex; gap: 1rem; padding: 0.6rem 1rem; border-top: 1px solid var(--card-border); font-size: 0.74rem; color: var(--text-muted); flex-wrap: wrap; }
   @media (max-width: 768px) { #modal-busqueda { padding-top: 0 !important; align-items: stretch !important; } .busqueda-box { max-height: none !important; height: 100%; border-radius: 0 !important; } .busqueda-pie { display: none; } }
 
+
+
+  /* ════════════════════════════════════════════════════════════════
+     V4 · CALENDARIO DE COBROS, PUNTO DE VENTA Y VENTAS
+  ════════════════════════════════════════════════════════════════ */
+  .cal-acciones { display: flex; gap: 0.35rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.45rem; }
+  .cal-acciones .btn-primary, .cal-acciones .btn-secondary { padding: 0.38rem 0.7rem; font-size: 0.76rem; min-height: 0; }
+  .cal-acciones .btn-edit, .cal-acciones .btn-danger { padding: 0.38rem 0.55rem; font-size: 0.76rem; min-height: 0; }
+  .cal-renovar { color: #0E8A44 !important; border-color: rgba(18,161,80,0.35) !important; }
+  .cal-renovar:hover { background: rgba(18,161,80,0.08) !important; }
+  html.dark .cal-renovar { color: #6EDC9E !important; }
+  #modal-calendario-cobros .modal-box { max-width: 640px !important; }
+
+  .input-accion { display: flex; gap: 0.35rem; }
+  .input-accion .icon-btn { border-color: var(--card-border); background: var(--card-bg); height: auto; }
+  .hide-sm { display: inline; }
+  @media (max-width: 640px) { .hide-sm { display: none; } }
+
+  /* Punto de venta */
+  .pos-grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 1rem; align-items: start; }
+  .pos-left { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+  .pos-scan-card { padding: 1rem 1.1rem; position: relative; }
+  .pos-scan { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.35rem 0.35rem 0.95rem; border: 2px solid var(--primary); border-radius: 12px; background: var(--card-bg); box-shadow: var(--ring); }
+  .pos-scan > i { font-size: 1.25rem; color: var(--primary-text); }
+  .pos-scan input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 1.05rem; color: var(--text); padding: 0.55rem 0; }
+  .pos-scan .btn-secondary { padding: 0.55rem 0.85rem; }
+  .pos-scan-hint { margin-top: 0.55rem; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+  .pos-scan-hint.ok i { color: #12A150; }
+  .pos-scan-hint.error { color: #C9282B; } .pos-scan-hint.error i { color: #E5383B; }
+  html.dark .pos-scan-hint.error { color: #F7999B; }
+  .pos-resultados { position: absolute; left: 1.1rem; right: 1.1rem; top: calc(100% - 0.6rem); z-index: 20; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-pop); padding: 0.35rem; max-height: 360px; overflow-y: auto; }
+  .pos-res { width: 100%; display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 0.7rem; border: 0; background: none; border-radius: 9px; text-align: left; color: var(--text); }
+  .pos-res.sel { background: var(--primary-soft); }
+  .pos-res span { display: flex; flex-direction: column; min-width: 0; }
+  .pos-res small { color: var(--text-muted); font-size: 0.76rem; }
+  .pos-res-der { text-align: right; align-items: flex-end; flex-shrink: 0; }
+  .pos-res-vacio { padding: 0.9rem; color: var(--text-muted); font-size: 0.85rem; text-align: center; }
+  .pos-cats { display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.6rem; margin-bottom: 0.4rem; scrollbar-width: thin; }
+  .pos-cat { padding: 0.38rem 0.8rem; border-radius: 99px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-muted); font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+  .pos-cat.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  html.dark .pos-cat.active { background: var(--primary); border-color: var(--primary); }
+  .pos-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem; max-height: calc(100vh - 330px); overflow-y: auto; padding: 2px; }
+  .pos-prod { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.75rem 0.8rem; border: 1px solid var(--card-border); border-radius: 12px; background: var(--card-bg); text-align: left; color: var(--text); transition: border-color 0.12s, transform 0.08s, box-shadow 0.12s; min-height: 92px; }
+  .pos-prod:hover:not(:disabled) { border-color: var(--primary); box-shadow: var(--ring); }
+  .pos-prod:active:not(:disabled) { transform: scale(0.98); }
+  .pos-prod-nom { font-weight: 600; font-size: 0.85rem; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pos-prod-precio { font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-top: auto; color: var(--primary-text); }
+  .pos-prod-stock { font-size: 0.72rem; color: var(--text-muted); }
+  .pos-prod.sin-stock { opacity: 0.45; cursor: not-allowed; }
+
+  .pos-cart { position: sticky; top: 84px; padding: 1rem 1.1rem 1.1rem; display: flex; flex-direction: column; max-height: calc(100vh - 100px); }
+  .pos-cart-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+  .pos-items { flex: 1; overflow-y: auto; min-height: 120px; margin: 0 -0.3rem; padding: 0 0.3rem; }
+  .pos-item { display: grid; grid-template-columns: minmax(0,1fr) auto auto auto; align-items: center; gap: 0.5rem; padding: 0.6rem 0.2rem; border-bottom: 1px solid var(--card-border); }
+  .pos-item.flash { animation: posFlash 0.7s ease; }
+  @keyframes posFlash { from { background: rgba(18,161,80,0.18); } to { background: transparent; } }
+  .pos-item-nom { font-weight: 600; font-size: 0.86rem; line-height: 1.25; }
+  .pos-item-sub { font-size: 0.74rem; color: var(--text-muted); }
+  .pos-precio-edit input { width: 72px; border: 1px dashed var(--line-strong); border-radius: 6px; background: transparent; padding: 0 4px; font-size: 0.74rem; color: var(--text); }
+  .pos-qty { display: flex; align-items: center; border: 1px solid var(--card-border); border-radius: 9px; overflow: hidden; }
+  .pos-qty button { width: 28px; height: 30px; border: 0; background: var(--input-bg); color: var(--text-muted); font-size: 0.7rem; }
+  .pos-qty button:hover { color: var(--primary-text); }
+  .pos-qty input { width: 38px; height: 30px; border: 0; text-align: center; font-weight: 700; background: var(--card-bg); color: var(--text); -moz-appearance: textfield; }
+  .pos-qty input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .pos-item-total { font-weight: 700; font-size: 0.88rem; min-width: 72px; text-align: right; }
+  .pos-item-x { width: 26px; height: 26px; border: 0; border-radius: 7px; background: none; color: var(--text-muted); }
+  .pos-item-x:hover { background: rgba(229,56,59,0.1); color: #E5383B; }
+  .pos-vacio { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 2rem 1rem; color: var(--text-muted); text-align: center; font-size: 0.85rem; }
+  .pos-vacio i { font-size: 2rem; opacity: 0.4; margin-bottom: 0.4rem; }
+  .pos-vacio strong { color: var(--text); }
+  .pos-campos { padding-top: 0.75rem; border-top: 1px solid var(--card-border); margin-top: 0.5rem; }
+  .pos-fila2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .pos-metodos { width: 100%; margin-bottom: 0.6rem; box-shadow: none; }
+  .pos-metodos .seg-btn { flex: 1; padding: 0.45rem 0.4rem; font-size: 0.76rem; }
+  .pos-cambio { height: 42px; display: flex; align-items: center; padding: 0 0.85rem; border-radius: 10px; background: rgba(18,161,80,0.1); color: #0E8A44; font-weight: 800; font-family: var(--font-display); font-size: 1.05rem; }
+  .pos-cambio.falta { background: rgba(229,56,59,0.1); color: #C9282B; font-size: 0.88rem; }
+  html.dark .pos-cambio { color: #6EDC9E; } html.dark .pos-cambio.falta { color: #F7999B; }
+  .pos-billetes { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .pos-billete { padding: 0.32rem 0.6rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); font-size: 0.76rem; font-weight: 600; color: var(--text-muted); }
+  .pos-billete:hover { border-color: var(--primary); color: var(--primary-text); }
+  .pos-totales { margin-top: 0.75rem; }
+  .pos-totales > div { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.88rem; color: var(--text-muted); }
+  .pos-totales > div span:last-child { color: var(--text); font-weight: 600; }
+  .pos-total { margin-top: 0.3rem; padding-top: 0.55rem !important; border-top: 1px solid var(--card-border); }
+  .pos-total span { font-family: var(--font-display); font-size: 1.5rem !important; font-weight: 800 !important; color: var(--text) !important; letter-spacing: -0.02em; }
+  .pos-cobrar { width: 100%; margin-top: 0.75rem; padding: 0.95rem !important; font-size: 1rem !important; }
+  .pos-cobrar kbd { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.25); color: #fff; }
+  .pos-cobrar:disabled { opacity: 0.45; box-shadow: none; }
+  @media (max-width: 1100px) { .pos-grid { grid-template-columns: 1fr; } .pos-cart { position: static; max-height: none; } .pos-productos { max-height: 340px; } }
+  @media (max-width: 480px) { .pos-item { grid-template-columns: minmax(0,1fr) auto auto; } .pos-item-total { grid-column: 1; text-align: left; } .pos-fila2 { grid-template-columns: 1fr; } }
+
+  /* Cámara */
+  .camara-marco { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 4 / 3; }
+  .camara-marco video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .camara-guia { position: absolute; left: 12%; right: 12%; top: 34%; bottom: 34%; border: 3px solid rgba(255,255,255,0.9); border-radius: 10px; box-shadow: 0 0 0 999px rgba(0,0,0,0.35); }
+  .camara-guia::after { content: ''; position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: #E5383B; animation: camLinea 1.6s ease-in-out infinite; }
+  @keyframes camLinea { 0%, 100% { transform: translateY(-14px); } 50% { transform: translateY(14px); } }
+
+  /* Venta registrada */
+  .venta-ok-ico { width: 64px; height: 64px; border-radius: 50%; background: #12A150; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0.5rem auto 0.9rem; animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+  .venta-ok-titulo { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
+  .venta-ok-total { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; letter-spacing: -0.03em; margin: 0.25rem 0; }
+  .venta-ok-cambio { color: var(--text-muted); font-size: 0.95rem; }
+  .venta-ok-cambio strong { color: #0E8A44; font-size: 1.15rem; }
+
+  /* Historial de ventas */
+  .fila-anulada td { opacity: 0.6; }
+  .fila-anulada td:nth-child(7) { text-decoration: line-through; }
+  .top-prod { display: flex; align-items: center; gap: 0.7rem; padding: 0.45rem 0; }
+  .top-prod-nom { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-prod-val { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.85rem; }
+  .top-prod-val small { color: var(--text-muted); font-size: 0.74rem; }
+  .det-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .det-meta div { display: flex; flex-direction: column; padding: 0.6rem 0.8rem; background: var(--input-bg); border-radius: 10px; }
+  .det-meta span { font-size: 0.74rem; color: var(--text-muted); }
+  .det-meta strong { font-size: 0.88rem; }
+  .etiq-producto { display: flex; flex-direction: column; padding: 0.75rem 0.9rem; border-radius: 12px; background: var(--input-bg); }
+  .etiq-producto span { font-size: 0.8rem; color: var(--text-muted); }
+  .cal-filtro-on { background: #E5383B !important; color: #fff !important; }
+  .pos-item-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 </style>
 </head>
 <body>
@@ -1093,8 +1214,10 @@
 				</button>
 				<div class="nav-group-body" id="body-operaciones">
 					<a class="nav-item" data-section="admin-registrar" data-tooltip="Registrar movimientos" onclick="goSection('admin-registrar')"><i class="fa-solid fa-circle-plus"></i><span class="nav-item-text">Registrar movimientos</span></a>
-					<a class="nav-item" data-section="cerrar-caja" data-sub="papeleria" data-tooltip="Caja Papelería" onclick="navSub('cerrar-caja', () => switchCajaTab('papeleria'))"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text">Caja Papelería</span></a>
+					<a class="nav-item" data-section="cerrar-caja" data-sub="papeleria" data-tooltip="Caja Papelería" onclick="navSub('cerrar-caja', () => switchCajaTab('papeleria'))"><i class="fa-solid fa-vault"></i><span class="nav-item-text">Caja Papelería</span></a>
 					<a class="nav-item" data-section="cerrar-caja" data-sub="giros" data-tooltip="Giros Venezuela" onclick="navSub('cerrar-caja', () => switchCajaTab('giros'))"><i class="fa-solid fa-money-bill-transfer"></i><span class="nav-item-text">Giros Venezuela</span></a>
+					<a class="nav-item nav-destacado" data-section="pos" data-tooltip="Punto de venta" onclick="goSection('pos')"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text">Punto de venta</span></a>
+					<a class="nav-item" data-section="ventas" data-tooltip="Historial de ventas" onclick="goSection('ventas')"><i class="fa-solid fa-receipt"></i><span class="nav-item-text">Historial de ventas</span></a>
 					<a class="nav-item" data-section="gastos" data-tooltip="Gastos" onclick="goSection('gastos')"><i class="fa-solid fa-wallet"></i><span class="nav-item-text">Gastos</span></a>
 					<a class="nav-item" data-section="inventario" data-tooltip="Inventario" onclick="goSection('inventario')"><i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-text">Inventario</span></a>
 					<a class="nav-item" data-section="registros" data-tooltip="Historial de registros" onclick="goSection('registros')"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-item-text">Historial de registros</span></a>
@@ -1159,8 +1282,10 @@
 			<div class="nav-group">
 				<div class="nav-label">Operaciones</div>
 				<a class="nav-item" data-section="op-registrar" data-tooltip="Registrar movimientos" onclick="goSection('op-registrar')"><i class="fa-solid fa-circle-plus"></i><span class="nav-item-text">Registrar movimientos</span></a>
-				<a class="nav-item" data-section="cerrar-caja" data-sub="papeleria" data-tooltip="Caja Papelería" onclick="navSub('cerrar-caja', () => switchCajaTab('papeleria'))"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text">Caja Papelería</span></a>
+				<a class="nav-item" data-section="cerrar-caja" data-sub="papeleria" data-tooltip="Caja Papelería" onclick="navSub('cerrar-caja', () => switchCajaTab('papeleria'))"><i class="fa-solid fa-vault"></i><span class="nav-item-text">Caja Papelería</span></a>
 				<a class="nav-item" data-section="cerrar-caja" data-sub="giros" data-tooltip="Giros Venezuela" onclick="navSub('cerrar-caja', () => switchCajaTab('giros'))"><i class="fa-solid fa-money-bill-transfer"></i><span class="nav-item-text">Giros Venezuela</span></a>
+				<a class="nav-item nav-destacado" data-section="pos" data-tooltip="Punto de venta" onclick="goSection('pos')"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text">Punto de venta</span></a>
+				<a class="nav-item" data-section="ventas" data-tooltip="Historial de ventas" onclick="goSection('ventas')"><i class="fa-solid fa-receipt"></i><span class="nav-item-text">Historial de ventas</span></a>
 				<a class="nav-item" data-section="gastos" data-tooltip="Gastos" onclick="goSection('gastos')"><i class="fa-solid fa-wallet"></i><span class="nav-item-text">Gastos</span></a>
 				<a class="nav-item" data-section="inventario" data-tooltip="Inventario" onclick="goSection('inventario')"><i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-text">Inventario</span></a>
 				<a class="nav-item" data-section="op-mis-registros" data-tooltip="Mis registros" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i><span class="nav-item-text">Mis registros</span></a>
@@ -1516,6 +1641,115 @@
         </div>
       </div>
     </div>
+    <!-- ══════════ OPERACIONES: PUNTO DE VENTA ══════════ -->
+    <div class="section" id="sec-pos">
+      <div class="modulo-aviso" id="pos-aviso" hidden></div>
+      <div class="pos-grid">
+        <!-- Productos -->
+        <div class="pos-left">
+          <div class="glass-card pos-scan-card">
+            <div class="pos-scan">
+              <i class="fa-solid fa-barcode"></i>
+              <input type="text" id="pos-scan" placeholder="Escanea el código o escribe el nombre del producto" autocomplete="off" spellcheck="false"
+                     oninput="posBuscar()" onkeydown="posTeclaScan(event)" aria-label="Código o nombre del producto"/>
+              <button type="button" class="btn-secondary" onclick="escanearConCamara(posAgregarPorCodigo, true)" data-tip="Escanear con la cámara del equipo"><i class="fa-solid fa-camera"></i><span class="hide-sm"> Cámara</span></button>
+            </div>
+            <div class="pos-scan-hint" id="pos-scan-hint"><i class="fa-solid fa-circle-check"></i> Listo para escanear: con lector de códigos, el producto se agrega solo.</div>
+            <div id="pos-resultados" class="pos-resultados" hidden></div>
+          </div>
+
+          <div class="glass-card" style="padding:1rem 1.1rem;">
+            <div class="pos-cats" id="pos-cats"></div>
+            <div class="pos-productos" id="pos-productos"></div>
+          </div>
+        </div>
+
+        <!-- Carrito -->
+        <div class="glass-card pos-cart">
+          <div class="pos-cart-head">
+            <h3 class="card-title" style="margin:0;"><i class="fa-solid fa-cart-shopping"></i>Venta actual <span class="badge badge-blue" id="pos-count">0</span></h3>
+            <button type="button" class="btn-secondary btn-xs" onclick="posVaciar()" data-tip="Vaciar venta"><i class="fa-solid fa-trash-can"></i> Vaciar</button>
+          </div>
+          <div class="pos-items" id="pos-items"></div>
+
+          <div class="pos-campos">
+            <div class="pos-fila2">
+              <div><label class="field-label" for="pos-cliente">Cliente (opcional)</label><input type="text" id="pos-cliente" class="field-input" maxlength="80" placeholder="Nombre"/></div>
+              <div><label class="field-label" for="pos-descuento">Descuento</label><div class="input-money"><span>$</span><input type="text" id="pos-descuento" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);posRender()"/></div></div>
+            </div>
+            <label class="field-label" style="margin-top:0.65rem;">Método de pago</label>
+            <div class="seg pos-metodos" role="radiogroup">
+              <button type="button" class="seg-btn active" data-metodo="efectivo" onclick="posMetodo('efectivo')"><i class="fa-solid fa-money-bill-wave"></i> Efectivo</button>
+              <button type="button" class="seg-btn" data-metodo="transferencia" onclick="posMetodo('transferencia')"><i class="fa-solid fa-building-columns"></i> Transf.</button>
+              <button type="button" class="seg-btn" data-metodo="nequi" onclick="posMetodo('nequi')"><i class="fa-solid fa-mobile-screen"></i> Nequi</button>
+              <button type="button" class="seg-btn" data-metodo="tarjeta" onclick="posMetodo('tarjeta')"><i class="fa-regular fa-credit-card"></i> Tarjeta</button>
+            </div>
+            <div id="pos-efectivo">
+              <div class="pos-fila2">
+                <div><label class="field-label" for="pos-recibido">Recibido</label><div class="input-money"><span>$</span><input type="text" id="pos-recibido" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);posRender()"/></div></div>
+                <div><label class="field-label">Cambio</label><div class="pos-cambio" id="pos-cambio">$0</div></div>
+              </div>
+              <div class="pos-billetes" id="pos-billetes"></div>
+            </div>
+          </div>
+
+          <div class="pos-totales">
+            <div><span>Subtotal</span><span id="pos-subtotal">$0</span></div>
+            <div id="pos-desc-row" hidden><span>Descuento</span><span id="pos-desc-val">−$0</span></div>
+            <div class="pos-total"><span>Total</span><span id="pos-total">$0</span></div>
+          </div>
+          <button type="button" class="btn-primary pos-cobrar" id="pos-btn-cobrar" onclick="posCobrar()" disabled>
+            <i class="fa-solid fa-cash-register"></i> Cobrar <kbd>F2</kbd>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ OPERACIONES: HISTORIAL DE VENTAS ══════════ -->
+    <div class="section" id="sec-ventas">
+      <div class="modulo-aviso" id="ventas-aviso" hidden></div>
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="ventas-search" class="search-input" placeholder="N.º de venta, cliente o producto..." oninput="renderVentas()" aria-label="Buscar venta"/>
+        </div>
+        <input type="date" id="ventas-desde" class="field-input" style="width:auto;" onchange="loadVentas()" aria-label="Desde"/>
+        <input type="date" id="ventas-hasta" class="field-input" style="width:auto;" onchange="loadVentas()" aria-label="Hasta"/>
+        <select id="ventas-metodo" class="field-input" style="width:auto;" onchange="renderVentas()" aria-label="Método de pago">
+          <option value="">Todos los métodos</option><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="nequi">Nequi / Daviplata</option><option value="tarjeta">Tarjeta</option>
+        </select>
+        <select id="ventas-estado" class="field-input" style="width:auto;" onchange="renderVentas()" aria-label="Estado">
+          <option value="completada">Completadas</option><option value="anulada">Anuladas</option><option value="">Todas</option>
+        </select>
+        <div class="filter-actions">
+          <button class="btn-secondary" onclick="exportarVentas()"><i class="fa-solid fa-file-excel"></i> Exportar</button>
+          <button class="btn-primary" onclick="goSection('pos')"><i class="fa-solid fa-cash-register"></i> Nueva venta</button>
+        </div>
+      </div>
+
+      <div class="grid-4" id="ventas-kpis" style="margin-bottom:1rem;"></div>
+
+      <div class="grid-2" style="margin-bottom:1rem;">
+        <div class="glass-card" style="padding:1.25rem;">
+          <h3 class="card-title"><i class="fa-solid fa-chart-column"></i>Ventas por día</h3>
+          <div class="chart-container" style="height:220px;"><canvas id="chart-ventas-dia"></canvas><div id="ventas-chart-vacio" class="chart-vacio">Sin ventas en el período</div></div>
+        </div>
+        <div class="glass-card" style="padding:1.25rem;">
+          <h3 class="card-title"><i class="fa-solid fa-ranking-star"></i>Productos más vendidos</h3>
+          <div id="ventas-top"></div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="overflow:hidden;">
+        <div class="table-wrapper">
+          <table class="premium-table table-cards">
+            <thead><tr><th>N.º</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Método</th><th>Vendedor</th><th class="num">Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="ventas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- ══════════ OPERACIONES: GASTOS ══════════ -->
     <div class="section" id="sec-gastos">
       <div class="modulo-aviso" id="gastos-aviso" hidden></div>
@@ -2030,6 +2264,86 @@
 </div>
 
 <!-- Modal: Sucursal -->
+<!-- ══════════ MODAL: ESCÁNER CON CÁMARA ══════════ -->
+<div id="modal-camara" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <h3>Escanear código</h3>
+      <button class="icon-btn" onclick="cerrarCamara()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="camara-marco">
+      <video id="camara-video" playsinline muted></video>
+      <div class="camara-guia"></div>
+    </div>
+    <p class="form-hint" id="camara-estado" style="text-align:center;">Apunta la cámara al código de barras.</p>
+    <div class="modal-actions" style="justify-content:space-between;">
+      <select id="camara-dispositivo" class="field-input" style="width:auto;max-width:60%;" onchange="iniciarCamara()" aria-label="Cámara"></select>
+      <button class="btn-primary" onclick="cerrarCamara()"><i class="fa-solid fa-check"></i> Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: VENTA REGISTRADA ══════════ -->
+<div id="modal-venta-ok" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:400px;text-align:center;">
+    <div class="venta-ok-ico"><i class="fa-solid fa-check"></i></div>
+    <h3 class="venta-ok-titulo" id="venta-ok-titulo">Venta registrada</h3>
+    <div class="venta-ok-total" id="venta-ok-total">$0</div>
+    <div class="venta-ok-cambio" id="venta-ok-cambio"></div>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn-secondary" id="venta-ok-imprimir"><i class="fa-solid fa-print"></i> Imprimir comprobante</button>
+      <button class="btn-primary" onclick="closeModal('modal-venta-ok');posFoco()"><i class="fa-solid fa-plus"></i> Nueva venta <kbd>Enter</kbd></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: DETALLE DE VENTA ══════════ -->
+<div id="modal-venta-detalle" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:620px;">
+    <div class="modal-head">
+      <h3 id="venta-det-titulo">Venta</h3>
+      <button class="icon-btn" onclick="closeModal('modal-venta-detalle')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="venta-det-body"></div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: ANULAR VENTA ══════════ -->
+<div id="modal-anular-venta" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-head">
+      <h3 id="anular-titulo">Anular venta</h3>
+      <button class="icon-btn" onclick="closeModal('modal-anular-venta')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p class="form-hint" style="margin-top:0;">La venta queda registrada como anulada y los productos vuelven al inventario. Esta acción no se puede deshacer.</p>
+    <div style="margin-top:0.85rem;"><label class="field-label required" for="anular-motivo">Motivo</label><input type="text" id="anular-motivo" class="field-input" maxlength="160" placeholder="Ej: Error al registrar, devolución del cliente"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-anular-venta')">Cancelar</button>
+      <button class="btn-danger" id="btn-anular-venta" onclick="confirmarAnulacion()" style="padding:0.6rem 1rem;"><i class="fa-solid fa-ban"></i> Anular venta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: ETIQUETAS CON CÓDIGO DE BARRAS ══════════ -->
+<div id="modal-etiquetas" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <h3>Imprimir etiquetas</h3>
+      <button class="icon-btn" onclick="closeModal('modal-etiquetas')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="etiq-producto" class="etiq-producto"></div>
+    <div class="form-grid" style="margin-top:0.85rem;">
+      <div><label class="field-label" for="etiq-cantidad">Cantidad de etiquetas</label><input type="number" id="etiq-cantidad" class="field-input" min="1" max="500" value="1"/></div>
+      <div><label class="field-label" for="etiq-precio">Mostrar precio</label><select id="etiq-precio" class="field-input"><option value="1">Sí</option><option value="0">No</option></select></div>
+    </div>
+    <p class="form-hint">Se imprimen en hoja carta (3 por fila). Si el producto no tiene código de barras del fabricante, se usa su código interno.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-etiquetas')">Cancelar</button>
+      <button class="btn-primary" onclick="imprimirEtiquetas()"><i class="fa-solid fa-print"></i> Imprimir</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: GASTO ══════════ -->
 <div id="modal-gasto" class="modal-overlay" style="display:none;">
   <div class="modal-box">
@@ -2112,7 +2426,11 @@
     </div>
     <div class="form-grid">
       <div class="span-2"><label class="field-label required" for="prod-nombre">Nombre</label><input type="text" id="prod-nombre" class="field-input" maxlength="120" placeholder="Ej: Cuaderno argollado 100 hojas"/></div>
-      <div><label class="field-label" for="prod-codigo">Código</label><input type="text" id="prod-codigo" class="field-input" maxlength="40" placeholder="Opcional"/></div>
+      <div><label class="field-label" for="prod-codigo">Código interno</label><input type="text" id="prod-codigo" class="field-input" readonly placeholder="Se asigna automáticamente" style="background:var(--input-bg);"/></div>
+      <div><label class="field-label" for="prod-barras">Código de barras</label>
+        <div class="input-accion"><input type="text" id="prod-barras" class="field-input" maxlength="48" placeholder="Escanéalo o escríbelo" autocomplete="off"/>
+        <button type="button" class="icon-btn" data-tip="Escanear con la cámara" onclick="escanearConCamara(c => { document.getElementById('prod-barras').value = c; })"><i class="fa-solid fa-camera"></i></button></div>
+      </div>
       <div><label class="field-label" for="prod-categoria">Categoría</label><input type="text" id="prod-categoria" class="field-input" list="prod-categorias" maxlength="60" placeholder="Ej: Cuadernos"/><datalist id="prod-categorias"></datalist></div>
       <div><label class="field-label" for="prod-unidad">Unidad</label>
         <select id="prod-unidad" class="field-input"><option value="unidad">Unidad</option><option value="paquete">Paquete</option><option value="caja">Caja</option><option value="resma">Resma</option><option value="metro">Metro</option><option value="docena">Docena</option></select>
@@ -2863,11 +3181,11 @@
         <div>
           <label class="field-label">Duración *</label>
           <select id="st-sus-duracion" class="field-input" onchange="onStSusDuracionChange()">
-            <option value="1">1 mes</option>
-            <option value="2">2 meses</option>
-            <option value="3">3 meses</option>
-            <option value="6">6 meses</option>
-            <option value="12">12 meses</option>
+            <option value="1">1 mes (30 días)</option>
+            <option value="2">2 meses (60 días)</option>
+            <option value="3">3 meses (90 días)</option>
+            <option value="6">6 meses (180 días)</option>
+            <option value="12">12 meses (360 días)</option>
             <option value="custom">Personalizado...</option>
           </select>
         </div>
@@ -3049,11 +3367,11 @@
         <div>
           <label class="field-label">Duración *</label>
           <select id="renov-duracion" class="field-input" onchange="renovOnDuracionChange()">
-            <option value="1">1 mes</option>
-            <option value="2">2 meses</option>
-            <option value="3">3 meses</option>
-            <option value="6">6 meses</option>
-            <option value="12">12 meses</option>
+            <option value="1">1 mes (30 días)</option>
+            <option value="2">2 meses (60 días)</option>
+            <option value="3">3 meses (90 días)</option>
+            <option value="6">6 meses (180 días)</option>
+            <option value="12">12 meses (360 días)</option>
             <option value="custom">Personalizado...</option>
           </select>
         </div>
@@ -8063,9 +8381,11 @@ saveOperador = async function() {
 };
 
 // ── Helpers de fecha ──────────────────────────────────────────────────
+// Cada mes de servicio equivale a 30 días calendario exactos (3 meses = 90 días).
+const DIAS_POR_MES = 30;
 function calcVencimiento(fechaInicio, meses) {
   const d = new Date(fechaInicio + 'T00:00:00');
-  d.setMonth(d.getMonth() + parseInt(meses));
+  d.setDate(d.getDate() + DIAS_POR_MES * Math.max(1, parseInt(meses) || 1));
   return isoLocal(d);
 }
 
@@ -8651,10 +8971,10 @@ async function deleteStreamingSusGrupo(idVenta) {
   const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
   if (!items.length) return;
   const cli = allStClientes.find(c => c.id === items[0].cliente_id);
-  if (!confirm(`¿Eliminar la venta ${idVenta} de ${cli?.nombre||'cliente'} (${items.length} plataforma${items.length>1?'s':''})? Esta acción no se puede deshacer.`)) return;
   for (const s of items) {
     await sb.from('streaming_suscripciones').delete().eq('id', s.id);
   }
+  logAuditoria('eliminar', `Venta de streaming ${idVenta} eliminada (${cli?.nombre||'cliente'}, ${items.length} plataforma${items.length>1?'s':''})`);
   toast(`Venta ${idVenta} eliminada`, 'success');
   await loadStreamingSuscripciones();
 }
@@ -9088,7 +9408,7 @@ async function openHistorialCliente(clienteId) {
       <tr>
         <td style="font-weight:600;">${formatDate(p.fecha_pago)}</td>
         <td>${plat ? `${plat.emoji} ${plat.nombre}` : '—'}</td>
-        <td>${p.duracion_meses} mes${p.duracion_meses>1?'es':''}</td>
+        <td>${p.duracion_meses} mes${p.duracion_meses>1?'es':''} <span style="color:var(--text-muted);font-size:0.78rem;">(${(p.duracion_meses||1)*30} días)</span></td>
         <td style="color:#12A150;font-weight:700;">${formatCurrency(p.monto)}</td>
         <td style="color:#E5383B;">${formatCurrency(p.costo_real||0)}</td>
         <td style="color:#9A5BE8;font-weight:700;">${formatCurrency(p.ganancia||0)}</td>
@@ -9549,218 +9869,183 @@ async function generarIdVentaUnico() {
 }
 
 // 📄 GENERAR FACTURA PDF PROFESIONAL — NetPAYE Streaming
+// ── Valor en letras (pesos colombianos) ──────────────────────────────
+function numeroALetras(n) {
+  n = Math.round(Number(n) || 0);
+  if (n === 0) return 'CERO PESOS';
+  if (n === 1) return 'UN PESO';
+  const U = ['', 'UN', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE', 'DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE',
+             'DIECISÉIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE', 'VEINTE', 'VEINTIÚN', 'VEINTIDÓS', 'VEINTITRÉS', 'VEINTICUATRO', 'VEINTICINCO',
+             'VEINTISÉIS', 'VEINTISIETE', 'VEINTIOCHO', 'VEINTINUEVE'];
+  const D = ['', '', '', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
+  const C = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+  const cientos = x => {
+    if (x === 100) return 'CIEN';
+    const c = Math.floor(x / 100), r = x % 100;
+    let t = C[c];
+    if (r) t += (t ? ' ' : '') + (r < 30 ? U[r] : D[Math.floor(r / 10)] + (r % 10 ? ' Y ' + U[r % 10] : ''));
+    return t;
+  };
+  const partes = [];
+  const millones = Math.floor(n / 1e6), miles = Math.floor((n % 1e6) / 1000), resto = n % 1000;
+  if (millones) partes.push(millones === 1 ? 'UN MILLÓN' : cientos(millones) + ' MILLONES');
+  if (miles) partes.push(miles === 1 ? 'MIL' : cientos(miles) + ' MIL');
+  if (resto) partes.push(cientos(resto));
+  const txt = partes.join(' ');
+  return txt + ((!miles && !resto && millones) ? ' DE PESOS' : ' PESOS');
+}
+
 function generarFacturaPDF(idVenta) {
   const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
   if (!items.length) { toast('No se encontraron datos de la venta', 'error'); return; }
-
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const s0 = items[0];
   const cli = allStClientes.find(c => c.id === s0.cliente_id);
-  const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
-  const totalCosto = items.reduce((a, s) => {
-    const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-    return a + ((plat?.costo_real || 0) * (s.duracion_meses || 1));
-  }, 0);
-  const ganancia = totalMonto - totalCosto;
-  // Estado real de la venta para el badge de la factura
-  const _factEstado = items.every(s => s.estado === 'cancelado')
-    ? 'cancelado'
+  const total = items.reduce((a, s) => a + (Number(s.precio_venta) || 0), 0);
+  const estado = items.every(s => s.estado === 'cancelado') ? 'cancelado'
     : (items.filter(s => s.estado !== 'cancelado').map(s => calcEstadoSus(s.fecha_vencimiento))
-        .sort((a,b)=>['vencido','por_vencer','activo'].indexOf(a)-['vencido','por_vencer','activo'].indexOf(b))[0] || 'activo');
-  const _factBadge = ({
-    activo:     ['#DDF5E6','#0E8A44','✓ ACTIVO'],
-    por_vencer: ['#FEF3C7','#B7791F','⏳ POR VENCER'],
-    vencido:    ['#FDE3E3','#C9282B','● VENCIDO'],
-    cancelado:  ['#E4E2F0','#6E6A8E','⊘ CANCELADO']
-  })[_factEstado] || ['#DDF5E6','#0E8A44','✓ ACTIVO'];
-  const fechaEmision = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
-  const horaEmision  = new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+        .sort((a, b) => ['vencido', 'por_vencer', 'activo'].indexOf(a) - ['vencido', 'por_vencer', 'activo'].indexOf(b))[0] || 'activo');
+  const estadoTxt = { activo: 'Vigente', por_vencer: 'Por vencer', vencido: 'Vencida', cancelado: 'Cancelada' }[estado];
+  const estadoColor = { activo: '#0E8A44', por_vencer: '#B7791F', vencido: '#C9282B', cancelado: '#6E6A8E' }[estado];
+  const ahora = new Date();
+  const fechaEmision = ahora.toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
+  const horaEmision = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  const base = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
+  const dias = s => (Number(s.duracion_meses) || 1) * 30;
 
-  const filasPlataformas = items.map((s, i) => {
+  const filas = items.map((s, i) => {
     const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
-    const bg = i % 2 === 0 ? '#ffffff' : '#F7F7FC';
-    return `
-    <tr style="background:${bg};">
-      <td style="padding:10px 16px;border-bottom:1px solid #F1F0F8;font-size:13px;">
-        <span style="display:inline-flex;align-items:center;gap:6px;">
-          <span style="font-size:16px;">${plat?.emoji||'🎬'}</span>
-          <strong>${plat?.nombre||'—'}</strong>
-        </span>
-      </td>
-      <td style="padding:10px 16px;border-bottom:1px solid #F1F0F8;font-size:13px;color:#6E6A8E;">${s.perfil||'Estándar'}</td>
-      <td style="padding:10px 16px;border-bottom:1px solid #F1F0F8;font-size:13px;text-align:center;">${s.duracion_meses||1} mes${(s.duracion_meses||1)>1?'es':''}</td>
-      <td style="padding:10px 16px;border-bottom:1px solid #F1F0F8;font-size:13px;text-align:right;font-weight:700;color:#0E8A44;">${formatCurrency(s.precio_venta)}</td>
+    return `<tr>
+      <td class="c">${i + 1}</td>
+      <td><div class="item">${esc(plat?.nombre || 'Plataforma')}</div><div class="muted">Perfil: ${esc(s.perfil || 'Estándar')}${s.estado === 'cancelado' ? ' · Cancelado' : ''}</div></td>
+      <td class="c">${formatDate(s.fecha_inicio)}<br><span class="muted">al ${formatDate(s.fecha_vencimiento)}</span></td>
+      <td class="c">${dias(s)} días</td>
+      <td class="r">${formatCurrency(Number(s.precio_venta) || 0)}</td>
     </tr>`;
   }).join('');
 
   const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"/>
-<title>Factura ${idVenta}</title>
+<html lang="es"><head><meta charset="UTF-8"/>
+<title>Factura ${esc(idVenta)} · Haliel Papelería</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Figtree',Arial,Helvetica,sans-serif;background:#F7F7FC;color:#1B1740;font-size:14px;}
-  @media print{
-    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .no-print{display:none!important;}
-  }
-  .no-print{position:fixed;top:16px;right:16px;display:flex;gap:8px;z-index:99;}
-  .btn-p{background:#5B3FD9;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(91,63,217,0.4);}
-  .btn-c{background:#F1F0F8;color:#6E6A8E;border:1px solid #E4E2F0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;}
-  .factura{max-width:720px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden;}
-  .header{background:linear-gradient(135deg,#1B1740 0%,#2A2550 60%,#5B3FD9 100%);padding:36px 40px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;}
-  .brand-logo{font-size:28px;font-weight:900;letter-spacing:-1px;font-family:'Arial Black',Arial,sans-serif;}
-  .brand-sub{font-size:11px;opacity:0.7;margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;}
-  .factura-label{text-align:right;}
-  .factura-num{font-size:20px;font-weight:800;letter-spacing:1px;color:#9B8CFF;}
-  .factura-tipo{font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;}
-  .estado-band{background:#5B3FD9;padding:10px 40px;display:flex;justify-content:space-between;align-items:center;}
-  .estado-band span{color:#fff;font-size:12px;opacity:0.85;}
-  .estado-band strong{color:#fff;font-size:12px;}
-  .body{padding:36px 40px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;}
-  .info-box{background:#F7F7FC;border:1px solid #E4E2F0;border-radius:10px;padding:16px 20px;}
-  .info-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6E6A8E;margin-bottom:10px;}
-  .info-val{font-size:14px;font-weight:600;color:#1B1740;margin-bottom:3px;}
-  .info-muted{font-size:12px;color:#A29FBF;}
-  table{width:100%;border-collapse:collapse;}
-  thead th{background:#2A2550;color:#fff;padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
-  thead th:last-child{text-align:right;}
-  .totals{margin-top:20px;display:flex;justify-content:flex-end;}
-  .totals-box{width:280px;background:#F7F7FC;border:1px solid #E4E2F0;border-radius:10px;overflow:hidden;}
-  .total-row{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #E4E2F0;font-size:13px;}
-  .total-row:last-child{border-bottom:none;}
-  .total-final{background:#1B1740;color:#fff;font-weight:800;font-size:15px;}
-  .total-final span:last-child{color:#4CC985;}
-  .notas-box{margin-top:20px;background:#F2F0FF;border:1px solid #D2CAFF;border-radius:10px;padding:14px 18px;}
-  .notas-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#5B3FD9;margin-bottom:6px;}
-  .footer{background:#F7F7FC;border-top:1px solid #E4E2F0;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;}
-  .footer-brand{font-size:11px;color:#A29FBF;}
-  .footer-legal{font-size:10px;color:#D3D1E4;text-align:right;}
-  .badge-vigente{background:#DDF5E6;color:#0E8A44;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
-</style>
-</head>
+  @page { size: letter; margin: 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Figtree', Arial, sans-serif; color: #1B1740; background: #EEEDF5; font-size: 12.5px; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .barra { position: sticky; top: 0; display: flex; justify-content: center; gap: 10px; padding: 14px; background: #1B1740; }
+  .barra button { font: 600 13px 'Figtree', Arial; border: 0; border-radius: 9px; padding: 10px 18px; cursor: pointer; }
+  .b1 { background: #5B3FD9; color: #fff; } .b2 { background: #ffffff22; color: #fff; }
+  .hoja { max-width: 800px; margin: 24px auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px -30px rgba(27,23,64,.45); }
+  .franja { height: 6px; background: linear-gradient(90deg,#8E5CF0 0 16.6%,#E5383B 16.6% 33.3%,#F5B70A 33.3% 50%,#E64A8B 50% 66.6%,#12A150 66.6% 83.3%,#2F6FE0 83.3% 100%); }
+  .pad { padding: 32px 40px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+  .logo { width: 170px; height: auto; display: block; margin: -10px 0 4px -6px; }
+  .emisor { font-size: 11.5px; color: #545074; }
+  .emisor strong { color: #1B1740; font-size: 13px; }
+  .doc { text-align: right; }
+  .doc h1 { font-family: 'Bricolage Grotesque', Arial, sans-serif; font-size: 26px; letter-spacing: -.02em; line-height: 1; }
+  .doc .num { font-size: 15px; font-weight: 700; color: #5B3FD9; margin: 6px 0 10px; }
+  .meta { display: grid; grid-template-columns: auto auto; gap: 2px 12px; justify-content: end; font-size: 11.5px; }
+  .meta span:nth-child(odd) { color: #6E6A8E; text-align: right; }
+  .meta span:nth-child(even) { font-weight: 600; text-align: right; }
+  .estado { display: inline-block; margin-top: 10px; padding: 3px 11px; border-radius: 99px; font-size: 11px; font-weight: 700; border: 1.5px solid currentColor; }
+  .bloques { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 26px; }
+  .bloque { border: 1px solid #E4E2F0; border-radius: 10px; padding: 14px 16px; }
+  .bloque h3 { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6E6A8E; margin-bottom: 6px; }
+  .bloque .nom { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .muted { color: #6E6A8E; font-size: 11.5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  thead th { background: #1B1740; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 9px 12px; text-align: left; }
+  thead th:first-child { border-radius: 8px 0 0 8px; } thead th:last-child { border-radius: 0 8px 8px 0; }
+  tbody td { padding: 11px 12px; border-bottom: 1px solid #EFEEF6; vertical-align: top; }
+  .item { font-weight: 700; font-size: 13px; }
+  .c { text-align: center; } .r { text-align: right; font-weight: 700; white-space: nowrap; }
+  .resumen { display: grid; grid-template-columns: 1fr 280px; gap: 24px; margin-top: 20px; align-items: start; }
+  .letras { border-left: 3px solid #5B3FD9; padding: 4px 0 4px 12px; font-size: 11.5px; }
+  .letras strong { display: block; font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: #6E6A8E; margin-bottom: 2px; }
+  .totales div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #E4E2F0; }
+  .totales .gran { border: 0; margin-top: 6px; padding: 12px 14px; background: #F2F0FF; border-radius: 10px; font-size: 16px; font-weight: 800; color: #3F2AA8; }
+  .notas { margin-top: 22px; padding: 12px 14px; background: #F7F7FC; border-radius: 10px; font-size: 11.5px; }
+  .condiciones { margin-top: 22px; font-size: 10.5px; color: #6E6A8E; }
+  .condiciones li { margin: 2px 0 2px 16px; }
+  .pie { display: flex; justify-content: space-between; gap: 16px; padding: 16px 40px; background: #F7F7FC; border-top: 1px solid #E4E2F0; font-size: 10.5px; color: #6E6A8E; }
+  @media print { body { background: #fff; } .barra { display: none; } .hoja { margin: 0; box-shadow: none; border-radius: 0; max-width: none; } }
+</style></head>
 <body>
-
-<div class="no-print">
-  <button class="btn-p" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-  <button class="btn-c" onclick="window.close()">✕ Cerrar</button>
-</div>
-
-<div class="factura">
-
-  <!-- HEADER -->
-  <div class="header">
-    <div>
-      <div class="brand-logo">NetPAYE</div>
-      <div class="brand-sub">Streaming Services</div>
-      <div style="margin-top:12px;font-size:12px;opacity:0.6;">
-        📞 3134194976 &nbsp;·&nbsp; ✉️ papeleriahaliel@gmail.com<br/>
-        📍 Bucaramanga, Colombia
-      </div>
-    </div>
-    <div class="factura-label">
-      <div class="factura-tipo">Factura de Venta</div>
-      <div class="factura-num">${idVenta}</div>
-      <div style="font-size:11px;opacity:0.65;margin-top:8px;">Emitida: ${fechaEmision}</div>
-      <div style="font-size:11px;opacity:0.65;">${horaEmision} hrs</div>
-    </div>
-  </div>
-
-  <!-- BANDA ESTADO -->
-  <div class="estado-band">
-    <span>Vigencia: <strong>${formatDate(s0.fecha_inicio)} → ${formatDate(s0.fecha_vencimiento)}</strong></span>
-    <span>${items.length} plataforma${items.length>1?'s':''} · <strong>${s0.duracion_meses||1} mes${(s0.duracion_meses||1)>1?'es':''}</strong></span>
-    <span style="background:${_factBadge[0]};color:${_factBadge[1]};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">${_factBadge[2]}</span>
-  </div>
-
-  <div class="body">
-
-    <!-- INFO CLIENTE + VENTA -->
-    <div class="grid2">
-      <div class="info-box">
-        <div class="info-title">👤 Datos del Cliente</div>
-        <div class="info-val">${cli?.nombre||'—'}</div>
-        ${cli?.whatsapp ? `<div class="info-muted">📱 ${cli.whatsapp}</div>` : ''}
-        ${cli?.correo   ? `<div class="info-muted">✉️ ${cli.correo}</div>` : ''}
-        ${cli?.ciudad   ? `<div class="info-muted">📍 ${cli.ciudad}</div>` : ''}
-      </div>
-      <div class="info-box">
-        <div class="info-title">🧾 Datos de la Venta</div>
-        <div class="info-val">${idVenta}</div>
-        <div class="info-muted">Fecha inicio: ${formatDate(s0.fecha_inicio)}</div>
-        <div class="info-muted">Vencimiento: ${formatDate(s0.fecha_vencimiento)}</div>
-        <div class="info-muted">Duración: ${s0.duracion_meses||1} mes${(s0.duracion_meses||1)>1?'es':''}</div>
-      </div>
-    </div>
-
-    <!-- TABLA DE SERVICIOS -->
-    <table>
-      <thead>
-        <tr>
-          <th>Plataforma</th>
-          <th>Perfil / Tipo</th>
-          <th style="text-align:center;">Duración</th>
-          <th style="text-align:right;">Precio</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filasPlataformas}
-      </tbody>
-    </table>
-
-    <!-- TOTALES -->
-    <div class="totals">
-      <div class="totals-box">
-        <div class="total-row">
-          <span style="color:#6E6A8E;">Subtotal servicios:</span>
-          <span style="font-weight:600;">${formatCurrency(totalMonto)}</span>
+  <div class="barra"><button class="b1" onclick="window.print()">Imprimir o guardar PDF</button><button class="b2" onclick="window.close()">Cerrar</button></div>
+  <div class="hoja">
+    <div class="franja"></div>
+    <div class="pad">
+      <div class="top">
+        <div>
+          <img class="logo" src="${base}logo.png" alt="Haliel Papelería"/>
+          <div class="emisor"><strong>Haliel Papelería</strong> · NetPAYE Streaming<br>Bucaramanga, Santander, Colombia<br>Tel. 313 419 4976 · papeleriahaliel@gmail.com</div>
         </div>
-        ${totalCosto > 0 ? `<div class="total-row">
-          <span style="color:#6E6A8E;">Costo operativo:</span>
-          <span style="color:#C9282B;font-weight:600;">${formatCurrency(totalCosto)}</span>
-        </div>
-        <div class="total-row">
-          <span style="color:#6E6A8E;">Margen neto:</span>
-          <span style="color:#0E8A44;font-weight:600;">${formatCurrency(ganancia)}</span>
-        </div>` : ''}
-        <div class="total-row total-final">
-          <span>TOTAL A COBRAR</span>
-          <span>${formatCurrency(totalMonto)}</span>
+        <div class="doc">
+          <h1>Factura de venta</h1>
+          <div class="num">N.º ${esc(idVenta)}</div>
+          <div class="meta">
+            <span>Fecha de emisión</span><span>${fechaEmision}</span>
+            <span>Hora</span><span>${horaEmision}</span>
+            <span>Fecha de venta</span><span>${formatDate(s0.fecha_inicio)}</span>
+          </div>
+          <div class="estado" style="color:${estadoColor};">${estadoTxt}</div>
         </div>
       </div>
+
+      <div class="bloques">
+        <div class="bloque">
+          <h3>Facturado a</h3>
+          <div class="nom">${esc(cli?.nombre || 'Cliente')}</div>
+          ${cli?.whatsapp ? `<div class="muted">WhatsApp: ${esc(cli.whatsapp)}</div>` : ''}
+          ${cli?.correo ? `<div class="muted">${esc(cli.correo)}</div>` : ''}
+          ${cli?.ciudad ? `<div class="muted">${esc(cli.ciudad)}</div>` : ''}
+        </div>
+        <div class="bloque">
+          <h3>Periodo del servicio</h3>
+          <div class="nom">${formatDate(s0.fecha_inicio)} – ${formatDate(s0.fecha_vencimiento)}</div>
+          <div class="muted">${dias(s0)} días calendario · ${items.length} plataforma${items.length > 1 ? 's' : ''}</div>
+          <div class="muted">Vence el ${formatDate(s0.fecha_vencimiento)}</div>
+        </div>
+      </div>
+
+      <table>
+        <thead><tr><th class="c" style="width:36px;">#</th><th>Descripción</th><th class="c">Periodo</th><th class="c">Duración</th><th style="text-align:right;">Valor</th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+
+      <div class="resumen">
+        <div class="letras"><strong>Valor en letras</strong>${numeroALetras(total)} M/CTE</div>
+        <div class="totales">
+          <div><span>Subtotal</span><span>${formatCurrency(total)}</span></div>
+          <div><span>Descuentos</span><span>$0</span></div>
+          <div class="gran"><span>Total</span><span>${formatCurrency(total)}</span></div>
+        </div>
+      </div>
+
+      ${s0.notas ? `<div class="notas"><strong>Notas:</strong> ${esc(s0.notas)}</div>` : ''}
+
+      <div class="condiciones">
+        <strong>Condiciones del servicio</strong>
+        <ul>
+          <li>Cada mes de servicio corresponde a 30 días calendario contados desde la fecha de inicio.</li>
+          <li>Para no perder el acceso, renueva antes de la fecha de vencimiento.</li>
+          <li>Las cuentas son de uso personal; no compartas los datos de acceso.</li>
+        </ul>
+      </div>
     </div>
-
-    <!-- NOTAS -->
-    ${s0.notas ? `
-    <div class="notas-box">
-      <div class="notas-title">📝 Notas</div>
-      <div style="font-size:13px;color:#3F2AA8;">${s0.notas}</div>
-    </div>` : ''}
-
+    <div class="pie">
+      <span>Gracias por tu compra.</span>
+      <span>Generado el ${fechaEmision}, ${horaEmision} · Comprobante interno; no constituye factura electrónica ante la DIAN.</span>
+    </div>
   </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <div class="footer-brand">
-      <strong>NetPAYE Streaming</strong> · Haliel Papelería<br/>
-      📞 3134194976 · ✉️ papeleriahaliel@gmail.com
-    </div>
-    <div class="footer-legal">
-      Este documento es un comprobante de servicio.<br/>
-      Generado el ${fechaEmision} · ${horaEmision}
-    </div>
-  </div>
-
-</div>
-</body>
-</html>`;
+</body></html>`;
 
   const win = window.open('', '_blank');
-  if (!win) { toast('Activa las ventanas emergentes para generar la factura', 'error'); return; }
+  if (!win) { toast('Permite las ventanas emergentes para ver la factura', 'error'); return; }
   win.document.write(html);
   win.document.close();
-  toast('Factura generada ✅ — usa Ctrl+P para guardar como PDF', 'success');
+  toast('Factura lista: usa "Imprimir o guardar PDF"', 'success');
 }
 
 // ── MODAL PLATAFORMAS GESTIÓN ─────────────────────────────────────────
@@ -9790,6 +10075,13 @@ function openModalCalendarioCobros() {
 }
 
 async function loadStreamingCalendarioModal(filtro = 'semana') {
+  window._calFiltro = filtro;
+  // Resaltar el filtro elegido
+  document.querySelectorAll('#modal-calendario-cobros button[onclick^="loadStreamingCalendarioModal"]').forEach(btn => {
+    const f = (btn.getAttribute('onclick').match(/'([^']+)'/) || [])[1];
+    if (f === 'vencidos') { btn.className = 'btn-danger'; btn.classList.toggle('cal-filtro-on', f === filtro); }
+    else btn.className = f === filtro ? 'btn-primary' : 'btn-secondary';
+  });
   if (!allStSuscripciones.length) await loadStreamingSuscripciones();
   const hoy     = todayLocal();
   const enXDias = d => { const f = new Date(hoy + 'T00:00:00'); f.setDate(f.getDate() + d); return isoLocal(f); };
@@ -9831,10 +10123,21 @@ async function loadStreamingCalendarioModal(filtro = 'semana') {
         <div style="text-align:right;">
           <div style="font-size:0.75rem;color:var(--text-muted);">Vence</div>
           <div style="font-weight:700;font-size:0.88rem;">${formatDate(s.fecha_vencimiento)}</div>
-          <button class="btn-primary" style="margin-top:0.4rem;padding:0.35rem 0.75rem;font-size:0.75rem;"
-            onclick="abrirModalCobro('${s.id_venta || s.id}','${s.cliente_id}');closeModal('modal-calendario-cobros');">
-            <i class="fa-brands fa-whatsapp"></i> Cobrar
-          </button>
+          <div class="cal-acciones">
+            <button class="btn-primary" data-tip="Enviar cobro por WhatsApp"
+              onclick="abrirModalCobro('${s.id_venta || s.id}','${s.cliente_id}');closeModal('modal-calendario-cobros');">
+              <i class="fa-brands fa-whatsapp"></i> Cobrar
+            </button>
+            <button class="btn-secondary cal-renovar" data-tip="Renovar"
+              onclick="closeModal('modal-calendario-cobros');renovarVenta('${s.id_venta || s.id}');">
+              <i class="fa-solid fa-rotate"></i> Renovar
+            </button>
+            <button class="btn-edit" data-tip="Factura PDF" onclick="generarFacturaPDF('${s.id_venta || s.id}')"><i class="fa-solid fa-file-invoice"></i></button>
+            <button class="btn-danger" data-tip="Eliminar venta"
+              onclick="confirmarEliminar('¿Eliminar la venta ${s.id_venta || ''} de ${(cli?.nombre || 'este cliente').replace(/['"<>]/g, '')}? Se eliminan todas sus plataformas.', async () => { await deleteStreamingSusGrupo('${s.id_venta || s.id}'); loadStreamingCalendarioModal(window._calFiltro || 'semana'); })">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -12071,7 +12374,7 @@ function renderInventario() {
   const fst = document.getElementById('inv-filter-stock')?.value || '';
   const activos = allProductos.filter(p => p.activo !== false);
   const lista = allProductos.filter(p => (!cat || p.categoria === cat) && (!fst || estadoStock(p) === fst) &&
-    (!q || [p.nombre, p.codigo, p.categoria].some(v => (v || '').toLowerCase().includes(q))));
+    (!q || [p.nombre, p.codigo, p.codigo_barras, p.categoria].some(v => (v || '').toLowerCase().includes(q))));
 
   const valor = activos.reduce((a, p) => a + Number(p.stock || 0) * Number(p.costo || 0), 0);
   document.getElementById('inv-kpis').innerHTML = [
@@ -12092,7 +12395,7 @@ function renderInventario() {
     const st = estadoStock(p);
     const badge = st === 'agotado' ? 'badge-red' : st === 'bajo' ? 'badge-yellow' : 'badge-green';
     return `<tr${p.activo === false ? ' style="opacity:0.55;"' : ''}>
-      <td style="color:var(--text-muted);font-size:0.8rem;">${escHTML(p.codigo || '—')}</td>
+      <td style="color:var(--text-muted);font-size:0.8rem;">${escHTML(p.codigo || '—')}${p.codigo_barras ? `<div style="font-size:0.72rem;"><i class="fa-solid fa-barcode"></i> ${escHTML(p.codigo_barras)}</div>` : ''}</td>
       <td style="font-weight:600;">${escHTML(p.nombre)}${p.activo === false ? ' <span class="badge badge-muted">Inactivo</span>' : ''}</td>
       <td style="color:var(--text-muted);">${escHTML(p.categoria || '—')}</td>
       <td class="num"><span class="badge ${badge}">${Number(p.stock).toLocaleString('es-CO')} ${escHTML(unidadTxt(p.stock, p.unidad))}</span></td>
@@ -12104,6 +12407,7 @@ function renderInventario() {
         <button class="btn-secondary btn-xs" data-tip="Salida" onclick="abrirModalMovInv('${p.id}','salida')"><i class="fa-solid fa-minus"></i></button>
         <button class="btn-secondary btn-xs" data-tip="Entrada" onclick="abrirModalMovInv('${p.id}','entrada')"><i class="fa-solid fa-plus"></i></button>
         <button class="btn-edit" data-tip="Movimientos" onclick="verHistorialProducto('${p.id}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
+        <button class="btn-edit" data-tip="Imprimir etiquetas" onclick="abrirEtiquetas('${p.id}')"><i class="fa-solid fa-barcode"></i></button>
         ${esAdmin() ? `<button class="btn-edit" data-tip="Editar" onclick="abrirModalProducto('${p.id}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn-danger" data-tip="Eliminar" onclick="eliminarProducto('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
       </div></td>
@@ -12118,6 +12422,8 @@ function abrirModalProducto(id = null) {
   document.getElementById('modal-producto-title').textContent = p ? 'Editar producto' : 'Nuevo producto';
   document.getElementById('prod-nombre').value = p?.nombre || '';
   document.getElementById('prod-codigo').value = p?.codigo || '';
+  document.getElementById('prod-barras').value = p?.codigo_barras || (p ? '' : (window._codigoPendiente || ''));
+  window._codigoPendiente = '';
   document.getElementById('prod-categoria').value = p?.categoria || '';
   document.getElementById('prod-unidad').value = p?.unidad || 'unidad';
   document.getElementById('prod-minimo').value = p ? Number(p.stock_minimo || 0) : '';
@@ -12138,9 +12444,12 @@ async function guardarProducto() {
   clearErrors();
   const nombre = document.getElementById('prod-nombre').value.trim();
   if (!nombre) { showError('prod-nombre', 'Escribe el nombre del producto'); return; }
-  const codigo = document.getElementById('prod-codigo').value.trim() || null;
-  if (codigo && allProductos.some(p => p.codigo === codigo && p.id !== editingProductoId)) { showError('prod-codigo', 'Ya existe un producto con ese código'); return; }
-  const payload = { nombre, codigo, categoria: document.getElementById('prod-categoria').value.trim() || null,
+  const barras = document.getElementById('prod-barras').value.trim() || null;
+  if (barras) {
+    const otro = allProductos.find(p => p.id !== editingProductoId && (p.codigo_barras === barras || p.codigo === barras));
+    if (otro) { showError('prod-barras', `Ese código ya lo tiene "${otro.nombre}"`); return; }
+  }
+  const payload = { nombre, codigo_barras: barras, categoria: document.getElementById('prod-categoria').value.trim() || null,
     unidad: document.getElementById('prod-unidad').value, stock_minimo: Math.max(0, Number(document.getElementById('prod-minimo').value) || 0),
     costo: leerMoneda('prod-costo'), precio: leerMoneda('prod-precio') };
   if (editingProductoId) payload.activo = document.getElementById('prod-activo').value === 'true';
@@ -12266,7 +12575,7 @@ async function verHistorialProducto(id) {
 }
 
 function exportarInventario() {
-  const filas = allProductos.map(p => ({ Código: p.codigo || '', Producto: p.nombre, Categoría: p.categoria || '', Unidad: p.unidad, Stock: Number(p.stock),
+  const filas = allProductos.map(p => ({ Código: p.codigo || '', 'Código de barras': p.codigo_barras || '', Producto: p.nombre, Categoría: p.categoria || '', Unidad: p.unidad, Stock: Number(p.stock),
     'Stock mínimo': Number(p.stock_minimo || 0), Costo: Number(p.costo || 0), Precio: Number(p.precio || 0),
     'Valor a costo': Math.round(Number(p.stock || 0) * Number(p.costo || 0)), Estado: p.activo === false ? 'Inactivo' : ({ ok: 'OK', bajo: 'Stock bajo', agotado: 'Agotado' })[estadoStock(p)] }));
   if (descargarExcel([{ nombre: 'Inventario', filas }], `Haliel_Inventario_${todayLocal()}.xlsx`)) toast('Excel de inventario descargado', 'success');
@@ -12407,9 +12716,9 @@ async function construirIndiceBusqueda() {
       tipo: 'Usuarios', icono: 'fa-solid fa-user', titulo: u.nombre || u.correo, sub: [u.correo, u.rol, u.sucursal].filter(Boolean).join(' · '),
       abrir: () => irConBusqueda('operadores', '#sec-operadores .search-input', u.nombre || u.correo, v => filterOperadores(v)) }))));
   }
-  tareas.push(sb.from('productos').select('id,nombre,codigo,categoria,stock,unidad').then(({ data }) => (data || []).forEach(p => items.push({
+  tareas.push(sb.from('productos').select('*').then(({ data }) => (data || []).forEach(p => items.push({
     tipo: 'Productos', icono: 'fa-solid fa-box', titulo: p.nombre, sub: [p.codigo, p.categoria, `Stock ${Number(p.stock).toLocaleString('es-CO')} ${unidadTxt(p.stock, p.unidad)}`].filter(Boolean).join(' · '),
-    extra: p.codigo, abrir: () => irConBusqueda('inventario', 'inv-search', p.nombre, renderInventario) }))));
+    extra: [p.codigo, p.codigo_barras].filter(Boolean).join(' '), abrir: () => irConBusqueda('inventario', 'inv-search', p.nombre, renderInventario) }))));
   {
     let q = sb.from('registros').select('fecha,operador_nombre,movimientos,sucursal').order('fecha', { ascending: false }).limit(400);
     if (!admin) q = q.eq('operador_id', currentUser.id);
@@ -12573,6 +12882,726 @@ initApp = async function (user) {
   await _origInitAppModulos(user);
   document.body.classList.toggle('es-admin', esAdmin());
   setTimeout(revisarRespaldoPendiente, 1500);
+};
+</script>
+
+<script>
+// =====================================================================
+// MÓDULO DE VENTAS · Punto de venta, lector de códigos, historial
+// Requiere supabase/2026-10-ventas-y-vencimientos.sql
+// =====================================================================
+
+let posCarrito = [], posMetodoActual = 'efectivo', posCategoria = '', posSel = 0, posResultados = [], posProcesando = false;
+const POS_KEY = 'haliel-pos-carrito';
+const METODOS = { efectivo: 'Efectivo', transferencia: 'Transferencia', nequi: 'Nequi / Daviplata', tarjeta: 'Tarjeta' };
+
+function faltaFuncion(error) {
+  const m = (error?.message || '') + ' ' + (error?.code || '');
+  return /PGRST202|Could not find the function|function .* does not exist|codigo_barras/i.test(m);
+}
+
+// ── Sonidos cortos de confirmación (sin archivos externos) ──
+let _audioCtx = null;
+function pitido(ok = true) {
+  try {
+    _audioCtx = _audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = _audioCtx.createOscillator(), g = _audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = ok ? 1320 : 220;
+    g.gain.setValueAtTime(0.0001, _audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, _audioCtx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, _audioCtx.currentTime + (ok ? 0.12 : 0.3));
+    o.connect(g); g.connect(_audioCtx.destination); o.start(); o.stop(_audioCtx.currentTime + (ok ? 0.13 : 0.32));
+  } catch (_) {}
+}
+
+function cargarScript(url) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${url}"]`)) return res();
+    const s = document.createElement('script');
+    s.src = url; s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar ' + url));
+    document.head.appendChild(s);
+  });
+}
+
+// =====================================================================
+// PUNTO DE VENTA
+// =====================================================================
+async function posCargar() {
+  try { posCarrito = JSON.parse(localStorage.getItem(POS_KEY) || '[]'); } catch (_) { posCarrito = []; }
+  const { data, error } = await sb.from('productos').select('*').order('nombre');
+  avisoModulo('pos-aviso', faltaTabla(error));
+  allProductos = data || [];
+  // Actualiza precios y stock de lo que quedó en el carrito
+  posCarrito = posCarrito.map(l => {
+    const p = allProductos.find(x => x.id === l.id);
+    return p ? { ...l, nombre: p.nombre, stock: Number(p.stock), precioBase: Number(p.precio), precio: esAdmin() ? l.precio : Number(p.precio) } : null;
+  }).filter(Boolean);
+  posRenderCatalogo();
+  posRender();
+  posFoco();
+}
+
+function posFoco() { setTimeout(() => document.getElementById('pos-scan')?.focus(), 30); }
+const posActivo = () => document.getElementById('sec-pos')?.classList.contains('active');
+const codigoDe = p => p.codigo_barras || p.codigo || '';
+
+function posRenderCatalogo() {
+  const activos = allProductos.filter(p => p.activo !== false);
+  const cats = [...new Set(activos.map(p => p.categoria).filter(Boolean))].sort();
+  document.getElementById('pos-cats').innerHTML = ['', ...cats].map(c =>
+    `<button type="button" class="pos-cat${c === posCategoria ? ' active' : ''}" onclick="posCategoria='${escJS(c)}';posRenderCatalogo()">${c ? escHTML(c) : 'Todos'}</button>`).join('');
+  const lista = activos.filter(p => !posCategoria || p.categoria === posCategoria);
+  const cont = document.getElementById('pos-productos');
+  if (!lista.length) {
+    cont.innerHTML = emptyState('fa-boxes-stacked', 'Sin productos', esAdmin() ? 'Crea productos en Inventario para empezar a vender.' : 'Un administrador debe crear los productos en Inventario.');
+    return;
+  }
+  cont.innerHTML = lista.map(p => {
+    const sin = Number(p.stock) <= 0;
+    return `<button type="button" class="pos-prod${sin ? ' sin-stock' : ''}" onclick="posAgregarId('${p.id}')" ${sin ? 'disabled' : ''}>
+      <span class="pos-prod-nom">${escHTML(p.nombre)}</span>
+      <span class="pos-prod-precio">${formatCurrency(Number(p.precio))}</span>
+      <span class="pos-prod-stock">${sin ? 'Agotado' : `${Number(p.stock).toLocaleString('es-CO')} disp.`}</span>
+    </button>`;
+  }).join('');
+}
+
+function posBuscar() {
+  const q = normalizar(document.getElementById('pos-scan').value.trim());
+  const box = document.getElementById('pos-resultados');
+  if (q.length < 2) { box.hidden = true; posResultados = []; return; }
+  posResultados = allProductos.filter(p => p.activo !== false && normalizar([p.nombre, p.codigo, p.codigo_barras, p.categoria].join(' ')).includes(q)).slice(0, 8);
+  posSel = 0;
+  box.hidden = false;
+  box.innerHTML = posResultados.length ? posResultados.map((p, i) => `
+    <button type="button" class="pos-res${i === posSel ? ' sel' : ''}" onclick="posAgregarId('${p.id}')" onmouseenter="posMarcar(${i})">
+      <span><strong>${escHTML(p.nombre)}</strong><small>${escHTML(codigoDe(p))}${p.categoria ? ' · ' + escHTML(p.categoria) : ''}</small></span>
+      <span class="pos-res-der"><strong>${formatCurrency(Number(p.precio))}</strong><small>${Number(p.stock) <= 0 ? 'Agotado' : Number(p.stock).toLocaleString('es-CO') + ' disp.'}</small></span>
+    </button>`).join('')
+    : `<div class="pos-res-vacio">Sin coincidencias. Presiona Enter para buscarlo como código.</div>`;
+}
+function posMarcar(i) {
+  posSel = Math.max(0, Math.min(i, posResultados.length - 1));
+  document.querySelectorAll('.pos-res').forEach((b, k) => b.classList.toggle('sel', k === posSel));
+}
+
+function posTeclaScan(e) {
+  const box = document.getElementById('pos-resultados');
+  if (e.key === 'ArrowDown' && !box.hidden) { e.preventDefault(); posMarcar(posSel + 1); }
+  else if (e.key === 'ArrowUp' && !box.hidden) { e.preventDefault(); posMarcar(posSel - 1); }
+  else if (e.key === 'Escape') { e.target.value = ''; box.hidden = true; }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    const v = e.target.value.trim();
+    if (!v) { if (posCarrito.length) posCobrar(); return; }
+    // 1) código exacto (lector o digitado)  2) resultado seleccionado
+    if (!posAgregarPorCodigo(v, true)) {
+      if (posResultados[posSel]) posAgregarId(posResultados[posSel].id);
+      else posCodigoNoEncontrado(v);
+    }
+  }
+}
+
+function posBuscarCodigo(codigo) {
+  const c = String(codigo).trim().toLowerCase();
+  return allProductos.find(p => p.activo !== false && ((p.codigo_barras || '').toLowerCase() === c || (p.codigo || '').toLowerCase() === c));
+}
+
+// Devuelve true si encontró el producto. Lo usan el lector, la cámara y el teclado.
+function posAgregarPorCodigo(codigo, silencioso = false) {
+  const p = posBuscarCodigo(codigo);
+  if (!p) { if (!silencioso) posCodigoNoEncontrado(codigo); return false; }
+  posAgregar(p);
+  return true;
+}
+
+function posCodigoNoEncontrado(codigo) {
+  pitido(false);
+  const hint = document.getElementById('pos-scan-hint');
+  hint.className = 'pos-scan-hint error';
+  hint.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> No hay ningún producto con el código <strong>${escHTML(codigo)}</strong>.
+    ${esAdmin() ? `<button type="button" class="btn-secondary btn-xs" onclick="posCrearConCodigo('${escJS(codigo)}')"><i class="fa-solid fa-plus"></i> Crear producto con este código</button>` : 'Pide a un administrador que lo registre.'}`;
+  const inp = document.getElementById('pos-scan'); inp.select();
+}
+function posCrearConCodigo(codigo) {
+  window._codigoPendiente = codigo;
+  window._posCodigoCrear = codigo;
+  window._volverAPos = true;
+  abrirModalProducto();
+}
+function posHintOk(txt) {
+  const hint = document.getElementById('pos-scan-hint');
+  hint.className = 'pos-scan-hint ok';
+  hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${txt}`;
+}
+
+function posAgregarId(id) {
+  const p = allProductos.find(x => x.id === id);
+  if (p) posAgregar(p);
+}
+
+function posAgregar(p, cant = 1) {
+  const stock = Number(p.stock) || 0;
+  const linea = posCarrito.find(l => l.id === p.id);
+  const actual = linea ? linea.cantidad : 0;
+  if (actual + cant > stock) {
+    pitido(false);
+    toast(stock <= 0 ? `"${p.nombre}" está agotado` : `Solo hay ${stock.toLocaleString('es-CO')} de "${p.nombre}"`, 'error');
+    posFoco(); return;
+  }
+  if (linea) linea.cantidad += cant;
+  else posCarrito.unshift({ id: p.id, nombre: p.nombre, codigo: codigoDe(p), precio: Number(p.precio) || 0, precioBase: Number(p.precio) || 0, cantidad: cant, stock, unidad: p.unidad });
+  pitido(true);
+  posHintOk(`Agregado: <strong>${escHTML(p.nombre)}</strong>`);
+  const inp = document.getElementById('pos-scan');
+  inp.value = ''; document.getElementById('pos-resultados').hidden = true; posResultados = [];
+  posRender(p.id);
+  posFoco();
+}
+
+function posCantidad(id, valor) {
+  const l = posCarrito.find(x => x.id === id);
+  if (!l) return;
+  let n = Math.floor(Number(valor) || 0);
+  if (n > l.stock) { pitido(false); toast(`Solo hay ${l.stock.toLocaleString('es-CO')} de "${l.nombre}"`, 'error'); n = l.stock; }
+  if (n <= 0) posCarrito = posCarrito.filter(x => x.id !== id); else l.cantidad = n;
+  posRender();
+}
+function posPrecio(id, input) {
+  const l = posCarrito.find(x => x.id === id);
+  if (!l) return;
+  formatoMoneda(input);
+  l.precio = parseInt(input.value.replace(/\D/g, ''), 10) || 0;
+  posRender(null, true);
+}
+function posQuitar(id) { posCarrito = posCarrito.filter(x => x.id !== id); posRender(); posFoco(); }
+function posVaciar() {
+  if (!posCarrito.length) return;
+  if (!confirm('¿Vaciar la venta actual?')) return;
+  posLimpiar();
+}
+function posLimpiar() {
+  posCarrito = [];
+  ['pos-cliente', 'pos-descuento', 'pos-recibido'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  posMetodo('efectivo');
+  posRender();
+  posFoco();
+}
+function posMetodo(m) {
+  posMetodoActual = m;
+  document.querySelectorAll('.pos-metodos .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.metodo === m));
+  document.getElementById('pos-efectivo').hidden = m !== 'efectivo';
+  posRender();
+}
+
+function posTotales() {
+  const subtotal = posCarrito.reduce((a, l) => a + l.cantidad * l.precio, 0);
+  const descuento = Math.min(leerMoneda('pos-descuento'), subtotal);
+  const total = subtotal - descuento;
+  const recibido = leerMoneda('pos-recibido');
+  return { subtotal, descuento, total, recibido, cambio: recibido - total };
+}
+
+function posRender(resaltarId = null, sinItems = false) {
+  try { localStorage.setItem(POS_KEY, JSON.stringify(posCarrito)); } catch (_) {}
+  const admin = esAdmin();
+  const unidades = posCarrito.reduce((a, l) => a + l.cantidad, 0);
+  document.getElementById('pos-count').textContent = unidades;
+  if (!sinItems) {
+    document.getElementById('pos-items').innerHTML = posCarrito.length ? posCarrito.map(l => `
+      <div class="pos-item${l.id === resaltarId ? ' flash' : ''}">
+        <div class="pos-item-info">
+          <div class="pos-item-nom">${escHTML(l.nombre)}</div>
+          <div class="pos-item-sub">${escHTML(l.codigo)} · ${admin
+            ? `<span class="pos-precio-edit">$<input type="text" inputmode="numeric" value="${l.precio.toLocaleString('es-CO')}" onchange="posPrecio('${l.id}', this)" aria-label="Precio unitario"/></span>`
+            : formatCurrency(l.precio)} c/u</div>
+        </div>
+        <div class="pos-qty">
+          <button type="button" onclick="posCantidad('${l.id}', ${l.cantidad - 1})" aria-label="Quitar uno"><i class="fa-solid fa-minus"></i></button>
+          <input type="number" min="0" value="${l.cantidad}" onchange="posCantidad('${l.id}', this.value)" aria-label="Cantidad"/>
+          <button type="button" onclick="posCantidad('${l.id}', ${l.cantidad + 1})" aria-label="Agregar uno"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="pos-item-total">${formatCurrency(l.cantidad * l.precio)}</div>
+        <button type="button" class="pos-item-x" onclick="posQuitar('${l.id}')" aria-label="Quitar producto"><i class="fa-solid fa-xmark"></i></button>
+      </div>`).join('')
+      : `<div class="pos-vacio"><i class="fa-solid fa-barcode"></i><strong>Escanea un producto</strong><span>o búscalo por nombre para empezar la venta.</span></div>`;
+  }
+  const t = posTotales();
+  document.getElementById('pos-subtotal').textContent = formatCurrency(t.subtotal);
+  document.getElementById('pos-desc-row').hidden = !t.descuento;
+  document.getElementById('pos-desc-val').textContent = '−' + formatCurrency(t.descuento);
+  document.getElementById('pos-total').textContent = formatCurrency(t.total);
+  const camb = document.getElementById('pos-cambio');
+  if (posMetodoActual === 'efectivo' && t.recibido) {
+    camb.textContent = t.cambio >= 0 ? formatCurrency(t.cambio) : `Faltan ${formatCurrency(-t.cambio)}`;
+    camb.classList.toggle('falta', t.cambio < 0);
+  } else { camb.textContent = '$0'; camb.classList.remove('falta'); }
+  // Billetes sugeridos
+  const sug = [t.total, ...[2000, 5000, 10000, 20000, 50000, 100000].filter(b => b > t.total)].slice(0, 4);
+  document.getElementById('pos-billetes').innerHTML = t.total > 0 ? sug.map((b, i) =>
+    `<button type="button" class="pos-billete" onclick="ponerMoneda('pos-recibido', ${b});posRender()">${i === 0 ? 'Exacto' : formatCurrency(b)}</button>`).join('') : '';
+  const btn = document.getElementById('pos-btn-cobrar');
+  btn.disabled = !posCarrito.length || posProcesando || (posMetodoActual === 'efectivo' && t.recibido > 0 && t.cambio < 0);
+}
+
+async function posCobrar() {
+  if (!posCarrito.length || posProcesando) return;
+  const t = posTotales();
+  if (posMetodoActual === 'efectivo' && t.recibido && t.recibido < t.total) { pitido(false); showError('pos-recibido', 'El dinero recibido no alcanza'); return; }
+  posProcesando = true;
+  const btn = document.getElementById('pos-btn-cobrar');
+  btn.disabled = true; btn.classList.add('btn-loading');
+  const { data, error } = await sb.rpc('haliel_registrar_venta', {
+    p_venta: { metodo_pago: posMetodoActual, recibido: posMetodoActual === 'efectivo' && t.recibido ? t.recibido : null,
+               descuento: t.descuento, cliente_nombre: document.getElementById('pos-cliente').value.trim() },
+    p_items: posCarrito.map(l => ({ producto_id: l.id, cantidad: l.cantidad, precio_unitario: l.precio })),
+  });
+  posProcesando = false;
+  btn.classList.remove('btn-loading');
+  if (error) {
+    pitido(false);
+    toast(faltaFuncion(error) || faltaTabla(error) ? 'El módulo de ventas aún no está activado: ejecuta el script de ventas en Supabase.' : error.message, 'error');
+    posRender(); return;
+  }
+  const venta = Array.isArray(data) ? data[0] : data;
+  const cambio = posMetodoActual === 'efectivo' && t.recibido ? t.recibido - Number(venta.total) : null;
+  document.getElementById('venta-ok-titulo').textContent = `Venta #${venta.numero} registrada`;
+  document.getElementById('venta-ok-total').textContent = formatCurrency(Number(venta.total));
+  document.getElementById('venta-ok-cambio').innerHTML = cambio != null ? `Cambio: <strong>${formatCurrency(cambio)}</strong>` : METODOS[posMetodoActual];
+  document.getElementById('venta-ok-imprimir').onclick = () => imprimirComprobante(venta.id);
+  const vendidos = posCarrito.map(l => l.id);
+  posLimpiar();
+  openModal('modal-venta-ok');
+  setTimeout(() => document.querySelector('#modal-venta-ok .btn-primary')?.focus(), 50);
+  await posCargar();
+  // Aviso de stock bajo tras la venta
+  allProductos.filter(p => vendidos.includes(p.id) && estadoStock(p) !== 'ok')
+    .forEach(p => toast(`${p.nombre}: ${estadoStock(p) === 'agotado' ? 'se agotó' : `quedan ${Number(p.stock).toLocaleString('es-CO')}`}`, 'info'));
+}
+
+// ── Lector de código de barras (USB o Bluetooth) ──
+// Los lectores "escriben" el código muy rápido y terminan con Enter.
+// Si el cursor no está en el campo de búsqueda, igual se captura aquí.
+let _scanBuf = '', _scanUlt = 0;
+document.addEventListener('keydown', e => {
+  if (!posActivo() || !currentUser) return;
+  const abierto = [...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex');
+  if (e.key === 'F2') { e.preventDefault(); if (!abierto) posCobrar(); return; }
+  if (abierto) return;
+  const t = e.target;
+  if (t.id === 'pos-scan' || /INPUT|TEXTAREA|SELECT/.test(t.tagName)) return;
+  const ahora = Date.now();
+  if (ahora - _scanUlt > 80) _scanBuf = '';
+  _scanUlt = ahora;
+  if (e.key === 'Enter') {
+    if (_scanBuf.length >= 3) { e.preventDefault(); posAgregarPorCodigo(_scanBuf); }
+    _scanBuf = '';
+  } else if (e.key.length === 1) {
+    _scanBuf += e.key;
+  }
+});
+// Con la venta registrada en pantalla, Enter siempre inicia la siguiente venta
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('modal-venta-ok')?.style.display === 'flex') {
+    e.preventDefault(); e.stopPropagation(); closeModal('modal-venta-ok'); posFoco();
+  }
+}, true);
+
+// =====================================================================
+// ESCÁNER CON CÁMARA (celular o computador con cámara)
+// =====================================================================
+let camCallback = null, camContinuo = false, camStream = null, camLoop = null, camReader = null, camUltimo = { c: '', t: 0 };
+const ZXING_URL = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+
+function escanearConCamara(callback, continuo = false) {
+  if (!navigator.mediaDevices?.getUserMedia) { toast('Este navegador no permite usar la cámara', 'error'); return; }
+  camCallback = callback; camContinuo = continuo;
+  openModal('modal-camara');
+  iniciarCamara();
+}
+
+async function iniciarCamara() {
+  detenerCamara();
+  const video = document.getElementById('camara-video');
+  const estado = document.getElementById('camara-estado');
+  const devId = document.getElementById('camara-dispositivo').value || null;
+  estado.textContent = 'Abriendo la cámara…';
+  try {
+    let formatos = [];
+    if ('BarcodeDetector' in window) { try { formatos = await window.BarcodeDetector.getSupportedFormats(); } catch (_) {} }
+    if (formatos.length) {
+      camStream = await navigator.mediaDevices.getUserMedia({ video: devId ? { deviceId: { exact: devId } } : { facingMode: { ideal: 'environment' } } });
+      video.srcObject = camStream; await video.play();
+      const det = new window.BarcodeDetector({ formats: formatos });
+      camLoop = setInterval(async () => {
+        try { const r = await det.detect(video); if (r && r[0]) camDetectado(r[0].rawValue); } catch (_) {}
+      }, 220);
+    } else {
+      estado.textContent = 'Cargando el lector…';
+      await cargarScript(ZXING_URL);
+      camReader = new window.ZXing.BrowserMultiFormatReader();
+      await camReader.decodeFromVideoDevice(devId, video, res => { if (res) camDetectado(res.getText()); });
+    }
+    estado.textContent = camContinuo ? 'Apunta al código. Puedes escanear varios productos seguidos.' : 'Apunta la cámara al código de barras.';
+    llenarCamaras();
+  } catch (err) {
+    estado.innerHTML = /Permission|NotAllowed/i.test(err?.name + err?.message)
+      ? 'No hay permiso para usar la cámara. Actívalo en el candado de la barra de direcciones.'
+      : 'No se pudo abrir la cámara: ' + escHTML(err?.message || err);
+  }
+}
+
+async function llenarCamaras() {
+  const sel = document.getElementById('camara-dispositivo');
+  if (sel.options.length) return;
+  try {
+    const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+    sel.innerHTML = devs.map((d, i) => `<option value="${d.deviceId}">${escHTML(d.label || 'Cámara ' + (i + 1))}</option>`).join('');
+    sel.hidden = devs.length < 2;
+  } catch (_) { sel.hidden = true; }
+}
+
+function camDetectado(codigo) {
+  const ahora = Date.now();
+  if (codigo === camUltimo.c && ahora - camUltimo.t < 1800) return;
+  camUltimo = { c: codigo, t: ahora };
+  const cb = camCallback;
+  if (!camContinuo) { pitido(true); cerrarCamara(); }
+  else document.getElementById('camara-estado').innerHTML = `Leído: <strong>${escHTML(codigo)}</strong>`;
+  if (cb) cb(codigo);
+}
+
+function detenerCamara() {
+  clearInterval(camLoop); camLoop = null;
+  try { camReader?.reset(); } catch (_) {}
+  camReader = null;
+  camStream?.getTracks().forEach(t => t.stop()); camStream = null;
+  const v = document.getElementById('camara-video'); if (v) v.srcObject = null;
+}
+function cerrarCamara() {
+  detenerCamara();
+  closeModal('modal-camara');
+  if (posActivo()) posFoco();
+}
+
+// =====================================================================
+// COMPROBANTE DE VENTA (impresora térmica 80 mm o carta)
+// =====================================================================
+async function imprimirComprobante(ventaId) {
+  const win = window.open('', '_blank');
+  if (!win) { toast('Permite las ventanas emergentes para imprimir', 'error'); return; }
+  win.document.write('<p style="font-family:sans-serif;padding:2rem;">Preparando comprobante…</p>');
+  const [{ data: v }, { data: items }] = await Promise.all([
+    sb.from('ventas').select('*').eq('id', ventaId).maybeSingle(),
+    sb.from('venta_items').select('*').eq('venta_id', ventaId),
+  ]);
+  if (!v) { win.close(); toast('No se encontró la venta', 'error'); return; }
+  const fh = new Date(v.created_at || Date.now());
+  const filas = (items || []).map(i => `<tr><td colspan="3" class="n">${escHTML(i.nombre)}</td></tr>
+    <tr><td>${Number(i.cantidad).toLocaleString('es-CO')} x ${formatCurrency(Number(i.precio_unitario))}</td><td></td><td class="r">${formatCurrency(Number(i.subtotal))}</td></tr>`).join('');
+  const base = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
+  win.document.open();
+  win.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><title>Venta #${v.numero}</title>
+  <style>
+    @page { size: 80mm auto; margin: 4mm; }
+    body { font-family: 'Courier New', monospace; font-size: 12px; color: #000; width: 72mm; margin: 0 auto; }
+    .c { text-align: center; } .r { text-align: right; } .n { font-weight: bold; padding-top: 4px; }
+    img { width: 46mm; display: block; margin: 0 auto 4px; }
+    hr { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; } td { padding: 1px 0; vertical-align: top; }
+    .tot td { font-size: 15px; font-weight: bold; padding-top: 4px; }
+    .anulada { border: 2px solid #000; text-align: center; font-weight: bold; padding: 4px; margin: 6px 0; }
+    .no-print { text-align: center; margin: 12px 0; } .no-print button { font-size: 14px; padding: 8px 16px; }
+    @media print { .no-print { display: none; } }
+  </style></head><body>
+  <div class="no-print"><button onclick="print()">Imprimir</button> <button onclick="close()">Cerrar</button></div>
+  <img src="${base}logo.png" alt="Haliel"/>
+  <div class="c"><strong>HALIEL PAPELERÍA</strong><br>Bucaramanga · Tel. 313 419 4976</div>
+  <hr>
+  <div>Venta N.º: <strong>${v.numero}</strong><br>Fecha: ${fh.toLocaleDateString('es-CO')} ${fh.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}<br>Atendió: ${escHTML(v.operador_nombre || '')}${v.cliente_nombre ? `<br>Cliente: ${escHTML(v.cliente_nombre)}` : ''}</div>
+  ${v.estado === 'anulada' ? `<div class="anulada">VENTA ANULADA</div>` : ''}
+  <hr>
+  <table>${filas}</table>
+  <hr>
+  <table>
+    <tr><td>Subtotal</td><td class="r">${formatCurrency(Number(v.subtotal))}</td></tr>
+    ${Number(v.descuento) ? `<tr><td>Descuento</td><td class="r">-${formatCurrency(Number(v.descuento))}</td></tr>` : ''}
+    <tr class="tot"><td>TOTAL</td><td class="r">${formatCurrency(Number(v.total))}</td></tr>
+    <tr><td>Pago</td><td class="r">${METODOS[v.metodo_pago] || v.metodo_pago}</td></tr>
+    ${v.recibido != null ? `<tr><td>Recibido</td><td class="r">${formatCurrency(Number(v.recibido))}</td></tr><tr><td>Cambio</td><td class="r">${formatCurrency(Number(v.cambio || 0))}</td></tr>` : ''}
+  </table>
+  <hr>
+  <div class="c">¡Gracias por tu compra!<br><small>Comprobante interno, no es factura electrónica.</small></div>
+  <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// =====================================================================
+// ETIQUETAS CON CÓDIGO DE BARRAS
+// =====================================================================
+let etiquetaProductoId = null;
+function abrirEtiquetas(id) {
+  etiquetaProductoId = id;
+  const p = allProductos.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('etiq-producto').innerHTML = `<strong>${escHTML(p.nombre)}</strong><span>Código: ${escHTML(codigoDe(p) || 'sin código (ejecuta el script de ventas)')}</span>`;
+  document.getElementById('etiq-cantidad').value = Math.max(1, Math.min(60, Number(p.stock) || 1));
+  openModal('modal-etiquetas');
+}
+const JSBARCODE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js';
+async function imprimirEtiquetas() {
+  const p = allProductos.find(x => x.id === etiquetaProductoId);
+  const codigo = p && codigoDe(p);
+  if (!codigo) { toast('Este producto aún no tiene código', 'error'); return; }
+  const n = Math.max(1, Math.min(500, Number(document.getElementById('etiq-cantidad').value) || 1));
+  const conPrecio = document.getElementById('etiq-precio').value === '1';
+  const win = window.open('', '_blank');   // se abre de inmediato para que el navegador no la bloquee
+  if (!win) { toast('Permite las ventanas emergentes para imprimir', 'error'); return; }
+  win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generando etiquetas…</p>');
+  let svg = '';
+  try {
+    await cargarScript(JSBARCODE_URL);
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    window.JsBarcode(el, codigo, { format: 'CODE128', displayValue: true, fontSize: 14, height: 56, margin: 0, width: 1.6 });
+    el.setAttribute('class', 'bc');
+    el.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg = el.outerHTML;
+  } catch (e) {
+    win.close();
+    toast('No se pudo generar el código de barras. Revisa tu conexión a internet.', 'error');
+    return;
+  }
+  const una = `<div class="et"><div class="nom">${escHTML(p.nombre)}</div>${svg}${conPrecio ? `<div class="pr">${formatCurrency(Number(p.precio))}</div>` : ''}</div>`;
+  win.document.open();
+  win.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><title>Etiquetas · ${escHTML(p.nombre)}</title>
+  <style>
+    @page { size: letter; margin: 10mm; }
+    body { font-family: Arial, sans-serif; margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+    .et { border: 1px dashed #bbb; border-radius: 2mm; padding: 2.5mm; text-align: center; break-inside: avoid; }
+    .nom { font-size: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 1mm; }
+    .bc { width: 100%; height: 22mm; display: block; } .pr { font-size: 14px; font-weight: bold; margin-top: 1mm; }
+    .no-print { text-align: center; padding: 10px; } .no-print button { font-size: 14px; padding: 8px 16px; }
+    @media print { .no-print { display: none; } }
+  </style></head><body>
+  <div class="no-print"><button onclick="print()">Imprimir</button> <button onclick="close()">Cerrar</button></div>
+  <div class="grid">${una.repeat(n)}</div>
+  <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
+  </body></html>`);
+  win.document.close();
+  closeModal('modal-etiquetas');
+}
+
+// =====================================================================
+// HISTORIAL DE VENTAS
+// =====================================================================
+let allVentas = [], ventaAnularId = null;
+
+async function loadVentas() {
+  const d = document.getElementById('ventas-desde'), h = document.getElementById('ventas-hasta');
+  if (!d.value) d.value = todayLocal().slice(0, 8) + '01';
+  if (!h.value) h.value = todayLocal();
+  showSkeletons('ventas-tbody', 5, 'row');
+  let q = sb.from('ventas').select('*').gte('fecha', d.value).lte('fecha', h.value).order('numero', { ascending: false }).limit(2000);
+  if (!esAdmin()) q = q.eq('operador_id', currentUser.id);
+  const { data, error } = await q;
+  avisoModulo('ventas-aviso', faltaTabla(error));
+  if (error && !faltaTabla(error)) toast('Error al cargar ventas: ' + error.message, 'error');
+  allVentas = data || [];
+  const ids = allVentas.map(v => v.id);
+  const items = [];
+  for (let i = 0; i < ids.length; i += 150) {
+    const { data: it } = await sb.from('venta_items').select('*').in('venta_id', ids.slice(i, i + 150));
+    items.push(...(it || []));
+  }
+  allVentas.forEach(v => { v.items = items.filter(i => i.venta_id === v.id); });
+  renderVentas();
+}
+
+function ventasFiltradas() {
+  const q = normalizar(document.getElementById('ventas-search')?.value || '');
+  const met = document.getElementById('ventas-metodo')?.value || '';
+  const est = document.getElementById('ventas-estado')?.value ?? 'completada';
+  return allVentas.filter(v => (!met || v.metodo_pago === met) && (!est || v.estado === est) &&
+    (!q || normalizar(['#' + v.numero, v.numero, v.cliente_nombre, v.operador_nombre, ...(v.items || []).map(i => i.nombre + ' ' + (i.codigo || ''))].join(' ')).includes(q.replace(/^#/, ''))));
+}
+
+function renderVentas() {
+  const lista = ventasFiltradas();
+  const ok = lista.filter(v => v.estado === 'completada');
+  const total = ok.reduce((a, v) => a + Number(v.total || 0), 0);
+  const costo = ok.reduce((a, v) => a + Number(v.costo_total || 0), 0);
+  const unidades = ok.reduce((a, v) => a + (v.items || []).reduce((b, i) => b + Number(i.cantidad), 0), 0);
+  document.getElementById('ventas-kpis').innerHTML = [
+    kpiTile('fa-sack-dollar', '#12A150', formatCurrency(total), 'Total vendido'),
+    kpiTile('fa-receipt', '#5B3FD9', ok.length, `Ventas · ${unidades.toLocaleString('es-CO')} unidades`),
+    kpiTile('fa-ticket', '#2F6FE0', formatCurrency(ok.length ? Math.round(total / ok.length) : 0), 'Ticket promedio'),
+    esAdmin() ? kpiTile('fa-chart-line', '#9A5BE8', formatCurrency(total - costo), `Ganancia bruta · ${total ? Math.round((total - costo) / total * 100) : 0}% margen`)
+              : kpiTile('fa-ban', '#E5383B', lista.filter(v => v.estado === 'anulada').length, 'Anuladas'),
+  ].join('');
+
+  // Ventas por día
+  const porDia = {};
+  ok.forEach(v => { porDia[v.fecha] = (porDia[v.fecha] || 0) + Number(v.total || 0); });
+  const dias = Object.keys(porDia).sort();
+  document.getElementById('ventas-chart-vacio').hidden = !!dias.length;
+  destroyChart('ventas-dia');
+  const ctx = document.getElementById('chart-ventas-dia');
+  if (ctx && dias.length) {
+    const cc = chartColors();
+    charts['ventas-dia'] = new Chart(ctx, { type: 'bar',
+      data: { labels: dias.map(d => formatDate(d).slice(0, 5)), datasets: [{ label: 'Ventas', data: dias.map(d => porDia[d]), backgroundColor: 'rgba(91,63,217,0.75)', borderRadius: 6, borderSkipped: false }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ' ' + formatCurrency(it.parsed.y) } } },
+        scales: { x: { grid: { display: false }, ticks: { color: cc.text } }, y: { grid: { color: cc.grid }, ticks: { color: cc.text, callback: v => '$' + Number(v).toLocaleString('es-CO') } } } } });
+  }
+
+  // Más vendidos
+  const top = {};
+  ok.forEach(v => (v.items || []).forEach(i => {
+    const k = i.producto_id || i.nombre;
+    top[k] = top[k] || { nombre: i.nombre, cant: 0, valor: 0 };
+    top[k].cant += Number(i.cantidad); top[k].valor += Number(i.subtotal);
+  }));
+  const tops = Object.values(top).sort((a, b) => b.cant - a.cant).slice(0, 6);
+  const maxC = tops[0]?.cant || 1;
+  document.getElementById('ventas-top').innerHTML = tops.length ? tops.map((t, i) => `
+    <div class="top-prod"><span class="rank-num" style="background:var(--input-bg);color:var(--text-muted);">${i + 1}</span>
+      <div style="flex:1;min-width:0;"><div class="top-prod-nom">${escHTML(t.nombre)}</div><div class="progress-bar" style="height:6px;margin-top:4px;"><div class="progress-fill" style="width:${Math.round(t.cant / maxC * 100)}%;background:var(--primary);"></div></div></div>
+      <div class="top-prod-val"><strong>${t.cant.toLocaleString('es-CO')}</strong><small>${formatCurrency(t.valor)}</small></div></div>`).join('')
+    : `<p class="form-hint" style="text-align:center;padding:2rem 0;">Aún no hay ventas en este período.</p>`;
+
+  const tbody = document.getElementById('ventas-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="9">${emptyState('fa-receipt', 'Sin ventas en este período', 'Las ventas del punto de venta aparecerán aquí.', "goSection('pos')", 'Ir al punto de venta')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(v => {
+    const its = v.items || [];
+    const resumen = its.slice(0, 2).map(i => `${Number(i.cantidad)}× ${escHTML(i.nombre)}`).join(', ') + (its.length > 2 ? ` y ${its.length - 2} más` : '');
+    const fh = new Date(v.created_at || v.fecha);
+    return `<tr${v.estado === 'anulada' ? ' class="fila-anulada"' : ''}>
+      <td style="font-weight:700;color:var(--primary-text);">#${v.numero}</td>
+      <td>${formatDate(v.fecha)}<div style="font-size:0.75rem;color:var(--text-muted);">${fh.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div></td>
+      <td>${escHTML(v.cliente_nombre || '—')}</td>
+      <td style="max-width:260px;font-size:0.82rem;">${resumen || '—'}</td>
+      <td>${METODOS[v.metodo_pago] || escHTML(v.metodo_pago)}</td>
+      <td style="color:var(--text-muted);">${escHTML(v.operador_nombre || '—')}</td>
+      <td class="num" style="font-weight:700;">${formatCurrency(Number(v.total))}</td>
+      <td>${v.estado === 'anulada' ? '<span class="badge badge-red">Anulada</span>' : '<span class="badge badge-green">Completada</span>'}</td>
+      <td><div class="acciones">
+        <button class="btn-edit" data-tip="Ver detalle" onclick="verVenta('${v.id}')"><i class="fa-solid fa-eye"></i></button>
+        <button class="btn-edit" data-tip="Imprimir comprobante" onclick="imprimirComprobante('${v.id}')"><i class="fa-solid fa-print"></i></button>
+        ${esAdmin() && v.estado !== 'anulada' ? `<button class="btn-danger" data-tip="Anular venta" onclick="anularVenta('${v.id}')"><i class="fa-solid fa-ban"></i></button>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function verVenta(id) {
+  const v = allVentas.find(x => x.id === id);
+  if (!v) return;
+  const fh = new Date(v.created_at || v.fecha);
+  document.getElementById('venta-det-titulo').textContent = `Venta #${v.numero}`;
+  document.getElementById('venta-det-body').innerHTML = `
+    <div class="det-meta">
+      <div><span>Fecha</span><strong>${formatDate(v.fecha)} · ${fh.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></div>
+      <div><span>Vendedor</span><strong>${escHTML(v.operador_nombre || '—')}</strong></div>
+      <div><span>Cliente</span><strong>${escHTML(v.cliente_nombre || '—')}</strong></div>
+      <div><span>Pago</span><strong>${METODOS[v.metodo_pago] || escHTML(v.metodo_pago)}</strong></div>
+    </div>
+    ${v.estado === 'anulada' ? `<div class="modulo-aviso" style="margin-top:0.85rem;"><i class="fa-solid fa-ban" style="color:#E5383B;"></i><div><strong>Venta anulada por ${escHTML(v.anulada_por || '')}</strong><span>${escHTML(v.anulada_motivo || '')} · ${formatDateHour(v.anulada_at)}</span></div></div>` : ''}
+    <div class="table-wrapper" style="margin-top:0.85rem;"><table class="premium-table">
+      <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Subtotal</th></tr></thead>
+      <tbody>${(v.items || []).map(i => `<tr><td>${escHTML(i.nombre)}<div style="font-size:0.72rem;color:var(--text-muted);">${escHTML(i.codigo || '')}</div></td>
+        <td class="num">${Number(i.cantidad).toLocaleString('es-CO')}</td><td class="num">${formatCurrency(Number(i.precio_unitario))}</td><td class="num" style="font-weight:600;">${formatCurrency(Number(i.subtotal))}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <div class="pos-totales" style="margin-top:0.85rem;">
+      <div><span>Subtotal</span><span>${formatCurrency(Number(v.subtotal))}</span></div>
+      ${Number(v.descuento) ? `<div><span>Descuento</span><span>−${formatCurrency(Number(v.descuento))}</span></div>` : ''}
+      ${v.recibido != null ? `<div><span>Recibido / cambio</span><span>${formatCurrency(Number(v.recibido))} / ${formatCurrency(Number(v.cambio || 0))}</span></div>` : ''}
+      ${esAdmin() ? `<div><span>Costo de los productos</span><span>${formatCurrency(Number(v.costo_total || 0))}</span></div>` : ''}
+      <div class="pos-total"><span>Total</span><span>${formatCurrency(Number(v.total))}</span></div>
+    </div>
+    <div class="modal-actions">
+      ${esAdmin() && v.estado !== 'anulada' ? `<button class="btn-danger" style="padding:0.6rem 1rem;" onclick="closeModal('modal-venta-detalle');anularVenta('${v.id}')"><i class="fa-solid fa-ban"></i> Anular</button>` : ''}
+      <button class="btn-primary" onclick="imprimirComprobante('${v.id}')"><i class="fa-solid fa-print"></i> Imprimir comprobante</button>
+    </div>`;
+  openModal('modal-venta-detalle');
+}
+
+function anularVenta(id) {
+  const v = allVentas.find(x => x.id === id);
+  if (!v || !esAdmin()) return;
+  ventaAnularId = id;
+  document.getElementById('anular-titulo').textContent = `Anular venta #${v.numero} · ${formatCurrency(Number(v.total))}`;
+  document.getElementById('anular-motivo').value = '';
+  clearErrors();
+  openModal('modal-anular-venta');
+  setTimeout(() => document.getElementById('anular-motivo').focus(), 50);
+}
+async function confirmarAnulacion() {
+  const motivo = document.getElementById('anular-motivo').value.trim();
+  if (!motivo) { showError('anular-motivo', 'Escribe el motivo'); return; }
+  const btn = document.getElementById('btn-anular-venta');
+  btn.classList.add('btn-loading');
+  const { error } = await sb.rpc('haliel_anular_venta', { p_venta_id: ventaAnularId, p_motivo: motivo });
+  btn.classList.remove('btn-loading');
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Venta anulada y productos devueltos al inventario', 'success');
+  closeModal('modal-anular-venta');
+  loadVentas();
+}
+
+function exportarVentas() {
+  const lista = ventasFiltradas();
+  const ventas = lista.map(v => ({ 'N.º': v.numero, Fecha: v.fecha, Hora: new Date(v.created_at || v.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
+    Cliente: v.cliente_nombre || '', Vendedor: v.operador_nombre || '', 'Método de pago': METODOS[v.metodo_pago] || v.metodo_pago,
+    Subtotal: Number(v.subtotal), Descuento: Number(v.descuento), Total: Number(v.total), ...(esAdmin() ? { Costo: Number(v.costo_total || 0), Ganancia: Number(v.total) - Number(v.costo_total || 0) } : {}),
+    Estado: v.estado, 'Motivo anulación': v.anulada_motivo || '' }));
+  const detalle = lista.flatMap(v => (v.items || []).map(i => ({ 'Venta N.º': v.numero, Fecha: v.fecha, Código: i.codigo || '', Producto: i.nombre,
+    Cantidad: Number(i.cantidad), 'Precio unitario': Number(i.precio_unitario), Subtotal: Number(i.subtotal), Estado: v.estado })));
+  const d = document.getElementById('ventas-desde').value, h = document.getElementById('ventas-hasta').value;
+  if (descargarExcel([{ nombre: 'Ventas', filas: ventas }, { nombre: 'Detalle', filas: detalle }], `Haliel_Ventas_${d}_a_${h}.xlsx`)) toast('Excel de ventas descargado', 'success');
+}
+
+// =====================================================================
+// INTEGRACIÓN
+// =====================================================================
+Object.assign(sectionMap, {
+  'pos': { id: 'sec-pos', title: 'Punto de venta', sub: 'Vender productos del inventario', load: () => posCargar() },
+  'ventas': { id: 'sec-ventas', title: 'Historial de ventas', sub: 'Ventas de productos', load: () => loadVentas() },
+});
+Object.assign(SECTION_GROUP_MAP, { 'pos': 'operaciones', 'ventas': 'operaciones' });
+RESPALDO_TABLAS.splice(RESPALDO_TABLAS.findIndex(t => t.tabla === 'gastos'), 0,
+  { tabla: 'ventas', hoja: 'Ventas de productos', fecha: 'fecha' }, { tabla: 'venta_items', hoja: 'Detalle de ventas' });
+
+// Después de crear un producto desde el punto de venta, volver a él
+const _origGuardarProducto = guardarProducto;
+guardarProducto = async function () {
+  await _origGuardarProducto();
+  const modalAbierto = document.getElementById('modal-producto').style.display === 'flex';
+  if (window._volverAPos && !modalAbierto) {
+    window._volverAPos = false;
+    await posCargar();
+    const cod = window._posCodigoCrear; window._posCodigoCrear = '';
+    if (cod && posAgregarPorCodigo(cod, true)) return;
+    posHintOk('Producto creado. Escanéalo de nuevo para agregarlo.');
+  }
+};
+
+// El buscador rápido también encuentra ventas por número
+const _origConstruirIndice = construirIndiceBusqueda;
+construirIndiceBusqueda = async function () {
+  const items = await _origConstruirIndice();
+  let q = sb.from('ventas').select('id,numero,fecha,total,cliente_nombre,estado').order('numero', { ascending: false }).limit(300);
+  if (!esAdmin()) q = q.eq('operador_id', currentUser.id);
+  const { data } = await q;
+  (data || []).forEach(v => items.push({ tipo: 'Ventas', icono: 'fa-solid fa-cash-register', titulo: `Venta de productos #${v.numero}`,
+    sub: `${formatDate(v.fecha)} · ${formatCurrency(Number(v.total))}${v.cliente_nombre ? ' · ' + v.cliente_nombre : ''}${v.estado === 'anulada' ? ' · anulada' : ''}`,
+    _t: normalizar(`#${v.numero} ${v.numero} venta ${v.cliente_nombre || ''} ${v.fecha}`),
+    abrir: () => irConBusqueda('ventas', 'ventas-search', '#' + v.numero, () => { document.getElementById('ventas-estado').value = ''; renderVentas(); }) }));
+  return items;
 };
 </script>
 
