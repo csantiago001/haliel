@@ -158,7 +158,7 @@
     background-size: 22px 22px;
   }
   html.dark #login-page { background-image: radial-gradient(rgba(236,234,247,0.09) 1px, transparent 1.2px); }
-  #login-page::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--dots); }
+  #login-page::before { content: none; }
   .blob, #particles-container, .particle { display: none !important; }
 
   .login-card {
@@ -613,12 +613,231 @@
     .sidebar, .topbar, #toast-container, .sidebar-overlay { display: none !important; }
     .main-content { margin: 0 !important; padding: 0 !important; }
   }
+
+  /* ════════════════════════════════════════════════════════════════
+     V2 · NAVEGACIÓN COMPACTA, ENCABEZADO, DASHBOARD Y COMPONENTES
+  ════════════════════════════════════════════════════════════════ */
+  @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modalSlideIn { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 248px; }
+  .main-content { margin-left: 248px; }
+  .sb-head { padding: 1rem 0.85rem 0.5rem; flex-shrink: 0; }
+  .sidebar-logo { margin: 0 !important; height: 64px; padding: 0.35rem 0.75rem !important; }
+  .sb-logo-full { max-width: 150px !important; max-height: 58px; width: auto !important; height: auto; object-fit: contain; }
+  .sb-logo-mark { display: none; width: 38px; height: 38px; border-radius: 50%; }
+  .sb-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.35rem 0 1rem; overscroll-behavior: contain; }
+  .sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); background-clip: padding-box; }
+
+  .nav-group { margin: 0 0 0.15rem; }
+  .nav-group-header {
+    width: calc(100% - 1.5rem); margin: 0.55rem 0.75rem 0.1rem; padding: 0.35rem 0.6rem; border: 0; border-radius: 8px; background: none;
+    display: flex; align-items: center; justify-content: space-between; text-align: left;
+    font-size: 0.72rem; font-weight: 650; letter-spacing: 0.02em; color: rgba(236,234,247,0.45); min-height: 0;
+  }
+  .nav-group-header .nav-item-text { font-weight: 650 !important; }
+  .nav-group-header:hover { background: rgba(255,255,255,0.05); color: rgba(236,234,247,0.85); }
+  .nav-group-header.open { color: rgba(236,234,247,0.85); border-left: 0 !important; }
+  .nav-group-header:focus-visible { outline: 2px solid #9B8CFF; outline-offset: 1px; }
+  .nav-group-arrow { font-size: 0.6rem; }
+  .nav-group-body.open { max-height: 360px; }
+
+  .nav-item { padding: 0.5rem 0.75rem; margin: 1px 0.75rem; font-size: 0.875rem; gap: 0.7rem; border-radius: 9px; }
+  .nav-group-body .nav-item { padding-left: 0.75rem; }
+  .nav-item i { width: 18px; font-size: 0.9rem; opacity: 0.85; }
+  .nav-item:focus-visible { outline: 2px solid #9B8CFF; outline-offset: -2px; }
+  .nav-item.active::before { left: -0.75rem; }
+  .nav-label { padding: 0.9rem 1.35rem 0.3rem; font-size: 0.72rem; font-weight: 650; color: rgba(236,234,247,0.45); }
+  .nav-badge { margin-left: auto; }
+
+  .sidebar-footer { display: flex; flex-direction: column; gap: 2px; padding: 0.6rem 0 0.75rem; flex-shrink: 0; }
+  .sb-logout:hover { background: rgba(229,56,59,0.14); color: #FFB4B5; }
+  .sb-collapse { display: flex; align-items: center; gap: 0.7rem; margin: 1px 0.75rem; padding: 0.5rem 0.75rem; border-radius: 9px; border: 0; background: none; color: rgba(236,234,247,0.5); font-size: 0.82rem; font-weight: 500; text-align: left; }
+  .sb-collapse:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .sb-collapse i { width: 18px; text-align: center; transition: transform 0.25s; }
+
+  /* Modo compacto (solo íconos) */
+  .sidebar.collapsed { width: 68px; }
+  .main-content.sidebar-collapsed { margin-left: 68px; }
+  .sidebar.collapsed .sb-head { padding: 0.9rem 0.5rem 0.4rem; }
+  .sidebar.collapsed .sidebar-logo { height: 48px; padding: 0.3rem !important; background: transparent; }
+  .sidebar.collapsed .sb-logo-full { display: none; }
+  .sidebar.collapsed .sb-logo-mark { display: block; }
+  .sidebar.collapsed .nav-group-header { pointer-events: none; height: 1px; padding: 0; margin: 0.5rem 1rem; background: var(--sidebar-line); overflow: hidden; }
+  .sidebar.collapsed .nav-group-header > * { display: none; }
+  .sidebar.collapsed .nav-group-body { max-height: none !important; overflow: visible; }
+  .sidebar.collapsed .nav-label { height: 1px; padding: 0; margin: 0.5rem 1rem; background: var(--sidebar-line); font-size: 0; }
+  .sidebar.collapsed .nav-item, .sidebar.collapsed .sb-collapse { justify-content: center; padding: 0.6rem; margin: 1px 0.6rem; }
+  .sidebar.collapsed .nav-item.active::before { left: -0.6rem; }
+  .sidebar.collapsed .sb-collapse .nav-item-text { display: none; }
+  .sidebar.collapsed .nav-item::after { content: none !important; }
+  .sidebar.collapsed .sb-nav { scrollbar-width: none; }
+  .sidebar.collapsed .nav-badge { position: absolute; top: 6px; right: 8px; margin: 0; }
+
+  /* ── Encabezado ── */
+  .topbar { padding: 0.7rem 2rem; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: nowrap; }
+  .topbar-left { display: flex; align-items: center; gap: 0.85rem; min-width: 0; }
+  .topbar-right { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+  #page-title { font-size: 1.35rem !important; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #breadcrumb { margin-bottom: 0.1rem; }
+  #breadcrumb span:first-child { color: var(--text-muted); font-weight: 500; }
+  .icon-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; flex-shrink: 0; }
+  .icon-btn:hover { background: var(--card-bg); border-color: var(--card-border); color: var(--text); }
+  #menu-btn { display: none; border-color: var(--card-border); background: var(--card-bg); }
+  .only-dark { display: none; }
+  html.dark .only-dark { display: inline-block; }
+  html.dark .only-light { display: none; }
+  .topbar-sep { width: 1px; height: 24px; background: var(--card-border); margin: 0 0.35rem; }
+  .topbar-user { display: flex; align-items: center; gap: 0.65rem; padding: 0.25rem 0.3rem 0.25rem 0.6rem; border-radius: 12px; border: 1px solid transparent; background: none; text-align: right; transition: background 0.15s, border-color 0.15s; }
+  .topbar-user:hover { background: var(--card-bg); border-color: var(--card-border); }
+  #user-info-top { display: flex; flex-direction: column; line-height: 1.2; }
+  #topbar-name { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  #topbar-role { font-size: 0.74rem; color: var(--text-muted); }
+  #topbar-avatar { width: 34px; height: 34px; display: inline-flex; }
+
+  /* ── Componentes compartidos ── */
+  .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .card-title > i { color: var(--primary-text); font-size: 0.9rem; }
+  .seg { display: flex; gap: 0.25rem; padding: 0.25rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; width: fit-content; max-width: 100%; overflow-x: auto; margin-bottom: 1rem; box-shadow: var(--shadow-card); }
+  .seg-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.5rem 0.95rem; border: 0; border-radius: 9px; background: transparent; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+  .seg-btn:hover { color: var(--text); background: var(--input-bg); }
+  .seg-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px -6px rgba(91,63,217,0.8); }
+  .seg-btn i { font-size: 0.82rem; }
+  .caja-seg { width: 100%; }
+  .caja-seg .seg-btn { flex: 1; }
+
+  .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; margin-bottom: 1.25rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; box-shadow: var(--shadow-card); }
+  .filter-bar .field-input { border-color: transparent; background-color: var(--input-bg); box-shadow: none; padding-top: 0.55rem; padding-bottom: 0.55rem; }
+  .filter-bar .field-input:hover { border-color: var(--card-border); }
+  .filter-bar .btn-primary { padding: 0.55rem 1rem; }
+
+  .tile-ico { width: 38px; height: 38px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem;
+    background: color-mix(in srgb, var(--c, #5B3FD9) 12%, transparent); color: var(--c, #5B3FD9); margin: 0 auto 0.6rem; }
+  html.dark .tile-ico { background: color-mix(in srgb, var(--c, #9B8CFF) 20%, transparent); color: color-mix(in srgb, var(--c, #9B8CFF) 60%, #fff); }
+  .kpi-tile { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 0.95rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; box-shadow: var(--shadow-card); min-width: 0; }
+  .kpi-tile .tile-ico { margin: 0; }
+  .kpi-tile-val { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em; line-height: 1.15; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi-tile-label { font-size: 0.76rem; color: var(--text-muted); font-weight: 500; }
+  .dot-ico { font-size: 0.45rem; vertical-align: middle; }
+  .badge-muted { background: var(--input-bg); color: var(--text-muted); box-shadow: inset 0 0 0 1px var(--card-border); }
+  .help-ico { color: var(--primary-text); width: 1.1em; text-align: center; }
+
+  /* ── Dashboard ── */
+  .dash-greet { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .dash-greet-text { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+  .dash-greet-ico { width: 40px; height: 40px; border-radius: 12px; background: var(--primary-soft); color: var(--primary-text); display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  #dash-greeting-name { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  #dash-greeting-date { font-size: 0.82rem; color: var(--text-muted); }
+  .dash-clock { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.85rem; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--primary-text); font-weight: 700; font-family: var(--font-display); font-size: 0.98rem; }
+  .dash-tabs { margin-bottom: 1rem; }
+  .dash-panel { animation: sectionIn 0.25s ease both; }
+  #stats-grid .stat-card { padding: 1.1rem 1.2rem; }
+  #stats-grid .stat-icon { width: 38px; height: 38px; font-size: 1rem; margin-bottom: 0.75rem; border-radius: 11px; }
+
+  /* Tarjetas de saldo de caja */
+  #sec-cerrar-caja [style*="background:var(--ink)"], #sec-cerrar-caja [style*="background:#2A1E5C"], #sec-cerrar-caja [style*="background:#0B5E33"] { box-shadow: var(--shadow-glow); }
+  #sec-cerrar-caja [style*="background:var(--ink)"]::after { content: ''; position: absolute; left: 1.75rem; right: 1.75rem; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--dots); }
+  html.dark #sec-cerrar-caja [style*="background:var(--ink)"] { background: #221E3F !important; border: 1px solid #3A355C; }
+
+  /* ── Densidad compacta ── */
+  .glass-card[style*="padding:1.5rem"] { padding: 1.25rem !important; }
+  .glass-card[style*="padding:2rem"] { padding: 1.5rem !important; }
+  .premium-table thead th { padding: 0.6rem 0.9rem; }
+  .premium-table tbody td { padding: 0.62rem 0.9rem; font-size: 0.86rem; }
+  .section > div[style*="margin-bottom:1.25rem"] { margin-bottom: 1rem !important; }
+
+  /* Perfil: pestañas tipo segmento */
+  .profile-tab { border: 0 !important; border-radius: 9px !important; margin: 0 !important; padding: 0.5rem 0.85rem !important; display: inline-flex !important; align-items: center; gap: 0.4rem; }
+  .profile-tab:hover { background: var(--input-bg) !important; color: var(--text) !important; }
+  .profile-tab.active { background: var(--primary-soft) !important; color: var(--primary-text) !important; }
+  .profile-tab i { font-size: 0.82rem; }
+  #modal-profile .modal-box { max-width: min(880px, calc(100vw - 1.5rem)) !important; }
+
+  /* ── Login dividido ── */
+  #login-page { padding: 2rem 1.25rem; }
+  .login-shell { position: relative; z-index: 2; width: 100%; max-width: 940px; display: grid; grid-template-columns: 1.05fr 1fr; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 26px; overflow: hidden; box-shadow: 0 1px 0 rgba(27,23,64,0.04), 0 40px 90px -40px rgba(27,23,64,0.45); animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+  .login-shell .login-card { max-width: none; border: 0; border-radius: 0; box-shadow: none; animation: none; padding: 2.75rem 2.5rem 2rem; display: flex; flex-direction: column; justify-content: center; }
+  .login-shell #login-logo { display: none; }
+  .login-brand { position: relative; background: var(--ink); color: #ECEAF7; padding: 2.25rem 2.25rem 1.75rem; display: flex; flex-direction: column; gap: 2rem; overflow: hidden;
+    background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1.2px); background-size: 20px 20px; }
+  .login-brand::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--dots); }
+  .lb-logo { background: #fff; border-radius: 16px; padding: 0.4rem 1rem; width: fit-content; }
+  .lb-logo img { width: 170px; height: auto; margin: -10px 0; }
+  .lb-body { margin-top: auto; }
+  .lb-title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.9rem, 3.2vw, 2.5rem); line-height: 1.05; letter-spacing: -0.035em; color: #fff; margin-bottom: 0.85rem; }
+  .lb-text { color: rgba(236,234,247,0.72); font-size: 0.95rem; max-width: 34ch; margin-bottom: 1.4rem; }
+  .lb-list { display: grid; gap: 0.6rem; }
+  .lb-list li { display: flex; align-items: center; gap: 0.7rem; font-size: 0.88rem; color: rgba(236,234,247,0.9); }
+  .lb-list i { width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); color: #F5B70A; font-size: 0.82rem; }
+  .lb-list li:nth-child(2) i { color: #7EE2A8; }
+  .lb-list li:nth-child(3) i { color: #F59BC1; }
+  .lb-foot { font-size: 0.78rem; color: rgba(236,234,247,0.45); }
+  html.dark .login-brand { background-color: #0C0A17; }
+  html.dark .login-shell { box-shadow: 0 40px 90px -40px rgba(0,0,0,0.8); }
+
+  /* ── Responsive v2 ── */
+  @media (max-width: 1100px) {
+    .topbar { padding: 0.65rem 1.5rem; }
+  }
+  @media (max-width: 860px) {
+    .login-shell { grid-template-columns: 1fr; max-width: 440px; }
+    .login-brand { display: none; }
+    .login-shell #login-logo { display: flex; }
+  }
+  @media (max-width: 768px) {
+    .sidebar, .sidebar.collapsed { width: 272px !important; overflow: hidden; }
+    .main-content, .main-content.sidebar-collapsed { margin-left: 0 !important; }
+    .sidebar.collapsed .nav-item-text, .sidebar.collapsed .sb-logo-full { display: inline; }
+    .sidebar.collapsed .sb-logo-mark { display: none; }
+    .sidebar.collapsed .nav-group-header { pointer-events: auto; height: auto; padding: 0.35rem 0.6rem; margin: 0.55rem 0.75rem 0.1rem; background: none; }
+    .sidebar.collapsed .nav-group-header > * { display: inline; }
+    .sidebar.collapsed .nav-item { justify-content: flex-start; padding: 0.55rem 0.75rem; margin: 1px 0.75rem; }
+    .sidebar.collapsed .nav-label { height: auto; font-size: 0.72rem; background: none; padding: 0.9rem 1.35rem 0.3rem; margin: 0; }
+    .sb-collapse { display: none; }
+    .nav-item { padding: 0.62rem 0.75rem; font-size: 0.92rem; }
+    #menu-btn { display: inline-flex !important; }
+    .topbar { padding: 0.55rem 1rem; }
+    #page-title { font-size: 1.1rem !important; }
+    #user-info-top, .topbar-sep { display: none !important; }
+    .filter-bar { padding: 0.5rem; }
+    .filter-bar > * { flex: 1 1 140px; }
+    .filter-bar .btn-primary { margin-left: 0 !important; flex-basis: 100%; }
+    .seg { width: 100%; }
+    .seg .seg-btn { flex: 1; padding: 0.5rem 0.6rem; }
+    .dash-greet { margin-bottom: 0.75rem; }
+    #st-sus-all-kpis { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+    .kpi-tile { padding: 0.7rem; gap: 0.55rem; }
+    .kpi-tile-val { font-size: 1rem; }
+  }
+
+  /* Tablas → tarjetas en teléfonos */
+  @media (max-width: 640px) {
+    .table-wrapper:has(.table-cards) { overflow: visible; }
+    table.table-cards { min-width: 0 !important; border: 0; }
+    table.table-cards thead { display: none; }
+    table.table-cards, table.table-cards tbody, table.table-cards tr, table.table-cards td { display: block; width: 100%; }
+    table.table-cards tbody tr { padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--card-border); }
+    table.table-cards tbody tr:hover { transform: none; }
+    table.table-cards tbody td { border: 0 !important; padding: 0.22rem 0 !important; display: flex; justify-content: space-between; align-items: center; gap: 1rem; text-align: right; font-size: 0.86rem !important; }
+    table.table-cards tbody td::before { content: attr(data-label); color: var(--text-muted); font-size: 0.76rem; font-weight: 600; text-align: left; flex-shrink: 0; }
+    table.table-cards tbody td:not([data-label])::before, table.table-cards tbody td[data-label=""]::before { content: none; }
+    table.table-cards tbody td[colspan] { justify-content: center; text-align: center; }
+    table.table-cards tbody td > div[style*="flex"] { justify-content: flex-end; flex-wrap: wrap !important; }
+    table.table-cards tbody td:first-child { font-weight: 700; }
+  }
+
+  /* Encabezado del perfil: tinta + franja de marca */
+  .profile-hero { background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1.2px) !important; background-size: 20px 20px !important; }
+  .profile-hero::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--dots); }
+  html.dark .profile-hero { background-color: #0C0A17 !important; }
+
 </style>
 </head>
 <body>
 
 <div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#E5383B;color:white;text-align:center;padding:0.6rem;font-size:0.85rem;font-weight:600;z-index:10001;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:transform 0.3s;">
-    ⚠️ Sin conexión — los datos pueden no estar actualizados
+    <i class="fa-solid fa-wifi" aria-hidden="true"></i> Sin conexión — los datos pueden no estar actualizados
 </div>
 
 <!-- SPLASH SCREEN -->
@@ -633,7 +852,7 @@
 <!--<div id="streaming-bg-overlay" style="position:fixed;inset:0;background-image:url('fondostreaming.jpg');background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0;z-index:0;pointer-events:none;transition:opacity 0.5s ease;"></div>-->
 
 <!-- RATE LIMIT BANNER -->
-<div id="rate-limit-banner">⚡ Demasiadas acciones seguidas. Espera un momento.</div>
+<div id="rate-limit-banner"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Demasiadas acciones seguidas. Espera un momento.</div>
 
 <!-- MODAL: Historial cliente streaming -->
 <div id="modal-cli-historial" class="modal-overlay" style="display:none;">
@@ -651,6 +870,21 @@
 <!-- LOGIN -->
 <div id="login-page">
     <div id="particles-container" aria-hidden="true"></div>
+
+    <div class="login-shell">
+    <section class="login-brand">
+        <div class="lb-logo"><img src="logo.png" alt="Haliel Papelería" width="220" height="129"/></div>
+        <div class="lb-body">
+            <h2 class="lb-title">Tu papelería, en orden.</h2>
+            <p class="lb-text">Movimientos, cierres de caja, giros y suscripciones de todas tus sucursales en un solo lugar.</p>
+            <ul class="lb-list">
+                <li><i class="fa-solid fa-cash-register"></i>Cierres de caja y débitos del día</li>
+                <li><i class="fa-solid fa-chart-line"></i>Metas y rendimiento por operador</li>
+                <li><i class="fa-solid fa-receipt"></i>Ventas y vencimientos de streaming</li>
+            </ul>
+        </div>
+        <div class="lb-foot">Bucaramanga, Colombia</div>
+    </section>
 
     <main class="login-card">
         <div id="login-logo">
@@ -736,6 +970,7 @@
             <a href="mailto:papeleriahaliel@gmail.com"><i class="fa-regular fa-envelope"></i>papeleriahaliel@gmail.com</a>
         </div>
     </main>
+    </div>
 </div>
 
 <!-- APP -->
@@ -743,215 +978,240 @@
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 	<!-- Sidebar -->
-	<aside class="sidebar" id="sidebar">
-	  <!-- HEADER: Logo centrado y limpio (sin texto duplicado ni botón de pin) -->
-		<div class="sidebar-logo" 
-			 ondblclick="goSection('dashboard')" 
-			 title="Doble clic para ir al Dashboard">
-			<img src="logo.png" alt="Haliel Papelería" 
-				 style="width: 100%; max-width: 150px; height: auto; object-fit: contain;"/>
-		</div>
-
-	  <!-- Admin Nav -->
-	  <nav id="nav-admin" style="flex:1;overflow-y:auto;padding:0.5rem 0;" class="hidden">
-
-		<!-- GRUPO: PRINCIPAL -->
-		<div class="nav-group" id="group-principal">
-		  <div class="nav-group-header" onclick="toggleNavGroup('principal')">
-			<div style="display:flex;align-items:center;gap:0.65rem;">
-			  <i class="fa-solid fa-house-chimney" style="width:18px;text-align:center;font-size:0.9rem;"></i>
-			  <span class="nav-item-text" style="font-weight:700;">Administración Principal</span>
+	<aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+		<div class="sb-head">
+			<div class="sidebar-logo" ondblclick="goSection(currentProfile?.rol === 'administrador' ? 'dashboard' : 'op-inicio')" title="Doble clic para ir al inicio">
+				<img src="logo.png" alt="Haliel Papelería" class="sb-logo-full"/>
+				<img src="logo-redon.png" alt="Haliel" class="sb-logo-mark"/>
 			</div>
-			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-principal"></i>
-		  </div>
-		  <div class="nav-group-body" id="body-principal">
-			<div class="nav-item" data-tooltip="Dashboard" data-group="principal" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text"> Dashboard</span></div>
-			<div class="nav-item" data-tooltip="Registros" data-group="principal" onclick="goSection('registros')"><i class="fa-solid fa-table-list"></i><span class="nav-item-text"> Registros</span></div>
-			<div class="nav-item" data-tooltip="Registrar" data-group="principal" onclick="goSection('admin-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
-			<div class="nav-item" data-tooltip="Cerrar Caja" data-group="principal" onclick="goSection('cerrar-caja')"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text"> Cerrar Caja</span></div>
-			<div class="nav-item" data-tooltip="Estadísticas" data-group="principal" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Estadísticas</span></div>
-			<div class="nav-item" data-tooltip="Top Días" data-group="principal" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text"> Top Días</span></div>
-		  </div>
 		</div>
 
-		<!-- GRUPO: GESTIÓN -->
-		<div class="nav-group" id="group-gestion">
-		  <div class="nav-group-header" onclick="toggleNavGroup('gestion')">
-			<div style="display:flex;align-items:center;gap:0.65rem;">
-			  <i class="fa-solid fa-sliders" style="width:18px;text-align:center;font-size:0.9rem;"></i>
-			  <span class="nav-item-text" style="font-weight:700;">Gestión usuarios y plataforma</span>
+		<!-- Admin Nav -->
+		<nav id="nav-admin" class="sb-nav hidden">
+
+			<div class="nav-group" id="group-principal">
+				<button type="button" class="nav-group-header" onclick="toggleNavGroup('principal')">
+					<span class="nav-item-text">Principal</span><i class="fa-solid fa-chevron-down nav-group-arrow"></i>
+				</button>
+				<div class="nav-group-body" id="body-principal">
+					<a class="nav-item" data-section="dashboard" data-tooltip="Dashboard" onclick="goSection('dashboard')"><i class="fa-solid fa-chart-pie"></i><span class="nav-item-text">Dashboard</span></a>
+				</div>
 			</div>
-			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-gestion"></i>
-		  </div>
-		  <div class="nav-group-body" id="body-gestion">
-			<div class="nav-item" data-tooltip="Operadores" data-group="gestion" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i><span class="nav-item-text"> Operadores</span></div>
-			<div class="nav-item" data-tooltip="Sucursales" data-group="gestion" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text"> Sucursales</span></div>
-			<div class="nav-item" data-tooltip="Plataformas" data-group="gestion" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text"> Plataformas</span></div>
-			<div class="nav-item" data-tooltip="Reportes" data-group="gestion" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text"> Reportes</span></div>
-		  </div>
-		</div>
 
-		<!-- GRUPO: STREAMING -->
-		<div class="nav-group" id="group-streaming">
-		  <div class="nav-group-header" onclick="toggleNavGroup('streaming')">
-			<div style="display:flex;align-items:center;gap:0.65rem;">
-			  <i class="fa-solid fa-play-circle" style="width:18px;text-align:center;font-size:0.9rem;"></i>
-			  <span class="nav-item-text" style="font-weight:700;">Streaming</span>
+			<div class="nav-group" id="group-operaciones">
+				<button type="button" class="nav-group-header" onclick="toggleNavGroup('operaciones')">
+					<span class="nav-item-text">Operaciones</span><i class="fa-solid fa-chevron-down nav-group-arrow"></i>
+				</button>
+				<div class="nav-group-body" id="body-operaciones">
+					<a class="nav-item" data-section="admin-registrar" data-tooltip="Registrar movimientos" onclick="goSection('admin-registrar')"><i class="fa-solid fa-circle-plus"></i><span class="nav-item-text">Registrar movimientos</span></a>
+					<a class="nav-item" data-section="cerrar-caja" data-sub="papeleria" data-tooltip="Caja Papelería" onclick="navSub('cerrar-caja', () => switchCajaTab('papeleria'))"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text">Caja Papelería</span></a>
+					<a class="nav-item" data-section="cerrar-caja" data-sub="giros" data-tooltip="Giros Venezuela" onclick="navSub('cerrar-caja', () => switchCajaTab('giros'))"><i class="fa-solid fa-money-bill-transfer"></i><span class="nav-item-text">Giros Venezuela</span></a>
+					<a class="nav-item" data-section="registros" data-tooltip="Historial de registros" onclick="goSection('registros')"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-item-text">Historial de registros</span></a>
+				</div>
 			</div>
-			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-streaming"></i>
-		  </div>
-		  <div class="nav-group-body" id="body-streaming">
-			<div class="nav-item" id="nav-streaming-cartera" data-tooltip="Cartera" data-group="streaming" onclick="goSection('streaming-cartera')"><i class="fa-solid fa-users-rectangle"></i><span class="nav-item-text"> Cartera de Clientes</span></div>
-			<div class="nav-item" id="nav-streaming-suscripciones" data-tooltip="Gestión" data-group="streaming" onclick="goSection('streaming-suscripciones')"><i class="fa-solid fa-cog"></i><span class="nav-item-text"> Gestión de Suscripciones</span></div>
-		  </div>
-		</div>
 
-		<!-- GRUPO: SISTEMA -->
-		<div class="nav-group" id="group-sistema">
-		  <div class="nav-group-header" onclick="toggleNavGroup('sistema')">
-			<div style="display:flex;align-items:center;gap:0.65rem;">
-			  <i class="fa-solid fa-gear" style="width:18px;text-align:center;font-size:0.9rem;"></i>
-			  <span class="nav-item-text" style="font-weight:700;">Sistema</span>
+			<div class="nav-group" id="group-streaming">
+				<button type="button" class="nav-group-header" onclick="toggleNavGroup('streaming')">
+					<span class="nav-item-text">Ventas y servicios</span><i class="fa-solid fa-chevron-down nav-group-arrow"></i>
+				</button>
+				<div class="nav-group-body" id="body-streaming">
+					<a class="nav-item" id="nav-streaming-cartera" data-section="streaming-cartera" data-tooltip="Clientes" onclick="goSection('streaming-cartera')"><i class="fa-solid fa-address-book"></i><span class="nav-item-text">Clientes</span></a>
+					<a class="nav-item" id="nav-streaming-suscripciones" data-section="streaming-suscripciones" data-tooltip="Suscripciones y ventas" onclick="goSection('streaming-suscripciones')"><i class="fa-solid fa-receipt"></i><span class="nav-item-text">Suscripciones y ventas</span></a>
+					<a class="nav-item" id="nav-streaming-vencimientos" data-tooltip="Vencimientos" onclick="navSub('streaming-suscripciones', () => openModalCalendarioCobros())"><i class="fa-regular fa-calendar-check"></i><span class="nav-item-text">Vencimientos</span></a>
+					<a class="nav-item" id="nav-streaming-plataformas" data-tooltip="Plataformas de streaming" onclick="navSub('streaming-suscripciones', () => openModalStPlataformasGestion())"><i class="fa-solid fa-tv"></i><span class="nav-item-text">Plataformas de streaming</span></a>
+				</div>
 			</div>
-			<i class="fa-solid fa-chevron-down nav-group-arrow" id="arrow-sistema"></i>
-		  </div>
-		  <div class="nav-group-body" id="body-sistema">
-			<div class="nav-item" data-tooltip="Auditoría" data-group="sistema" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text"> Auditoría</span></div>
-		  </div>
+
+			<div class="nav-group" id="group-analisis">
+				<button type="button" class="nav-group-header" onclick="toggleNavGroup('analisis')">
+					<span class="nav-item-text">Análisis</span><i class="fa-solid fa-chevron-down nav-group-arrow"></i>
+				</button>
+				<div class="nav-group-body" id="body-analisis">
+					<a class="nav-item" data-section="estadisticas" data-tooltip="Estadísticas" onclick="goSection('estadisticas')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text">Estadísticas</span></a>
+					<a class="nav-item" data-section="top-dias" data-tooltip="Rendimiento por día" onclick="goSection('top-dias')"><i class="fa-solid fa-ranking-star"></i><span class="nav-item-text">Rendimiento por día</span></a>
+					<a class="nav-item" data-section="reportes" data-tooltip="Reportes y exportaciones" onclick="goSection('reportes')"><i class="fa-solid fa-file-export"></i><span class="nav-item-text">Reportes y exportaciones</span></a>
+				</div>
+			</div>
+
+			<div class="nav-group" id="group-gestion">
+				<button type="button" class="nav-group-header" onclick="toggleNavGroup('gestion')">
+					<span class="nav-item-text">Administración</span><i class="fa-solid fa-chevron-down nav-group-arrow"></i>
+				</button>
+				<div class="nav-group-body" id="body-gestion">
+					<a class="nav-item" data-section="operadores" data-tooltip="Usuarios" onclick="goSection('operadores')"><i class="fa-solid fa-users"></i><span class="nav-item-text">Usuarios</span></a>
+					<a class="nav-item" data-section="sucursales" data-tooltip="Sucursales" onclick="goSection('sucursales')"><i class="fa-solid fa-store"></i><span class="nav-item-text">Sucursales</span></a>
+					<a class="nav-item" data-section="plataformas" data-tooltip="Plataformas de pago" onclick="goSection('plataformas')"><i class="fa-solid fa-layer-group"></i><span class="nav-item-text">Plataformas de pago</span></a>
+					<a class="nav-item" data-section="auditoria" data-tooltip="Actividad y auditoría" onclick="goSection('auditoria')"><i class="fa-solid fa-shield-halved"></i><span class="nav-item-text">Actividad y auditoría</span></a>
+				</div>
+			</div>
+
+			<div class="nav-group" id="group-sistema">
+				<button type="button" class="nav-group-header" onclick="toggleNavGroup('sistema')">
+					<span class="nav-item-text">Configuración</span><i class="fa-solid fa-chevron-down nav-group-arrow"></i>
+				</button>
+				<div class="nav-group-body" id="body-sistema">
+					<a class="nav-item" data-tooltip="Mi perfil" onclick="abrirPerfilEn('info')"><i class="fa-regular fa-circle-user"></i><span class="nav-item-text">Mi perfil</span></a>
+					<a class="nav-item" data-tooltip="Seguridad" onclick="abrirPerfilEn('security')"><i class="fa-solid fa-lock"></i><span class="nav-item-text">Seguridad</span></a>
+					<a class="nav-item" data-tooltip="Preferencias" onclick="abrirPerfilEn('settings')"><i class="fa-solid fa-sliders"></i><span class="nav-item-text">Preferencias</span></a>
+					<a class="nav-item" data-tooltip="Configuración del sistema" onclick="abrirPerfilEn('sysconfig')"><i class="fa-solid fa-gear"></i><span class="nav-item-text">Configuración del sistema</span></a>
+					<a class="nav-item" data-tooltip="Ayuda y soporte" onclick="openHelpModal()"><i class="fa-regular fa-circle-question"></i><span class="nav-item-text">Ayuda y soporte</span></a>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Operator Nav -->
+		<nav id="nav-operador" class="sb-nav hidden">
+			<div class="nav-group" id="group-op-espacio">
+				<div class="nav-label">Mi espacio</div>
+				<a class="nav-item active" data-section="op-inicio" data-tooltip="Inicio" onclick="goSection('op-inicio')"><i class="fa-solid fa-house"></i><span class="nav-item-text">Inicio</span></a>
+			</div>
+			<div class="nav-group">
+				<div class="nav-label">Operaciones</div>
+				<a class="nav-item" data-section="op-registrar" data-tooltip="Registrar movimientos" onclick="goSection('op-registrar')"><i class="fa-solid fa-circle-plus"></i><span class="nav-item-text">Registrar movimientos</span></a>
+				<a class="nav-item" data-section="cerrar-caja" data-sub="papeleria" data-tooltip="Caja Papelería" onclick="navSub('cerrar-caja', () => switchCajaTab('papeleria'))"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text">Caja Papelería</span></a>
+				<a class="nav-item" data-section="cerrar-caja" data-sub="giros" data-tooltip="Giros Venezuela" onclick="navSub('cerrar-caja', () => switchCajaTab('giros'))"><i class="fa-solid fa-money-bill-transfer"></i><span class="nav-item-text">Giros Venezuela</span></a>
+				<a class="nav-item" data-section="op-mis-registros" data-tooltip="Mis registros" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i><span class="nav-item-text">Mis registros</span></a>
+			</div>
+			<div class="nav-group">
+				<div class="nav-label">Análisis</div>
+				<a class="nav-item" data-section="op-rendimiento" data-tooltip="Mi rendimiento" onclick="goSection('op-rendimiento')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text">Mi rendimiento</span></a>
+			</div>
+			<div class="nav-group">
+				<div class="nav-label">Configuración</div>
+				<a class="nav-item" data-tooltip="Mi perfil" onclick="abrirPerfilEn('info')"><i class="fa-regular fa-circle-user"></i><span class="nav-item-text">Mi perfil</span></a>
+				<a class="nav-item" data-tooltip="Seguridad" onclick="abrirPerfilEn('security')"><i class="fa-solid fa-lock"></i><span class="nav-item-text">Seguridad</span></a>
+				<a class="nav-item" data-tooltip="Preferencias" onclick="abrirPerfilEn('settings')"><i class="fa-solid fa-sliders"></i><span class="nav-item-text">Preferencias</span></a>
+				<a class="nav-item" data-tooltip="Ayuda y soporte" onclick="openHelpModal()"><i class="fa-regular fa-circle-question"></i><span class="nav-item-text">Ayuda y soporte</span></a>
+			</div>
+		</nav>
+
+		<!-- Sidebar Footer -->
+		<div class="sidebar-footer">
+			<a class="nav-item sb-logout" data-tooltip="Cerrar sesión" onclick="confirmarCerrarSesion()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="nav-item-text">Cerrar sesión</span></a>
+			<button type="button" class="sb-collapse" id="sidebar-pin-btn" onclick="toggleSidebarPin()" aria-label="Contraer o expandir el menú">
+				<i class="fa-solid fa-angles-left" id="pin-icon"></i><span class="nav-item-text">Contraer menú</span>
+			</button>
 		</div>
-
-	  </nav>
-
-	  <!-- Operator Nav -->
-	  <nav id="nav-operador" style="flex:1;overflow-y:auto;padding:0.75rem 0;" class="hidden">
-		<div class="nav-label">Mi espacio</div>
-		<div class="nav-item active" data-tooltip="Inicio" onclick="goSection('op-inicio')"><i class="fa-solid fa-house"></i><span class="nav-item-text"> Inicio</span></div>
-		<div class="nav-item" data-tooltip="Registrar" onclick="goSection('op-registrar')"><i class="fa-solid fa-plus-circle"></i><span class="nav-item-text"> Registrar</span></div>
-		<div class="nav-item" data-tooltip="Cerrar Caja" onclick="goSection('cerrar-caja')"><i class="fa-solid fa-cash-register"></i><span class="nav-item-text"> Cerrar Caja</span></div>
-		<div class="nav-item" data-tooltip="Mis Registros" onclick="goSection('op-mis-registros')"><i class="fa-solid fa-list-check"></i><span class="nav-item-text"> Mis Registros</span></div>
-		<div class="nav-item" data-tooltip="Mi Rendimiento" onclick="goSection('op-rendimiento')"><i class="fa-solid fa-chart-line"></i><span class="nav-item-text"> Mi Rendimiento</span></div>
-	  </nav>
-
-	  <!-- Sidebar Footer -->
-	  <div class="sidebar-footer">
-		<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;margin-bottom:0.25rem;" class="sidebar-footer-text">
-		  <span style="font-size:0.8rem;color:var(--text-muted);">Modo oscuro</span>
-		  <button class="toggle-dark" id="dark-toggle" onclick="toggleDark()"><span class="toggle-dot"></span></button>
-		</div>
-	  </div>
 	</aside>
 
   <!-- Main Content -->
   <main class="main-content" id="main-content">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button onclick="openSidebar()" id="menu-btn" style="display:none;background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;width:40px;height:40px;cursor:pointer;color:var(--text-muted);font-size:1.1rem;">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-        <div>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button type="button" onclick="openSidebar()" id="menu-btn" class="icon-btn" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+        <div style="min-width:0;">
           <div id="breadcrumb">
-            <i class="fa-solid fa-house" style="font-size:0.7rem;color:var(--text-muted);"></i>
-            <i class="fa-solid fa-chevron-right"></i>
             <span id="breadcrumb-group">Principal</span>
             <i class="fa-solid fa-chevron-right"></i>
             <span id="breadcrumb-page">Dashboard</span>
           </div>
-          <h2 id="page-title" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin:0;">Dashboard</h2>
+          <h2 id="page-title">Dashboard</h2>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-	  <button onclick="openHelpModal()" title="Centro de Ayuda" style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:1.1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.background='rgba(91,63,217,0.1)';this.style.color='#5B3FD9'" onmouseout="this.style.background='var(--input-bg)';this.style.color='var(--text-muted)'">
-		  <i class="fa-solid fa-circle-question"></i>
-		</button>
-      <button onclick="confirmarCerrarSesion()" title="Cerrar sesión" style="background:rgba(229,56,59,0.08);border:1px solid rgba(229,56,59,0.2);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:#E5383B;font-size:1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.background='#E5383B';this.style.color='white'" onmouseout="this.style.background='rgba(229,56,59,0.08)';this.style.color='#E5383B'">
-        <i class="fa-solid fa-right-from-bracket"></i>
-      </button>
-        <div style="text-align:right;" id="user-info-top">
-          <div style="font-size:0.825rem;font-weight:600;" id="topbar-name">Usuario</div>
-          <div style="font-size:0.75rem;color:var(--text-muted);" id="topbar-role">-</div>
-        </div>
-        <div id="topbar-avatar" style="cursor:pointer;" onclick="openProfileModal()" title="Ver mi perfil"></div>
+      <div class="topbar-right">
+        <button type="button" class="icon-btn theme-btn" id="dark-toggle" onclick="toggleDark()" aria-label="Cambiar tema claro u oscuro" data-tip="Tema claro / oscuro">
+          <i class="fa-regular fa-moon only-light"></i><i class="fa-regular fa-sun only-dark"></i>
+        </button>
+        <button type="button" class="icon-btn" onclick="openHelpModal()" aria-label="Centro de ayuda" data-tip="Ayuda"><i class="fa-regular fa-circle-question"></i></button>
+        <span class="topbar-sep"></span>
+        <button type="button" class="topbar-user" onclick="openProfileModal()" title="Ver mi perfil">
+          <span id="user-info-top">
+            <span id="topbar-name">Usuario</span>
+            <span id="topbar-role">-</span>
+          </span>
+          <span id="topbar-avatar"></span>
+        </button>
       </div>
-    </div>
+    </header>
 
     <!-- SECTIONS -->
 
     <!-- ADMIN: DASHBOARD -->
     <div class="section active" id="sec-dashboard">
-	   <!-- 👉 SALUDO DINÁMICO AGREGADO AQUÍ -->
-		<div id="dashboard-greeting" style="margin-bottom:1.25rem;">
-		  <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:1.1rem 1.4rem;box-shadow:var(--shadow-card);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-			<div style="display:flex;align-items:center;gap:0.85rem;">
-			  <div style="width:42px;height:42px;border-radius:0.875rem;background:linear-gradient(135deg,#5B3FD9,#7A5CF0);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📅</div>
-			  <div>
-				<div id="dash-greeting-name" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;"></div>
-				<div id="dash-greeting-date" style="font-size:0.82rem;color:var(--text-muted);margin-top:0.1rem;"></div>
-			  </div>
-			</div>
-			<div style="display:flex;align-items:center;gap:0.6rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.5rem 1rem;">
-			  <i class="fa-regular fa-clock" style="color:#5B3FD9;font-size:0.9rem;"></i>
-			  <span id="dash-greeting-clock" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.05rem;color:#5B3FD9;letter-spacing:0.03em;"></span>
-			</div>
-		  </div>
-		</div>
-      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;align-items:center;">
-		  <select id="dash-vista" class="field-input" style="width:auto;" onchange="toggleDashVista()">
-			<option value="mes">Vista: por mes</option>
-			<option value="dia">Vista: día específico</option>
-		  </select>
-		  <select id="filter-mes" class="field-input" style="width:auto;" onchange="loadDashboard()">
-			<option value="">Todos los meses</option>
-			<option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-			<option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-			<option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-			<option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-		  </select>
-		  <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()"></select>
-		  <input type="date" id="filter-dia-especifico" class="field-input" style="width:auto;display:none;border-color:#5B3FD9;" onchange="loadDashboard()"/>
-		  <select id="filter-sucursal-dash" class="field-input" style="width:auto;" onchange="loadDashboard()">
-			<option value="">Todas las sucursales</option>
-		  </select>
-		  <button class="btn-primary" onclick="loadDashboard()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
-		</div>
+      <div id="dashboard-greeting" class="dash-greet">
+        <div class="dash-greet-text">
+          <span class="dash-greet-ico"><i class="fa-regular fa-calendar"></i></span>
+          <div>
+            <div id="dash-greeting-name"></div>
+            <div id="dash-greeting-date"></div>
+          </div>
+        </div>
+        <div class="dash-clock"><i class="fa-regular fa-clock"></i><span id="dash-greeting-clock"></span></div>
+      </div>
+
+      <div class="filter-bar">
+        <select id="dash-vista" class="field-input" style="width:auto;" onchange="toggleDashVista()" aria-label="Tipo de vista">
+          <option value="mes">Vista: por mes</option>
+          <option value="dia">Vista: día específico</option>
+        </select>
+        <select id="filter-mes" class="field-input" style="width:auto;" onchange="loadDashboard()" aria-label="Mes">
+          <option value="">Todos los meses</option>
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <select id="filter-ano" class="field-input" style="width:auto;" onchange="loadDashboard()" aria-label="Año"></select>
+        <input type="date" id="filter-dia-especifico" class="field-input" style="width:auto;display:none;" onchange="loadDashboard()" aria-label="Día"/>
+        <select id="filter-sucursal-dash" class="field-input" style="width:auto;" onchange="loadDashboard()" aria-label="Sucursal">
+          <option value="">Todas las sucursales</option>
+        </select>
+        <button class="btn-primary" onclick="loadDashboard()" style="margin-left:auto;"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+      </div>
+
       <div class="grid-4" style="margin-bottom:1.25rem;" id="stats-grid"></div>
-	  <!-- RESUMEN SEMANAL AUTOMÁTICO -->
-		<div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
-		  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;"><i class="fa-solid fa-calendar-week" style="color:#5B3FD9;margin-right:0.5rem;"></i>Resumen Semanal del Período</h3>
-		  <div id="weekly-summary-container" style="display:flex;gap:0.75rem;flex-wrap:wrap;"></div>
-		</div>
-      <div class="grid-2" style="margin-bottom:1.25rem;">
-        <div class="glass-card" style="padding:1.5rem;">
-          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Movimientos Diarios</h3>
-          <div class="chart-container" style="height:220px;"><canvas id="chart-movimientos"></canvas></div>
+
+      <div class="seg dash-tabs" role="tablist" aria-label="Vistas del dashboard">
+        <button type="button" class="seg-btn active" role="tab" data-dtab="resumen" onclick="dashTab('resumen')"><i class="fa-solid fa-chart-column"></i> Resumen</button>
+        <button type="button" class="seg-btn" role="tab" data-dtab="operadores" onclick="dashTab('operadores')"><i class="fa-solid fa-users"></i> Operadores</button>
+        <button type="button" class="seg-btn" role="tab" data-dtab="plataformas" onclick="dashTab('plataformas')"><i class="fa-solid fa-layer-group"></i> Plataformas y metas</button>
+      </div>
+
+      <div class="dash-panel" data-dpanel="resumen">
+        <div class="grid-2" style="margin-bottom:1rem;">
+          <div class="glass-card" style="padding:1.25rem;">
+            <h3 class="card-title">Movimientos diarios</h3>
+            <div class="chart-container" style="height:220px;"><canvas id="chart-movimientos"></canvas></div>
+          </div>
+          <div class="glass-card" style="padding:1.25rem;">
+            <h3 class="card-title">Participación por día</h3>
+            <div class="chart-container" style="height:220px;"><canvas id="chart-participacion"></canvas></div>
+          </div>
         </div>
-        <div class="glass-card" style="padding:1.5rem;">
-          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Participación por Día</h3>
-          <div class="chart-container" style="height:220px;"><canvas id="chart-participacion"></canvas></div>
+        <div class="glass-card" style="padding:1.25rem;">
+          <h3 class="card-title"><i class="fa-solid fa-calendar-week"></i>Resumen semanal del período</h3>
+          <div id="weekly-summary-container" style="display:flex;gap:0.75rem;flex-wrap:wrap;"></div>
         </div>
       </div>
-      <div class="grid-2" style="margin-bottom:1.25rem;">
-        <div class="glass-card" style="padding:1.5rem;">
-          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Rendimiento por Operador</h3>
-          <div class="chart-container" style="height:220px;"><canvas id="chart-operadores"></canvas></div>
+
+      <div class="dash-panel" data-dpanel="operadores" hidden>
+        <div class="grid-2" style="margin-bottom:1rem;">
+          <div class="glass-card" style="padding:1.25rem;">
+            <h3 class="card-title">Rendimiento por operador</h3>
+            <div class="chart-container" style="height:220px;"><canvas id="chart-operadores"></canvas></div>
+          </div>
+          <div class="glass-card" style="padding:1.25rem;">
+            <h3 class="card-title">Clasificación de los días</h3>
+            <div class="chart-container" style="height:220px;"><canvas id="chart-clasificacion"></canvas></div>
+          </div>
         </div>
-        <div class="glass-card" style="padding:1.5rem;">
-          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Clasificación General</h3>
-          <div class="chart-container" style="height:220px;"><canvas id="chart-clasificacion"></canvas></div>
-        </div>
-      </div>
-      <div class="grid-2" style="margin-bottom:1.25rem;">
-        <div class="glass-card" style="padding:1.5rem;">
-          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Movimientos por Plataforma</h3>
-          <div class="chart-container" style="height:220px;"><canvas id="chart-plataformas"></canvas></div>
-        </div>
-        <div class="glass-card" style="padding:1.5rem;">
-          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;"><i class="fa-solid fa-bullseye" style="color:#5B3FD9;margin-right:0.5rem;"></i>Metas del Período</h3>
-          <div id="metas-container"></div>
+        <div class="glass-card" style="padding:1.25rem;">
+          <h3 class="card-title"><i class="fa-solid fa-trophy"></i>Ranking de operadores</h3>
+          <div id="ranking-list"></div>
         </div>
       </div>
-      <div class="glass-card" style="padding:1.5rem;">
-        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;"><i class="fa-solid fa-trophy" style="color:#F5B70A;margin-right:0.5rem;"></i>Ranking Operadores</h3>
-        <div id="ranking-list"></div>
+
+      <div class="dash-panel" data-dpanel="plataformas" hidden>
+        <div class="grid-2">
+          <div class="glass-card" style="padding:1.25rem;">
+            <h3 class="card-title">Movimientos por plataforma</h3>
+            <div class="chart-container" style="height:220px;"><canvas id="chart-plataformas"></canvas></div>
+          </div>
+          <div class="glass-card" style="padding:1.25rem;">
+            <h3 class="card-title"><i class="fa-solid fa-bullseye"></i>Metas del período</h3>
+            <div id="metas-container"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -976,8 +1236,8 @@
       </div>
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
-			<table class="premium-table">
-			<thead><tr><th>Fecha Registro</th><th>Guardado</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr>
+			<table class="premium-table table-cards">
+			<thead><tr><th>Fecha Registro</th><th>Guardado</th><th>Movimientos</th><th>Participación</th><th>Clasificación</th><th>Plataformas</th><th>Operador</th><th>Sucursal</th><th>Notas</th><th>Acciones</th></tr></thead>
 			<tbody id="registros-tbody"></tbody>
 			</table>
 		</div>
@@ -1066,8 +1326,8 @@
       </div>
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
-          <table class="premium-table">
-            <thead><tr><th>selección</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Sucursal</th><th>Estado</th><th>Registrado</th><th>Acciones</th></tr></thead>
+          <table class="premium-table table-cards">
+            <thead><tr><th>Sel.</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Sucursal</th><th>Estado</th><th>Registrado</th><th>Acciones</th></tr></thead>
             <tbody id="operadores-tbody"></tbody>
           </table>
         </div>
@@ -1143,7 +1403,7 @@
 	</div>
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
-          <table class="premium-table">
+          <table class="premium-table table-cards">
             <thead><tr><th>Acción</th><th>Usuario</th><th>Descripción</th><th>Fecha</th></tr></thead>
             <tbody id="auditoria-tbody"></tbody>
           </table>
@@ -1194,21 +1454,15 @@
     <div class="section" id="sec-cerrar-caja">
 
       <!-- TABS -->
-      <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;background:var(--input-bg);border:1px solid var(--card-border);border-radius:1rem;padding:0.35rem;">
-        <button id="caja-tab-btn-papeleria" onclick="switchCajaTab('papeleria')"
-          style="flex:1;padding:0.65rem 1rem;border-radius:0.75rem;border:none;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;transition:all 0.2s;background:linear-gradient(135deg,#5B3FD9,#4A33C4);color:white;box-shadow:0 2px 8px rgba(91,63,217,0.3);">
-          <i class="fa-solid fa-store"></i> Caja Papelería
-        </button>
-        <button id="caja-tab-btn-giros" onclick="switchCajaTab('giros')"
-          style="flex:1;padding:0.65rem 1rem;border-radius:0.75rem;border:none;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-muted);">
-          <i class="fa-solid fa-dollar-sign"></i> Giros Venezuela
-        </button>
+      <div class="seg caja-seg" role="tablist" aria-label="Tipo de caja">
+        <button type="button" id="caja-tab-btn-papeleria" class="seg-btn active" role="tab" onclick="switchCajaTab('papeleria')"><i class="fa-solid fa-cash-register"></i> Caja Papelería</button>
+        <button type="button" id="caja-tab-btn-giros" class="seg-btn" role="tab" onclick="switchCajaTab('giros')"><i class="fa-solid fa-money-bill-transfer"></i> Giros Venezuela</button>
       </div>
 
       <!-- ─── TAB: PAPELERÍA ─── -->
       <div id="caja-tab-papeleria">
         <!-- Saldo actual -->
-        <div style="background:linear-gradient(135deg,#2E2180,#5B3FD9,#4A33C4);border-radius:1.5rem;padding:1.75rem 2rem;margin-bottom:1.25rem;color:white;position:relative;overflow:hidden;">
+        <div style="background:var(--ink);border-radius:20px;padding:1.5rem 1.75rem;margin-bottom:1.25rem;color:white;position:relative;overflow:hidden;">
           <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
           <div style="position:absolute;bottom:-30px;right:60px;width:80px;height:80px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
           <div style="font-size:0.8rem;opacity:0.8;margin-bottom:0.4rem;">Saldo actual — Caja Papelería</div>
@@ -1257,7 +1511,7 @@
             </select>
           </div>
           <div style="overflow-x:auto;">
-            <table class="premium-table">
+            <table class="premium-table table-cards">
               <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Ganancia</th><th>Motivo / Notas</th><th>Registrado por</th><th>Acciones</th></tr></thead>
               <tbody id="caja-pap-tbody"></tbody>
             </table>
@@ -1269,17 +1523,17 @@
       <div id="caja-tab-giros" style="display:none;">
         <!-- Saldos actuales -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
-          <div style="background:linear-gradient(135deg,#064e3b,#059669);border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
+          <div style="background:#0B5E33;border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
             <div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.3rem;">Saldo Plataforma</div>
             <div style="font-size:1.8rem;font-weight:900;font-family:'Bricolage Grotesque',sans-serif;" id="giros-saldo-plataforma">$0</div>
             <i class="fa-solid fa-globe" style="position:absolute;right:1rem;bottom:1rem;font-size:2rem;opacity:0.15;"></i>
           </div>
-          <div style="background:linear-gradient(135deg,#1e3a5f,#4A33C4);border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
+          <div style="background:#2A1E5C;border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
             <div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.3rem;">Saldo Caja</div>
             <div style="font-size:1.8rem;font-weight:900;font-family:'Bricolage Grotesque',sans-serif;" id="giros-saldo-caja">$0</div>
             <i class="fa-solid fa-money-bill-wave" style="position:absolute;right:1rem;bottom:1rem;font-size:2rem;opacity:0.15;"></i>
           </div>
-          <div style="background:linear-gradient(135deg,#4E2A9E,#9A5BE8);border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
+          <div style="background:#4E2A9E;border-radius:1.25rem;padding:1.5rem;color:white;position:relative;overflow:hidden;">
             <div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.3rem;">Total General</div>
             <div style="font-size:1.8rem;font-weight:900;font-family:'Bricolage Grotesque',sans-serif;" id="giros-saldo-total">$0</div>
             <i class="fa-solid fa-calculator" style="position:absolute;right:1rem;bottom:1rem;font-size:2rem;opacity:0.15;"></i>
@@ -1319,7 +1573,7 @@
             </select>
           </div>
           <div style="overflow-x:auto;">
-            <table class="premium-table">
+            <table class="premium-table table-cards">
               <thead><tr><th>Fecha</th><th>Tipo</th><th>Plataforma</th><th>Caja</th><th>Total</th><th>Ganancia</th><th>Motivo</th><th>Por</th><th>Acciones</th></tr></thead>
               <tbody id="caja-giros-tbody"></tbody>
             </table>
@@ -1336,7 +1590,7 @@
 		<button class="btn-primary" onclick="openModalStreamingCliente()">
 		  <i class="fa-solid fa-plus"></i> Nuevo Cliente
 		</button>
-		<button class="btn-primary" style="background:linear-gradient(135deg,#9A5BE8,#7448D6);" onclick="openModalStPlataformasGestion()">
+		<button class="btn-primary" style="background:#7448D6;" onclick="openModalStPlataformasGestion()">
 		  <i class="fa-solid fa-film"></i> Plataformas
 		</button>
 		<div style="position:relative;flex:1;min-width:200px;max-width:380px;">
@@ -1351,7 +1605,7 @@
 	  <!-- TABLA DE CLIENTES -->
 	  <div class="glass-card" style="overflow:hidden;">
 		<div class="table-wrapper" style="overflow-x:auto;">
-		  <table class="premium-table">
+		  <table class="premium-table table-cards">
 			<thead>
 			  <tr>
 				<th>Cliente</th>
@@ -1379,10 +1633,10 @@
 		</div>
 		<select id="st-sus-filter-estado" class="field-input" style="width:auto;" onchange="filterStreamingSuscripciones()">
 		  <option value="">Todos los estados</option>
-		  <option value="activo">🟢 Activo</option>
-		  <option value="por_vencer">🟡 Por vencer (1-5 días)</option>
-		  <option value="vencido">🔴 Vencido</option>
-		  <option value="cancelado">⚫ Cancelado</option>
+		  <option value="activo">Activo</option>
+		  <option value="por_vencer">Por vencer (1-5 días)</option>
+		  <option value="vencido">Vencido</option>
+		  <option value="cancelado">Cancelado</option>
 		</select>
 		<button class="btn-primary" onclick="openModalStreamingSus()">
 		  <i class="fa-solid fa-plus"></i> Nueva Venta
@@ -1443,7 +1697,7 @@
 		  <div style="display:flex;align-items:center;gap:0.75rem;">
 			<i class="fa-solid fa-triangle-exclamation" style="font-size:1.3rem;color:#E5383B;"></i>
 			<div>
-			  <div style="font-weight:700;font-size:0.95rem;">⚠️ Registro pendiente para hoy</div>
+			  <div style="font-weight:700;font-size:0.95rem;"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Registro pendiente para hoy</div>
 			  <div style="font-size:0.85rem;opacity:0.9;">Son las <span id="alert-time"></span>. Recuerda registrar tus movimientos para cumplir tu meta diaria (${META_DIARIA} mov.).</div>
 			</div>
 		  </div>
@@ -1462,7 +1716,7 @@
 	  <div class="glass-card" style="padding:1.5rem;margin-bottom:1.25rem;">
 		<h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1rem;">Mis últimos registros</h3>
 		<div class="table-wrapper" style="overflow-x:auto; position:relative;">
-		  <table class="premium-table">
+		  <table class="premium-table table-cards">
 			<thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th></tr></thead>
 			<tbody id="op-recent-tbody"></tbody>
 		  </table>
@@ -1518,7 +1772,7 @@
     <div class="section" id="sec-op-mis-registros">
       <div class="glass-card" style="overflow:hidden;">
         <div class="table-wrapper" style="overflow-x:auto; position:relative;">
-          <table class="premium-table">
+          <table class="premium-table table-cards">
             <thead><tr><th>Fecha</th><th>Movimientos</th><th>Plataformas</th><th>Participación</th><th>Notas</th><th>Clasificación</th><th>Creado</th></tr></thead>
             <tbody id="op-registros-tbody"></tbody>
           </table>
@@ -1650,7 +1904,7 @@
 <div id="modal-profile" class="modal-overlay" style="display:none;">
   <div class="modal-box" style="max-width:960px;max-height:92vh;overflow-y:auto;padding:0;background:transparent;border:none;box-shadow:none;">
     <!-- Header Gradient -->
-    <div style="background:linear-gradient(135deg,#5B3FD9 0%,#9A5BE8 50%,#E64A8B 100%);border-radius:1.5rem 1.5rem 0 0;padding:2rem 2rem 1.25rem;position:relative;overflow:hidden;">
+    <div class="profile-hero" style="background:var(--ink);border-radius:1.5rem 1.5rem 0 0;padding:2rem 2rem 1.25rem;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:rgba(255,255,255,0.1);border-radius:50%;filter:blur(60px);"></div>
       <button onclick="closeModal('modal-profile')" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
         <i class="fa-solid fa-xmark"></i>
@@ -1702,11 +1956,11 @@
     <div class="glass-card" style="border-radius:0 0 1.5rem 1.5rem;margin-top:-1px;padding:1.5rem 2rem;">
       <!-- Tabs -->
       <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid var(--card-border);overflow-x:auto;">
-        <button class="profile-tab active" data-tab="info" onclick="switchProfileTab('info')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;">👤 Información</button>
-        <button class="profile-tab" data-tab="stats" onclick="switchProfileTab('stats')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;">📊 Rendimiento</button>
-        <button class="profile-tab" data-tab="activity" onclick="switchProfileTab('activity')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;">🕐 Actividad</button>
-        <button class="profile-tab" data-tab="security" onclick="switchProfileTab('security')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;">🔐 Seguridad</button>
-        <button class="profile-tab" data-tab="settings" onclick="switchProfileTab('settings')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;">⚙️ Configuración</button>
+        <button class="profile-tab active" data-tab="info" onclick="switchProfileTab('info')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;"><i class="fa-regular fa-user" aria-hidden="true"></i> Información</button>
+        <button class="profile-tab" data-tab="stats" onclick="switchProfileTab('stats')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;"><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Rendimiento</button>
+        <button class="profile-tab" data-tab="activity" onclick="switchProfileTab('activity')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;"><i class="fa-regular fa-clock" aria-hidden="true"></i> Actividad</button>
+        <button class="profile-tab" data-tab="security" onclick="switchProfileTab('security')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;"><i class="fa-solid fa-lock" aria-hidden="true"></i> Seguridad</button>
+        <button class="profile-tab" data-tab="settings" onclick="switchProfileTab('settings')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;"><i class="fa-solid fa-sliders" aria-hidden="true"></i> Configuración</button>
         <button class="profile-tab" id="profile-config-tab" data-tab="sysconfig" onclick="switchProfileTab('sysconfig')" style="background:none;border:none;border-bottom:2px solid transparent;padding:0.6rem 1rem;margin-bottom:-2px;color:var(--text-muted);cursor:pointer;font-weight:600;font-size:0.82rem;transition:all 0.2s;white-space:nowrap;display:none;">🛠️ Sistema</button>
       </div>
 
@@ -1770,7 +2024,7 @@
 
         <!-- Tendencia -->
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.75rem;">📈 Tendencia últimos 7 días</div>
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.75rem;"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Tendencia últimos 7 días</div>
           <div class="chart-container" style="height:130px;"><canvas id="chart-profile-trend"></canvas></div>
         </div>
       </div>
@@ -1835,7 +2089,7 @@
 				<!-- Header con toggle -->
 				<div style="display:flex;align-items:center;justify-content:space-between;">
 				  <div>
-					<div style="font-weight:600;font-size:0.9rem;">🔔 Notificaciones Telegram</div>
+					<div style="font-weight:600;font-size:0.9rem;"><i class="fa-brands fa-telegram" aria-hidden="true"></i> Notificaciones Telegram</div>
 					<div style="font-size:0.75rem;color:var(--text-muted);" id="telegram-notif-desc">Recibe alertas de registros en tu Telegram</div>
 				  </div>
 				  <button class="toggle-dark" id="telegram-notif-toggle" onclick="toggleTelegramNotif()"><span class="toggle-dot"></span></button>
@@ -1843,7 +2097,7 @@
 
 				<!-- Instrucciones para obtener Chat ID -->
 				<div style="background:rgba(91,63,217,0.06);border:1px solid rgba(91,63,217,0.15);border-radius:0.75rem;padding:1rem;">
-				  <div style="font-size:0.8rem;font-weight:600;color:#5B3FD9;margin-bottom:0.5rem;">📱 ¿Cómo obtener tu Chat ID?</div>
+				  <div style="font-size:0.8rem;font-weight:600;color:#5B3FD9;margin-bottom:0.5rem;"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ¿Cómo obtener tu Chat ID?</div>
 				  <ol style="font-size:0.75rem;color:var(--text-muted);padding-left:1.1rem;margin:0;line-height:1.8;">
 					<li>Abre Telegram y busca <b>@HalielPapeleriaBot</b></li>
 					<li>Escríbele <b>/start</b></li>
@@ -1902,7 +2156,7 @@
 			<div style="margin-bottom:1rem;">
 			<label class="field-label">Aplicar configuración a:</label>
 			<select id="cfg-sucursal-meta" class="field-input" onchange="loadConfig(this.value)">
-			<option value="global">🌐 Global (Todas las sucursales)</option>
+			<option value="global">Global (todas las sucursales)</option>
 			</select>
 			</div>
             <div style="display:flex;flex-direction:column;gap:0.875rem;">
@@ -2019,7 +2273,7 @@
 <div id="modal-change-password" class="modal-overlay" style="display:none;">
   <div class="modal-box" style="max-width:420px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;">🔐 Cambiar contraseña</h3>
+      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;"><i class="fa-solid fa-key" aria-hidden="true"></i> Cambiar contraseña</h3>
       <button onclick="closeModal('modal-change-password')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
@@ -2146,7 +2400,7 @@
         <i class="fa-solid fa-search" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;"></i>
         <input type="text" placeholder="Buscar plataforma..." class="field-input" style="padding-left:2.2rem;font-size:0.85rem;" oninput="filtrarPlataformasModal(this.value)"/>
       </div>
-      <button class="btn-primary" style="background:linear-gradient(135deg,#9A5BE8,#7448D6);white-space:nowrap;" onclick="openModalStPlataforma()">
+      <button class="btn-primary" style="background:#7448D6;white-space:nowrap;" onclick="openModalStPlataforma()">
         <i class="fa-solid fa-plus"></i> Nueva Plataforma
       </button>
     </div>
@@ -2294,7 +2548,7 @@
 
       <!-- RESUMEN ECONÓMICO -->
       <div id="st-sus-resumen-combo" style="background:linear-gradient(135deg,rgba(18,161,80,0.08),rgba(18,161,80,0.04));border:1px solid rgba(18,161,80,0.2);border-radius:1rem;padding:1rem;display:none;">
-        <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;">💰 Resumen de la Venta</h4>
+        <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Resumen de la venta</h4>
         <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
           <div style="display:flex;justify-content:space-between;">
             <span style="color:var(--text-muted);">Total plataformas:</span>
@@ -2393,10 +2647,10 @@
       <button onclick="closeModal('modal-calendario-cobros')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div style="display:flex;gap:0.65rem;flex-wrap:wrap;margin-bottom:1rem;">
-      <button class="btn-primary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('hoy')">📅 Hoy</button>
-      <button class="btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('semana')">📆 Esta semana</button>
-      <button class="btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('mes')">📊 Este mes</button>
-      <button class="btn-danger" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('vencidos')">🔴 Vencidos</button>
+      <button class="btn-primary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('hoy')">Hoy</button>
+      <button class="btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('semana')">Esta semana</button>
+      <button class="btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('mes')">Este mes</button>
+      <button class="btn-danger" style="padding:0.5rem 0.875rem;font-size:0.82rem;" onclick="loadStreamingCalendarioModal('vencidos')">Vencidos</button>
     </div>
     <div style="margin-bottom:1rem;">
       <span style="font-size:0.85rem;color:var(--text-muted);padding:0.4rem 0.875rem;background:var(--input-bg);border-radius:0.65rem;display:inline-block;">
@@ -2412,7 +2666,7 @@
 <div id="modal-st-cobro" class="modal-overlay" style="display:none;">
   <div class="modal-box" style="max-width:480px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;">💬 Enviar cobro</h3>
+      <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Enviar cobro</h3>
       <button onclick="closeModal('modal-st-cobro')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="st-cobro-preview" style="background:var(--input-bg);border-radius:0.875rem;padding:1.25rem;margin-bottom:1rem;font-size:0.875rem;white-space:pre-wrap;line-height:1.7;border:1px solid var(--card-border);"></div>
@@ -2503,7 +2757,7 @@
 
       <!-- RESUMEN -->
       <div style="background:linear-gradient(135deg,rgba(18,161,80,0.08),rgba(18,161,80,0.04));border:1px solid rgba(18,161,80,0.2);border-radius:1rem;padding:1rem;">
-        <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;">💰 Resumen de la renovación</h4>
+        <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Resumen de la renovación</h4>
         <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
           <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Total plataformas:</span><span style="font-weight:700;" id="renov-count">0</span></div>
           <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Monto total:</span><span style="font-weight:700;color:#12A150;" id="renov-total">$0</span></div>
@@ -2529,7 +2783,7 @@
       <!-- BOTONES -->
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
         <button class="btn-secondary" onclick="closeModal('modal-st-renovar')">Cancelar</button>
-        <button class="btn-primary" id="btn-confirmar-renov" style="background:linear-gradient(135deg,#12A150,#0E8A44);" onclick="confirmarRenovacion()">
+        <button class="btn-primary" id="btn-confirmar-renov" style="background:#12A150;" onclick="confirmarRenovacion()">
           <i class="fa-solid fa-rotate"></i> Confirmar renovación
         </button>
       </div>
@@ -2617,7 +2871,7 @@
 <!-- Inactivity Warning -->
 <div id="inactivity-warning">
   <div id="inactivity-box">
-    <div style="font-size:3rem;margin-bottom:1rem;">⏰</div>
+    <div style="font-size:2.25rem;margin-bottom:1rem;color:#F5B70A;"><i class="fa-regular fa-clock" aria-hidden="true"></i></div>
     <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.5rem;">¿Sigues ahí?</h3>
     <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;">Tu sesión se cerrará en <span id="inactivity-countdown" style="font-weight:700;color:#E5383B;">60</span> segundos por inactividad.</p>
     <div style="display:flex;gap:0.75rem;justify-content:center;">
@@ -2627,7 +2881,7 @@
   </div>
 </div>
 <div id="success-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:9998;flex-direction:column;gap:1rem;">
-  <div style="font-size:5rem;color:#12A150;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">✅</div>
+  <div style="font-size:5rem;color:#12A150;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
   <div style="font-size:1.2rem;font-weight:700;color:#1B1740;">¡Guardado correctamente!</div>
 </div>
 
@@ -3272,7 +3526,7 @@ function getInitials(name) { if(!name) return '?'; return name.split(' ').map(w=
 function renderAvatar(element, user, size='36px') {
     if (!element) return;
     const fotoUrl = user?.foto_perfil || null;
-    element.style.cssText = `width:${size};height:${size};border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#5B3FD9,#7A5CF0);`;
+    element.style.cssText = `width:${size};height:${size};border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#5B3FD9;`;
     
     if (fotoUrl) {
         // Si el usuario tiene foto personalizada, la mostramos
@@ -3339,15 +3593,22 @@ function toggleSidebarPin() {
   const sidebar = document.getElementById('sidebar');
   const main = document.getElementById('main-content');
   const icon = document.getElementById('pin-icon');
+  const btn = document.getElementById('sidebar-pin-btn');
   if (sidebarPinned) {
     sidebar.classList.remove('collapsed');
     main.classList.remove('sidebar-collapsed');
     if (icon) icon.style.transform = '';
+    if (btn) delete btn.dataset.tip;
   } else {
     sidebar.classList.add('collapsed');
     main.classList.add('sidebar-collapsed');
-    if (icon) icon.style.transform = 'rotate(45deg)';
+    if (icon) icon.style.transform = 'rotate(180deg)';
+    if (btn) btn.dataset.tip = 'Expandir menú';
   }
+  // En modo compacto, cada ícono muestra su nombre al pasar el cursor
+  document.querySelectorAll('.sidebar .nav-item').forEach(n => {
+    if (sidebarPinned) delete n.dataset.tip; else n.dataset.tip = n.dataset.tooltip || n.textContent.trim();
+  });
   localStorage.setItem('sidebarPinned', sidebarPinned ? '1' : '0');
 }
 
@@ -3815,6 +4076,9 @@ function initStreamingNav() {
     const el = document.getElementById(id);
     if (el) el.style.display = show ? '' : 'none';
   });
+  // El grupo "Ventas y servicios" completo depende del acceso a streaming
+  const grupo = document.getElementById('group-streaming');
+  if (grupo) grupo.style.display = show ? '' : 'none';
 }
 
 function goSection(key) {
@@ -3839,10 +4103,7 @@ function goSection(key) {
     if (ptEl) ptEl.textContent = sec.title;
     if (psEl) psEl.textContent = sec.sub;
     
-    document.querySelectorAll('.nav-item').forEach(n => {
-        n.classList.remove('active');
-        if (n.textContent.trim().includes(sec.title)) n.classList.add('active');
-    });
+    marcarNavActiva(key);
 
     // 🎬 FONDO STREAMING
     const _bg = document.getElementById('streaming-bg-overlay');
@@ -3857,7 +4118,7 @@ function goSection(key) {
     // 📍 BREADCRUMB
     updateBreadcrumb(key);
     
-    if (sec.load) sec.load();
+    window._lastSectionLoad = sec.load ? Promise.resolve(sec.load()) : Promise.resolve();
     if (window.innerWidth < 768) closeSidebar();
 }
 
@@ -4101,7 +4362,7 @@ function renderSucursales() {
   grid.innerHTML = allSucursales.map(s => `
     <div class="glass-card" style="padding:1.5rem;">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-        <div style="width:44px;height:44px;border-radius:0.875rem;background:linear-gradient(135deg,#5B3FD9,#7A5CF0);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;">${s.nombre[0]}</div>
+        <div style="width:44px;height:44px;border-radius:0.875rem;background:#5B3FD9;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;">${s.nombre[0]}</div>
         <div><div style="font-weight:700;font-family:'Bricolage Grotesque',sans-serif;">${s.nombre}</div><div style="font-size:0.8rem;color:var(--text-muted);">${s.direccion||'Sin dirección'}</div></div>
       </div>
       <div style="display:flex;gap:0.5rem;">
@@ -4645,7 +4906,7 @@ function chartOptions(cc, label='') {
                 callbacks: {
                     title: function(items) {
                         const label = items[0]?.label || '';
-                        return '📅 ' + label;
+                        return label;
                     },
                     label: function(item) {
                         const val = item.parsed.y ?? item.parsed;
@@ -4655,7 +4916,7 @@ function chartOptions(cc, label='') {
                         }
                         if (typeof val === 'number') {
                             const cls = getClasificacion(val);
-                            const clsLabel = cls === 'optimo' ? '✅ Óptimo' : cls === 'aceptable' ? '⚠️ Aceptable' : '❌ Bajo';
+                            const clsLabel = cls === 'optimo' ? 'Óptimo' : cls === 'aceptable' ? 'Aceptable' : 'Bajo';
                             return [`  ${datasetLabel || 'Movimientos'}: ${val.toLocaleString('es-CO')}`, `  ${clsLabel} · Meta: ${META_DIARIA}`];
                         }
                         return '  ' + datasetLabel + ': ' + val;
@@ -4686,7 +4947,7 @@ function renderRanking(data) {
   if (!sorted.length){container.innerHTML='<div class="empty-state" style="padding:1rem;"><p>Sin datos</p></div>';return;}
   container.innerHTML=sorted.slice(0,5).map(([name,stats],i)=>`
     <div class="rank-item">
-      <div class="rank-num" style="background:${i<3?rankColors[i]+'22':'var(--input-bg)'};color:${i<3?rankColors[i]:'var(--text-muted)'};">${i<3?rankEmoji[i]:i+1}</div>
+      <div class="rank-num" style="background:${i<3?rankColors[i]+'22':'var(--input-bg)'};color:${i<3?rankColors[i]:'var(--text-muted)'};">${i+1}</div>
       <div class="avatar" style="width:32px;height:32px;font-size:0.7rem;">${getInitials(name)}</div>
       <div style="flex:1;"><div style="font-weight:600;font-size:0.875rem;">${name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${stats.dias} días · Prom: ${Math.round(stats.total/stats.dias)}</div></div>
       <div style="font-weight:700;font-family:'Bricolage Grotesque',sans-serif;font-size:0.95rem;">${stats.total.toLocaleString()}</div>
@@ -4764,19 +5025,19 @@ async function loadTopDias() {
 
   document.getElementById('top-dias-grid').innerHTML=`
     <div class="stat-card" style="text-align:center;">
-      <div style="font-size:2rem;margin-bottom:0.5rem;">🏆</div>
+      <div class="tile-ico" style="--c:#12A150;"><i class="fa-solid fa-trophy" aria-hidden="true"></i></div>
       <div style="font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:#12A150;">${mejorDia.movimientos.toLocaleString()}</div>
       <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.25rem;">Mejor día: ${formatDate(mejorDia.fecha)}</div>
       <div style="font-size:0.75rem;color:var(--text-muted);">${mejorDia.operador_nombre||'—'}</div>
     </div>
     <div class="stat-card" style="text-align:center;">
-      <div style="font-size:2rem;margin-bottom:0.5rem;">📉</div>
+      <div class="tile-ico" style="--c:#E5383B;"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i></div>
       <div style="font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:#E5383B;">${peorDia.movimientos.toLocaleString()}</div>
       <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.25rem;">Peor día: ${formatDate(peorDia.fecha)}</div>
       <div style="font-size:0.75rem;color:var(--text-muted);">${peorDia.operador_nombre||'—'}</div>
     </div>
     <div class="stat-card" style="text-align:center;">
-      <div style="font-size:2rem;margin-bottom:0.5rem;">📊</div>
+      <div class="tile-ico" style="--c:#5B3FD9;"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></div>
       <div style="font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:#5B3FD9;">${avgMov.toLocaleString()}</div>
       <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-top:0.25rem;">Promedio diario</div>
       ${topMes?`<div style="font-size:0.75rem;color:var(--text-muted);">Mejor mes: ${monthNames[parseInt(topMes[0].split('-')[1])-1]}</div>`:''}
@@ -5224,7 +5485,7 @@ function saveConfig() {
 function getDynamicGreeting(name) {
   const h=new Date().getHours();
   const g=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
-  return `${g}, ${name||'Usuario'} 👋`;
+  return `${g}, ${name||'Usuario'}`;
 }
 
 function initSmartDates() {
@@ -5267,7 +5528,7 @@ function updateRealTimeUI(now = new Date()) {
             if (nombreEl) {
                 const nombre = currentProfile?.nombre || currentUser?.email?.split('@')[0] || 'Administrador';
                 const h = now.getHours();
-                const saludo = h < 12 ? '☀️ Buenos días' : h < 18 ? '🌤️ Buenas tardes' : '🌙 Buenas noches';
+                const saludo = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
                 const nuevoTexto = `${saludo}, ${nombre}`;
                 if (nombreEl.textContent !== nuevoTexto) {
                     nombreEl.textContent = nuevoTexto;
@@ -5463,7 +5724,7 @@ async function loadProfileStats() {
       if (regs.length >= 30) logros.push('📅 30 registros');
       logrosEl.innerHTML = logros.length ? `
         <div style="margin-bottom:0.75rem;">
-          <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;">🏅 Logros desbloqueados</div>
+          <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;"><i class="fa-solid fa-medal" aria-hidden="true"></i> Logros desbloqueados</div>
           <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
             ${logros.map(l=>`<span class="logro-badge">${l}</span>`).join('')}
           </div>
@@ -6996,22 +7257,22 @@ function openHelpModal() {
   
   const html = `
     <div style="margin-bottom:1.25rem;">
-      <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.75rem;color:#5B3FD9;">👋 Bienvenido al Panel de ${isAdm ? 'Administrador' : 'Operador'}</h4>
+      <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;margin-bottom:0.75rem;color:#5B3FD9;"><i class="fa-regular fa-hand help-ico" aria-hidden="true"></i> Bienvenido al Panel de ${isAdm ? 'Administrador' : 'Operador'}</h4>
       <p style="color:var(--text-muted);font-size:0.875rem;">Esta guía te ayudará a navegar y aprovechar al máximo las herramientas de Haliel Papelería.</p>
     </div>
     
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
       ${isAdm ? `
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">📊 Dashboard & Métricas</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-chart-pie help-ico" aria-hidden="true"></i> Dashboard & Métricas</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Filtra por mes, día específico o sucursal</li>
             <li>Visualiza KPIs, gráficas de rendimiento y metas</li>
-            <li>💡 Doble clic en el logo lateral vuelve al inicio</li>
+            <li><i class="fa-regular fa-lightbulb help-ico" aria-hidden="true"></i> Doble clic en el logo lateral vuelve al inicio</li>
           </ul>
         </div>
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">👥 Gestión de Usuarios</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-users help-ico" aria-hidden="true"></i> Gestión de Usuarios</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Crea, edita o elimina operadores/admins</li>
             <li>Asigna sucursales y controla estados (Activo/Inactivo)</li>
@@ -7019,7 +7280,7 @@ function openHelpModal() {
           </ul>
         </div>
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">🏢 Sucursales & Plataformas</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-store help-ico" aria-hidden="true"></i> Sucursales & Plataformas</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Administra puntos de venta y colores de plataforma</li>
             <li>Usa "Editar" para modificar sin perder históricos</li>
@@ -7027,7 +7288,7 @@ function openHelpModal() {
           </ul>
         </div>
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">📈 Reportes & Auditoría</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-file-export help-ico" aria-hidden="true"></i> Reportes & Auditoría</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Exporta registros a Excel o PDF filtrados</li>
             <li>Consulta logs de actividad (solo visible para Admin)</li>
@@ -7036,7 +7297,7 @@ function openHelpModal() {
         </div>
       ` : `
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">📝 Registrar Movimientos</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-circle-plus help-ico" aria-hidden="true"></i> Registrar Movimientos</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Selecciona la fecha y diligencia cada plataforma</li>
             <li>Ingresa tu participación diaria ($)</li>
@@ -7044,7 +7305,7 @@ function openHelpModal() {
           </ul>
         </div>
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">📊 Mi Rendimiento</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-chart-line help-ico" aria-hidden="true"></i> Mi Rendimiento</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Revisa tu historial completo de registros</li>
             <li>Visualiza tendencias y métricas personales</li>
@@ -7052,7 +7313,7 @@ function openHelpModal() {
           </ul>
         </div>
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">👤 Perfil & Seguridad</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-regular fa-circle-user help-ico" aria-hidden="true"></i> Perfil & Seguridad</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>Actualiza tu foto, teléfono y dirección</li>
             <li>Cambia tu contraseña desde la pestaña Seguridad</li>
@@ -7060,7 +7321,7 @@ function openHelpModal() {
           </ul>
         </div>
         <div class="glass-card" style="padding:1rem;">
-          <div style="font-weight:600;margin-bottom:0.5rem;">⚠️ Notas Importantes</div>
+          <div style="font-weight:600;margin-bottom:0.5rem;"><i class="fa-solid fa-triangle-exclamation help-ico" aria-hidden="true"></i> Notas Importantes</div>
           <ul style="font-size:0.8rem;color:var(--text-muted);padding-left:1.1rem;margin:0;">
             <li>La sesión se cierra automáticamente por inactividad</li>
             <li>Guarda tus registros diariamente para evitar pérdidas</li>
@@ -7074,7 +7335,7 @@ function openHelpModal() {
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <i class="fa-solid fa-lightbulb" style="color:#F5B70A;font-size:1.2rem;"></i>
         <div>
-          <div style="font-weight:600;font-size:0.9rem;">💡 Consejo Pro</div>
+          <div style="font-weight:600;font-size:0.9rem;"><i class="fa-regular fa-lightbulb help-ico" aria-hidden="true"></i> Consejo Pro</div>
           <div style="font-size:0.8rem;color:var(--text-muted);">${isAdm ? 'Usa los filtros superiores del Dashboard para análisis rápidos. La auditoría registra cada creación, edición y eliminación automáticamente.' : 'Completa tus movimientos al final del turno. Tu foto de perfil y datos se sincronizan en tiempo real en todos los dispositivos.'}</div>
         </div>
       </div>
@@ -7322,7 +7583,7 @@ function showOperatorPhoto(opId) {
         <button onclick="closeOperatorPhoto()" style="position:absolute;top:1.5rem;right:1.5rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:40px;height:40px;color:white;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
           <i class="fa-solid fa-xmark"></i>
         </button>
-        <div id="op-photo-img-container" style="width:280px;height:280px;border-radius:50%;overflow:hidden;border:5px solid white;box-shadow:0 16px 64px rgba(0,0,0,0.5);margin:0 auto 1.5rem;background:linear-gradient(135deg,#5B3FD9,#7A5CF0);display:flex;align-items:center;justify-content:center;">
+        <div id="op-photo-img-container" style="width:280px;height:280px;border-radius:50%;overflow:hidden;border:5px solid white;box-shadow:0 16px 64px rgba(0,0,0,0.5);margin:0 auto 1.5rem;background:#5B3FD9;display:flex;align-items:center;justify-content:center;">
         </div>
         <div style="color:white;">
           <div id="op-photo-name" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:0.25rem;"></div>
@@ -7412,7 +7673,7 @@ function toggleOpStreamingAccess() {
   const label  = document.getElementById('op-streaming-toggle-label');
   if (opStreamingAccessTemp) {
     toggle.classList.add('on');
-    label.textContent = 'Con acceso a Streaming ✅';
+    label.textContent = 'Con acceso a Streaming';
   } else {
     toggle.classList.remove('on');
     label.textContent = 'Sin acceso a Streaming';
@@ -7433,7 +7694,7 @@ openModalOperador = function(id = null) {
   if (toggle) {
     opStreamingAccessTemp ? toggle.classList.add('on') : toggle.classList.remove('on');
   }
-  if (label) label.textContent = opStreamingAccessTemp ? 'Con acceso a Streaming ✅' : 'Sin acceso a Streaming';
+  if (label) label.textContent = opStreamingAccessTemp ? 'Con acceso a Streaming' : 'Sin acceso a Streaming';
 };
 
 // Parchear saveOperador para guardar streaming_access
@@ -7489,10 +7750,10 @@ function _numVenta(idVenta) {
 function badgeEstadoSus(estado, fechaVence) {
   const dias = diasRestantes(fechaVence);
   const map = {
-    activo:     ['badge-green',  '🟢', `Activo (${dias}d)`],
-    por_vencer: ['badge-yellow', '🟡', `Vence en ${dias}d`],
-    vencido:    ['badge-red',    '🔴', `Vencido hace ${Math.abs(dias)}d`],
-    cancelado:  ['',             '⚫', 'Cancelado'],
+    activo:     ['badge-green',  '<i class="fa-solid fa-circle dot-ico"></i>', `Activo (${dias}d)`],
+    por_vencer: ['badge-yellow', '<i class="fa-solid fa-circle dot-ico"></i>', `Vence en ${dias}d`],
+    vencido:    ['badge-red',    '<i class="fa-solid fa-circle dot-ico"></i>', `Vencido hace ${Math.abs(dias)}d`],
+    cancelado:  ['badge-muted',  '<i class="fa-solid fa-circle dot-ico"></i>', 'Cancelado'],
   };
   const [cls, ico, txt] = map[estado] || map['activo'];
   return `<span class="badge ${cls}">${ico} ${txt}</span>`;
@@ -8098,8 +8359,8 @@ function renderStRentabilidad() {
 function openModalStreamingSus(id = null) {
   editingStSusId = id;
   document.getElementById('modal-st-sus-title').textContent = id
-    ? '✏️ Editar Suscripción'
-    : '🛒 Nueva Venta de Suscripción';
+    ? 'Editar suscripción'
+    : 'Nueva venta de suscripción';
 
   stSusComboSeleccionadas.clear();
 
@@ -9202,7 +9463,7 @@ async function loadStreamingCalendarioModal(filtro = 'semana') {
   const grid = document.getElementById('st-cal-modal-grid');
   if (!lista.length) {
     grid.innerHTML = `<div class="glass-card" style="padding:2rem;text-align:center;color:var(--text-muted);">
-      <div style="font-size:2.5rem;margin-bottom:0.75rem;">✅</div>
+      <div style="font-size:2rem;margin-bottom:0.75rem;color:#12A150;"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
       <div style="font-weight:600;">Sin vencimientos para este período</div>
     </div>`;
     return;
@@ -9254,21 +9515,23 @@ function renderStSusAllKpis() {
   const totalSus  = allStSuscripciones.filter(s => s.estado !== 'cancelado').length;
 
   const tarjetas = [
-    { label: 'Clientes activos',  value: totalCli,                icon: '👥', color: '#5B3FD9' },
-    { label: 'Ingresos activos',  value: formatCurrency(ingresos),icon: '💰', color: '#12A150' },
-    { label: 'Ganancia neta',     value: formatCurrency(ganancia), icon: '📈', color: '#9A5BE8' },
-    { label: 'Margen promedio',   value: margen + '%',             icon: '📊', color: '#F5B70A' },
-    { label: 'Activas',           value: activas,                  icon: '✅', color: '#12A150' },
-    { label: 'Por vencer',        value: porVencer,                icon: '⏰', color: '#B7791F' },
-    { label: 'Vencidas',          value: vencidas,                 icon: '🔴', color: '#E5383B' },
-    { label: 'Total suscripc.',   value: totalSus,                 icon: '📋', color: '#5B3FD9' },
+    { label: 'Clientes activos',  value: totalCli,                icon: 'fa-users', color: '#5B3FD9' },
+    { label: 'Ingresos activos',  value: formatCurrency(ingresos),icon: 'fa-sack-dollar', color: '#12A150' },
+    { label: 'Ganancia neta',     value: formatCurrency(ganancia), icon: 'fa-chart-line', color: '#9A5BE8' },
+    { label: 'Margen promedio',   value: margen + '%',             icon: 'fa-percent', color: '#D99A00' },
+    { label: 'Activas',           value: activas,                  icon: 'fa-circle-check', color: '#12A150' },
+    { label: 'Por vencer',        value: porVencer,                icon: 'fa-hourglass-half', color: '#B7791F' },
+    { label: 'Vencidas',          value: vencidas,                 icon: 'fa-circle-exclamation', color: '#E5383B' },
+    { label: 'Total suscripc.',   value: totalSus,                 icon: 'fa-list-check', color: '#5B3FD9' },
   ];
 
   container.innerHTML = tarjetas.map(t => `
-    <div class="glass-card" style="padding:0.875rem 0.75rem;text-align:center;border-top:3px solid ${t.color};transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-      <div style="font-size:1.25rem;margin-bottom:0.25rem;">${t.icon}</div>
-      <div style="font-size:1rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:${t.color};line-height:1.1;">${t.value}</div>
-      <div style="font-size:0.68rem;color:var(--text-muted);margin-top:0.2rem;font-weight:600;">${t.label}</div>
+    <div class="kpi-tile">
+      <span class="tile-ico" style="--c:${t.color};"><i class="fa-solid ${t.icon}"></i></span>
+      <div style="min-width:0;">
+        <div class="kpi-tile-val">${t.value}</div>
+        <div class="kpi-tile-label">${t.label}</div>
+      </div>
     </div>
   `).join('');
 }
@@ -9283,12 +9546,12 @@ function confirmarCerrarSesion() {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
   overlay.innerHTML = `
     <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:360px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-      <div style="width:56px;height:56px;background:rgba(229,56,59,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">🚪</div>
+      <div style="width:56px;height:56px;background:rgba(229,56,59,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.3rem;color:#E5383B;"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></div>
       <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;">¿Cerrar sesión?</h3>
       <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;">Tu sesión se cerrará y deberás iniciar sesión nuevamente.</p>
       <div style="display:flex;gap:0.75rem;justify-content:center;">
         <button onclick="document.getElementById('confirm-logout-overlay').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
-        <button onclick="document.getElementById('confirm-logout-overlay').remove();doLogout();" style="flex:1;background:linear-gradient(135deg,#E5383B,#C9282B);color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">Cerrar sesión</button>
+        <button onclick="document.getElementById('confirm-logout-overlay').remove();doLogout();" style="flex:1;background:#E5383B;color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">Cerrar sesión</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -9312,7 +9575,7 @@ async function generarPasswordTemporal(userId, userName, userEmail) {
   overlay.innerHTML = `
     <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:420px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.05rem;">🔑 Contraseña Temporal</h3>
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.05rem;"><i class="fa-solid fa-key" aria-hidden="true"></i> Contraseña temporal</h3>
         <button onclick="document.getElementById('temp-pwd-overlay').remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div style="background:rgba(91,63,217,0.06);border:1px solid rgba(91,63,217,0.15);border-radius:0.875rem;padding:1rem;margin-bottom:1rem;">
@@ -9325,7 +9588,7 @@ async function generarPasswordTemporal(userId, userName, userEmail) {
         <button onclick="navigator.clipboard.writeText('${pwd}');toast('Copiada ✅','success');" class="btn-secondary" style="white-space:nowrap;"><i class="fa-solid fa-copy"></i></button>
       </div>
       <div style="background:rgba(245,183,10,0.1);border:1px solid rgba(245,183,10,0.3);border-radius:0.75rem;padding:0.75rem;font-size:0.78rem;color:#92400e;margin-bottom:1rem;">
-        ⚠️ Comparte esta contraseña con el usuario de forma segura. Se aplicará al hacer clic en "Establecer".
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Comparte esta contraseña con el usuario de forma segura. Se aplicará al hacer clic en "Establecer".
       </div>
       <div style="display:flex;gap:0.75rem;">
         <button onclick="document.getElementById('temp-pwd-overlay').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
@@ -9361,13 +9624,14 @@ async function aplicarPasswordTemporal(userId, pwd) {
 
 
 const SECTION_GROUP_MAP = {
-  'dashboard':'principal','registros':'principal','admin-registrar':'principal',
-  'estadisticas':'principal','top-dias':'principal','cerrar-caja':'principal',
-  'operadores':'gestion','sucursales':'gestion','plataformas':'gestion','reportes':'gestion',
+  'dashboard':'principal',
+  'admin-registrar':'operaciones','cerrar-caja':'operaciones','registros':'operaciones',
   'streaming-cartera':'streaming','streaming-suscripciones':'streaming',
-  'auditoria':'sistema'
+  'estadisticas':'analisis','top-dias':'analisis','reportes':'analisis',
+  'operadores':'gestion','sucursales':'gestion','plataformas':'gestion','auditoria':'gestion',
+  'op-inicio':'espacio','op-registrar':'operaciones','op-mis-registros':'operaciones','op-rendimiento':'analisis'
 };
-const ALL_GROUPS = ['principal','gestion','streaming','sistema'];
+const ALL_GROUPS = ['principal','operaciones','streaming','analisis','gestion','sistema'];
 
 function openNavGroup(id) {
   document.getElementById('body-'+id)?.classList.add('open');
@@ -9412,15 +9676,9 @@ function switchCajaTab(tab) {
   cajaTabActual = tab;
   document.getElementById('caja-tab-papeleria').style.display = tab==='papeleria'?'':'none';
   document.getElementById('caja-tab-giros').style.display     = tab==='giros'?'':'none';
-  const bP = document.getElementById('caja-tab-btn-papeleria');
-  const bG = document.getElementById('caja-tab-btn-giros');
-  if (tab==='papeleria') {
-    bP.style.background='linear-gradient(135deg,#5B3FD9,#4A33C4)';bP.style.color='white';bP.style.boxShadow='0 2px 8px rgba(91,63,217,0.3)';
-    bG.style.background='transparent';bG.style.color='var(--text-muted)';bG.style.boxShadow='none';
-  } else {
-    bG.style.background='linear-gradient(135deg,#9A5BE8,#7448D6)';bG.style.color='white';bG.style.boxShadow='0 2px 8px rgba(154,91,232,0.3)';
-    bP.style.background='transparent';bP.style.color='var(--text-muted)';bP.style.boxShadow='none';
-  }
+  document.getElementById('caja-tab-btn-papeleria')?.classList.toggle('active', tab==='papeleria');
+  document.getElementById('caja-tab-btn-giros')?.classList.toggle('active', tab==='giros');
+  marcarNavActiva('cerrar-caja');
   if (tab==='papeleria') loadCajaPapeleria(); else loadCajaGiros();
 }
 
@@ -9752,7 +10010,7 @@ function confirmarEliminar(msg, onConfirm) {
       <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;line-height:1.5;">${msg}</p>
       <div style="display:flex;gap:0.75rem;justify-content:center;">
         <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
-        <button id="confirm-del-btn" style="flex:1;background:linear-gradient(135deg,#E5383B,#C9282B);color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">Eliminar</button>
+        <button id="confirm-del-btn" style="flex:1;background:#E5383B;color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">Eliminar</button>
       </div>
     </div>`;
   document.body.appendChild(o);
@@ -9778,7 +10036,8 @@ function trackAction() {
 // BREADCRUMB
 // =====================================================
 const BREADCRUMB_GROUPS = {
-  'principal':'Principal','gestion':'Gestión','streaming':'Streaming','sistema':'Sistema'
+  'principal':'Principal','operaciones':'Operaciones','streaming':'Ventas y servicios','analisis':'Análisis',
+  'gestion':'Administración','sistema':'Configuración','espacio':'Mi espacio'
 };
 function updateBreadcrumb(sectionKey) {
   const sec = sectionMap[sectionKey];
@@ -9825,12 +10084,12 @@ async function toggleEstadoOperador(id, estadoActual) {
   const o = document.createElement('div');
   o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;';
   o.innerHTML=`<div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:1.5rem;padding:2rem;max-width:380px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:modalSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-    <div style="width:56px;height:56px;background:${nuevoEstado==='inactivo'?'rgba(229,56,59,0.1)':'rgba(18,161,80,0.1)'};border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">${nuevoEstado==='inactivo'?'🔒':'✅'}</div>
+    <div style="width:56px;height:56px;background:${nuevoEstado==='inactivo'?'rgba(229,56,59,0.1)':'rgba(18,161,80,0.1)'};border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;">${nuevoEstado==='inactivo'?'<i class="fa-solid fa-lock" style="color:#E5383B"></i>':'<i class="fa-solid fa-circle-check" style="color:#12A150"></i>'}</div>
     <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.75rem;">${nuevoEstado==='inactivo'?'Desactivar usuario':'Activar usuario'}</h3>
     <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">${msg}</p>
     <div style="display:flex;gap:0.75rem;justify-content:center;">
       <button onclick="this.closest('[style*=fixed]').remove()" class="btn-secondary" style="flex:1;">Cancelar</button>
-      <button id="confirm-toggle-btn" style="flex:1;background:${nuevoEstado==='inactivo'?'linear-gradient(135deg,#E5383B,#C9282B)':'linear-gradient(135deg,#12A150,#0E8A44)'};color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">${nuevoEstado==='inactivo'?'Desactivar':'Activar'}</button>
+      <button id="confirm-toggle-btn" style="flex:1;background:${nuevoEstado==='inactivo'?'#E5383B':'#12A150'};color:white;border:none;border-radius:0.75rem;padding:0.65rem 1.25rem;font-family:'Figtree',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">${nuevoEstado==='inactivo'?'Desactivar':'Activar'}</button>
     </div>
   </div>`;
   document.body.appendChild(o);
@@ -10304,7 +10563,7 @@ async function mostrarBienvenidaOperador() {
   if(el) {
     el.innerHTML=`<div style="background:linear-gradient(135deg,rgba(91,63,217,0.08),rgba(154,91,232,0.06));border:1px solid rgba(91,63,217,0.12);border-radius:1rem;padding:1rem 1.4rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
       <div>
-        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;">👋 ¡Hola, ${nombre}!</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;">¡Hola, ${nombre}!</div>
         <div style="font-size:0.8rem;color:var(--text-muted);">${sucursal?`Sucursal: ${sucursal} · `:''} Hoy llevas <strong style="color:#5B3FD9;">${totalHoy.toLocaleString('es-CO')} movimientos</strong></div>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted);">${new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</div>
@@ -10401,11 +10660,11 @@ async function loadGirosDiarios() {
     </div>
     <div class="glass-card" style="padding:0.875rem;text-align:center;">
       <div style="font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:#12A150;">${(maxRow?.cantidad || 0).toLocaleString('es-CO')}</div>
-      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">🏆 Mejor día ${maxRow ? '('+formatDate(maxRow.fecha)+')' : ''}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Mejor día ${maxRow ? '('+formatDate(maxRow.fecha)+')' : ''}</div>
     </div>
     <div class="glass-card" style="padding:0.875rem;text-align:center;">
       <div style="font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:#E5383B;">${(minRow?.cantidad || 0).toLocaleString('es-CO')}</div>
-      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;">📉 Menor día ${minRow ? '('+formatDate(minRow.fecha)+')' : ''}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> Menor día ${minRow ? '('+formatDate(minRow.fecha)+')' : ''}</div>
     </div>
     <div class="glass-card" style="padding:0.875rem;text-align:center;">
       <div style="font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:#F5B70A;">${rows.length}</div>
@@ -10795,7 +11054,7 @@ async function exportCajaPDFCombinado() {
     * { box-sizing:border-box; margin:0; padding:0; }
     body { font-family:'Segoe UI',Arial,sans-serif; color:#2A2550; background:#F1F0F8; }
     .page { max-width:780px; margin:30px auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
-    .header { background:linear-gradient(135deg,#2E2180,#4E2A9E); color:white; padding:28px 32px; display:flex; align-items:center; gap:20px; }
+    .header { background:#2E2180; color:white; padding:28px 32px; display:flex; align-items:center; gap:20px; }
     .header img { width:64px; height:64px; border-radius:50%; border:3px solid rgba(255,255,255,0.4); object-fit:cover; }
     .header-fallback { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; border:3px solid rgba(255,255,255,0.4); flex-shrink:0; }
     .header-info { flex:1; }
@@ -10993,6 +11252,92 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+</script>
+
+<script>
+// =====================================================
+// UI · Navegación y presentación (rediseño 2026)
+// Solo afecta la interfaz: no cambia datos ni reglas de negocio.
+// =====================================================
+
+// Ir a una sección y, cuando termine de cargar, ejecutar una acción
+// (abrir una pestaña o un modal de esa misma sección).
+async function navSub(key, accion) {
+  goSection(key);
+  try { await window._lastSectionLoad; } catch (_) {}
+  if (typeof accion === 'function') accion();
+}
+
+// Abrir el perfil directamente en una pestaña (Seguridad, Preferencias, Sistema…)
+async function abrirPerfilEn(tab) {
+  await openProfileModal();
+  if (tab && tab !== 'info') switchProfileTab(tab);
+  if (window.innerWidth < 768) closeSidebar();
+}
+
+// Pestañas del dashboard
+function dashTab(nombre) {
+  document.querySelectorAll('.dash-tabs .seg-btn').forEach(b => {
+    const on = b.dataset.dtab === nombre;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  document.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.dataset.dpanel !== nombre; });
+  requestAnimationFrame(() => Object.values(charts).forEach(c => { try { c && c.resize(); } catch (_) {} }));
+  try { localStorage.setItem('haliel-dash-tab', nombre); } catch (_) {}
+}
+
+// Marca activo el acceso del menú que corresponde a la sección (y a la pestaña de caja)
+function marcarNavActiva(key) {
+  const sub = (typeof cajaTabActual !== 'undefined') ? cajaTabActual : 'papeleria';
+  document.querySelectorAll('.nav-item[data-section]').forEach(n => {
+    const ok = n.dataset.section === key && (!n.dataset.sub || n.dataset.sub === sub);
+    n.classList.toggle('active', ok);
+    if (ok) n.setAttribute('aria-current', 'page'); else n.removeAttribute('aria-current');
+  });
+}
+
+// Accesibilidad: los accesos del menú se pueden usar con teclado
+function prepararNavTeclado() {
+  document.querySelectorAll('.sidebar .nav-item').forEach(n => {
+    if (!n.hasAttribute('tabindex')) n.setAttribute('tabindex', '0');
+    n.setAttribute('role', 'link');
+  });
+}
+document.addEventListener('keydown', e => {
+  const n = e.target.closest && e.target.closest('.sidebar .nav-item');
+  if (n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); n.click(); }
+  if (e.key === 'Escape' && document.getElementById('sidebar')?.classList.contains('open')) closeSidebar();
+});
+
+// Tablas → tarjetas en móvil: cada celda toma el nombre de su columna
+function etiquetarTabla(tabla) {
+  const heads = [...tabla.querySelectorAll('thead th')].map(th => th.textContent.trim());
+  tabla.querySelectorAll('tbody tr').forEach(tr => {
+    [...tr.children].forEach((td, i) => {
+      if (td.tagName === 'TD' && !td.hasAttribute('colspan') && heads[i] && !td.dataset.label) td.dataset.label = heads[i];
+    });
+  });
+}
+function prepararTablasMoviles() {
+  document.querySelectorAll('table.table-cards').forEach(t => {
+    etiquetarTabla(t);
+    const tb = t.querySelector('tbody');
+    if (tb && !tb._obs) {
+      tb._obs = new MutationObserver(() => etiquetarTabla(t));
+      tb._obs.observe(tb, { childList: true });
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  prepararNavTeclado();
+  prepararTablasMoviles();
+  try {
+    const t = localStorage.getItem('haliel-dash-tab');
+    if (t && document.querySelector(`.dash-tabs [data-dtab="${t}"]`)) dashTab(t);
+  } catch (_) {}
+});
 </script>
 
 </body>

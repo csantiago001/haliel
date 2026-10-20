@@ -1,5 +1,5 @@
 // sw.js — Haliel PWA
-const VERSION = 'haliel-v4';   // ⬅️ SÚBELE EL NÚMERO EN CADA DESPLIEGUE (v5, v6, …)
+const VERSION = 'haliel-v5';   // ⬅️ SÚBELE EL NÚMERO EN CADA DESPLIEGUE (v5, v6, …)
 
 // Solo se guardan en caché archivos estáticos: la app y las librerías de CDN.
 // Los datos (Supabase, Telegram) SIEMPRE van a la red para no mostrar información vieja.
