@@ -1165,6 +1165,91 @@
   body.en-pos #toast-container { bottom: 104px; }
   @media (max-width: 768px) { body.en-pos #toast-container { bottom: 96px; } }
 
+
+  /* ════════ V8 · Mis gastos (privado del administrador) y "Otra" categoría ════════ */
+  .mg-privado { display: flex; gap: 0.85rem; align-items: center; padding: 0.8rem 1rem; border-radius: 14px; margin-bottom: 1rem;
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg)); border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent); }
+  .mg-privado > i { width: 36px; height: 36px; flex-shrink: 0; display: grid; place-items: center; border-radius: 11px; background: var(--primary); color: #fff; }
+  .mg-privado div { display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.86rem; min-width: 0; }
+  .mg-privado span { color: var(--text-muted); font-size: 0.8rem; }
+  .nav-privado { margin-left: auto; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.04em; padding: 0.12rem 0.4rem; border-radius: 6px; background: var(--primary); color: #fff; }
+  .sidebar.collapsed .nav-privado, .sidebar-collapsed .nav-privado { display: none; }
+
+  .mg-alerta { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.85rem 1rem; border-radius: 14px; margin-bottom: 1rem; font-size: 0.86rem; border: 1px solid; }
+  .mg-alerta[hidden] { display: none; }
+  .mg-alerta > i { font-size: 1.1rem; margin-top: 0.1rem; }
+  .mg-alerta div { display: flex; flex-direction: column; gap: 0.15rem; }
+  .mg-alerta span { font-size: 0.8rem; opacity: 0.9; }
+  .mg-alerta.excedido { background: color-mix(in srgb, var(--red) 9%, var(--card-bg)); border-color: color-mix(in srgb, var(--red) 35%, transparent); color: var(--text); }
+  .mg-alerta.excedido > i { color: var(--red); }
+  .mg-alerta.cerca { background: color-mix(in srgb, #F5B70A 12%, var(--card-bg)); border-color: color-mix(in srgb, #F5B70A 45%, transparent); color: var(--text); }
+  .mg-alerta.cerca > i { color: #B7791F; }
+
+  .mg-pres-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; font-size: 0.88rem; margin-bottom: 0.4rem; }
+  .mg-pres-top b { color: var(--primary); }
+  .mg-pres-top b.rojo { color: var(--red); }
+  .mg-barra { height: 11px; border-radius: 99px; background: color-mix(in srgb, var(--text-muted) 16%, transparent); overflow: hidden; }
+  .mg-barra > i { display: block; height: 100%; max-width: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--primary), #9A5BE8); transition: width 0.5s ease; }
+  .mg-barra.rojo > i { background: var(--red); }
+  .mg-barra.sm { height: 7px; margin: 0.28rem 0 0.1rem; }
+  .mg-total-pres { padding-bottom: 0.9rem; margin-bottom: 0.9rem; border-bottom: 1px dashed var(--card-border); }
+  .mg-rank { display: grid; gap: 0.75rem; }
+  .mg-rank-fila .mg-rank-top { display: flex; justify-content: space-between; gap: 0.6rem; font-size: 0.83rem; }
+  .mg-rank-fila .mg-rank-top span:first-child { font-weight: 650; display: inline-flex; align-items: center; gap: 0.45rem; min-width: 0; }
+  .mg-rank-fila .mg-rank-top span:first-child i { color: var(--c); width: 14px; text-align: center; }
+  .mg-rank-fila .mg-rank-top span:last-child { color: var(--text-muted); white-space: nowrap; }
+  .mg-rank-fila em { font-style: normal; font-size: 0.74rem; color: var(--text-muted); }
+  .mg-rank-fila em.rojo { color: var(--red); font-weight: 650; }
+  .mg-sin-pres { margin-top: 0.9rem; font-size: 0.8rem; color: var(--text-muted); }
+  .mg-sin-pres button { border: 0; background: none; color: var(--primary); font: inherit; font-weight: 650; cursor: pointer; padding: 0; }
+
+  .mg-fijos-card { padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .mg-fijos-card[hidden] { display: none; }
+  .mg-fijos-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.6rem; margin-top: 0.5rem; }
+  .mg-fijo-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.75rem; border-radius: 12px; border: 1px solid var(--card-border); background: var(--input-bg); }
+  .mg-fijo-item .tile-ico { width: 34px; height: 34px; }
+  .mg-fijo-item div { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 0.82rem; }
+  .mg-fijo-item div strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mg-fijo-item div span { font-size: 0.74rem; color: var(--text-muted); }
+  .mg-fijo-item.pendiente { border-color: color-mix(in srgb, #F5B70A 50%, transparent); background: color-mix(in srgb, #F5B70A 9%, var(--card-bg)); }
+  .mg-fijo-item.pendiente div span { color: #B7791F; font-weight: 600; }
+  .mg-fijo-item.listo div span { color: var(--green, #12A150); }
+  .mg-tag-fijo { font-size: 0.64rem; margin-left: 0.4rem; padding: 0.08rem 0.38rem; border-radius: 6px; background: color-mix(in srgb, #F5B70A 20%, transparent); color: #B7791F; font-weight: 800; vertical-align: middle; }
+  html.dark .mg-tag-fijo, html.dark .mg-fijo-item.pendiente div span { color: #F5C842; }
+  .mg-ver-recibo { border: 0; background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); width: 32px; height: 32px; border-radius: 9px; cursor: pointer; }
+  .mg-ver-recibo:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); }
+
+  .mg-catsel { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .mg-catsel button { display: inline-flex; gap: 0.4rem; align-items: center; padding: 0.42rem 0.75rem; border-radius: 99px; cursor: pointer;
+    border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); background: transparent; color: var(--c); font: inherit; font-size: 0.8rem; font-weight: 650; transition: 0.15s; }
+  .mg-catsel button:hover { background: color-mix(in srgb, var(--c) 10%, transparent); }
+  .mg-catsel button.on { background: var(--c); color: #fff; border-color: var(--c); box-shadow: 0 6px 14px -8px var(--c); }
+  html.dark .mg-catsel button:not(.on) { color: color-mix(in srgb, var(--c) 55%, #ffffff); }
+  .mg-check { display: flex; gap: 0.55rem; align-items: flex-start; font-size: 0.86rem; cursor: pointer; }
+  .mg-check input { margin-top: 0.2rem; width: 16px; height: 16px; accent-color: var(--primary); }
+  .mg-check small { display: block; color: var(--text-muted); font-size: 0.76rem; }
+  .mg-recibo-btn { width: 100%; justify-content: center; }
+  .mg-recibo-prev { display: flex; align-items: center; gap: 0.55rem; padding: 0.35rem; border: 1px solid var(--card-border); border-radius: 12px; background: var(--input-bg); }
+  .mg-recibo-prev img { width: 46px; height: 46px; object-fit: cover; border-radius: 8px; }
+  .mg-recibo-prev span { flex: 1; font-size: 0.78rem; color: var(--text-muted); }
+  .mg-recibo-modal { max-width: 640px; }
+  .mg-recibo-ver { display: flex; justify-content: center; align-items: center; min-height: 200px; background: var(--input-bg); border-radius: 14px; overflow: hidden; }
+  .mg-recibo-ver img { max-width: 100%; max-height: 68vh; display: block; }
+  .mg-pres-nota { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.7rem 0.85rem; border-radius: 12px; background: color-mix(in srgb, var(--primary) 7%, transparent); margin: 0 0 1rem; line-height: 1.45; }
+  .mg-pres-nota i { color: var(--primary); margin-top: 0.15rem; }
+  .mg-pres-subtitulo { font-weight: 700; font-size: 0.86rem; margin: 1rem 0 0.5rem; }
+  .mg-pres-subtitulo span { font-weight: 500; color: var(--text-muted); }
+  .mg-pres-lista { display: grid; gap: 0.5rem; max-height: 40vh; overflow-y: auto; padding-right: 0.2rem; }
+  .mg-pres-fila { display: grid; grid-template-columns: 1fr 160px; gap: 0.75rem; align-items: center; }
+  .mg-pres-fila label { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; font-weight: 600; }
+  .mg-pres-fila label i { color: var(--c); width: 16px; text-align: center; }
+  .mg-pres-fila .input-money .field-input { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .kpi-rojo { color: var(--red) !important; }
+  @media (max-width: 640px) {
+    .mg-pres-fila { grid-template-columns: 1fr 130px; }
+    #sec-mis-gastos .filter-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+    #sec-mis-gastos .filter-actions .btn-primary { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -1357,6 +1442,7 @@
 					<a class="nav-item" id="nav-streaming-suscripciones" data-section="streaming-suscripciones" data-tooltip="Suscripciones y ventas" onclick="goSection('streaming-suscripciones')"><i class="fa-solid fa-receipt"></i><span class="nav-item-text">Suscripciones y ventas</span></a>
 					<a class="nav-item" id="nav-streaming-vencimientos" data-tooltip="Vencimientos" onclick="navSub('streaming-suscripciones', () => openModalCalendarioCobros())"><i class="fa-regular fa-calendar-check"></i><span class="nav-item-text">Vencimientos</span></a>
 					<a class="nav-item" id="nav-streaming-plataformas" data-tooltip="Plataformas de streaming" onclick="navSub('streaming-suscripciones', () => openModalStPlataformasGestion())"><i class="fa-solid fa-tv"></i><span class="nav-item-text">Plataformas de streaming</span></a>
+					<a class="nav-item" data-section="mis-gastos" data-tooltip="Mis gastos (privado)" onclick="goSection('mis-gastos')"><i class="fa-solid fa-sack-dollar"></i><span class="nav-item-text">Mis gastos</span><span class="nav-privado">PRIVADO</span></a>
 				</div>
 			</div>
 
@@ -1874,6 +1960,55 @@
           <table class="premium-table table-cards">
             <thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Sucursal</th><th>Registrado por</th><th class="num">Monto</th><th>Acciones</th></tr></thead>
             <tbody id="gastos-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ VENTAS Y SERVICIOS: MIS GASTOS (privado del administrador) ══════════ -->
+    <div class="section" id="sec-mis-gastos">
+      <div class="modulo-aviso" id="mg-aviso" hidden></div>
+      <div class="mg-privado">
+        <i class="fa-solid fa-lock"></i>
+        <div><strong>Espacio privado del administrador</strong><span>Estos gastos no se mezclan con cajas, ventas, reportes ni estadísticas del negocio. Solo tú los ves.</span></div>
+      </div>
+      <div class="mg-alerta" id="mg-alerta" role="status" hidden></div>
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="mg-search" class="search-input" placeholder="Buscar gasto..." oninput="mgRender()" aria-label="Buscar gasto"/>
+        </div>
+        <select id="mg-filter-mes" class="field-input" style="width:auto;" onchange="mgCargar()" aria-label="Mes"></select>
+        <select id="mg-filter-cat" class="field-input" style="width:auto;" onchange="mgRender()" aria-label="Categoría">
+          <option value="">Todas las categorías</option>
+        </select>
+        <div class="filter-actions">
+          <button class="btn-secondary" onclick="mgAbrirPresupuesto()"><i class="fa-solid fa-bullseye"></i> Presupuesto</button>
+          <button class="btn-secondary" onclick="mgExportar()"><i class="fa-solid fa-file-excel"></i> Exportar</button>
+          <button class="btn-primary" onclick="mgAbrirGasto()"><i class="fa-solid fa-plus"></i> Nuevo gasto</button>
+        </div>
+      </div>
+
+      <div class="grid-4" id="mg-kpis" style="margin-bottom:1rem;"></div>
+
+      <div class="grid-2" style="margin-bottom:1rem;">
+        <div class="glass-card" style="padding:1.25rem;">
+          <h3 class="card-title"><i class="fa-solid fa-chart-pie"></i>¿En qué se va mi dinero?</h3>
+          <div class="chart-container" style="height:230px;"><canvas id="chart-mg-cat"></canvas><div id="mg-chart-vacio" class="chart-vacio">Sin gastos para graficar</div></div>
+        </div>
+        <div class="glass-card" style="padding:1.25rem;">
+          <h3 class="card-title" id="mg-ranking-titulo"><i class="fa-solid fa-ranking-star"></i>Dónde más gasto este mes</h3>
+          <div id="mg-ranking"></div>
+        </div>
+      </div>
+
+      <div class="glass-card mg-fijos-card" id="mg-fijos" hidden></div>
+
+      <div class="glass-card" style="overflow:hidden;">
+        <div class="table-wrapper">
+          <table class="premium-table table-cards">
+            <thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Pagué con</th><th>Recibo</th><th class="num">Monto</th><th>Acciones</th></tr></thead>
+            <tbody id="mg-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -2535,7 +2670,9 @@
       <div><label class="field-label required" for="gasto-monto">Monto</label>
         <div class="input-money"><span>$</span><input type="text" id="gasto-monto" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this)"/></div>
       </div>
-      <div class="span-2"><label class="field-label required" for="gasto-categoria">Categoría</label><select id="gasto-categoria" class="field-input"></select></div>
+      <div class="span-2"><label class="field-label required" for="gasto-categoria">Categoría</label><select id="gasto-categoria" class="field-input" onchange="toggleCategoriaOtra(true)"></select></div>
+      <div class="span-2" id="gasto-otra-wrap" style="display:none;"><label class="field-label required" for="gasto-categoria-otra">¿Cuál categoría?</label>
+        <input type="text" id="gasto-categoria-otra" class="field-input" maxlength="40" list="gasto-otras-lista" placeholder="Ej: Papelería de oficina, Aseo, Domicilios"/><datalist id="gasto-otras-lista"></datalist></div>
       <div class="span-2"><label class="field-label required" for="gasto-descripcion">Descripción</label><input type="text" id="gasto-descripcion" class="field-input" maxlength="160" placeholder="Ej: Resmas de papel carta x 10"/></div>
       <div><label class="field-label" for="gasto-metodo">Método de pago</label>
         <select id="gasto-metodo" class="field-input">
@@ -2548,6 +2685,84 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('modal-gasto')">Cancelar</button>
       <button class="btn-primary" id="btn-guardar-gasto" onclick="guardarGasto()"><i class="fa-solid fa-floppy-disk"></i> Guardar gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS GASTOS · GASTO PERSONAL ══════════ -->
+<div id="modal-mg-gasto" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="mg-gasto-titulo">Nuevo gasto personal</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mg-gasto')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="form-grid">
+      <div><label class="field-label required" for="mg-fecha">Fecha</label><input type="date" id="mg-fecha" class="field-input"/></div>
+      <div><label class="field-label required" for="mg-monto">Monto</label>
+        <div class="input-money"><span>$</span><input type="text" id="mg-monto" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this)"/></div>
+      </div>
+      <div class="span-2"><span class="field-label required" id="mg-cat-label">Categoría</span>
+        <div class="mg-catsel" id="mg-catsel" role="radiogroup" aria-labelledby="mg-cat-label"></div>
+        <div id="mg-categoria-err"></div>
+      </div>
+      <div class="span-2" id="mg-otra-wrap" style="display:none;">
+        <label class="field-label required" for="mg-categoria-otra">¿Cuál categoría?</label>
+        <input type="text" id="mg-categoria-otra" class="field-input" maxlength="40" list="mg-otras-lista" placeholder="Ej: Regalos, Mascotas, Gimnasio"/>
+        <datalist id="mg-otras-lista"></datalist>
+      </div>
+      <div class="span-2"><label class="field-label required" for="mg-descripcion">Descripción</label><input type="text" id="mg-descripcion" class="field-input" maxlength="160" placeholder="Ej: Mercado de la semana"/></div>
+      <div><label class="field-label" for="mg-metodo">Pagué con</label>
+        <select id="mg-metodo" class="field-input">
+          <option value="efectivo">Efectivo</option><option value="nequi">Nequi / Daviplata</option>
+          <option value="tarjeta">Tarjeta</option><option value="transferencia">Transferencia</option>
+        </select>
+      </div>
+      <div><span class="field-label">Foto del recibo</span>
+        <input type="file" id="mg-recibo-input" accept="image/*" hidden onchange="mgReciboElegido(this)"/>
+        <div id="mg-recibo-box"></div>
+      </div>
+      <div class="span-2"><label class="mg-check"><input type="checkbox" id="mg-fijo"/> <span>Es un gasto fijo que se repite cada mes <small>(arriendo, servicios, planes…). Te lo recordaré el próximo mes.</small></span></label></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-mg-gasto')">Cancelar</button>
+      <button class="btn-primary" id="btn-mg-guardar" onclick="mgGuardarGasto()"><i class="fa-solid fa-floppy-disk"></i> Guardar gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS GASTOS · PRESUPUESTO ══════════ -->
+<div id="modal-mg-presupuesto" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Presupuesto mensual</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mg-presupuesto')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p class="form-hint mg-pres-nota"><i class="fa-solid fa-circle-info"></i> El presupuesto es solo una guía: aunque lo superes, tus gastos se siguen anotando y sumando normalmente. Te mostraré una alerta cuando te acerques o te pases. Aplica para todos los meses y puedes dejar en blanco lo que no quieras controlar.</p>
+    <div class="form-grid">
+      <div class="span-2"><label class="field-label" for="mg-pres-total">Tope total del mes</label>
+        <div class="input-money"><span>$</span><input type="text" id="mg-pres-total" class="field-input" inputmode="numeric" placeholder="Sin tope" oninput="formatoMoneda(this)"/></div>
+      </div>
+    </div>
+    <div class="mg-pres-subtitulo">Tope por categoría <span>(opcional)</span></div>
+    <div class="mg-pres-lista" id="mg-pres-lista"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="btn-mg-pres-quitar" onclick="mgQuitarPresupuesto()"><i class="fa-solid fa-eraser"></i> Quitar presupuesto</button>
+      <button class="btn-primary" id="btn-mg-pres-guardar" onclick="mgGuardarPresupuesto()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS GASTOS · VER RECIBO ══════════ -->
+<div id="modal-mg-recibo" class="modal-overlay" style="display:none;">
+  <div class="modal-box mg-recibo-modal">
+    <div class="modal-head">
+      <h3 id="mg-recibo-titulo">Recibo</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mg-recibo')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="mg-recibo-ver" class="mg-recibo-ver"></div>
+    <div class="modal-actions">
+      <a class="btn-secondary" id="mg-recibo-descargar" download="recibo.jpg"><i class="fa-solid fa-download"></i> Descargar</a>
+      <button class="btn-primary" onclick="closeModal('modal-mg-recibo')">Cerrar</button>
     </div>
   </div>
 </div>
@@ -4246,8 +4461,8 @@ createParticles();
 function toast(msg, type = 'info') {
   const c = document.getElementById('toast-container');
   const t = document.createElement('div');
-  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
-  const colors = { success: '#12A150', error: '#E5383B', info: '#5B3FD9' };
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info', warning: 'fa-triangle-exclamation' };
+  const colors = { success: '#12A150', error: '#E5383B', info: '#5B3FD9', warning: '#D69E06' };
   t.className = `toast toast-${type}`;
   t.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:1.1rem;flex-shrink:0;"></i> <span>${msg}</span>`;
   c.appendChild(t);
@@ -8955,7 +9170,7 @@ function renderStreamingSuscripciones() {
   });
 
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','openModalStreamingSus()','+ Nueva venta')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-inbox','Sin suscripciones','Crea la primera venta.','+ Nueva venta','openModalStreamingSus()')}</td></tr>`;
     actualizarFlechasSus();
     return;
   }
@@ -12360,13 +12575,22 @@ function descargarExcel(hojas, nombreArchivo) {
 // =====================================================================
 const GASTO_CATEGORIAS = ['Insumos y mercancía','Arriendo','Servicios públicos','Internet y telefonía','Nómina','Transporte','Mantenimiento','Impuestos','Publicidad','Otros'];
 const GASTO_COLORES = ['#5B3FD9','#E5383B','#F5B70A','#12A150','#E64A8B','#2F6FE0','#9A5BE8','#0E8A44','#B7791F','#6E6A8E'];
+// "Otros" permite escribir la categoría; lo escrito se guarda como categoría propia
+const GASTO_OTRA = 'Otros';
+const esCategoriaGastoBase = c => GASTO_CATEGORIAS.includes(c);
+const colorCategoriaGasto = c => esCategoriaGastoBase(c) ? GASTO_COLORES[GASTO_CATEGORIAS.indexOf(c)] : colorPorTexto(c);
+const categoriasPropiasGastos = () => [...new Set(allGastos.map(g => g.categoria).filter(c => c && !esCategoriaGastoBase(c)))].sort((a, b) => a.localeCompare(b, 'es'));
+function toggleCategoriaOtra(enfocar) {
+  const otra = document.getElementById('gasto-categoria').value === GASTO_OTRA;
+  document.getElementById('gasto-otra-wrap').style.display = otra ? '' : 'none';
+  if (otra && enfocar) setTimeout(() => document.getElementById('gasto-categoria-otra').focus(), 30);
+}
 let allGastos = [], editingGastoId = null, gastosParticipacion = 0;
 
 async function loadGastos() {
   const selMes = document.getElementById('gastos-filter-mes');
   if (selMes && !selMes.options.length) llenarSelectMeses(selMes, 18);
   const selCat = document.getElementById('gastos-filter-cat');
-  if (selCat && selCat.options.length <= 1) selCat.insertAdjacentHTML('beforeend', GASTO_CATEGORIAS.map(c => `<option>${c}</option>`).join(''));
   const selSuc = document.getElementById('gastos-filter-suc');
   if (selSuc && selSuc.options.length <= 1) selSuc.insertAdjacentHTML('beforeend', allSucursales.map(s => `<option value="${escHTML(s.nombre)}">${escHTML(s.nombre)}</option>`).join(''));
 
@@ -12380,6 +12604,11 @@ async function loadGastos() {
   avisoModulo('gastos-aviso', faltaTabla(error));
   if (error && !faltaTabla(error)) toast('Error al cargar gastos: ' + error.message, 'error');
   allGastos = data || [];
+  if (selCat) {
+    const actual = selCat.value, ops = [...GASTO_CATEGORIAS, ...categoriasPropiasGastos()];
+    selCat.innerHTML = '<option value="">Todas las categorías</option>' + ops.map(c => `<option value="${escHTML(c)}">${escHTML(c === GASTO_OTRA ? 'Otros (sin especificar)' : c)}</option>`).join('');
+    selCat.value = ops.includes(actual) ? actual : '';
+  }
 
   // Participación del mismo mes (para el resultado). Solo administradores.
   gastosParticipacion = 0;
@@ -12437,7 +12666,7 @@ function renderGastos() {
     const labels = Object.keys(porCat);
     charts['gastos-cat'] = new Chart(ctx, {
       type: 'doughnut',
-      data: { labels, datasets: [{ data: labels.map(l => porCat[l]), backgroundColor: labels.map(l => GASTO_COLORES[GASTO_CATEGORIAS.indexOf(l)] || '#6E6A8E'), borderColor: getComputedStyle(document.body).backgroundColor }] },
+      data: { labels, datasets: [{ data: labels.map(l => porCat[l]), backgroundColor: labels.map(l => colorCategoriaGasto(l)), borderColor: getComputedStyle(document.body).backgroundColor }] },
       options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'right', labels: { color: chartColors().text, boxWidth: 10 } },
         tooltip: { callbacks: { label: it => ` ${it.label}: ${formatCurrency(it.parsed)}` } } } }
     });
@@ -12445,13 +12674,13 @@ function renderGastos() {
 
   const tbody = document.getElementById('gastos-tbody');
   if (!lista.length) {
-    tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-wallet', 'Sin gastos en este período', 'Registra el primer gasto con el botón "Nuevo gasto".', 'abrirModalGasto()', 'Nuevo gasto')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-wallet', 'Sin gastos en este período', 'Registra el primer gasto con el botón "Nuevo gasto".', 'Nuevo gasto', 'abrirModalGasto()')}</td></tr>`;
     return;
   }
   tbody.innerHTML = lista.map(g => `
     <tr>
       <td>${formatDate(g.fecha)}</td>
-      <td><span class="plat-chip" style="--c:${GASTO_COLORES[GASTO_CATEGORIAS.indexOf(g.categoria)] || '#6E6A8E'};">${escHTML(g.categoria)}</span></td>
+      <td><span class="plat-chip" style="--c:${colorCategoriaGasto(g.categoria)};">${escHTML(g.categoria)}</span></td>
       <td>${escHTML(g.descripcion)}</td>
       <td style="text-transform:capitalize;color:var(--text-muted);">${escHTML(g.metodo_pago || '—')}</td>
       <td style="color:var(--text-muted);">${escHTML(g.sucursal || '—')}</td>
@@ -12467,14 +12696,18 @@ function abrirModalGasto(id = null) {
   editingGastoId = id;
   const g = id ? allGastos.find(x => x.id === id) : null;
   document.getElementById('modal-gasto-title').textContent = g ? 'Editar gasto' : 'Nuevo gasto';
-  document.getElementById('gasto-categoria').innerHTML = GASTO_CATEGORIAS.map(c => `<option>${c}</option>`).join('');
+  document.getElementById('gasto-categoria').innerHTML = GASTO_CATEGORIAS.map(c => `<option value="${c}">${c === GASTO_OTRA ? 'Otra (especificar)' : c}</option>`).join('');
+  document.getElementById('gasto-otras-lista').innerHTML = categoriasPropiasGastos().map(c => `<option value="${escHTML(c)}">`).join('');
   const sucSel = document.getElementById('gasto-sucursal');
   const sucs = esAdmin() ? allSucursales.map(s => s.nombre) : [currentProfile?.sucursal].filter(Boolean);
   sucSel.innerHTML = '<option value="">Sin sucursal</option>' + sucs.map(n => `<option value="${escHTML(n)}">${escHTML(n)}</option>`).join('');
   sucSel.disabled = !esAdmin();
   document.getElementById('gasto-fecha').value = g?.fecha || todayLocal();
   ponerMoneda('gasto-monto', g?.monto || 0);
-  document.getElementById('gasto-categoria').value = g?.categoria || GASTO_CATEGORIAS[0];
+  const propia = g && !esCategoriaGastoBase(g.categoria);
+  document.getElementById('gasto-categoria').value = propia ? GASTO_OTRA : (g?.categoria || GASTO_CATEGORIAS[0]);
+  document.getElementById('gasto-categoria-otra').value = propia ? g.categoria : '';
+  toggleCategoriaOtra(false);
   document.getElementById('gasto-descripcion').value = g?.descripcion || '';
   document.getElementById('gasto-metodo').value = g?.metodo_pago || 'efectivo';
   sucSel.value = g ? (g.sucursal || '') : (currentProfile?.sucursal || '');
@@ -12487,11 +12720,15 @@ async function guardarGasto() {
   clearErrors();
   const fecha = document.getElementById('gasto-fecha').value;
   const monto = leerMoneda('gasto-monto');
-  const categoria = document.getElementById('gasto-categoria').value;
+  let categoria = document.getElementById('gasto-categoria').value;
   const descripcion = document.getElementById('gasto-descripcion').value.trim();
   if (!fecha) { showError('gasto-fecha', 'Elige la fecha'); return; }
   if (fecha > todayLocal()) { showError('gasto-fecha', 'La fecha no puede ser futura'); return; }
   if (monto <= 0) { showError('gasto-monto', 'Escribe un monto mayor a cero'); return; }
+  if (categoria === GASTO_OTRA) {
+    categoria = normalizarCategoria(document.getElementById('gasto-categoria-otra').value, [...GASTO_CATEGORIAS.filter(c => c !== GASTO_OTRA), ...categoriasPropiasGastos()]);
+    if (!categoria || sinTildes(categoria) === 'otros' || sinTildes(categoria) === 'otra') { showError('gasto-categoria-otra', 'Escribe cuál es la categoría'); return; }
+  }
   if (!descripcion) { showError('gasto-descripcion', 'Describe el gasto'); return; }
   const payload = { fecha, monto, categoria, descripcion, metodo_pago: document.getElementById('gasto-metodo').value,
     sucursal: document.getElementById('gasto-sucursal').value || null };
@@ -12690,7 +12927,7 @@ function renderInventario() {
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="9">${allProductos.length
       ? emptyState('fa-magnifying-glass', 'Sin resultados', 'Prueba con otra búsqueda o filtro.')
-      : emptyState('fa-boxes-stacked', 'Aún no hay productos', esAdmin() ? 'Crea el primer producto con "Nuevo producto".' : 'Un administrador debe crear los productos.', esAdmin() ? 'abrirModalProducto()' : '', esAdmin() ? 'Nuevo producto' : '')}</td></tr>`;
+      : emptyState('fa-boxes-stacked', 'Aún no hay productos', esAdmin() ? 'Crea el primer producto con "Nuevo producto".' : 'Un administrador debe crear los productos.', esAdmin() ? 'Nuevo producto' : '', esAdmin() ? 'abrirModalProducto()' : '')}</td></tr>`;
     return;
   }
   tbody.innerHTML = lista.map(p => {
@@ -13939,7 +14176,7 @@ function renderVentas() {
 
   const tbody = document.getElementById('ventas-tbody');
   if (!lista.length) {
-    tbody.innerHTML = `<tr><td colspan="9">${emptyState('fa-receipt', 'Sin ventas en este período', 'Las ventas del punto de venta aparecerán aquí.', "goSection('pos')", 'Ir al punto de venta')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9">${emptyState('fa-receipt', 'Sin ventas en este período', 'Las ventas del punto de venta aparecerán aquí.', 'Ir al punto de venta', "goSection('pos')")}</td></tr>`;
     return;
   }
   tbody.innerHTML = lista.map(v => {
@@ -14244,5 +14481,479 @@ abrirModalProducto = function (id = null) {
 
 </script>
 
+<script>
+// =====================================================================
+// MIS GASTOS · control personal y privado del administrador
+// No toca cajas, ventas, registros, reportes ni estadísticas del negocio.
+// Cada administrador ve únicamente sus propios gastos (protegido en la base de datos).
+// =====================================================================
+const MG_CATEGORIAS = [
+  { n: 'Comida y mercado', c: '#E5383B', i: 'fa-basket-shopping' },
+  { n: 'Transporte', c: '#2F6FE0', i: 'fa-bus' },
+  { n: 'Vivienda', c: '#5B3FD9', i: 'fa-house' },
+  { n: 'Servicios del hogar', c: '#12A150', i: 'fa-bolt' },
+  { n: 'Salud', c: '#E64A8B', i: 'fa-heart-pulse' },
+  { n: 'Ocio y salidas', c: '#D69E06', i: 'fa-champagne-glasses' },
+  { n: 'Ropa y cuidado personal', c: '#9A5BE8', i: 'fa-shirt' },
+  { n: 'Educación', c: '#0E7490', i: 'fa-graduation-cap' },
+  { n: 'Familia', c: '#C2410C', i: 'fa-people-roof' },
+  { n: 'Deudas y créditos', c: '#475569', i: 'fa-credit-card' },
+];
+const MG_METODOS = { efectivo: 'Efectivo', nequi: 'Nequi / Daviplata', tarjeta: 'Tarjeta', transferencia: 'Transferencia' };
+const MG_COLS = 'id,fecha,categoria,descripcion,monto,metodo_pago,es_fijo,tiene_recibo,created_at';
+let mgTodos = [], mgPresupuesto = null, mgEditId = null, mgRecibo = undefined, mgCatElegida = '', mgModuloListo = true;
+
+// ── Utilidades de categorías ──
+const sinTildes = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+// Convierte lo que se escribe en "Otra" en un nombre limpio. Si coincide con una categoría existente, usa esa.
+function normalizarCategoria(texto, base) {
+  let t = String(texto || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+  if (!t) return '';
+  const igual = base.find(b => sinTildes(b) === sinTildes(t));
+  if (igual) return igual;
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+const COLORES_EXTRA = ['#0EA5A4', '#C2410C', '#7C3AED', '#0369A1', '#BE185D', '#4D7C0F', '#A16207', '#475569', '#DB2777', '#059669'];
+function colorPorTexto(t) { let h = 0; for (const ch of sinTildes(t)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORES_EXTRA[h % COLORES_EXTRA.length]; }
+const mgCat = n => MG_CATEGORIAS.find(c => c.n === n) || { n, c: colorPorTexto(n), i: 'fa-tag' };
+const mgCategoriasPropias = () => [...new Set([...mgTodos.map(g => g.categoria), ...Object.keys(mgPresupuesto?.por_categoria || {})])]
+  .filter(c => c && !MG_CATEGORIAS.some(b => b.n === c)).sort((a, b) => a.localeCompare(b, 'es'));
+const mgPeriodo = () => document.getElementById('mg-filter-mes')?.value || todayLocal().slice(0, 7);
+const mgDelMes = per => mgTodos.filter(g => String(g.fecha).startsWith(per));
+const sumar = l => l.reduce((a, g) => a + Number(g.monto || 0), 0);
+function periodoAnterior(per) { const [a, m] = per.split('-').map(Number); const d = new Date(a, m - 2, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
+const nombreMes = per => { const [a, m] = per.split('-').map(Number); return `${MESES_NOMBRE[m - 1].toLowerCase()}`; };
+
+// ── Carga ──
+async function mgCargar() {
+  if (!esAdmin()) return;
+  const sel = document.getElementById('mg-filter-mes');
+  if (!sel.options.length) llenarSelectMeses(sel, 18);
+  const per = sel.value;
+  const [a, m] = per.split('-').map(Number);
+  const desde = isoLocal(new Date(a, m - 3, 1));           // 3 meses: comparación y gastos fijos
+  const { hasta } = rangoMes(per);
+  showSkeletons('mg-tbody', 4, 'row');
+  const [r1, r2] = await Promise.all([
+    sb.from('mis_gastos').select(MG_COLS).eq('usuario_id', currentUser.id).gte('fecha', desde).lte('fecha', hasta).order('fecha', { ascending: false }),
+    sb.from('mis_gastos_presupuesto').select('*').eq('usuario_id', currentUser.id).maybeSingle(),
+  ]);
+  mgModuloListo = !faltaTabla(r1.error);
+  const aviso = document.getElementById('mg-aviso');
+  aviso.hidden = mgModuloListo;
+  if (!mgModuloListo) aviso.innerHTML = `<i class="fa-solid fa-database"></i><div><strong>Este módulo necesita activarse una sola vez.</strong>
+    <span>Ejecuta el archivo <code>supabase/2026-10-mis-gastos.sql</code> en el editor SQL de Supabase y recarga la página.</span></div>`;
+  if (r1.error && mgModuloListo) toast('Error al cargar tus gastos: ' + r1.error.message, 'error');
+  mgTodos = (r1.data || []).sort((x, y) => (y.fecha > x.fecha ? 1 : y.fecha < x.fecha ? -1 : String(y.created_at).localeCompare(String(x.created_at))));
+  mgPresupuesto = r2.error ? null : (r2.data || null);
+  mgRender();
+}
+
+function mgFiltrados() {
+  const q = sinTildes(document.getElementById('mg-search')?.value);
+  const cat = document.getElementById('mg-filter-cat')?.value || '';
+  return mgDelMes(mgPeriodo()).filter(g => (!cat || g.categoria === cat) &&
+    (!q || [g.descripcion, g.categoria, MG_METODOS[g.metodo_pago]].some(v => sinTildes(v).includes(q))));
+}
+
+// Estado del presupuesto para un mes: { total, gastado, porCat: [{n, gastado, tope}] }
+function mgEstadoPresupuesto(per) {
+  const lista = mgDelMes(per);
+  const gastado = sumar(lista);
+  const topes = mgPresupuesto?.por_categoria || {};
+  const total = Number(mgPresupuesto?.total) || 0;
+  const porCat = Object.entries(topes).filter(([, v]) => Number(v) > 0)
+    .map(([n, tope]) => ({ n, tope: Number(tope), gastado: sumar(lista.filter(g => g.categoria === n)) }));
+  return { total, gastado, porCat, hay: total > 0 || porCat.length > 0 };
+}
+// Mensajes de alerta (nunca bloquean nada)
+function mgAlertas(per) {
+  const e = mgEstadoPresupuesto(per);
+  const excedidos = [], cerca = [];
+  if (e.total) {
+    if (e.gastado > e.total) excedidos.push(`el presupuesto total por <strong>${formatCurrency(e.gastado - e.total)}</strong>`);
+    else if (e.gastado >= e.total * 0.8) cerca.push(`el <strong>${Math.round(e.gastado * 100 / e.total)}%</strong> del presupuesto total`);
+  }
+  e.porCat.forEach(c => {
+    if (c.gastado > c.tope) excedidos.push(`<strong>${escHTML(c.n)}</strong> por ${formatCurrency(c.gastado - c.tope)}`);
+    else if (c.gastado >= c.tope * 0.8) cerca.push(`el ${Math.round(c.gastado * 100 / c.tope)}% en <strong>${escHTML(c.n)}</strong>`);
+  });
+  return { excedidos, cerca };
+}
+
+// ── Pintar ──
+function mgRender() {
+  const per = mgPeriodo();
+  const mesTxt = nombreMes(per);
+  const delMes = mgDelMes(per);
+  const lista = mgFiltrados();
+
+  // Filtro de categorías (base + propias usadas)
+  const selCat = document.getElementById('mg-filter-cat');
+  const actual = selCat.value;
+  const usadas = [...new Set(delMes.map(g => g.categoria))];
+  const opciones = [...MG_CATEGORIAS.map(c => c.n).filter(n => usadas.includes(n)), ...usadas.filter(n => !MG_CATEGORIAS.some(c => c.n === n)).sort()];
+  selCat.innerHTML = '<option value="">Todas las categorías</option>' + opciones.map(n => `<option value="${escHTML(n)}">${escHTML(n)}</option>`).join('');
+  selCat.value = opciones.includes(actual) ? actual : '';
+
+  // Alertas de presupuesto
+  const { excedidos, cerca } = mgAlertas(per);
+  const al = document.getElementById('mg-alerta');
+  if (excedidos.length) {
+    al.className = 'mg-alerta excedido'; al.hidden = false;
+    al.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><strong>En ${mesTxt} superaste ${excedidos.length === 1 ? '' : 'estos topes: '}${excedidos.join(' · ')}.</strong>
+      <span>Tus gastos se siguen sumando normalmente; esto es solo un aviso.</span></div>`;
+  } else if (cerca.length) {
+    al.className = 'mg-alerta cerca'; al.hidden = false;
+    al.innerHTML = `<i class="fa-solid fa-bell"></i><div><strong>Atención: llevas ${cerca.join(' · ')} de ${mesTxt}.</strong><span>Aún no superas tu presupuesto.</span></div>`;
+  } else al.hidden = true;
+
+  // KPIs
+  const total = sumar(delMes);
+  const ant = sumar(mgDelMes(periodoAnterior(per)));
+  const esActual = per === todayLocal().slice(0, 7);
+  const [a, m] = per.split('-').map(Number);
+  const dias = esActual ? Number(todayLocal().slice(8, 10)) : new Date(a, m, 0).getDate();
+  const est = mgEstadoPresupuesto(per);
+  let kpi2;
+  if (est.total) {
+    const resto = est.total - total;
+    kpi2 = resto >= 0
+      ? kpiTile('fa-piggy-bank', '#12A150', formatCurrency(resto), `Disponible de ${formatCurrency(est.total)}`)
+      : kpiTile('fa-triangle-exclamation', '#E5383B', `<span class="kpi-rojo">+${formatCurrency(-resto)}</span>`, 'Por encima del presupuesto');
+  } else kpi2 = kpiTile('fa-list-check', '#12A150', delMes.length, delMes.length === 1 ? 'Gasto anotado este mes' : 'Gastos anotados este mes');
+  let kpi4;
+  if (ant > 0) {
+    const pct = Math.round((total - ant) * 100 / ant);
+    kpi4 = kpiTile(pct > 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down', pct > 0 ? '#E5383B' : '#12A150', `${pct > 0 ? '+' : ''}${pct}%`, `vs. ${nombreMes(periodoAnterior(per))} (${formatCurrency(ant)})`);
+  } else kpi4 = kpiTile('fa-arrow-right-arrow-left', '#B7791F', '—', `Sin gastos en ${nombreMes(periodoAnterior(per))}`);
+  document.getElementById('mg-kpis').innerHTML = [
+    kpiTile('fa-wallet', '#E5383B', formatCurrency(total), `Gastado en ${mesTxt}`),
+    kpi2,
+    kpiTile('fa-calendar-day', '#5B3FD9', formatCurrency(Math.round(total / Math.max(dias, 1))), 'Promedio por día'),
+    kpi4,
+  ].join('');
+
+  // Gráfico por categoría
+  const porCat = {};
+  delMes.forEach(g => { porCat[g.categoria] = (porCat[g.categoria] || 0) + Number(g.monto || 0); });
+  const orden = Object.entries(porCat).sort((x, y) => y[1] - x[1]);
+  destroyChart('mg-cat');
+  const ctx = document.getElementById('chart-mg-cat');
+  document.getElementById('mg-chart-vacio').hidden = !!orden.length;
+  if (ctx && orden.length) {
+    charts['mg-cat'] = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: orden.map(o => o[0]), datasets: [{ data: orden.map(o => o[1]), backgroundColor: orden.map(o => mgCat(o[0]).c), borderColor: getComputedStyle(document.body).backgroundColor }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'right', labels: { color: chartColors().text, boxWidth: 10 } },
+        tooltip: { callbacks: { label: it => ` ${it.label}: ${formatCurrency(it.parsed)} (${Math.round(it.parsed * 100 / total)}%)` } } } }
+    });
+  }
+
+  // Ranking + presupuesto
+  document.getElementById('mg-ranking-titulo').innerHTML = `<i class="fa-solid fa-ranking-star"></i>${est.hay ? 'Presupuesto y gastos' : 'Dónde más gasto'} de ${mesTxt}`;
+  const topes = mgPresupuesto?.por_categoria || {};
+  const filas = [...orden];
+  Object.keys(topes).forEach(n => { if (Number(topes[n]) > 0 && !porCat[n]) filas.push([n, 0]); });
+  let rk = '';
+  if (est.total) {
+    const pct = Math.round(total * 100 / est.total);
+    rk += `<div class="mg-total-pres"><div class="mg-pres-top"><span><strong>${formatCurrency(total)}</strong> de ${formatCurrency(est.total)}</span><b class="${pct > 100 ? 'rojo' : ''}">${pct}%</b></div>
+      <div class="mg-barra ${pct > 100 ? 'rojo' : ''}"><i style="width:${Math.min(pct, 100)}%"></i></div></div>`;
+  }
+  if (!filas.length) rk += `<p class="form-hint" style="margin:0;">Aún no hay gastos en ${mesTxt}.</p>`;
+  else rk += '<div class="mg-rank">' + filas.map(([n, v]) => {
+    const cat = mgCat(n), tope = Number(topes[n]) || 0;
+    const ancho = tope ? Math.min(100, v * 100 / tope) : (orden[0] ? v * 100 / orden[0][1] : 0);
+    const pasado = tope && v > tope;
+    return `<div class="mg-rank-fila" style="--c:${cat.c}"><div class="mg-rank-top"><span><i class="fa-solid ${cat.i}"></i>${escHTML(n)}</span><span>${formatCurrency(v)}${total ? ' · ' + Math.round(v * 100 / total) + '%' : ''}</span></div>
+      <div class="mg-barra sm ${pasado ? 'rojo' : ''}"><i style="width:${ancho}%;${pasado ? '' : 'background:' + cat.c}"></i></div>
+      ${tope ? `<em class="${pasado ? 'rojo' : ''}">${pasado ? `Superado por ${formatCurrency(v - tope)}` : `Te quedan ${formatCurrency(tope - v)}`} · tope ${formatCurrency(tope)}</em>` : ''}</div>`;
+  }).join('') + '</div>';
+  if (!est.hay) rk += `<p class="mg-sin-pres"><i class="fa-solid fa-bullseye"></i> ¿Quieres una guía? <button type="button" onclick="mgAbrirPresupuesto()">Define un presupuesto</button> (opcional, nunca frena tus gastos).</p>`;
+  document.getElementById('mg-ranking').innerHTML = rk;
+
+  mgRenderFijos(per);
+
+  // Tabla
+  const tbody = document.getElementById('mg-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7">${delMes.length
+      ? emptyState('fa-magnifying-glass', 'Sin resultados', 'Prueba con otra búsqueda o categoría.')
+      : emptyState('fa-sack-dollar', `Sin gastos en ${mesTxt}`, 'Anota tu primer gasto con el botón "Nuevo gasto".', 'Nuevo gasto', 'mgAbrirGasto()')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(g => {
+    const cat = mgCat(g.categoria), recibo = g.tiene_recibo ?? !!g.recibo;
+    return `<tr>
+      <td data-label="Fecha">${formatDate(g.fecha)}</td>
+      <td data-label="Categoría"><span class="plat-chip" style="--c:${cat.c};"><i class="fa-solid ${cat.i}"></i> ${escHTML(g.categoria)}</span></td>
+      <td data-label="Descripción">${escHTML(g.descripcion)}${g.es_fijo ? '<span class="mg-tag-fijo">FIJO</span>' : ''}</td>
+      <td data-label="Pagué con" style="color:var(--text-muted);">${escHTML(MG_METODOS[g.metodo_pago] || g.metodo_pago || '—')}</td>
+      <td data-label="Recibo">${recibo ? `<button class="mg-ver-recibo" data-tip="Ver recibo" aria-label="Ver recibo" onclick="mgVerRecibo('${g.id}')"><i class="fa-solid fa-image"></i></button>` : '<span style="color:var(--text-muted);">—</span>'}</td>
+      <td data-label="Monto" class="num" style="font-weight:700;color:#E5383B;">${formatCurrency(g.monto)}</td>
+      <td data-label=""><div class="acciones">
+        <button class="btn-edit" data-tip="Editar" aria-label="Editar" onclick="mgAbrirGasto('${g.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-danger" data-tip="Eliminar" aria-label="Eliminar" onclick="mgEliminar('${g.id}')"><i class="fa-solid fa-trash"></i></button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// Al corregir un campo con error, el aviso rojo desaparece
+document.addEventListener('input', e => {
+  if (!e.target.closest?.('#modal-mg-gasto, #modal-gasto') || !e.target.classList.contains('field-error')) return;
+  e.target.classList.remove('field-error');
+  e.target.parentElement?.querySelector('.error-hint')?.classList.remove('show');
+});
+
+// ── Gastos fijos: recordatorio del mes ──
+function mgFijosPendientes() {
+  const hoy = todayLocal(), per = hoy.slice(0, 7);
+  const [a, m] = per.split('-').map(Number);
+  const ultimoDia = new Date(a, m, 0).getDate();
+  const grupos = {};
+  mgTodos.filter(g => g.es_fijo).forEach(g => {
+    const k = sinTildes(g.categoria) + '|' + sinTildes(g.descripcion);
+    if (!grupos[k] || g.fecha > grupos[k].fecha) grupos[k] = g;
+  });
+  return Object.values(grupos).map(g => {
+    const dia = Math.min(Number(String(g.fecha).slice(8, 10)), ultimoDia);
+    const pagadoEsteMes = String(g.fecha).startsWith(per);
+    let fecha;
+    if (pagadoEsteMes) { const sig = new Date(a, m, 1); fecha = isoLocal(new Date(sig.getFullYear(), sig.getMonth(), Math.min(dia, new Date(sig.getFullYear(), sig.getMonth() + 1, 0).getDate()))); }
+    else fecha = `${per}-${String(dia).padStart(2, '0')}`;
+    return { g, fecha, listo: pagadoEsteMes, vencido: !pagadoEsteMes && fecha <= hoy };
+  }).sort((x, y) => (x.listo - y.listo) || x.fecha.localeCompare(y.fecha));
+}
+function mgRenderFijos(per) {
+  const box = document.getElementById('mg-fijos');
+  const items = per === todayLocal().slice(0, 7) ? mgFijosPendientes() : [];
+  box.hidden = !items.length;
+  if (!items.length) { box.innerHTML = ''; return; }
+  const pend = items.filter(x => !x.listo).length;
+  box.innerHTML = `<h3 class="card-title" style="margin-bottom:0.2rem;"><i class="fa-solid fa-bell"></i>Gastos fijos${pend ? ` · ${pend} por anotar este mes` : ' · todos anotados'}</h3>
+    <div class="mg-fijos-lista">${items.map(x => {
+      const cat = mgCat(x.g.categoria);
+      const txt = x.listo ? `Anotado · próximo el ${formatDate(x.fecha)}` : x.vencido ? `Pendiente desde el ${formatDate(x.fecha)}` : `Toca el ${formatDate(x.fecha)}`;
+      return `<div class="mg-fijo-item ${x.listo ? 'listo' : 'pendiente'}"><span class="tile-ico" style="--c:${cat.c};"><i class="fa-solid ${cat.i}"></i></span>
+        <div><strong>${escHTML(x.g.descripcion)}</strong><span>${formatCurrency(x.g.monto)} · ${txt}</span></div>
+        ${x.listo ? '<i class="fa-solid fa-circle-check" style="color:#12A150;"></i>' : `<button class="btn-primary btn-xs" onclick="mgRegistrarFijo('${x.g.id}')">Anotar</button>`}</div>`;
+    }).join('')}</div>`;
+}
+function mgRegistrarFijo(id) {
+  const g = mgTodos.find(x => x.id === id);
+  if (!g) return;
+  mgAbrirGasto(null, { categoria: g.categoria, descripcion: g.descripcion, monto: g.monto, metodo_pago: g.metodo_pago, es_fijo: true });
+}
+
+// ── Modal de gasto ──
+function mgPintarCategorias() {
+  const propias = mgCategoriasPropias();
+  const todas = [...MG_CATEGORIAS, ...propias.map(n => mgCat(n))];
+  const esPropiaNueva = mgCatElegida === '__otra__';
+  document.getElementById('mg-catsel').innerHTML = todas.map(c =>
+    `<button type="button" role="radio" aria-checked="${c.n === mgCatElegida}" class="${c.n === mgCatElegida ? 'on' : ''}" style="--c:${c.c}" data-cat="${escHTML(c.n)}"><i class="fa-solid ${c.i}"></i>${escHTML(c.n)}</button>`).join('')
+    + `<button type="button" role="radio" aria-checked="${esPropiaNueva}" class="${esPropiaNueva ? 'on' : ''}" style="--c:#6E6A8E" data-cat="__otra__"><i class="fa-solid fa-plus"></i>Otra…</button>`;
+  document.getElementById('mg-otra-wrap').style.display = esPropiaNueva ? '' : 'none';
+  document.getElementById('mg-otras-lista').innerHTML = propias.map(n => `<option value="${escHTML(n)}">`).join('');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#mg-catsel button[data-cat]');
+  if (!b) return;
+  mgCatElegida = b.dataset.cat;
+  document.getElementById('mg-categoria-err').innerHTML = '';
+  mgPintarCategorias();
+  if (mgCatElegida === '__otra__') setTimeout(() => document.getElementById('mg-categoria-otra').focus(), 30);
+});
+
+function mgPintarRecibo(url) {
+  const box = document.getElementById('mg-recibo-box');
+  if (url === 'cargando') { box.innerHTML = '<div class="mg-recibo-prev"><span class="spinner"></span><span>Preparando la foto…</span></div>'; return; }
+  box.innerHTML = url
+    ? `<div class="mg-recibo-prev">${url === 'guardado' ? '<i class="fa-solid fa-image" style="font-size:1.4rem;color:var(--primary);padding:0 0.5rem;"></i>' : `<img src="${url}" alt="Recibo"/>`}
+        <span>${url === 'guardado' ? 'Recibo guardado' : 'Foto lista'}</span>
+        <button type="button" class="icon-btn" data-tip="Cambiar foto" aria-label="Cambiar foto" onclick="document.getElementById('mg-recibo-input').click()"><i class="fa-solid fa-camera-rotate"></i></button>
+        <button type="button" class="icon-btn" data-tip="Quitar foto" aria-label="Quitar foto" onclick="mgRecibo=null;mgPintarRecibo('')"><i class="fa-solid fa-trash"></i></button></div>`
+    : `<button type="button" class="btn-secondary mg-recibo-btn" onclick="document.getElementById('mg-recibo-input').click()"><i class="fa-solid fa-camera"></i> Adjuntar foto</button>`;
+}
+
+function mgAbrirGasto(id = null, copia = null) {
+  if (!mgModuloListo) { toast('Primero hay que activar el módulo en la base de datos (archivo 2026-10-mis-gastos.sql).', 'error'); return; }
+  mgEditId = id;
+  const g = id ? mgTodos.find(x => x.id === id) : copia;
+  document.getElementById('mg-gasto-titulo').textContent = id ? 'Editar gasto personal' : 'Nuevo gasto personal';
+  document.getElementById('mg-fecha').value = id ? g.fecha : todayLocal();
+  ponerMoneda('mg-monto', g?.monto || 0);
+  document.getElementById('mg-descripcion').value = g?.descripcion || '';
+  document.getElementById('mg-metodo').value = g?.metodo_pago || 'efectivo';
+  document.getElementById('mg-fijo').checked = !!g?.es_fijo;
+  document.getElementById('mg-categoria-otra').value = '';
+  mgCatElegida = g?.categoria || '';
+  mgRecibo = undefined;
+  document.getElementById('mg-recibo-input').value = '';
+  mgPintarRecibo(id && (g.tiene_recibo ?? !!g.recibo) ? 'guardado' : '');
+  document.getElementById('mg-categoria-err').innerHTML = '';
+  clearErrors();
+  mgPintarCategorias();
+  openModal('modal-mg-gasto');
+  setTimeout(() => document.getElementById('mg-monto')?.focus(), 50);
+}
+
+// Reduce la foto para que ocupe poco (≈100–300 KB) antes de guardarla
+function mgComprimirImagen(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let max = 1400, q = 0.72, out = '';
+      for (let i = 0; i < 5; i++) {
+        const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+        const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+        out = c.toDataURL('image/jpeg', q);
+        if (out.length < 600000) break;
+        max = Math.round(max * 0.75); q = Math.max(0.45, q - 0.08);
+      }
+      resolve(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+    img.src = url;
+  });
+}
+async function mgReciboElegido(input) {
+  const f = input.files?.[0];
+  if (!f) return;
+  if (!/^image\//.test(f.type)) { toast('Elige una imagen (foto del recibo)', 'error'); return; }
+  mgPintarRecibo('cargando');
+  try { mgRecibo = await mgComprimirImagen(f); mgPintarRecibo(mgRecibo); }
+  catch (e) { mgRecibo = undefined; mgPintarRecibo(''); toast('No se pudo leer la foto. Intenta con otra.', 'error'); }
+}
+
+async function mgGuardarGasto() {
+  clearErrors();
+  document.getElementById('mg-categoria-err').innerHTML = '';
+  const fecha = document.getElementById('mg-fecha').value;
+  const monto = leerMoneda('mg-monto');
+  const descripcion = document.getElementById('mg-descripcion').value.trim();
+  let categoria = mgCatElegida;
+  if (!fecha) { showError('mg-fecha', 'Elige la fecha'); return; }
+  if (fecha > todayLocal()) { showError('mg-fecha', 'La fecha no puede ser futura'); return; }
+  if (monto <= 0) { showError('mg-monto', 'Escribe un monto mayor a cero'); return; }
+  if (!categoria) { document.getElementById('mg-categoria-err').innerHTML = '<div class="error-hint show">Elige una categoría</div>'; return; }
+  if (categoria === '__otra__') {
+    categoria = normalizarCategoria(document.getElementById('mg-categoria-otra').value, [...MG_CATEGORIAS.map(c => c.n), ...mgCategoriasPropias()]);
+    if (!categoria) { showError('mg-categoria-otra', 'Escribe cuál es la categoría'); return; }
+  }
+  if (!descripcion) { showError('mg-descripcion', 'Describe el gasto'); return; }
+  const per = fecha.slice(0, 7);
+  const antes = mgAlertas(per);
+  const payload = { fecha, monto, categoria, descripcion, metodo_pago: document.getElementById('mg-metodo').value, es_fijo: document.getElementById('mg-fijo').checked };
+  if (mgRecibo !== undefined) payload.recibo = mgRecibo;
+  const btn = document.getElementById('btn-mg-guardar');
+  btn.classList.add('btn-loading');
+  const res = mgEditId
+    ? await sb.from('mis_gastos').update(payload).eq('id', mgEditId).eq('usuario_id', currentUser.id)
+    : await sb.from('mis_gastos').insert({ ...payload, usuario_id: currentUser.id });
+  btn.classList.remove('btn-loading');
+  if (res.error) { toast(faltaTabla(res.error) ? 'El módulo Mis gastos aún no está activado en la base de datos.' : 'No se pudo guardar: ' + res.error.message, 'error'); return; }
+  toast(mgEditId ? 'Gasto actualizado' : 'Gasto anotado', 'success');
+  closeModal('modal-mg-gasto');
+  const sel = document.getElementById('mg-filter-mes');
+  if (!mgEditId && [...sel.options].some(o => o.value === per)) sel.value = per;
+  await mgCargar();
+  // Aviso si este gasto hizo pasar algún tope (el gasto ya quedó guardado y sumado)
+  const despues = mgAlertas(per);
+  if (despues.excedidos.length > antes.excedidos.length) toast('Con este gasto superaste tu presupuesto. Se anotó igual; revisa el aviso.', 'warning');
+  else if (despues.cerca.length > antes.cerca.length) toast('Estás llegando al tope de tu presupuesto.', 'warning');
+}
+
+function mgEliminar(id) {
+  const g = mgTodos.find(x => x.id === id);
+  confirmarEliminar(`Se eliminará el gasto "${escHTML(g?.descripcion || '')}" por ${formatCurrency(g?.monto)}.`, async () => {
+    const { error } = await sb.from('mis_gastos').delete().eq('id', id).eq('usuario_id', currentUser.id);
+    if (error) { toast('No se pudo eliminar: ' + error.message, 'error'); return; }
+    toast('Gasto eliminado', 'success');
+    mgCargar();
+  });
+}
+
+async function mgVerRecibo(id) {
+  const g = mgTodos.find(x => x.id === id);
+  const ver = document.getElementById('mg-recibo-ver');
+  document.getElementById('mg-recibo-titulo').textContent = `Recibo · ${g?.descripcion || ''}`;
+  ver.innerHTML = '<span class="spinner"></span>';
+  const dl = document.getElementById('mg-recibo-descargar');
+  dl.removeAttribute('href');
+  openModal('modal-mg-recibo');
+  const { data, error } = await sb.from('mis_gastos').select('recibo').eq('id', id).eq('usuario_id', currentUser.id).maybeSingle();
+  if (error || !data?.recibo) { ver.innerHTML = '<p class="form-hint">No se pudo cargar la foto del recibo.</p>'; return; }
+  ver.innerHTML = `<img src="${data.recibo}" alt="Foto del recibo"/>`;
+  dl.href = data.recibo;
+  dl.download = `recibo_${g?.fecha || ''}_${sinTildes(g?.descripcion || '').replace(/[^a-z0-9]+/g, '_').slice(0, 30)}.jpg`;
+}
+
+// ── Presupuesto ──
+function mgAbrirPresupuesto() {
+  if (!mgModuloListo) { toast('Primero hay que activar el módulo en la base de datos (archivo 2026-10-mis-gastos.sql).', 'error'); return; }
+  ponerMoneda('mg-pres-total', mgPresupuesto?.total || 0);
+  const topes = mgPresupuesto?.por_categoria || {};
+  const cats = [...MG_CATEGORIAS, ...mgCategoriasPropias().map(n => mgCat(n))];
+  document.getElementById('mg-pres-lista').innerHTML = cats.map((c, i) => `
+    <div class="mg-pres-fila" style="--c:${c.c}"><label for="mg-pres-c${i}"><i class="fa-solid ${c.i}"></i>${escHTML(c.n)}</label>
+      <div class="input-money"><span>$</span><input type="text" id="mg-pres-c${i}" data-cat="${escHTML(c.n)}" class="field-input" inputmode="numeric" placeholder="Sin tope" oninput="formatoMoneda(this)"
+        value="${Number(topes[c.n]) > 0 ? Math.round(topes[c.n]).toLocaleString('es-CO') : ''}"/></div></div>`).join('');
+  document.getElementById('btn-mg-pres-quitar').hidden = !mgPresupuesto;
+  openModal('modal-mg-presupuesto');
+  setTimeout(() => document.getElementById('mg-pres-total')?.focus(), 50);
+}
+async function mgGuardarPresupuestoDatos(datos) {
+  const r = mgPresupuesto
+    ? await sb.from('mis_gastos_presupuesto').update({ ...datos, updated_at: new Date().toISOString() }).eq('usuario_id', currentUser.id)
+    : await sb.from('mis_gastos_presupuesto').insert({ ...datos, usuario_id: currentUser.id });
+  return r.error;
+}
+async function mgGuardarPresupuesto() {
+  const total = leerMoneda('mg-pres-total');
+  const por_categoria = {};
+  document.querySelectorAll('#mg-pres-lista input[data-cat]').forEach(inp => {
+    const v = parseInt(inp.value.replace(/\D/g, ''), 10) || 0;
+    if (v > 0) por_categoria[inp.dataset.cat] = v;
+  });
+  const btn = document.getElementById('btn-mg-pres-guardar');
+  btn.classList.add('btn-loading');
+  const error = await mgGuardarPresupuestoDatos({ total: total || null, por_categoria });
+  btn.classList.remove('btn-loading');
+  if (error) { toast('No se pudo guardar el presupuesto: ' + error.message, 'error'); return; }
+  toast(total || Object.keys(por_categoria).length ? 'Presupuesto guardado' : 'Presupuesto sin topes', 'success');
+  closeModal('modal-mg-presupuesto');
+  mgCargar();
+}
+async function mgQuitarPresupuesto() {
+  const { error } = await sb.from('mis_gastos_presupuesto').delete().eq('usuario_id', currentUser.id);
+  if (error) { toast('No se pudo quitar el presupuesto: ' + error.message, 'error'); return; }
+  toast('Presupuesto quitado', 'success');
+  closeModal('modal-mg-presupuesto');
+  mgCargar();
+}
+
+// ── Exportar ──
+function mgExportar() {
+  const per = mgPeriodo();
+  const filas = mgFiltrados().map(g => ({ Fecha: g.fecha, Categoría: g.categoria, Descripción: g.descripcion, 'Pagué con': MG_METODOS[g.metodo_pago] || g.metodo_pago,
+    Fijo: g.es_fijo ? 'Sí' : 'No', Recibo: (g.tiene_recibo ?? !!g.recibo) ? 'Sí' : 'No', Monto: Number(g.monto) }));
+  if (descargarExcel([{ nombre: 'Mis gastos', filas }], `Mis_gastos_${per}.xlsx`)) toast('Excel descargado', 'success');
+}
+
+// ── Integración: sección solo para administradores ──
+Object.assign(sectionMap, { 'mis-gastos': { id: 'sec-mis-gastos', title: 'Mis gastos', sub: 'Control personal de mis gastos (privado)', load: () => mgCargar() } });
+Object.assign(SECTION_GROUP_MAP, { 'mis-gastos': 'streaming' });
+const _goSectionSinMisGastos = goSection;
+goSection = function (key) {
+  if (key === 'mis-gastos' && !esAdmin()) { toast('Acceso restringido', 'error'); return _goSectionSinMisGastos(currentProfile ? 'op-inicio' : 'dashboard'); }
+  return _goSectionSinMisGastos(key);
+};
+</script>
 </body>
 </html>
