@@ -1,11 +1,11 @@
 // sw.js — Haliel PWA
-const VERSION = 'haliel-v7';   // ⬅️ SÚBELE EL NÚMERO EN CADA DESPLIEGUE (v5, v6, …)
+const VERSION = 'haliel-v8';   // ⬅️ SÚBELE EL NÚMERO EN CADA DESPLIEGUE (v5, v6, …)
 
 // Solo se guardan en caché archivos estáticos: la app y las librerías de CDN.
 // Los datos (Supabase, Telegram) SIEMPRE van a la red para no mostrar información vieja.
 const CDN_ESTATICOS = [
   'fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
-  'cdn.jsdelivr.net', 'cdn.sheetjs.com'
+  'cdn.jsdelivr.net', 'fastly.jsdelivr.net', 'cdn.sheetjs.com'
 ];
 
 self.addEventListener('install', () => {
