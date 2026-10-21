@@ -1015,7 +1015,7 @@
   /* Cámara */
   .camara-marco { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 4 / 3; }
   .camara-marco video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .camara-guia { position: absolute; left: 12%; right: 12%; top: 34%; bottom: 34%; border: 3px solid rgba(255,255,255,0.9); border-radius: 10px; box-shadow: 0 0 0 999px rgba(0,0,0,0.35); }
+  .camara-guia { position: absolute; left: 12%; right: 12%; top: 30%; bottom: 30%; border: 3px solid rgba(255,255,255,0.9); border-radius: 10px; box-shadow: 0 0 0 999px rgba(0,0,0,0.35); }
   .camara-guia::after { content: ''; position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: #E5383B; animation: camLinea 1.6s ease-in-out infinite; }
   @keyframes camLinea { 0%, 100% { transform: translateY(-14px); } 50% { transform: translateY(14px); } }
 
@@ -1041,6 +1041,31 @@
   .etiq-producto span { font-size: 0.8rem; color: var(--text-muted); }
   .cal-filtro-on { background: #E5383B !important; color: #fff !important; }
   .pos-item-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+
+  /* ════════ V5 · Calendario por cliente, KPIs clicables, escáner encima ════════ */
+  #modal-camara { z-index: 1400 !important; }
+  #modal-cal-ventas { z-index: 1150 !important; }
+  .camara-estado { text-align: center; }
+  .camara-estado.ok { color: #0E8A44; } .camara-estado.error { color: #C9282B; }
+  .camara-manual { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+  .camara-manual .field-input { flex: 1; }
+  .kpi-click { cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+  .kpi-click:hover { border-color: var(--primary); box-shadow: var(--ring); }
+  .cal-cliente { padding: 0.9rem 1rem; }
+  .cal-cliente-top { display: flex; gap: 0.75rem; align-items: flex-start; }
+  .cal-cliente-info { flex: 1; min-width: 0; }
+  .cal-cliente-nom { font-weight: 700; font-size: 0.95rem; }
+  .cal-cliente-sub { font-size: 0.78rem; color: var(--text-muted); }
+  .cal-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+  .cal-cliente-fecha { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; text-align: right; flex-shrink: 0; }
+  .cal-cliente-fecha span { font-size: 0.72rem; color: var(--text-muted); }
+  .cal-cliente-fecha strong { font-size: 0.9rem; }
+  .cal-cliente .cal-acciones { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dashed var(--card-border); }
+  #st-cal-modal-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cal-venta-fila { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.8rem; border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 0.5rem; }
+  .cal-accion-on { box-shadow: 0 0 0 2px var(--primary) !important; }
+  @media (max-width: 520px) { .cal-cliente-top { flex-wrap: wrap; } .cal-cliente-fecha { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; } .cal-venta-fila { flex-direction: column; align-items: stretch; } }
 
 </style>
 </head>
@@ -2275,11 +2300,27 @@
       <video id="camara-video" playsinline muted></video>
       <div class="camara-guia"></div>
     </div>
-    <p class="form-hint" id="camara-estado" style="text-align:center;">Apunta la cámara al código de barras.</p>
+    <p class="form-hint camara-estado" id="camara-estado">Apunta la cámara al código de barras.</p>
+    <div class="camara-manual">
+      <input type="text" id="camara-manual" class="field-input" inputmode="numeric" autocomplete="off" placeholder="¿No lo lee? Escribe el número de las barras" onkeydown="if(event.key==='Enter'){event.preventDefault();usarCodigoManual();}" aria-label="Código escrito a mano"/>
+      <button type="button" class="btn-secondary" onclick="usarCodigoManual()">Usar</button>
+    </div>
     <div class="modal-actions" style="justify-content:space-between;">
       <select id="camara-dispositivo" class="field-input" style="width:auto;max-width:60%;" onchange="iniciarCamara()" aria-label="Cámara"></select>
-      <button class="btn-primary" onclick="cerrarCamara()"><i class="fa-solid fa-check"></i> Listo</button>
+      <button class="btn-secondary" onclick="cerrarCamara()">Cerrar</button>
     </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: VENTAS DE UN CLIENTE (CALENDARIO) ══════════ -->
+<div id="modal-cal-ventas" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-head">
+      <h3 id="cal-ventas-titulo">Ventas del cliente</h3>
+      <button class="icon-btn" onclick="closeModal('modal-cal-ventas')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p class="form-hint" style="margin:-0.5rem 0 0.75rem;">Este cliente tiene varias ventas. Elige sobre cuál quieres actuar.</p>
+    <div id="cal-ventas-body"></div>
   </div>
 </div>
 
@@ -8395,6 +8436,21 @@ function diasRestantes(fechaVence) {
   return Math.round((vence - hoy) / (1000 * 60 * 60 * 24));
 }
 
+// Estado de una venta completa (combo): cancelada solo si todas sus plataformas
+// lo están; si no, el peor estado entre las plataformas vigentes.
+function estadoDeVenta(items) {
+  const vivas = items.filter(s => s.estado !== 'cancelado');
+  if (!vivas.length) return 'cancelado';
+  const prio = ['vencido', 'por_vencer', 'activo'];
+  return vivas.map(s => calcEstadoSus(s.fecha_vencimiento)).sort((a, b) => prio.indexOf(a) - prio.indexOf(b))[0];
+}
+// Agrupa las suscripciones por venta (id_venta + cliente), igual que la tabla
+function gruposDeVentas(lista = allStSuscripciones) {
+  const g = {};
+  lista.forEach(s => { const k = `${s.id_venta || s.id}__${s.cliente_id}`; (g[k] = g[k] || []).push(s); });
+  return g;
+}
+
 function calcEstadoSus(fechaVence) {
   const dias = diasRestantes(fechaVence);
   if (dias < 0)  return 'vencido';
@@ -8755,8 +8811,7 @@ function renderStreamingSuscripciones() {
     const cli = allStClientes.find(c => c.id === s.cliente_id);
     const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
     const matchSearch = !search || (cli?.nombre||'').toLowerCase().includes(search) || (plat?.nombre||'').toLowerCase().includes(search) || (s.id_venta||'').toLowerCase().includes(search);
-    const matchEstado = !fEstado || s.estado === fEstado;
-    return matchSearch && matchEstado;
+    return matchSearch;
   });
 
   if (!list.length) {
@@ -8778,7 +8833,17 @@ function renderStreamingSuscripciones() {
 
   // Ordenar los GRUPOS según la columna/dirección elegida por el usuario.
   // Por defecto: número de venta descendente (la más reciente arriba).
+  // El filtro de estado se aplica a la venta completa, igual que los indicadores
+  if (fEstado) {
+    const todas = gruposDeVentas();
+    Object.keys(grupos).forEach(k => { if (estadoDeVenta(todas[k] || grupos[k]) !== fEstado) delete grupos[k]; });
+  }
   const gruposArr = Object.values(grupos);
+  if (!gruposArr.length) {
+    tbody.innerHTML = `<tr><td colspan="8">${emptyState('fa-inbox','Sin ventas con ese estado','Prueba con otro filtro.')}</td></tr>`;
+    actualizarFlechasSus();
+    return;
+  }
   const _dir = stSusSort.dir === 'asc' ? 1 : -1;
   gruposArr.sort((ga, gb) => {
     const va = _susSortValue(ga, stSusSort.col);
@@ -10090,67 +10155,163 @@ async function loadStreamingCalendarioModal(filtro = 'semana') {
   if (filtro === 'semana')   lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(7));
   if (filtro === 'mes')      lista = lista.filter(s => s.fecha_vencimiento >= hoy && s.fecha_vencimiento <= enXDias(30));
   if (filtro === 'vencidos') lista = lista.filter(s => s.fecha_vencimiento < hoy);
-  lista.sort((a, b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
+
+  // Un solo ítem por CLIENTE, sin importar cuántas plataformas, ventas o fechas tenga
+  const porCliente = {};
+  lista.forEach(s => { (porCliente[s.cliente_id] = porCliente[s.cliente_id] || []).push(s); });
+  const clientes = Object.entries(porCliente).map(([clienteId, items]) => {
+    items.sort((a, b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
+    return { clienteId, items, primera: items[0].fecha_vencimiento, ventas: [...new Set(items.map(s => s.id_venta || s.id))] };
+  }).sort((a, b) => a.primera.localeCompare(b.primera));
+  window._calClientes = clientes;
 
   const info = document.getElementById('st-cal-modal-info');
-  const labels = { hoy: 'Vencen hoy', semana: 'Vencen esta semana', mes: 'Vencen este mes', vencidos: 'Ya vencidos' };
-  if (info) info.textContent = `${labels[filtro] || ''} — ${lista.length} resultado${lista.length !== 1 ? 's' : ''}`;
+  const labels = { hoy: 'Vencen hoy', semana: 'Vencen esta semana', mes: 'Vencen en los próximos 30 días', vencidos: 'Ya vencidos' };
+  if (info) info.textContent = `${labels[filtro] || ''} — ${clientes.length} cliente${clientes.length !== 1 ? 's' : ''} · ${lista.length} plataforma${lista.length !== 1 ? 's' : ''}`;
 
   const grid = document.getElementById('st-cal-modal-grid');
-  if (!lista.length) {
+  if (!clientes.length) {
     grid.innerHTML = `<div class="glass-card" style="padding:2rem;text-align:center;color:var(--text-muted);">
       <div style="font-size:2rem;margin-bottom:0.75rem;color:#12A150;"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
       <div style="font-weight:600;">Sin vencimientos para este período</div>
     </div>`;
     return;
   }
-  grid.innerHTML = lista.map(s => {
-    const cli   = allStClientes.find(c => c.id === s.cliente_id);
-    const plat  = allStPlataformas.find(p => p.id === s.plataforma_id);
-    const estado = s.estado === 'cancelado' ? 'cancelado' : calcEstadoSus(s.fecha_vencimiento);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  grid.innerHTML = clientes.map((g, idx) => {
+    const cli = allStClientes.find(c => c.id === g.clienteId);
+    const estado = estadoDeVenta(g.items);
     const borderColor = estado === 'vencido' ? '#E5383B' : estado === 'por_vencer' ? '#F5B70A' : '#12A150';
+    const total = g.items.reduce((a, s) => a + (Number(s.precio_venta) || 0), 0);
+    const variasFechas = new Set(g.items.map(s => s.fecha_vencimiento)).size > 1;
+    const chips = g.items.map(s => {
+      const plat = allStPlataformas.find(p => p.id === s.plataforma_id);
+      return `<span class="plat-chip" style="--c:${plat?.color || '#5B3FD9'};">${esc(plat?.nombre || 'Plataforma')}${variasFechas ? ` · ${formatDate(s.fecha_vencimiento).slice(0, 5)}` : ''}</span>`;
+    }).join('');
+    const unaVenta = g.ventas.length === 1;
+    const v0 = g.ventas[0];
     return `
-    <div class="glass-card" style="padding:1rem;border-left:4px solid ${borderColor};">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.65rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;">
-          <div style="font-size:1.5rem;">${plat?.emoji || '🎬'}</div>
-          <div>
-            <div style="font-weight:700;font-size:0.9rem;">${cli?.nombre || '—'}</div>
-            <div style="font-size:0.78rem;color:var(--text-muted);">${plat?.nombre || '—'} · ${formatCurrency(s.precio_venta)}</div>
-            <div style="margin-top:0.2rem;">${badgeEstadoSus(estado, s.fecha_vencimiento)}</div>
-          </div>
+    <div class="glass-card cal-cliente" style="border-left:4px solid ${borderColor};">
+      <div class="cal-cliente-top">
+        <div class="avatar" style="width:36px;height:36px;font-size:0.75rem;">${getInitials(cli?.nombre || '?')}</div>
+        <div class="cal-cliente-info">
+          <div class="cal-cliente-nom">${esc(cli?.nombre || 'Cliente')}</div>
+          <div class="cal-cliente-sub">${g.items.length} plataforma${g.items.length > 1 ? 's' : ''}${g.ventas.length > 1 ? ` · ${g.ventas.length} ventas` : ''} · <strong>${formatCurrency(total)}</strong></div>
+          <div class="cal-chips">${chips}</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:0.75rem;color:var(--text-muted);">Vence</div>
-          <div style="font-weight:700;font-size:0.88rem;">${formatDate(s.fecha_vencimiento)}</div>
-          <div class="cal-acciones">
-            <button class="btn-primary" data-tip="Enviar cobro por WhatsApp"
-              onclick="abrirModalCobro('${s.id_venta || s.id}','${s.cliente_id}');closeModal('modal-calendario-cobros');">
-              <i class="fa-brands fa-whatsapp"></i> Cobrar
-            </button>
-            <button class="btn-secondary cal-renovar" data-tip="Renovar"
-              onclick="closeModal('modal-calendario-cobros');renovarVenta('${s.id_venta || s.id}');">
-              <i class="fa-solid fa-rotate"></i> Renovar
-            </button>
-            <button class="btn-edit" data-tip="Factura PDF" onclick="generarFacturaPDF('${s.id_venta || s.id}')"><i class="fa-solid fa-file-invoice"></i></button>
-            <button class="btn-danger" data-tip="Eliminar venta"
-              onclick="confirmarEliminar('¿Eliminar la venta ${s.id_venta || ''} de ${(cli?.nombre || 'este cliente').replace(/['"<>]/g, '')}? Se eliminan todas sus plataformas.', async () => { await deleteStreamingSusGrupo('${s.id_venta || s.id}'); loadStreamingCalendarioModal(window._calFiltro || 'semana'); })">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
+        <div class="cal-cliente-fecha">
+          <span>${variasFechas ? 'Primer vencimiento' : 'Vence'}</span>
+          <strong>${formatDate(g.primera)}</strong>
+          ${badgeEstadoSus(estado, g.primera)}
         </div>
+      </div>
+      <div class="cal-acciones">
+        <button class="btn-primary" data-tip="Un solo cobro con todas sus plataformas" onclick="abrirModalCobroCliente(${idx})">
+          <i class="fa-brands fa-whatsapp"></i> Cobrar ${g.items.length > 1 ? 'todo' : ''}
+        </button>
+        <button class="btn-secondary cal-renovar" data-tip="Renovar" onclick="${unaVenta ? `closeModal('modal-calendario-cobros');renovarVenta('${esc(v0)}')` : `elegirVentaCliente(${idx}, 'renovar')`}">
+          <i class="fa-solid fa-rotate"></i> Renovar
+        </button>
+        <button class="btn-edit" data-tip="Factura PDF" onclick="${unaVenta ? `generarFacturaPDF('${esc(v0)}')` : `elegirVentaCliente(${idx}, 'factura')`}"><i class="fa-solid fa-file-invoice"></i></button>
+        <button class="btn-danger" data-tip="Eliminar venta" onclick="${unaVenta ? `eliminarVentaCalendario('${esc(v0)}')` : `elegirVentaCliente(${idx}, 'eliminar')`}"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>`;
   }).join('');
+}
+
+// Cobro único por cliente: junta todas sus plataformas del período en un solo mensaje
+function abrirModalCobroCliente(idx) {
+  const g = (window._calClientes || [])[idx];
+  if (!g) return;
+  closeModal('modal-calendario-cobros');
+  mostrarMensajeCobro(g.items, g.ventas);
+}
+
+function mostrarMensajeCobro(objetivo, idVentas) {
+  objetivo = objetivo.filter(s => s.estado !== 'cancelado');
+  if (!objetivo.length) return;
+  objetivo = [...objetivo].sort((a, b) => (a.fecha_vencimiento || '').localeCompare(b.fecha_vencimiento || ''));
+  const s0 = objetivo[0];
+  const cli = allStClientes.find(c => c.id === s0.cliente_id);
+  stCobroActual = s0;
+  stCobroActual._idVenta = idVentas[0];
+  stCobroActual._idVentas = idVentas;
+  stCobroActual._clienteId = s0.cliente_id;
+
+  const totalMonto = objetivo.reduce((a, s) => a + (Number(s.precio_venta) || 0), 0);
+  const nombre = s => allStPlataformas.find(p => p.id === s.plataforma_id)?.nombre || 'Streaming';
+  const unir = arr => arr.length === 1 ? arr[0] : `${arr.slice(0, -1).join(', ')} y ${arr.slice(-1)[0]}`;
+  const fechas = [...new Set(objetivo.map(s => s.fecha_vencimiento).filter(Boolean))];
+  const hoy = todayLocal();
+  const verbo = fechas.every(f => f < hoy) ? 'se venció' : (fechas.every(f => f === hoy) ? 'vence hoy,' : 'vence');
+  let detalle;
+  if (fechas.length <= 1) {
+    detalle = `el servicio de streaming con el que cuentas de *${unir([...new Set(objetivo.map(nombre))])}* ${verbo} el día *${fechas[0] ? formatDate(fechas[0]) : '—'}*`;
+  } else {
+    // Varias fechas: cada plataforma con su propio vencimiento
+    const porFecha = fechas.map(f => `*${unir(objetivo.filter(s => s.fecha_vencimiento === f).map(nombre))}* el *${formatDate(f)}*`);
+    detalle = `tus servicios de streaming vencen así: ${unir(porFecha)}`;
+  }
+  const mensaje =
+`Hola!! ${cli?.nombre || 'cliente'} 📌🍿🍿
+Te informo que ${detalle} 🏆🏆🥇🚦🚦
+Infórmame por favor si deseas continuar con el servicio y seguir disfrutando de las mejores series y películas.
+Escribe un *SI* en el evento de continuar, para lo cual puedes realizar tus pagos a través de los canales disponibles.
+💸💳 *Medios de pago* 💳💸
+*Valor* ${formatCurrency(totalMonto)}
+*Nequi - Daviplata:* 3125255151
+*Bancolombia cuenta ahorros:* 91202859289
+*BBVA ahorros:* 084439199`;
+  document.getElementById('st-cobro-preview').textContent = mensaje;
+  openModal('modal-st-cobro');
+}
+
+function eliminarVentaCalendario(idVenta) {
+  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+  const cli = allStClientes.find(c => c.id === items[0]?.cliente_id);
+  const nom = (cli?.nombre || 'este cliente').replace(/['"<>]/g, '');
+  confirmarEliminar(`¿Eliminar la venta ${idVenta} de ${nom}? Se eliminan todas sus plataformas.`, async () => {
+    closeModal('modal-cal-ventas');
+    await deleteStreamingSusGrupo(idVenta);
+    loadStreamingCalendarioModal(window._calFiltro || 'semana');
+  });
+}
+
+// Cliente con varias ventas: elegir sobre cuál renovar, facturar o eliminar
+function elegirVentaCliente(ref, accion) {
+  const g = typeof ref === 'number' ? (window._calClientes || [])[ref] : null;
+  const clienteId = g ? g.clienteId : ref.clienteId;
+  const ventas = g ? g.ventas : [...new Set(allStSuscripciones.filter(s => String(s.cliente_id) === String(clienteId) && s.estado !== 'cancelado').map(s => s.id_venta || s.id))];
+  const cli = allStClientes.find(c => c.id === clienteId);
+  const titulos = { renovar: 'Renovar', factura: 'Factura', eliminar: 'Eliminar' };
+  document.getElementById('cal-ventas-titulo').textContent = `${titulos[accion] || 'Ventas'} · ${cli?.nombre || 'Cliente'}`;
+  document.getElementById('cal-ventas-body').innerHTML = ventas.map(v => {
+    const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === v && String(s.cliente_id) === String(clienteId));
+    const total = items.reduce((a, s) => a + (Number(s.precio_venta) || 0), 0);
+    const vence = items.map(s => s.fecha_vencimiento).filter(Boolean).sort()[0];
+    const plats = items.map(s => allStPlataformas.find(p => p.id === s.plataforma_id)?.nombre || 'Plataforma').join(', ');
+    const vEsc = String(v).replace(/'/g, '');
+    return `<div class="cal-venta-fila">
+      <div style="min-width:0;flex:1;"><strong>${vEsc}</strong><div class="cal-cliente-sub">${plats} · ${formatCurrency(total)} · vence ${vence ? formatDate(vence) : '—'}</div></div>
+      <div class="cal-acciones" style="margin:0;">
+        <button class="btn-secondary cal-renovar${accion === 'renovar' ? ' cal-accion-on' : ''}" onclick="closeModal('modal-cal-ventas');closeModal('modal-calendario-cobros');closeModal('modal-st-cobro');renovarVenta('${vEsc}')"><i class="fa-solid fa-rotate"></i> Renovar</button>
+        <button class="btn-edit${accion === 'factura' ? ' cal-accion-on' : ''}" data-tip="Factura PDF" onclick="generarFacturaPDF('${vEsc}')"><i class="fa-solid fa-file-invoice"></i></button>
+        <button class="btn-danger${accion === 'eliminar' ? ' cal-accion-on' : ''}" data-tip="Eliminar venta" onclick="eliminarVentaCalendario('${vEsc}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+  openModal('modal-cal-ventas');
 }
 
 // ── KPIs UNIFICADOS ────────────────────────────────────────────────────
 function renderStSusAllKpis() {
   const container = document.getElementById('st-sus-all-kpis');
   if (!container) return;
-  const activas   = allStSuscripciones.filter(s => s.estado === 'activo').length;
-  const porVencer = allStSuscripciones.filter(s => s.estado === 'por_vencer').length;
-  const vencidas  = allStSuscripciones.filter(s => s.estado === 'vencido').length;
+  // Se cuentan VENTAS (un combo cuenta una vez), igual que las filas de la tabla
+  const _estVentas = Object.values(gruposDeVentas()).map(estadoDeVenta);
+  const activas   = _estVentas.filter(e => e === 'activo').length;
+  const porVencer = _estVentas.filter(e => e === 'por_vencer').length;
+  const vencidas  = _estVentas.filter(e => e === 'vencido').length;
   const totalCli  = allStClientes.filter(c => c.estado === 'activo').length;
   const ingresos  = allStSuscripciones.filter(s => s.estado !== 'cancelado').reduce((a, s) => a + (s.precio_venta || 0), 0);
   const costos    = allStSuscripciones.filter(s => s.estado !== 'cancelado').reduce((a, s) => {
@@ -10159,21 +10320,21 @@ function renderStSusAllKpis() {
   }, 0);
   const ganancia  = ingresos - costos;
   const margen    = ingresos > 0 ? Math.round((ganancia / ingresos) * 100) : 0;
-  const totalSus  = allStSuscripciones.filter(s => s.estado !== 'cancelado').length;
+  const totalSus  = _estVentas.filter(e => e !== 'cancelado').length;
 
   const tarjetas = [
     { label: 'Clientes activos',  value: totalCli,                icon: 'fa-users', color: '#5B3FD9' },
     { label: 'Ingresos activos',  value: formatCurrency(ingresos),icon: 'fa-sack-dollar', color: '#12A150' },
     { label: 'Ganancia neta',     value: formatCurrency(ganancia), icon: 'fa-chart-line', color: '#9A5BE8' },
     { label: 'Margen promedio',   value: margen + '%',             icon: 'fa-percent', color: '#D99A00' },
-    { label: 'Activas',           value: activas,                  icon: 'fa-circle-check', color: '#12A150' },
-    { label: 'Por vencer',        value: porVencer,                icon: 'fa-hourglass-half', color: '#B7791F' },
-    { label: 'Vencidas',          value: vencidas,                 icon: 'fa-circle-exclamation', color: '#E5383B' },
-    { label: 'Total suscripc.',   value: totalSus,                 icon: 'fa-list-check', color: '#5B3FD9' },
+    { label: 'Ventas activas',    value: activas,                  icon: 'fa-circle-check', color: '#12A150', filtro: 'activo' },
+    { label: 'Por vencer',        value: porVencer,                icon: 'fa-hourglass-half', color: '#B7791F', filtro: 'por_vencer' },
+    { label: 'Vencidas',          value: vencidas,                 icon: 'fa-circle-exclamation', color: '#E5383B', filtro: 'vencido' },
+    { label: 'Total ventas',      value: totalSus,                 icon: 'fa-list-check', color: '#5B3FD9', filtro: '' },
   ];
 
   container.innerHTML = tarjetas.map(t => `
-    <div class="kpi-tile">
+    <div class="kpi-tile${t.filtro !== undefined ? ' kpi-click' : ''}" ${t.filtro !== undefined ? `onclick="const f=document.getElementById('st-sus-filter-estado');f.value='${t.filtro}';filterStreamingSuscripciones();" data-tip="Ver en la tabla"` : ''}>
       <span class="tile-ico" style="--c:${t.color};"><i class="fa-solid ${t.icon}"></i></span>
       <div style="min-width:0;">
         <div class="kpi-tile-val">${t.value}</div>
@@ -11043,9 +11204,10 @@ function renovOnDuracionChange() {
 
 // Entrada desde el modal de cobro
 function renovarDesdeCobro() {
-  const v = (typeof stCobroActual !== 'undefined' && stCobroActual) ? stCobroActual._idVenta : null;
+  const c = (typeof stCobroActual !== 'undefined' && stCobroActual) ? stCobroActual : null;
   closeModal('modal-st-cobro');
-  abrirModalRenovar(v);
+  if (c?._idVentas && c._idVentas.length > 1) { elegirVentaCliente({ clienteId: c._clienteId }, 'renovar'); return; }
+  abrirModalRenovar(c ? c._idVenta : null);
 }
 
 async function confirmarRenovacion() {
@@ -13210,44 +13372,98 @@ document.addEventListener('keydown', e => {
 // =====================================================================
 // ESCÁNER CON CÁMARA (celular o computador con cámara)
 // =====================================================================
-let camCallback = null, camContinuo = false, camStream = null, camLoop = null, camReader = null, camUltimo = { c: '', t: 0 };
-const ZXING_URL = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+let camCallback = null, camContinuo = false, camStream = null, camLoop = null, camReader = null, camUltimo = { c: '', t: 0 }, camSesion = 0;
+const LECTOR_URL = 'https://cdn.jsdelivr.net/npm/barcode-detector@2.3.1/dist/iife/pure.js';
+// Formatos de los productos en tienda (EAN-13 es el de casi todo lo que se vende en Colombia)
+const FORMATOS_TIENDA = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'codabar', 'qr_code'];
 
 function escanearConCamara(callback, continuo = false) {
-  if (!navigator.mediaDevices?.getUserMedia) { toast('Este navegador no permite usar la cámara', 'error'); return; }
+  if (!navigator.mediaDevices?.getUserMedia) {
+    toast(location.protocol !== 'https:' ? 'La cámara solo funciona en páginas seguras (https)' : 'Este navegador no permite usar la cámara', 'error');
+    return;
+  }
   camCallback = callback; camContinuo = continuo;
-  openModal('modal-camara');
+  document.getElementById('camara-manual').value = '';
+  openModal('modal-camara');      // queda por encima de cualquier otra ventana
   iniciarCamara();
+}
+
+function restriccionesVideo() {
+  const devId = document.getElementById('camara-dispositivo').value || null;
+  const base = { width: { ideal: 1920 }, height: { ideal: 1080 }, advanced: [{ focusMode: 'continuous' }] };
+  return { audio: false, video: devId ? { ...base, deviceId: { exact: devId } } : { ...base, facingMode: { ideal: 'environment' } } };
 }
 
 async function iniciarCamara() {
   detenerCamara();
+  const sesion = ++camSesion;
   const video = document.getElementById('camara-video');
   const estado = document.getElementById('camara-estado');
-  const devId = document.getElementById('camara-dispositivo').value || null;
+  estado.className = 'form-hint camara-estado';
   estado.textContent = 'Abriendo la cámara…';
   try {
-    let formatos = [];
-    if ('BarcodeDetector' in window) { try { formatos = await window.BarcodeDetector.getSupportedFormats(); } catch (_) {} }
-    if (formatos.length) {
-      camStream = await navigator.mediaDevices.getUserMedia({ video: devId ? { deviceId: { exact: devId } } : { facingMode: { ideal: 'environment' } } });
-      video.srcObject = camStream; await video.play();
-      const det = new window.BarcodeDetector({ formats: formatos });
-      camLoop = setInterval(async () => {
-        try { const r = await det.detect(video); if (r && r[0]) camDetectado(r[0].rawValue); } catch (_) {}
-      }, 220);
-    } else {
-      estado.textContent = 'Cargando el lector…';
-      await cargarScript(ZXING_URL);
-      camReader = new window.ZXing.BrowserMultiFormatReader();
-      await camReader.decodeFromVideoDevice(devId, video, res => { if (res) camDetectado(res.getText()); });
-    }
-    estado.textContent = camContinuo ? 'Apunta al código. Puedes escanear varios productos seguidos.' : 'Apunta la cámara al código de barras.';
+    camStream = await navigator.mediaDevices.getUserMedia(restriccionesVideo());
+    if (sesion !== camSesion) { camStream.getTracks().forEach(t => t.stop()); return; }
+    video.srcObject = camStream;
+    video.setAttribute('playsinline', ''); video.muted = true;
+    await video.play();
     llenarCamaras();
+
+    // Lector: el nativo del navegador (Chrome en Android) o, si no existe,
+    // el mismo motor de lectura (ZXing-C++) cargado aparte para iPhone y computadores.
+    let Detector = ('BarcodeDetector' in window) ? window.BarcodeDetector : null;
+    let formatos = [];
+    if (Detector) { try { formatos = (await Detector.getSupportedFormats()).filter(f => FORMATOS_TIENDA.includes(f)); } catch (_) {} }
+    if (!formatos.length) {
+      estado.textContent = 'Cargando el lector…';
+      await cargarScript(LECTOR_URL);
+      if (sesion !== camSesion) return;
+      Detector = window.BarcodeDetectionAPI.BarcodeDetector;
+      formatos = FORMATOS_TIENDA;
+    }
+    const det = new Detector({ formats: formatos });
+    // Cada intento usa una vista distinta del cuadro: completo, recuadro central
+    // y versiones reducidas. Reducir la imagen ayuda mucho cuando el celular
+    // está muy cerca y el código sale un poco borroso.
+    const lienzo = document.createElement('canvas'), ctx2d = lienzo.getContext('2d', { willReadFrequently: true });
+    // [x, y, ancho, alto, escala] relativos al cuadro. El recuadro guía va más seguido porque
+    // ahí es donde la persona pone el código y deja por fuera textos y logos que confunden al lector.
+    const VISTAS = [[0.12, 0.3, 0.76, 0.4, 1], [0.25, 0.3, 0.5, 0.4, 1], [0, 0, 1, 1, 1], [0.12, 0.3, 0.76, 0.4, 1], [0.25, 0.3, 0.5, 0.4, 1], [0.1, 0.25, 0.8, 0.5, 0.6], [0, 0, 1, 1, 0.6]];
+    let turno = 0, ocupado = false, candidato = { c: '', n: 0, t: 0 };
+    camLoop = setInterval(async () => {
+      if (ocupado || video.readyState < 2 || !video.videoWidth) return;
+      ocupado = true;
+      try {
+        const [fx, fy, fw, fh, esc] = VISTAS[turno++ % VISTAS.length];
+        let fuente = video;
+        if (fw !== 1 || fh !== 1 || esc !== 1) {
+          const w = video.videoWidth, h = video.videoHeight, cw = Math.round(w * fw), ch = Math.round(h * fh);
+          lienzo.width = Math.round(cw * esc); lienzo.height = Math.round(ch * esc);
+          ctx2d.imageSmoothingQuality = 'high';
+          ctx2d.drawImage(video, Math.round(w * fx), Math.round(h * fy), cw, ch, 0, 0, lienzo.width, lienzo.height);
+          fuente = lienzo;
+        }
+        const r = await det.detect(fuente);
+        const codigo = r && r[0]?.rawValue;
+        if (sesion === camSesion && codigo) {
+          // Se confirma con dos lecturas iguales seguidas para evitar lecturas falsas
+          const ahora = Date.now();
+          candidato = (candidato.c === codigo && ahora - candidato.t < 2000) ? { c: codigo, n: candidato.n + 1, t: ahora } : { c: codigo, n: 1, t: ahora };
+          if (candidato.n >= 2) camDetectado(codigo);
+        }
+      } catch (_) {} finally { ocupado = false; }
+    }, 110);
+    estado.textContent = camContinuo
+      ? 'Apunta al código de barras. Puedes escanear varios productos seguidos.'
+      : 'Apunta al código de barras y acércalo hasta que se vea nítido.';
   } catch (err) {
-    estado.innerHTML = /Permission|NotAllowed/i.test(err?.name + err?.message)
-      ? 'No hay permiso para usar la cámara. Actívalo en el candado de la barra de direcciones.'
-      : 'No se pudo abrir la cámara: ' + escHTML(err?.message || err);
+    estado.className = 'form-hint camara-estado error';
+    const n = (err?.name || '') + ' ' + (err?.message || '');
+    estado.innerHTML = /NotAllowed|Permission/i.test(n)
+      ? 'No hay permiso para usar la cámara. Toca el candado junto a la dirección de la página, permite la cámara y vuelve a intentarlo.'
+      : /NotFound|Overconstrained|NotReadable/i.test(n)
+        ? 'No se encontró una cámara disponible o la está usando otra aplicación.'
+        : 'No se pudo abrir la cámara: ' + escHTML(err?.message || err);
   }
 }
 
@@ -13256,22 +13472,41 @@ async function llenarCamaras() {
   if (sel.options.length) return;
   try {
     const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
-    sel.innerHTML = devs.map((d, i) => `<option value="${d.deviceId}">${escHTML(d.label || 'Cámara ' + (i + 1))}</option>`).join('');
+    const actual = camStream?.getVideoTracks()[0]?.getSettings().deviceId;
+    sel.innerHTML = devs.map((d, i) => `<option value="${d.deviceId}"${d.deviceId === actual ? ' selected' : ''}>${escHTML(d.label || 'Cámara ' + (i + 1))}</option>`).join('');
     sel.hidden = devs.length < 2;
   } catch (_) { sel.hidden = true; }
 }
 
 function camDetectado(codigo) {
+  codigo = String(codigo).trim();
+  if (!codigo) return;
   const ahora = Date.now();
   if (codigo === camUltimo.c && ahora - camUltimo.t < 1800) return;
   camUltimo = { c: codigo, t: ahora };
+  pitido(true);
+  if (navigator.vibrate) try { navigator.vibrate(60); } catch (_) {}
   const cb = camCallback;
-  if (!camContinuo) { pitido(true); cerrarCamara(); }
-  else document.getElementById('camara-estado').innerHTML = `Leído: <strong>${escHTML(codigo)}</strong>`;
+  if (!camContinuo) cerrarCamara();
+  else {
+    const e = document.getElementById('camara-estado');
+    e.className = 'form-hint camara-estado ok';
+    e.innerHTML = `<i class="fa-solid fa-circle-check"></i> Leído: <strong>${escHTML(codigo)}</strong>`;
+  }
   if (cb) cb(codigo);
 }
 
+// Si la cámara no logra leerlo, se puede escribir el número que aparece bajo las barras
+function usarCodigoManual() {
+  const v = document.getElementById('camara-manual').value.replace(/\s+/g, '');
+  if (!v) { document.getElementById('camara-manual').focus(); return; }
+  camUltimo = { c: '', t: 0 };
+  camDetectado(v);
+  document.getElementById('camara-manual').value = '';
+}
+
 function detenerCamara() {
+  camSesion++;
   clearInterval(camLoop); camLoop = null;
   try { camReader?.reset(); } catch (_) {}
   camReader = null;
@@ -13283,6 +13518,10 @@ function cerrarCamara() {
   closeModal('modal-camara');
   if (posActivo()) posFoco();
 }
+
+// Cerrar la ventana de la cámara de cualquier forma (X, fondo, Esc) siempre la apaga
+const _closeModalOriginal = closeModal;
+closeModal = function (id) { if (id === 'modal-camara') detenerCamara(); return _closeModalOriginal(id); };
 
 // =====================================================================
 // COMPROBANTE DE VENTA (impresora térmica 80 mm o carta)
