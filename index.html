@@ -1068,6 +1068,7 @@
   @media (max-width: 520px) { .cal-cliente-top { flex-wrap: wrap; } .cal-cliente-fecha { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; } .cal-venta-fila { flex-direction: column; align-items: stretch; } }
 
 
+
   /* ════════ V6 · Autollenado de productos ════════ */
   .autollenado { display: flex; align-items: center; gap: 0.7rem; padding: 0.65rem 0.8rem; border-radius: 12px; border: 1px solid var(--card-border); background: var(--input-bg); font-size: 0.82rem; }
   .autollenado[hidden] { display: none; }
@@ -1082,6 +1083,9 @@
   .autollenado-spin { border-color: var(--card-border) !important; border-top-color: var(--primary) !important; }
   .autollenado-campo { animation: campoLleno 1.5s ease; }
   @keyframes campoLleno { 0%, 40% { background-color: rgba(18,161,80,0.16); border-color: #12A150; } 100% { background-color: var(--card-bg); } }
+  .noenc-ico { width: 60px; height: 60px; border-radius: 50%; background: rgba(245,183,10,0.16); color: #B7791F; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0.4rem auto 0.8rem; }
+  .noenc-publico { margin-top: 0.85rem; text-align: left; }
+  #modal-no-encontrado { z-index: 1200 !important; }
 
 </style>
 </head>
@@ -1693,7 +1697,7 @@
               <i class="fa-solid fa-barcode"></i>
               <input type="text" id="pos-scan" placeholder="Escanea el código o escribe el nombre del producto" autocomplete="off" spellcheck="false"
                      oninput="posBuscar()" onkeydown="posTeclaScan(event)" aria-label="Código o nombre del producto"/>
-              <button type="button" class="btn-secondary" onclick="escanearConCamara(posAgregarPorCodigo, true)" data-tip="Escanear con la cámara del equipo"><i class="fa-solid fa-camera"></i><span class="hide-sm"> Cámara</span></button>
+              <button type="button" class="btn-secondary" onclick="escanearConCamara(posAgregarPorCodigo)" data-tip="Escanear con la cámara del equipo"><i class="fa-solid fa-camera"></i><span class="hide-sm"> Cámara</span></button>
             </div>
             <div class="pos-scan-hint" id="pos-scan-hint"><i class="fa-solid fa-circle-check"></i> Listo para escanear: con lector de códigos, el producto se agrega solo.</div>
             <div id="pos-resultados" class="pos-resultados" hidden></div>
@@ -2337,6 +2341,18 @@
     </div>
     <p class="form-hint" style="margin:-0.5rem 0 0.75rem;">Este cliente tiene varias ventas. Elige sobre cuál quieres actuar.</p>
     <div id="cal-ventas-body"></div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PRODUCTO NO ENCONTRADO (PUNTO DE VENTA) ══════════ -->
+<div id="modal-no-encontrado" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:420px;text-align:center;">
+    <div class="noenc-ico"><i class="fa-solid fa-barcode"></i></div>
+    <h3 class="venta-ok-titulo">Este producto no está en el inventario</h3>
+    <p class="form-hint" style="margin-top:0.35rem;">Código <strong id="noenc-codigo"></strong></p>
+    <div class="autollenado noenc-publico" id="noenc-publico" hidden></div>
+    <p class="form-hint" id="noenc-texto"></p>
+    <div class="modal-actions" id="noenc-acciones" style="justify-content:center;"></div>
   </div>
 </div>
 
@@ -13081,9 +13097,16 @@ function faltaFuncion(error) {
 
 // ── Sonidos cortos de confirmación (sin archivos externos) ──
 let _audioCtx = null;
-function pitido(ok = true) {
+function desbloquearAudio() {
   try {
     _audioCtx = _audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  } catch (_) {}
+}
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, desbloquearAudio, { passive: true }));
+function pitido(ok = true) {
+  try {
+    desbloquearAudio();
     const o = _audioCtx.createOscillator(), g = _audioCtx.createGain();
     o.type = 'sine'; o.frequency.value = ok ? 1320 : 220;
     g.gain.setValueAtTime(0.0001, _audioCtx.currentTime);
@@ -13120,7 +13143,13 @@ async function posCargar() {
   posFoco();
 }
 
-function posFoco() { setTimeout(() => document.getElementById('pos-scan')?.focus(), 30); }
+// En computador el cursor queda listo en el campo de escaneo. En celular y tableta no,
+// porque abriría el teclado en pantalla; el lector Bluetooth funciona igual sin el cursor ahí.
+const esPantallaTactil = () => window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches;
+function posFoco() {
+  if (esPantallaTactil()) { if (document.activeElement?.id === 'pos-scan') document.activeElement.blur(); return; }
+  setTimeout(() => document.getElementById('pos-scan')?.focus(), 30);
+}
 const posActivo = () => document.getElementById('sec-pos')?.classList.contains('active');
 const codigoDe = p => p.codigo_barras || p.codigo || '';
 
@@ -13196,11 +13225,39 @@ function posAgregarPorCodigo(codigo, silencioso = false) {
 
 function posCodigoNoEncontrado(codigo) {
   pitido(false);
+  if (navigator.vibrate) try { navigator.vibrate([60, 60, 60]); } catch (_) {}
   const hint = document.getElementById('pos-scan-hint');
   hint.className = 'pos-scan-hint error';
-  hint.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> No hay ningún producto con el código <strong>${escHTML(codigo)}</strong>.
-    ${esAdmin() ? `<button type="button" class="btn-secondary btn-xs" onclick="posCrearConCodigo('${escJS(codigo)}')"><i class="fa-solid fa-plus"></i> Crear producto con este código</button>` : 'Pide a un administrador que lo registre.'}`;
-  const inp = document.getElementById('pos-scan'); inp.select();
+  hint.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> El código <strong>${escHTML(codigo)}</strong> no está en el inventario.`;
+  const inp = document.getElementById('pos-scan'); inp.value = ''; document.getElementById('pos-resultados').hidden = true;
+  abrirNoEncontrado(codigo);
+}
+
+// Ventana "Producto no encontrado": muestra lo que dice la base pública y permite agregarlo
+let _noEncontradoCodigo = '';
+async function abrirNoEncontrado(codigo) {
+  _noEncontradoCodigo = codigo;
+  document.getElementById('noenc-codigo').textContent = codigo;
+  const acc = document.getElementById('noenc-acciones');
+  acc.innerHTML = esAdmin()
+    ? `<button class="btn-secondary" onclick="closeModal('modal-no-encontrado');posFoco()">Cancelar</button>
+       <button class="btn-primary" onclick="closeModal('modal-no-encontrado');posCrearConCodigo(_noEncontradoCodigo)"><i class="fa-solid fa-plus"></i> Agregar al inventario</button>`
+    : `<button class="btn-primary" onclick="closeModal('modal-no-encontrado');posFoco()">Entendido</button>`;
+  document.getElementById('noenc-texto').textContent = esAdmin()
+    ? 'Agrégalo ahora y quedará en esta venta.'
+    : 'Pide a un administrador que lo registre en el inventario para poder venderlo.';
+  const pub = document.getElementById('noenc-publico');
+  pub.hidden = false;
+  pub.innerHTML = `<span class="spinner autollenado-spin"></span><span>Buscando en la base pública de productos…</span>`;
+  openModal('modal-no-encontrado');
+  const res = typeof buscarProductoPublico === 'function' ? await buscarProductoPublico(codigo) : null;
+  if (_noEncontradoCodigo !== codigo) return;
+  if (res) {
+    pub.innerHTML = `${res.imagen ? `<img src="${escHTML(res.imagen)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()"/>` : '<i class="fa-solid fa-box"></i>'}
+      <div><strong>${escHTML(res.nombre)}</strong><span>${res.categoria ? escHTML(res.categoria) + ' · ' : ''}datos de ${escHTML(res.fuente)}</span></div>`;
+  } else {
+    pub.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i><div><span>${res === undefined ? 'No se pudo consultar la base pública (sin conexión).' : 'Tampoco aparece en la base pública: tendrás que escribir el nombre.'}</span></div>`;
+  }
 }
 function posCrearConCodigo(codigo) {
   window._codigoPendiente = codigo;
@@ -13502,7 +13559,7 @@ function camDetectado(codigo) {
   if (codigo === camUltimo.c && ahora - camUltimo.t < 1800) return;
   camUltimo = { c: codigo, t: ahora };
   pitido(true);
-  if (navigator.vibrate) try { navigator.vibrate(60); } catch (_) {}
+  if (navigator.vibrate) try { navigator.vibrate(80); } catch (_) {}
   const cb = camCallback;
   if (!camContinuo) cerrarCamara();
   else {
