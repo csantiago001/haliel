@@ -1250,6 +1250,144 @@
     #sec-mis-gastos .filter-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
     #sec-mis-gastos .filter-actions .btn-primary { grid-column: 1 / -1; }
   }
+
+  /* ════════ V9 · Mis créditos (privado del administrador) ════════ */
+  .icon-solo { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+  .btn-danger-soft { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid color-mix(in srgb, var(--red) 30%, transparent); background: color-mix(in srgb, var(--red) 8%, transparent);
+    color: var(--red); border-radius: 0.75rem; padding: 0.6rem 1rem; font: inherit; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+  .mc-alerta { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.85rem 1rem; border-radius: 14px; margin-bottom: 1rem; font-size: 0.86rem;
+    background: color-mix(in srgb, var(--red) 9%, var(--card-bg)); border: 1px solid color-mix(in srgb, var(--red) 35%, transparent); }
+  .mc-alerta[hidden] { display: none; }
+  .mc-alerta > i { color: var(--red); font-size: 1.1rem; margin-top: 0.1rem; }
+  .mc-alerta div { display: flex; flex-direction: column; gap: 0.15rem; }
+  .mc-alerta span { font-size: 0.8rem; color: var(--text-muted); }
+  .mc-alerta button { border: 0; background: none; color: var(--red); font: inherit; font-weight: 700; padding: 0; cursor: pointer; text-decoration: underline; }
+  .mc-filtros { flex-wrap: wrap; }
+  .mc-tabs { display: flex; gap: 0.25rem; padding: 0.25rem; border-radius: 12px; background: var(--input-bg); overflow-x: auto; max-width: 100%; }
+  .mc-tabs button { border: 0; background: none; font: inherit; font-size: 0.82rem; font-weight: 650; padding: 0.45rem 0.7rem; border-radius: 9px; color: var(--text-muted); display: inline-flex; gap: 0.35rem; align-items: center; cursor: pointer; white-space: nowrap; }
+  .mc-tabs button.on { background: var(--card-bg); color: var(--text); box-shadow: var(--shadow-card); }
+  .mc-tabs em { font-style: normal; font-size: 0.7rem; padding: 0.05rem 0.42rem; border-radius: 99px; background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary); }
+  .mc-tabs button[data-tab="vencidos"] em { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
+  .mc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .mc-grid > .glass-card { grid-column: 1 / -1; }
+  .mc-card { position: relative; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 1rem 1.1rem; box-shadow: var(--shadow-card); display: flex; flex-direction: column; gap: 0.7rem; min-width: 0; }
+  .mc-card.vencido { border-color: color-mix(in srgb, var(--red) 45%, transparent); }
+  .mc-top { display: flex; gap: 0.7rem; align-items: center; min-width: 0; }
+  .mc-av { width: 42px; height: 42px; flex-shrink: 0; border-radius: 13px; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--c); font-family: var(--font-display); font-size: 0.95rem; }
+  .mc-top-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .mc-top-txt strong { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .mc-top-txt span { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mc-tag-ent { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.64rem; font-weight: 800; padding: 0.08rem 0.4rem; border-radius: 6px; background: color-mix(in srgb, #7448D6 14%, transparent); color: #7448D6; margin-left: 0.35rem; vertical-align: middle; }
+  html.dark .mc-tag-ent { color: #B9A3FF; }
+  .mc-est { font-size: 0.68rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 99px; white-space: nowrap; flex-shrink: 0; }
+  .e-dia { background: color-mix(in srgb, #2F6FE0 14%, transparent); color: #2F6FE0; }
+  .e-venc { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
+  .e-pag { background: color-mix(in srgb, #12A150 15%, transparent); color: #12A150; }
+  .e-pronto { background: color-mix(in srgb, #F5B70A 22%, transparent); color: #B7791F; }
+  .e-sin { background: var(--input-bg); color: var(--text-muted); }
+  html.dark .e-pronto { color: #F5C842; } html.dark .e-dia { color: #7FA8F5; }
+  .mc-saldo { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem; }
+  .mc-saldo div { display: flex; flex-direction: column; }
+  .mc-saldo small { font-size: 0.72rem; color: var(--text-muted); }
+  .mc-saldo b { font: 800 1.35rem var(--font-display); letter-spacing: -0.02em; }
+  .mc-saldo b.rojo { color: var(--red); }
+  .mc-saldo .de { font-size: 0.78rem; color: var(--text-muted); text-align: right; }
+  .mc-saldo .de strong { color: #12A150; }
+  .mc-barra { height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--text-muted) 16%, transparent); overflow: hidden; }
+  .mc-barra i { display: block; height: 100%; border-radius: 99px; background: #12A150; transition: width 0.5s; }
+  .mc-meta { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.74rem; color: var(--text-muted); }
+  .mc-acc { display: flex; gap: 0.45rem; }
+  .mc-acc button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; border-radius: 10px; padding: 0.55rem 0.4rem; font: inherit; font-size: 0.8rem; font-weight: 700;
+    border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text); cursor: pointer; transition: 0.15s; }
+  .mc-acc button:hover { transform: translateY(-1px); }
+  .mc-acc button.p { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .mc-acc button.w, .mc-wa { color: #128C4A !important; border-color: color-mix(in srgb, #25D366 50%, transparent) !important; background: color-mix(in srgb, #25D366 10%, transparent) !important; }
+  html.dark .mc-acc button.w, html.dark .mc-wa { color: #4ADE80 !important; }
+  .mc-acc button.i { flex: 0 0 40px; }
+
+  .mc-buscador { position: relative; }
+  .mc-sug { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 30; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-pop); overflow: hidden; max-height: 280px; overflow-y: auto; }
+  .mc-sug[hidden] { display: none; }
+  .mc-sug button { display: flex; width: 100%; gap: 0.6rem; align-items: center; padding: 0.6rem 0.8rem; border: 0; background: none; font: inherit; font-size: 0.84rem; color: var(--text); text-align: left; cursor: pointer; }
+  .mc-sug button + button { border-top: 1px solid var(--card-border); }
+  .mc-sug button:hover, .mc-sug button.activo { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+  .mc-sug button i { width: 18px; text-align: center; color: var(--text-muted); }
+  .mc-sug button span { flex: 1; min-width: 0; }
+  .mc-sug button small { color: var(--text-muted); font-size: 0.74rem; }
+  .mc-sug button.nueva { color: var(--primary); font-weight: 650; }
+  .mc-sug button.nueva i { color: var(--primary); }
+  .mc-elegida { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.6rem; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); background: color-mix(in srgb, var(--primary) 6%, transparent); }
+  .mc-elegida[hidden] { display: none; }
+  .mc-elegida .mc-av { width: 34px; height: 34px; border-radius: 10px; font-size: 0.8rem; }
+  .mc-elegida div { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 0.86rem; }
+  .mc-elegida div small { color: var(--text-muted); font-size: 0.74rem; }
+  .mc-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .mc-chips button { border: 1px solid var(--card-border); background: var(--card-bg); font: inherit; font-size: 0.8rem; font-weight: 650; padding: 0.45rem 0.8rem; border-radius: 99px; color: var(--text); cursor: pointer; }
+  .mc-chips button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .mc-debe { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-radius: 12px; background: color-mix(in srgb, var(--red) 8%, transparent); margin-bottom: 1rem; }
+  .mc-debe span { font-size: 0.84rem; color: var(--text-muted); }
+  .mc-debe b { font: 800 1.3rem var(--font-display); color: var(--red); }
+  .mc-queda { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; padding: 0.7rem 0.85rem; border-radius: 12px; background: var(--input-bg); }
+  .mc-queda.ok { background: color-mix(in srgb, #12A150 10%, transparent); }
+  .mc-queda.mal { background: color-mix(in srgb, var(--red) 9%, transparent); }
+  .mc-queda > i { font-size: 1.2rem; color: var(--text-muted); }
+  .mc-queda.ok > i { color: #12A150; } .mc-queda.mal > i { color: var(--red); }
+  .mc-queda > div { display: flex; flex-direction: column; font-size: 0.84rem; }
+  .mc-queda > div span { font-size: 0.75rem; color: var(--text-muted); }
+  .mc-queda .mg-check { margin-left: auto; font-size: 0.8rem; }
+
+  .mc-hist-box { max-width: 760px; }
+  .mc-hist-cab { display: flex; gap: 0.7rem; align-items: center; min-width: 0; }
+  .mc-hist-cab h3 { margin: 0; }
+  .mc-hist-cab div { display: flex; flex-direction: column; min-width: 0; }
+  .mc-hist-cab div > span { font-size: 0.78rem; color: var(--text-muted); }
+  .mc-enlace { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; padding: 0.6rem 0.8rem; border-radius: 12px; margin-bottom: 0.8rem; font-size: 0.82rem;
+    background: color-mix(in srgb, #7448D6 9%, transparent); border: 1px solid color-mix(in srgb, #7448D6 25%, transparent); }
+  .mc-enlace i { color: #7448D6; } .mc-enlace span { flex: 1; min-width: 200px; }
+  .mh-res { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin: 0.3rem 0 1rem; }
+  .mh-res > div { background: var(--input-bg); border-radius: 12px; padding: 0.65rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-start; min-width: 0; }
+  .mh-res small { font-size: 0.72rem; color: var(--text-muted); }
+  .mh-res b { font: 800 1.1rem var(--font-display); }
+  .mc-interes { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; padding: 0.6rem 0.8rem; border-radius: 12px; margin-bottom: 0.6rem; font-size: 0.82rem; background: color-mix(in srgb, #F5B70A 12%, transparent); }
+  .mc-interes span { flex: 1; min-width: 200px; }
+  .mh-tit { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .mh-line { position: relative; display: flex; flex-direction: column; max-height: 42vh; overflow-y: auto; padding-right: 0.2rem; }
+  .mh-it { position: relative; display: grid; grid-template-columns: 32px 1fr auto auto 32px; gap: 0.7rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px dashed var(--card-border); }
+  .mh-it:last-child { border-bottom: 0; }
+  .mh-it .dot { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; color: #fff; }
+  .mh-it.abono .dot { background: #12A150; } .mh-it.credito .dot { background: #D69E06; } .mh-it.interes .dot { background: #C2410C; } .mh-it.perdon .dot { background: #7448D6; }
+  .mh-it > div { display: flex; flex-direction: column; min-width: 0; }
+  .mh-it strong { font-size: 0.86rem; } .mh-it span { font-size: 0.75rem; color: var(--text-muted); }
+  .mh-it em { font-style: normal; font-weight: 800; font-size: 0.9rem; white-space: nowrap; }
+  .mh-it.abono em, .mh-it.perdon em { color: #12A150; } .mh-it.credito em, .mh-it.interes em { color: #B7791F; }
+  .mh-it small { text-align: right; font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; }
+  .mh-it.anulado { opacity: 0.55; } .mh-it.anulado em { text-decoration: line-through; }
+  .mh-it .mh-anular { width: 30px; height: 30px; border: 0; border-radius: 8px; background: none; color: var(--text-muted); cursor: pointer; }
+  .mh-it .mh-anular:hover { background: color-mix(in srgb, var(--red) 10%, transparent); color: var(--red); }
+  .mc-hist-acc { justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .mc-hist-acc-izq, .mc-hist-acc-der { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .mc-config-box { max-width: 860px; }
+  .mc-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .mc-config-grid textarea { font-family: inherit; resize: vertical; min-height: 200px; line-height: 1.45; }
+  .mc-wa-prev { background: #E7DDD3; border-radius: 16px; padding: 0.9rem; max-height: 480px; overflow-y: auto; }
+  html.dark .mc-wa-prev { background: #0B141A; }
+  .mc-burbuja { background: #D9FDD3; color: #111B21; border-radius: 12px 12px 4px 12px; padding: 0.7rem 0.8rem; font-size: 0.84rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }
+  html.dark .mc-burbuja { background: #005C4B; color: #E9EDEF; }
+  .mc-cli-badge { display: flex; width: max-content; white-space: nowrap; align-items: center; gap: 0.3rem; margin-top: 0.25rem; border: 0; cursor: pointer; font: inherit; font-size: 0.7rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 99px;
+    background: color-mix(in srgb, #D69E06 16%, transparent); color: #A16207; }
+  .mc-cli-badge.venc { background: color-mix(in srgb, var(--red) 13%, transparent); color: var(--red); }
+  html.dark .mc-cli-badge { color: #F5C842; } html.dark .mc-cli-badge.venc { color: #FF8A8C; }
+  @media (max-width: 760px) {
+    .mh-res { grid-template-columns: 1fr 1fr; }
+    .mc-config-grid { grid-template-columns: 1fr; }
+    .mh-it { grid-template-columns: 30px 1fr auto 30px; }
+    .mh-it small { display: none; }
+    .mc-hist-acc-izq, .mc-hist-acc-der { width: 100%; }
+    .mc-hist-acc-der button { flex: 1; }
+    #sec-mis-creditos .filter-actions { display: grid; grid-template-columns: auto 1fr 1fr; width: 100%; }
+    #sec-mis-creditos .filter-actions .btn-primary { grid-column: 1 / -1; }
+    .mc-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -1443,6 +1581,7 @@
 					<a class="nav-item" id="nav-streaming-vencimientos" data-tooltip="Vencimientos" onclick="navSub('streaming-suscripciones', () => openModalCalendarioCobros())"><i class="fa-regular fa-calendar-check"></i><span class="nav-item-text">Vencimientos</span></a>
 					<a class="nav-item" id="nav-streaming-plataformas" data-tooltip="Plataformas de streaming" onclick="navSub('streaming-suscripciones', () => openModalStPlataformasGestion())"><i class="fa-solid fa-tv"></i><span class="nav-item-text">Plataformas de streaming</span></a>
 					<a class="nav-item" data-section="mis-gastos" data-tooltip="Mis gastos (privado)" onclick="goSection('mis-gastos')"><i class="fa-solid fa-sack-dollar"></i><span class="nav-item-text">Mis gastos</span><span class="nav-privado">PRIVADO</span></a>
+					<a class="nav-item" data-section="mis-creditos" data-tooltip="Mis créditos (privado)" onclick="goSection('mis-creditos')"><i class="fa-solid fa-hand-holding-dollar"></i><span class="nav-item-text">Mis créditos</span><span class="nav-privado">PRIVADO</span></a>
 				</div>
 			</div>
 
@@ -2012,6 +2151,31 @@
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- ══════════ ENTRETENIMIENTO: MIS CRÉDITOS (privado del administrador) ══════════ -->
+    <div class="section" id="sec-mis-creditos">
+      <div class="modulo-aviso" id="mc-aviso" hidden></div>
+      <div class="mg-privado">
+        <i class="fa-solid fa-lock"></i>
+        <div><strong>Espacio privado del administrador</strong><span>Tus créditos personales. No se mezclan con cajas, ventas, "Abonos y saldos" de streaming ni reportes del negocio.</span></div>
+      </div>
+      <div class="mc-alerta" id="mc-alerta" role="status" hidden></div>
+      <div class="grid-4" id="mc-kpis" style="margin-bottom:1rem;"></div>
+      <div class="filter-bar mc-filtros">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="mc-search" class="search-input" placeholder="Buscar persona, teléfono o concepto..." oninput="mcRender()" aria-label="Buscar persona"/>
+        </div>
+        <div class="mc-tabs" id="mc-tabs" role="tablist"></div>
+        <div class="filter-actions">
+          <button class="btn-secondary icon-solo" data-tip="Datos de pago y ajustes" aria-label="Datos de pago y ajustes" onclick="mcAbrirConfig()"><i class="fa-solid fa-gear"></i></button>
+          <button class="btn-secondary" onclick="mcExportar()"><i class="fa-solid fa-file-excel"></i> Exportar</button>
+          <button class="btn-secondary" onclick="mcAbrirPago()"><i class="fa-solid fa-hand-holding-dollar"></i> Registrar pago</button>
+          <button class="btn-primary" onclick="mcAbrirCredito()"><i class="fa-solid fa-plus"></i> Nuevo crédito</button>
+        </div>
+      </div>
+      <div class="mc-grid" id="mc-grid"></div>
     </div>
 
     <!-- ══════════ OPERACIONES: INVENTARIO ══════════ -->
@@ -2763,6 +2927,173 @@
     <div class="modal-actions">
       <a class="btn-secondary" id="mg-recibo-descargar" download="recibo.jpg"><i class="fa-solid fa-download"></i> Descargar</a>
       <button class="btn-primary" onclick="closeModal('modal-mg-recibo')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS CRÉDITOS · NUEVO CRÉDITO ══════════ -->
+<div id="modal-mc-credito" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Nuevo crédito</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mc-credito')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="span-2 mc-buscador">
+        <label class="field-label required" for="mc-cr-persona">¿A quién le prestas?</label>
+        <div id="mc-cr-elegida" class="mc-elegida" hidden></div>
+        <input type="text" id="mc-cr-persona" class="field-input" autocomplete="off" placeholder="Escribe el nombre o el teléfono"/>
+        <div class="mc-sug" id="mc-cr-sug" hidden></div>
+      </div>
+      <div><label class="field-label required" for="mc-cr-monto">Monto</label>
+        <div class="input-money"><span>$</span><input type="text" id="mc-cr-monto" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this)"/></div>
+      </div>
+      <div><label class="field-label required" for="mc-cr-fecha">Fecha</label><input type="date" id="mc-cr-fecha" class="field-input" onchange="mcPintarPlazo()"/></div>
+      <div class="span-2"><label class="field-label required" for="mc-cr-concepto">Concepto</label><input type="text" id="mc-cr-concepto" class="field-input" maxlength="160" placeholder="Ej: Préstamo para la matrícula"/></div>
+      <div class="span-2">
+        <span class="field-label">¿Cuándo debe pagar?</span>
+        <div class="mc-chips" id="mc-cr-plazos">
+          <button type="button" data-plazo="15">15 días</button><button type="button" data-plazo="30">30 días</button><button type="button" data-plazo="60">2 meses</button>
+          <button type="button" data-plazo="0">Sin fecha</button><button type="button" data-plazo="elegir">Elegir…</button>
+        </div>
+        <input type="date" id="mc-cr-limite" class="field-input" style="margin-top:0.5rem;display:none;" onchange="mcPintarPlazo()" aria-label="Fecha límite"/>
+        <span class="form-hint" id="mc-cr-plazo-hint"></span>
+      </div>
+      <div class="span-2" id="mc-cr-interes-wrap" style="display:none;"><label class="field-label" for="mc-cr-interes">Interés mensual (%)</label>
+        <input type="number" id="mc-cr-interes" class="field-input" min="0" max="100" step="0.5" placeholder="0 = sin interés"/>
+        <span class="form-hint">El interés no se cobra solo: cada mes verás el valor sugerido en el historial y decides si aplicarlo.</span></div>
+      <div class="span-2"><label class="field-label" for="mc-cr-telefono">Teléfono (para WhatsApp)</label><input type="tel" id="mc-cr-telefono" class="field-input" inputmode="tel" maxlength="20" placeholder="Ej: 3001234567"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-mc-credito')">Cancelar</button>
+      <button class="btn-primary" id="btn-mc-credito" onclick="mcGuardarCredito()"><i class="fa-solid fa-floppy-disk"></i> Guardar crédito</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS CRÉDITOS · REGISTRAR PAGO ══════════ -->
+<div id="modal-mc-pago" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="mc-pg-titulo">Registrar pago</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mc-pago')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mc-buscador" id="mc-pg-buscador" style="margin-bottom:1rem;">
+      <label class="field-label required" for="mc-pg-persona">¿Quién te pagó?</label>
+      <input type="text" id="mc-pg-persona" class="field-input" autocomplete="off" placeholder="Escribe el nombre"/>
+      <div class="mc-sug" id="mc-pg-sug" hidden></div>
+    </div>
+    <div id="mc-pg-cuerpo">
+      <div class="mc-debe"><span>Debe actualmente</span><b id="mc-pg-debe">$0</b></div>
+      <div class="form-grid">
+        <div class="span-2"><span class="field-label required">¿Cuánto pagó?</span>
+          <div class="mc-chips" id="mc-pg-tipo"><button type="button" data-tipo="abono">Abono</button><button type="button" data-tipo="total">Pago total</button></div>
+          <div class="input-money" style="margin-top:0.5rem;"><span>$</span><input type="text" id="mc-pg-monto" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);mcPintarResultadoPago()" aria-label="Monto pagado"/></div>
+        </div>
+        <div><label class="field-label" for="mc-pg-metodo">Pagó con</label>
+          <select id="mc-pg-metodo" class="field-input">
+            <option value="efectivo">Efectivo</option><option value="nequi">Nequi / Daviplata</option><option value="bancolombia">Bancolombia</option>
+            <option value="bbva">BBVA</option><option value="breb">Llave Bre-B</option><option value="otro">Otro</option>
+          </select>
+        </div>
+        <div><label class="field-label" for="mc-pg-fecha">Fecha</label><input type="date" id="mc-pg-fecha" class="field-input"/></div>
+        <div class="span-2"><label class="field-label" for="mc-pg-nota">Nota</label><input type="text" id="mc-pg-nota" class="field-input" maxlength="160" placeholder="Opcional"/></div>
+        <div class="span-2 mc-queda" id="mc-pg-resultado"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-mc-pago')">Cancelar</button>
+      <button class="btn-primary" id="btn-mc-pago" onclick="mcGuardarPago()"><i class="fa-solid fa-check"></i> Registrar pago</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS CRÉDITOS · HISTORIAL / ESTADO DE CUENTA ══════════ -->
+<div id="modal-mc-hist" class="modal-overlay" style="display:none;">
+  <div class="modal-box mc-hist-box">
+    <div class="modal-head">
+      <div class="mc-hist-cab" id="mc-h-cab"></div>
+      <button class="icon-btn" onclick="closeModal('modal-mc-hist')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="mc-h-enlace"></div>
+    <div class="mh-res" id="mc-h-res"></div>
+    <div id="mc-h-interes"></div>
+    <div class="mh-tit">Historial de movimientos</div>
+    <div class="mh-line" id="mc-h-lista"></div>
+    <div class="modal-actions mc-hist-acc">
+      <div class="mc-hist-acc-izq">
+        <button class="btn-secondary" onclick="mcEstadoCuentaPDF()"><i class="fa-solid fa-file-pdf"></i> Estado de cuenta</button>
+        <button class="btn-secondary mc-wa" onclick="mcEnviarEstado()"><i class="fa-brands fa-whatsapp"></i> Enviar</button>
+        <button class="btn-secondary" id="mc-h-perdonar" onclick="mcPerdonar()"><i class="fa-solid fa-hand-holding-heart"></i> Perdonar saldo</button>
+        <button class="btn-secondary icon-solo" data-tip="Editar persona" aria-label="Editar persona" onclick="mcAbrirPersona()"><i class="fa-solid fa-user-pen"></i></button>
+      </div>
+      <div class="mc-hist-acc-der">
+        <button class="btn-secondary" onclick="mcAbrirCredito(mcHistId)"><i class="fa-solid fa-plus"></i> Prestar más</button>
+        <button class="btn-primary" id="mc-h-abonar" onclick="mcAbrirPago(mcHistId)"><i class="fa-solid fa-hand-holding-dollar"></i> Abonar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS CRÉDITOS · EDITAR PERSONA ══════════ -->
+<div id="modal-mc-persona" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Editar persona</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mc-persona')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="span-2"><label class="field-label required" for="mc-pe-nombre">Nombre</label><input type="text" id="mc-pe-nombre" class="field-input" maxlength="80"/></div>
+      <div><label class="field-label" for="mc-pe-telefono">Teléfono</label><input type="tel" id="mc-pe-telefono" class="field-input" maxlength="20" inputmode="tel"/></div>
+      <div><label class="field-label" for="mc-pe-cliente">Cliente de Entretenimiento</label><select id="mc-pe-cliente" class="field-input"></select></div>
+      <div class="span-2"><label class="field-label" for="mc-pe-nota">Nota</label><input type="text" id="mc-pe-nota" class="field-input" maxlength="160" placeholder="Ej: Vecina del barrio"/></div>
+    </div>
+    <div class="modal-actions" style="justify-content:space-between;">
+      <button class="btn-danger-soft" onclick="mcEliminarPersona()"><i class="fa-solid fa-trash"></i> Eliminar persona</button>
+      <div style="display:flex;gap:0.5rem;"><button class="btn-secondary" onclick="closeModal('modal-mc-persona')">Cancelar</button>
+      <button class="btn-primary" id="btn-mc-persona" onclick="mcGuardarPersona()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS CRÉDITOS · DATOS DE PAGO Y AJUSTES ══════════ -->
+<div id="modal-mc-config" class="modal-overlay" style="display:none;">
+  <div class="modal-box mc-config-box">
+    <div class="modal-head">
+      <h3>Datos de pago y ajustes</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mc-config')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mc-config-grid">
+      <div>
+        <label class="field-label" for="mc-cf-datos">Canales de pago (aparecen en el recordatorio)</label>
+        <textarea id="mc-cf-datos" class="field-input" rows="10" maxlength="1500" oninput="mcPintarVistaPrevia()"></textarea>
+        <span class="form-hint">Usa *asteriscos* para poner texto en negrita en WhatsApp.</span>
+        <label class="field-label" for="mc-cf-firma" style="margin-top:0.8rem;">Firma</label>
+        <input type="text" id="mc-cf-firma" class="field-input" maxlength="60" oninput="mcPintarVistaPrevia()"/>
+        <label class="mg-check" style="margin-top:1rem;"><input type="checkbox" id="mc-cf-intereses"/> <span>Habilitar intereses <small>Permite poner un interés mensual al crear un crédito. Ningún interés se cobra solo.</small></span></label>
+      </div>
+      <div>
+        <span class="field-label">Vista previa del recordatorio</span>
+        <div class="mc-wa-prev"><div class="mc-burbuja" id="mc-cf-prev"></div></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-mc-config')">Cancelar</button>
+      <button class="btn-primary" id="btn-mc-config" onclick="mcGuardarConfig()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MIS CRÉDITOS · CONFIRMAR (anular, perdonar, eliminar) ══════════ -->
+<div id="modal-mc-confirmar" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-head"><h3 id="mc-cf2-titulo">Confirmar</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mc-confirmar')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+    <p class="form-hint" id="mc-cf2-texto" style="font-size:0.88rem;line-height:1.5;margin:0 0 0.8rem;"></p>
+    <div id="mc-cf2-campo"><label class="field-label" for="mc-cf2-motivo" id="mc-cf2-label">Motivo</label><input type="text" id="mc-cf2-motivo" class="field-input" maxlength="160"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-mc-confirmar')">Cancelar</button>
+      <button class="btn-primary" id="btn-mc-confirmar"></button>
     </div>
   </div>
 </div>
@@ -14953,6 +15284,722 @@ const _goSectionSinMisGastos = goSection;
 goSection = function (key) {
   if (key === 'mis-gastos' && !esAdmin()) { toast('Acceso restringido', 'error'); return _goSectionSinMisGastos(currentProfile ? 'op-inicio' : 'dashboard'); }
   return _goSectionSinMisGastos(key);
+};
+</script>
+<script>
+// =====================================================================
+// MIS CRÉDITOS · préstamos personales y privados del administrador
+// Personas, créditos, abonos, historial, recordatorios por WhatsApp.
+// Se enlaza (solo como referencia) con los clientes de Entretenimiento.
+// Requiere supabase/2026-10-mis-creditos.sql
+// =====================================================================
+const MC_DATOS_PAGO = `📲 *Nequi - Daviplata:* 3125255151
+🏦 *Bancolombia ahorros:* 91202859289
+🏦 *BBVA ahorros:* 084439199
+
+🔑 *Llaves para pagos por Bre-B*
+✓ 3125255151
+✓ @bbva3125255151
+✓ @padilla185`;
+const MC_FIRMA = 'Elpaye';
+const MC_METODOS = { efectivo: 'Efectivo', nequi: 'Nequi / Daviplata', bancolombia: 'Bancolombia', bbva: 'BBVA', breb: 'Llave Bre-B', otro: 'Otro' };
+const MC_COLORES = ['#E64A8B', '#2F6FE0', '#9A5BE8', '#C2410C', '#0E7490', '#12A150', '#D69E06', '#5B3FD9', '#DB2777', '#0369A1'];
+let mcPersonas = [], mcMovs = [], mcConfig = null, mcClientes = [], mcListo = true, mcCargado = false;
+let mcTab = 'deben', mcHistId = null, mcCr = { sel: null, plazo: 30 }, mcPg = { id: null, tipo: 'abono' };
+
+// ── Utilidades ──
+const mcPesos = n => '$ ' + Math.round(Number(n) || 0).toLocaleString('es-CO');
+const mcDigitos = t => String(t || '').replace(/\D/g, '');
+const mcUlt10 = t => mcDigitos(t).slice(-10);
+const mcColor = t => { let h = 0; for (const ch of String(t || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return MC_COLORES[h % MC_COLORES.length]; };
+const mcIniciales = n => String(n || '?').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+function mcPrimerNombre(n) {
+  const p = String(n || '').trim().split(/\s+/);
+  return /^(don|doña|dona|sr\.?|sra\.?|señor|señora|profe)$/i.test(p[0] || '') && p[1] ? `${p[0]} ${p[1]}` : (p[0] || '');
+}
+function mcSumarDias(iso, dias) { const [a, m, d] = iso.split('-').map(Number); return isoLocal(new Date(a, m - 1, d + dias)); }
+function mcDiasEntre(desde, hasta) { const f = s => { const [a, m, d] = s.split('-').map(Number); return Date.UTC(a, m - 1, d); }; return Math.round((f(hasta) - f(desde)) / 86400000); }
+const mcDatosPago = () => (mcConfig?.datos_pago || '').trim() || MC_DATOS_PAGO;
+const mcFirma = () => (mcConfig?.firma || '').trim() || MC_FIRMA;
+const mcClienteDe = p => p?.cliente_id ? mcClientes.find(c => String(c.id) === String(p.cliente_id)) : null;
+const mcPersona = id => mcPersonas.find(p => p.id === id);
+function mcOrdenMov(a, b) { return a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : String(a.created_at).localeCompare(String(b.created_at)); }
+
+// Resumen de una persona: saldo, créditos pendientes (se pagan del más antiguo al más nuevo), estado
+function mcResumen(p) {
+  const hoy = todayLocal();
+  const movs = mcMovs.filter(m => m.persona_id === p.id && !m.anulado).sort(mcOrdenMov);
+  const cargos = movs.filter(m => m.tipo === 'credito' || m.tipo === 'interes').map(m => ({ m, pendiente: Number(m.monto) }));
+  const prestado = sumMonto(movs.filter(m => m.tipo === 'credito'));
+  const intereses = sumMonto(movs.filter(m => m.tipo === 'interes'));
+  const pagado = sumMonto(movs.filter(m => m.tipo === 'abono'));
+  const perdonado = sumMonto(movs.filter(m => m.tipo === 'perdon'));
+  let pagos = pagado + perdonado;
+  for (const c of cargos) { const usa = Math.min(c.pendiente, pagos); c.pendiente -= usa; pagos -= usa; }
+  const pendientes = cargos.filter(c => c.pendiente > 0.5);
+  const saldo = Math.max(0, prestado + intereses - pagado - perdonado);
+  const limites = pendientes.map(c => c.m.tipo === 'credito' ? c.m.fecha_limite : (movs.find(x => x.id === c.m.credito_id)?.fecha_limite)).filter(Boolean).sort();
+  const fechaLimite = limites[0] || null;
+  const diasVencido = fechaLimite && fechaLimite < hoy ? mcDiasEntre(fechaLimite, hoy) : 0;
+  const diasParaVencer = fechaLimite && fechaLimite >= hoy ? mcDiasEntre(hoy, fechaLimite) : null;
+  const abonos = movs.filter(m => m.tipo === 'abono');
+  const total = prestado + intereses;
+  let estado = 'sin';
+  if (total > 0 && saldo <= 0.5) estado = 'pagado';
+  else if (saldo > 0.5) estado = diasVencido > 0 ? 'vencido' : (diasParaVencer !== null && diasParaVencer <= 5 ? 'pronto' : 'dia');
+  const vencidoMonto = sumMonto(pendientes.filter(c => { const l = c.m.tipo === 'credito' ? c.m.fecha_limite : movs.find(x => x.id === c.m.credito_id)?.fecha_limite; return l && l < hoy; }).map(c => ({ monto: c.pendiente })));
+  return { p, movs, prestado, intereses, pagado, perdonado, saldo, total, pendientes, fechaLimite, diasVencido, diasParaVencer, estado, vencidoMonto,
+    pct: total ? Math.round((pagado + perdonado) * 100 / total) : 0, ultimoAbono: abonos.length ? abonos[abonos.length - 1].fecha : null,
+    nCreditos: movs.filter(m => m.tipo === 'credito').length, cliente: mcClienteDe(p) };
+}
+const sumMonto = l => l.reduce((a, m) => a + Number(m.monto || 0), 0);
+function mcTextoEstado(r) {
+  if (r.estado === 'vencido') return [`Vencido hace ${r.diasVencido} día${r.diasVencido === 1 ? '' : 's'}`, 'e-venc'];
+  if (r.estado === 'pronto') return [r.diasParaVencer === 0 ? 'Vence hoy' : `Vence en ${r.diasParaVencer} día${r.diasParaVencer === 1 ? '' : 's'}`, 'e-pronto'];
+  if (r.estado === 'dia') return ['Al día', 'e-dia'];
+  if (r.estado === 'pagado') return ['Pagado', 'e-pag'];
+  return ['Sin créditos', 'e-sin'];
+}
+
+// ── Carga ──
+async function mcCargarDatos() {
+  if (!esAdmin()) return false;
+  const [rp, rm, rc, rcl] = await Promise.all([
+    sb.from('mc_personas').select('*').eq('usuario_id', currentUser.id).order('nombre'),
+    sb.from('mc_movimientos').select('*').eq('usuario_id', currentUser.id).order('fecha'),
+    sb.from('mc_config').select('*').eq('usuario_id', currentUser.id).maybeSingle(),
+    sb.from('streaming_clientes').select('id,nombre,whatsapp,ciudad').order('nombre'),
+  ]);
+  mcListo = !faltaTabla(rp.error) && !faltaTabla(rm.error);
+  if (rp.error && mcListo) toast('Error al cargar tus créditos: ' + rp.error.message, 'error');
+  mcPersonas = rp.data || []; mcMovs = rm.data || []; mcConfig = rc.error ? null : (rc.data || null); mcClientes = rcl.data || [];
+  mcCargado = true;
+  return mcListo;
+}
+async function mcCargar() {
+  if (!esAdmin()) return;
+  document.getElementById('mc-grid').innerHTML = '<div class="glass-card" style="padding:2rem;text-align:center;"><span class="spinner"></span></div>';
+  await mcCargarDatos();
+  const aviso = document.getElementById('mc-aviso');
+  aviso.hidden = mcListo;
+  if (!mcListo) aviso.innerHTML = `<i class="fa-solid fa-database"></i><div><strong>Este módulo necesita activarse una sola vez.</strong>
+    <span>Ejecuta el archivo <code>supabase/2026-10-mis-creditos.sql</code> en el editor SQL de Supabase y recarga la página.</span></div>`;
+  mcRender();
+}
+async function mcRecargarTodo() {
+  await mcCargarDatos();
+  if (document.getElementById('sec-mis-creditos').classList.contains('active')) mcRender();
+  if (mcHistId && document.getElementById('modal-mc-hist').style.display === 'flex') mcPintarHistorial();
+  if (document.getElementById('sec-streaming-cartera')?.classList.contains('active') && typeof filterStreamingClientes === 'function') filterStreamingClientes();
+}
+
+// ── Pantalla principal ──
+function mcRender() {
+  const hoy = todayLocal(), mes = hoy.slice(0, 7);
+  const res = mcPersonas.map(mcResumen);
+  const deben = res.filter(r => r.saldo > 0.5), vencidos = res.filter(r => r.estado === 'vencido');
+  const totalDeben = sumMonto(deben.map(r => ({ monto: r.saldo })));
+  const totalVencido = sumMonto(vencidos.map(r => ({ monto: r.vencidoMonto })));
+  const movMes = mcMovs.filter(m => !m.anulado && String(m.fecha).startsWith(mes));
+  const mesTxt = MESES_NOMBRE[Number(mes.slice(5)) - 1].toLowerCase();
+
+  // Alerta de vencidos
+  const al = document.getElementById('mc-alerta');
+  al.hidden = !vencidos.length;
+  if (vencidos.length) {
+    const nombres = vencidos.sort((a, b) => b.diasVencido - a.diasVencido).slice(0, 3).map(r => `${escHTML(r.p.nombre)} (${r.diasVencido} día${r.diasVencido === 1 ? '' : 's'})`).join(', ');
+    al.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><strong>${vencidos.length} crédito${vencidos.length === 1 ? '' : 's'} vencido${vencidos.length === 1 ? '' : 's'} por ${formatCurrency(totalVencido)}</strong>
+      <span>${nombres}${vencidos.length > 3 ? ' y otros' : ''}. Puedes recordarles por WhatsApp con un toque. <button type="button" onclick="mcCambiarTab('vencidos')">Ver vencidos</button></span></div>`;
+  }
+
+  document.getElementById('mc-kpis').innerHTML = [
+    kpiTile('fa-hand-holding-dollar', '#5B3FD9', formatCurrency(totalDeben), `Me deben en total · ${deben.length} persona${deben.length === 1 ? '' : 's'}`),
+    kpiTile('fa-clock', '#E5383B', totalVencido ? `<span class="kpi-rojo">${formatCurrency(totalVencido)}</span>` : formatCurrency(0), `Vencido · ${vencidos.length} persona${vencidos.length === 1 ? '' : 's'}`),
+    kpiTile('fa-arrow-down', '#12A150', formatCurrency(sumMonto(movMes.filter(m => m.tipo === 'abono'))), `Me pagaron en ${mesTxt}`),
+    kpiTile('fa-arrow-up', '#D69E06', formatCurrency(sumMonto(movMes.filter(m => m.tipo === 'credito'))), `Presté en ${mesTxt}`),
+  ].join('');
+
+  const tabs = [['deben', 'Me deben', deben.length], ['vencidos', 'Vencidos', vencidos.length], ['pagados', 'Pagados', res.filter(r => r.estado === 'pagado').length],
+    ['entretenimiento', 'Entretenimiento', res.filter(r => r.p.cliente_id).length], ['todos', 'Todos', res.length]];
+  document.getElementById('mc-tabs').innerHTML = tabs.map(([k, t, n]) => `<button type="button" role="tab" aria-selected="${mcTab === k}" data-tab="${k}" class="${mcTab === k ? 'on' : ''}" onclick="mcCambiarTab('${k}')">${t} <em>${n}</em></button>`).join('');
+
+  const q = sinTildes(document.getElementById('mc-search')?.value);
+  let lista = res.filter(r => mcTab === 'deben' ? r.saldo > 0.5 : mcTab === 'vencidos' ? r.estado === 'vencido' : mcTab === 'pagados' ? r.estado === 'pagado' : mcTab === 'entretenimiento' ? !!r.p.cliente_id : true);
+  if (q) lista = lista.filter(r => sinTildes(r.p.nombre).includes(q) || mcDigitos(r.p.telefono).includes(mcDigitos(q) || '§') || r.movs.some(m => sinTildes(m.concepto).includes(q)));
+  const peso = { vencido: 0, pronto: 1, dia: 2, sin: 3, pagado: 4 };
+  lista.sort((a, b) => peso[a.estado] - peso[b.estado] || (a.estado === 'vencido' ? b.diasVencido - a.diasVencido : 0) || b.saldo - a.saldo || a.p.nombre.localeCompare(b.p.nombre, 'es'));
+
+  const grid = document.getElementById('mc-grid');
+  if (!lista.length) {
+    const vacio = !mcPersonas.length;
+    grid.innerHTML = `<div class="glass-card">${vacio ? emptyState('fa-hand-holding-dollar', 'Aún no tienes créditos', 'Anota a quién le prestas con el botón "Nuevo crédito".', 'Nuevo crédito', 'mcAbrirCredito()')
+      : emptyState('fa-magnifying-glass', 'Sin resultados', q ? 'Prueba con otra búsqueda.' : 'No hay personas en esta pestaña.')}</div>`;
+    return;
+  }
+  grid.innerHTML = lista.map(mcTarjeta).join('');
+}
+function mcCambiarTab(t) { mcTab = t; mcRender(); }
+
+function mcTarjeta(r) {
+  const p = r.p, [estTxt, estCls] = mcTextoEstado(r), id = p.id;
+  const meta1 = r.estado === 'pagado' ? `Pagó el ${formatDate(r.ultimoAbono || r.movs.at(-1)?.fecha)}` : r.fechaLimite ? `Límite: ${formatDate(r.fechaLimite)}` : r.total ? 'Sin fecha límite' : 'Sin movimientos';
+  const meta2 = r.estado === 'pagado' ? `${r.movs.filter(m => m.tipo === 'abono').length} abono(s)` : r.ultimoAbono ? `Último abono: ${formatDate(r.ultimoAbono).slice(0, 5)}` : r.nCreditos > 1 ? `${r.nCreditos} créditos` : r.total ? 'Sin abonos' : '';
+  const debe = r.saldo > 0.5;
+  return `<div class="mc-card ${r.estado}" data-persona="${id}">
+    <div class="mc-top"><span class="mc-av" style="--c:${mcColor(p.nombre)}">${escHTML(mcIniciales(p.nombre))}</span>
+      <div class="mc-top-txt"><strong onclick="mcAbrirHistorial('${id}')">${escHTML(p.nombre)}${r.cliente ? '<span class="mc-tag-ent" title="Cliente de Entretenimiento"><i class="fa-solid fa-tv"></i> Cliente</span>' : ''}</strong>
+        <span>${p.telefono ? `<i class="fa-solid fa-phone" style="font-size:0.62rem"></i> ${escHTML(p.telefono)}` : 'Sin teléfono'}${p.nota ? ' · ' + escHTML(p.nota) : ''}</span></div>
+      <span class="mc-est ${estCls}">${estTxt}</span></div>
+    <div class="mc-saldo"><div><small>${debe ? 'Saldo pendiente' : 'Saldo'}</small><b class="${r.estado === 'vencido' ? 'rojo' : ''}">${formatCurrency(r.saldo)}</b></div>
+      <div class="de">de ${formatCurrency(r.total)} ${r.intereses ? 'con intereses' : 'prestados'}<br><strong>${r.pct}% pagado</strong></div></div>
+    <div class="mc-barra"><i style="width:${Math.min(100, r.pct)}%"></i></div>
+    <div class="mc-meta"><span><i class="fa-regular fa-calendar"></i> ${meta1}</span><span>${meta2}</span></div>
+    <div class="mc-acc">
+      ${debe ? `<button class="p" onclick="mcAbrirPago('${id}')"><i class="fa-solid fa-hand-holding-dollar"></i> Abonar</button>
+        <button class="w" onclick="mcRecordar('${id}')"><i class="fa-brands fa-whatsapp"></i> Recordar</button>`
+      : `<button onclick="mcAbrirCredito('${id}')"><i class="fa-solid fa-plus"></i> Nuevo crédito</button>
+        ${r.estado === 'pagado' ? `<button class="w" onclick="mcPazYSalvo('${id}')"><i class="fa-brands fa-whatsapp"></i> Paz y salvo</button>` : ''}`}
+      <button class="i" data-tip="Historial" aria-label="Historial de ${escHTML(p.nombre)}" onclick="mcAbrirHistorial('${id}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
+    </div></div>`;
+}
+
+// ── WhatsApp ──
+function mcUrlWhatsApp(tel, texto) {
+  let d = mcDigitos(tel);
+  if (d.length === 10) d = '57' + d;
+  return `https://wa.me/${d}?text=${encodeURIComponent(texto)}`;
+}
+function mcAbrirWhatsApp(p, texto, ventana) {
+  if (!mcDigitos(p.telefono)) toast(`${escHTML(p.nombre)} no tiene teléfono: elige el contacto en WhatsApp o agrégalo en "Editar persona".`, 'info');
+  const url = mcUrlWhatsApp(p.telefono, texto);
+  if (ventana && !ventana.closed) ventana.location.href = url;
+  else { const w = window.open(url, '_blank'); if (!w) toast('Permite las ventanas emergentes para abrir WhatsApp', 'error'); }
+}
+function mcMensajeRecordatorio(r) {
+  const varios = r.pendientes.length > 1;
+  const L = [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '', `Te escribo para recordarte que tienes ${varios ? 'créditos pendientes' : 'un crédito pendiente'} conmigo:`, '', `💵 *Saldo pendiente:* ${mcPesos(r.saldo)}`];
+  const concepto = c => c.m.tipo === 'interes' ? `Interés${c.m.concepto ? ' · ' + c.m.concepto : ''}` : (c.m.concepto || 'Crédito');
+  if (varios) { L.push('📝 *Conceptos:*'); r.pendientes.forEach(c => L.push(`• ${concepto(c)} (${mcPesos(c.pendiente)})`)); }
+  else if (r.pendientes[0]) L.push(`📝 *Concepto:* ${concepto(r.pendientes[0])}`);
+  if (r.fechaLimite) L.push(r.diasVencido > 0 ? `📅 *Venció el* ${formatDate(r.fechaLimite)} (hace ${r.diasVencido} día${r.diasVencido === 1 ? '' : 's'})` : `📅 *Fecha de pago:* ${formatDate(r.fechaLimite)}`);
+  if (r.pagado > 0) L.push(`✅ Ya abonaste ${mcPesos(r.pagado)} de ${mcPesos(r.total)}`);
+  L.push('', 'Puedes hacer tu pago por cualquiera de estos canales:', '', mcDatosPago(), '', 'Cuando realices el pago, envíame el comprobante por aquí y lo registro de inmediato ✅', '', `¡Gracias! *${mcFirma()}*, siempre a tus servicios 🤝`);
+  return L.join('\n');
+}
+function mcMensajeComprobante(r, monto, metodo, fecha) {
+  const L = [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '', `Recibí tu ${r.saldo <= 0.5 ? 'pago' : 'abono'} de *${mcPesos(monto)}*${metodo ? ' por ' + (MC_METODOS[metodo] || metodo) : ''} el ${formatDate(fecha)} ✅`, ''];
+  if (r.saldo <= 0.5) L.push('🎉 Quedas a *paz y salvo*. ¡Muchas gracias por cumplir!');
+  else { L.push(`💵 *Tu nuevo saldo es:* ${mcPesos(r.saldo)}`); if (r.fechaLimite) L.push(`📅 *Fecha de pago:* ${formatDate(r.fechaLimite)}`); }
+  L.push('', `¡Gracias! *${mcFirma()}*, siempre a tus servicios 🤝`);
+  return L.join('\n');
+}
+function mcMensajePazYSalvo(r) {
+  return [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '', `Te confirmo que estás a *paz y salvo* conmigo ✅`, `Pagaste en total ${mcPesos(r.pagado)}. No tienes saldos pendientes.`, '', '¡Gracias por cumplir!', `*${mcFirma()}*, siempre a tus servicios 🤝`].join('\n');
+}
+function mcMensajeEstado(r) {
+  const L = [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '', `Este es el estado de tu cuenta conmigo al ${formatDate(todayLocal())}:`, '',
+    `📊 *Total prestado:* ${mcPesos(r.prestado)}`];
+  if (r.intereses) L.push(`📈 *Intereses:* ${mcPesos(r.intereses)}`);
+  L.push(`✅ *Total abonado:* ${mcPesos(r.pagado)}`);
+  if (r.perdonado) L.push(`🤝 *Descontado:* ${mcPesos(r.perdonado)}`);
+  L.push(`💵 *Saldo pendiente:* ${mcPesos(r.saldo)}`, '', '*Movimientos:*');
+  const nombres = { credito: 'Crédito', interes: 'Interés', abono: 'Abono', perdon: 'Descuento' };
+  r.movs.slice(-15).forEach(m => L.push(`• ${formatDate(m.fecha)} ${nombres[m.tipo]}${m.concepto ? ' · ' + m.concepto : ''}  ${m.tipo === 'credito' || m.tipo === 'interes' ? '+' : '−'}${mcPesos(m.monto)}`));
+  if (r.saldo > 0.5) L.push('', 'Puedes hacer tu pago por cualquiera de estos canales:', '', mcDatosPago());
+  L.push('', `¡Gracias! *${mcFirma()}*, siempre a tus servicios 🤝`);
+  return L.join('\n');
+}
+function mcRecordar(id) { const p = mcPersona(id); if (p) mcAbrirWhatsApp(p, mcMensajeRecordatorio(mcResumen(p))); }
+function mcPazYSalvo(id) { const p = mcPersona(id); if (p) mcAbrirWhatsApp(p, mcMensajePazYSalvo(mcResumen(p))); }
+function mcEnviarEstado() { const p = mcPersona(mcHistId); if (p) mcAbrirWhatsApp(p, mcMensajeEstado(mcResumen(p))); }
+// Texto de WhatsApp → HTML para las vistas previas (*negrita*, _cursiva_)
+const mcWaHTML = t => escHTML(t).replace(/\*([^*\n]+)\*/g, '<b>$1</b>').replace(/(^|\s)_([^_\n]+)_/g, '$1<i>$2</i>');
+
+// ── Buscador de personas (crédito y pago) ──
+function mcSugerencias(q, soloDeudores) {
+  const qs = sinTildes(q), qd = mcDigitos(q);
+  const coincide = (nombre, tel) => !qs || sinTildes(nombre).includes(qs) || (qd.length >= 3 && mcDigitos(tel).includes(qd));
+  const out = [];
+  mcPersonas.forEach(p => {
+    if (!coincide(p.nombre, p.telefono)) return;
+    const r = mcResumen(p);
+    if (soloDeudores && r.saldo <= 0.5) return;
+    out.push({ tipo: 'persona', id: p.id, nombre: p.nombre, tel: p.telefono, extra: r.saldo > 0.5 ? `debe ${formatCurrency(r.saldo)}` : 'al día', ent: !!p.cliente_id });
+  });
+  if (!soloDeudores) {
+    const enlazados = new Set(mcPersonas.map(p => String(p.cliente_id || '')));
+    mcClientes.forEach(c => { if (!enlazados.has(String(c.id)) && coincide(c.nombre, c.whatsapp)) out.push({ tipo: 'cliente', id: c.id, nombre: c.nombre, tel: c.whatsapp, extra: 'Cliente de Entretenimiento', ent: true }); });
+  }
+  return out.slice(0, 8);
+}
+function mcPintarSug(boxId, inputId, soloDeudores, alElegir) {
+  const box = document.getElementById(boxId), q = document.getElementById(inputId).value.trim();
+  const items = mcSugerencias(q, soloDeudores);
+  const nueva = !soloDeudores && q.length >= 2 && !mcPersonas.some(p => sinTildes(p.nombre) === sinTildes(q));
+  if (!items.length && !nueva) { box.innerHTML = q ? `<button type="button" disabled><i class="fa-solid fa-circle-info"></i><span>${soloDeudores ? 'Nadie con saldo pendiente coincide' : 'Sin coincidencias'}</span></button>` : ''; box.hidden = !q; return; }
+  box.innerHTML = items.map((it, i) => `<button type="button" data-i="${i}" class="${i === 0 ? 'activo' : ''}"><i class="fa-solid ${it.tipo === 'cliente' ? 'fa-tv' : 'fa-user'}"></i>
+      <span><strong>${escHTML(it.nombre)}</strong>${it.tel ? ` <small>· ${escHTML(it.tel)}</small>` : ''}<br><small>${escHTML(it.extra)}</small></span></button>`).join('')
+    + (nueva ? `<button type="button" class="nueva ${items.length ? '' : 'activo'}" data-i="nueva"><i class="fa-solid fa-user-plus"></i><span>Crear "${escHTML(q)}" como persona nueva</span></button>` : '');
+  box.hidden = false;
+  box.onmousedown = e => { const b = e.target.closest('button[data-i]'); if (!b) return; e.preventDefault(); alElegir(b.dataset.i === 'nueva' ? { tipo: 'nueva', nombre: q } : items[Number(b.dataset.i)]); };
+  box._items = items; box._nueva = nueva ? { tipo: 'nueva', nombre: q } : null;
+}
+function mcTeclasSug(e, boxId, alElegir) {
+  const box = document.getElementById(boxId);
+  if (box.hidden) return;
+  const bs = [...box.querySelectorAll('button[data-i]')], i = bs.findIndex(b => b.classList.contains('activo'));
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = (i + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length; bs.forEach((b, k) => b.classList.toggle('activo', k === n)); }
+  else if (e.key === 'Enter' && bs[i]) { e.preventDefault(); const d = bs[i].dataset.i; alElegir(d === 'nueva' ? box._nueva : box._items[Number(d)]); }
+  else if (e.key === 'Escape') box.hidden = true;
+}
+
+// ── Nuevo crédito ──
+function mcAbrirCredito(personaId = null, clienteId = null) {
+  if (!mcListo) { toast('Primero hay que activar el módulo en la base de datos (archivo 2026-10-mis-creditos.sql).', 'error'); return; }
+  mcCr = { sel: null, plazo: 30 };
+  ['mc-cr-persona', 'mc-cr-concepto', 'mc-cr-telefono', 'mc-cr-interes'].forEach(id => { document.getElementById(id).value = ''; });
+  ponerMoneda('mc-cr-monto', 0);
+  document.getElementById('mc-cr-fecha').value = todayLocal();
+  document.getElementById('mc-cr-limite').value = '';
+  document.getElementById('mc-cr-sug').hidden = true;
+  document.getElementById('mc-cr-interes-wrap').style.display = mcConfig?.intereses ? '' : 'none';
+  clearErrors();
+  if (personaId && mcPersona(personaId)) { const p = mcPersona(personaId); mcElegirCredito({ tipo: 'persona', id: p.id, nombre: p.nombre, tel: p.telefono }); }
+  else if (clienteId) { const c = mcClientes.find(x => String(x.id) === String(clienteId)); if (c) mcElegirCredito({ tipo: 'cliente', id: c.id, nombre: c.nombre, tel: c.whatsapp }); }
+  else mcElegirCredito(null);
+  mcPintarPlazo();
+  openModal('modal-mc-credito');
+  setTimeout(() => document.getElementById(mcCr.sel ? 'mc-cr-monto' : 'mc-cr-persona')?.focus(), 60);
+}
+function mcElegirCredito(it) {
+  mcCr.sel = it;
+  const inp = document.getElementById('mc-cr-persona'), el = document.getElementById('mc-cr-elegida');
+  document.getElementById('mc-cr-sug').hidden = true;
+  inp.style.display = it ? 'none' : ''; el.hidden = !it;
+  if (!it) return;
+  const r = it.tipo === 'persona' ? mcResumen(mcPersona(it.id)) : null;
+  const sub = it.tipo === 'nueva' ? 'Persona nueva' : it.tipo === 'cliente' ? 'Cliente de Entretenimiento · se enlazará' : r.saldo > 0.5 ? `Debe ${formatCurrency(r.saldo)}` : 'Al día';
+  el.innerHTML = `<span class="mc-av" style="--c:${mcColor(it.nombre)}">${escHTML(mcIniciales(it.nombre))}</span><div><strong>${escHTML(it.nombre)}</strong><small>${sub}</small></div>
+    <button type="button" class="btn-secondary btn-xs" onclick="mcElegirCredito(null);document.getElementById('mc-cr-persona').focus()">Cambiar</button>`;
+  const tel = document.getElementById('mc-cr-telefono');
+  if (it.tipo !== 'nueva' || !tel.value) tel.value = it.tel || tel.value || '';
+  if (document.getElementById('modal-mc-credito').style.display === 'flex') setTimeout(() => document.getElementById('mc-cr-monto').focus(), 30);
+}
+function mcPintarPlazo() {
+  document.querySelectorAll('#mc-cr-plazos button').forEach(b => b.classList.toggle('on', String(b.dataset.plazo) === String(mcCr.plazo)));
+  const lim = document.getElementById('mc-cr-limite');
+  lim.style.display = mcCr.plazo === 'elegir' ? '' : 'none';
+  const f = mcFechaLimiteCredito();
+  document.getElementById('mc-cr-plazo-hint').textContent = f ? `Fecha límite: ${formatDate(f)}. Te avisaré cuando se venza.` : mcCr.plazo === 'elegir' ? 'Elige la fecha límite.' : 'Sin fecha límite: nunca aparecerá como vencido.';
+}
+function mcFechaLimiteCredito() {
+  const fecha = document.getElementById('mc-cr-fecha').value || todayLocal();
+  if (mcCr.plazo === 'elegir') return document.getElementById('mc-cr-limite').value || null;
+  return Number(mcCr.plazo) > 0 ? mcSumarDias(fecha, Number(mcCr.plazo)) : null;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#mc-cr-plazos button[data-plazo]');
+  if (b) { mcCr.plazo = b.dataset.plazo === 'elegir' ? 'elegir' : Number(b.dataset.plazo); mcPintarPlazo(); if (mcCr.plazo === 'elegir') document.getElementById('mc-cr-limite').focus(); }
+  const t = e.target.closest('#mc-pg-tipo button[data-tipo]');
+  if (t) mcTipoPago(t.dataset.tipo);
+  if (!e.target.closest('.mc-buscador')) document.querySelectorAll('.mc-sug').forEach(s => { s.hidden = true; });
+});
+
+// Crea la persona si hace falta (nueva o cliente de Entretenimiento) y devuelve su id
+async function mcAsegurarPersona(sel, telefono) {
+  if (sel.tipo === 'persona') {
+    const p = mcPersona(sel.id);
+    if (telefono && mcDigitos(telefono) !== mcDigitos(p.telefono)) await sb.from('mc_personas').update({ telefono }).eq('id', p.id).eq('usuario_id', currentUser.id);
+    return p.id;
+  }
+  const fila = { nombre: sel.nombre.trim().slice(0, 80), telefono: telefono || null, usuario_id: currentUser.id, cliente_id: sel.tipo === 'cliente' ? String(sel.id) : null };
+  const { data, error } = await sb.from('mc_personas').insert(fila).select().single();
+  if (error) throw error;
+  mcPersonas.push(data);
+  return data.id;
+}
+async function mcGuardarCredito() {
+  clearErrors();
+  const monto = leerMoneda('mc-cr-monto'), fecha = document.getElementById('mc-cr-fecha').value;
+  const concepto = document.getElementById('mc-cr-concepto').value.trim(), telefono = document.getElementById('mc-cr-telefono').value.trim();
+  if (!mcCr.sel) {
+    const q = document.getElementById('mc-cr-persona').value.trim();
+    const exacta = mcPersonas.find(p => sinTildes(p.nombre) === sinTildes(q));
+    if (exacta) mcElegirCredito({ tipo: 'persona', id: exacta.id, nombre: exacta.nombre, tel: exacta.telefono });
+    else if (q.length >= 2) mcCr.sel = { tipo: 'nueva', nombre: q };
+    else { showError('mc-cr-persona', 'Escribe a quién le prestas'); return; }
+  }
+  if (monto <= 0) { showError('mc-cr-monto', 'Escribe un monto mayor a cero'); return; }
+  if (!fecha) { showError('mc-cr-fecha', 'Elige la fecha'); return; }
+  if (fecha > todayLocal()) { showError('mc-cr-fecha', 'La fecha no puede ser futura'); return; }
+  if (!concepto) { showError('mc-cr-concepto', 'Escribe el concepto'); return; }
+  const fecha_limite = mcFechaLimiteCredito();
+  if (mcCr.plazo === 'elegir' && !fecha_limite) { showError('mc-cr-limite', 'Elige la fecha límite'); return; }
+  if (fecha_limite && fecha_limite < fecha) { showError('mc-cr-limite', 'La fecha límite no puede ser anterior al préstamo'); return; }
+  const interes = mcConfig?.intereses ? Math.max(0, Math.min(100, Number(document.getElementById('mc-cr-interes').value) || 0)) : 0;
+  const btn = document.getElementById('btn-mc-credito');
+  btn.classList.add('btn-loading');
+  try {
+    const persona_id = await mcAsegurarPersona(mcCr.sel, telefono);
+    const { error } = await sb.from('mc_movimientos').insert({ usuario_id: currentUser.id, persona_id, tipo: 'credito', monto, fecha, concepto, fecha_limite, interes_pct: interes });
+    if (error) throw error;
+    toast(`Crédito de ${formatCurrency(monto)} anotado`, 'success');
+    closeModal('modal-mc-credito');
+    if (document.getElementById('sec-mis-creditos').classList.contains('active') && mcTab !== 'deben' && mcTab !== 'todos') mcTab = 'deben';
+    await mcRecargarTodo();
+  } catch (err) {
+    toast(faltaTabla(err) ? 'El módulo Mis créditos aún no está activado en la base de datos.' : 'No se pudo guardar: ' + (err.message || err), 'error');
+  } finally { btn.classList.remove('btn-loading'); }
+}
+
+// ── Registrar pago ──
+function mcAbrirPago(personaId = null) {
+  if (!mcListo) { toast('Primero hay que activar el módulo en la base de datos (archivo 2026-10-mis-creditos.sql).', 'error'); return; }
+  mcPg = { id: null, tipo: 'abono' };
+  document.getElementById('mc-pg-persona').value = '';
+  document.getElementById('mc-pg-sug').hidden = true;
+  document.getElementById('mc-pg-fecha').value = todayLocal();
+  document.getElementById('mc-pg-metodo').value = 'efectivo';
+  document.getElementById('mc-pg-nota').value = '';
+  ponerMoneda('mc-pg-monto', 0);
+  clearErrors();
+  mcElegirPago(personaId && mcResumen(mcPersona(personaId) || {}).saldo > 0.5 ? personaId : null);
+  openModal('modal-mc-pago');
+  setTimeout(() => document.getElementById(mcPg.id ? 'mc-pg-monto' : 'mc-pg-persona')?.focus(), 60);
+}
+function mcElegirPago(id) {
+  mcPg.id = id;
+  const p = id && mcPersona(id);
+  document.getElementById('mc-pg-buscador').style.display = p ? 'none' : '';
+  document.getElementById('mc-pg-cuerpo').style.display = p ? '' : 'none';
+  document.getElementById('mc-pg-sug').hidden = true;
+  document.getElementById('mc-pg-titulo').textContent = p ? `Registrar pago · ${p.nombre}` : 'Registrar pago';
+  document.getElementById('btn-mc-pago').disabled = !p;
+  if (!p) return;
+  const r = mcResumen(p);
+  document.getElementById('mc-pg-debe').textContent = formatCurrency(r.saldo);
+  document.querySelector('#mc-pg-tipo [data-tipo="total"]').textContent = `Pago total · ${formatCurrency(r.saldo)}`;
+  mcTipoPago('abono');
+  if (document.getElementById('modal-mc-pago').style.display === 'flex') setTimeout(() => document.getElementById('mc-pg-monto').focus(), 30);
+}
+function mcTipoPago(tipo) {
+  mcPg.tipo = tipo;
+  document.querySelectorAll('#mc-pg-tipo button').forEach(b => b.classList.toggle('on', b.dataset.tipo === tipo));
+  const p = mcPersona(mcPg.id); if (!p) return;
+  if (tipo === 'total') ponerMoneda('mc-pg-monto', mcResumen(p).saldo);
+  else if (leerMoneda('mc-pg-monto') >= mcResumen(p).saldo) ponerMoneda('mc-pg-monto', 0);
+  mcPintarResultadoPago();
+  if (tipo === 'abono') document.getElementById('mc-pg-monto').focus();
+}
+function mcPintarResultadoPago() {
+  const p = mcPersona(mcPg.id); if (!p) return;
+  const r = mcResumen(p), monto = leerMoneda('mc-pg-monto'), queda = r.saldo - monto;
+  const box = document.getElementById('mc-pg-resultado');
+  const enviar = `<label class="mg-check"><input type="checkbox" id="mc-pg-enviar" ${mcDigitos(p.telefono) ? 'checked' : ''}/> Enviar comprobante por WhatsApp</label>`;
+  const marcado = document.getElementById('mc-pg-enviar');
+  const estabaMarcado = marcado ? marcado.checked : null;
+  if (!monto) { box.className = 'span-2 mc-queda'; box.innerHTML = `<i class="fa-solid fa-circle-info"></i><div><strong>Escribe cuánto pagó</strong><span>Debe ${formatCurrency(r.saldo)}</span></div>`; }
+  else if (queda < -0.5) { box.className = 'span-2 mc-queda mal'; box.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>Es más de lo que debe</strong><span>El máximo es ${formatCurrency(r.saldo)}</span></div>`; }
+  else if (queda <= 0.5) { box.className = 'span-2 mc-queda ok'; box.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>Queda a paz y salvo</strong><span>Saldo después del pago: $0</span></div>${enviar}`; }
+  else { box.className = 'span-2 mc-queda'; box.innerHTML = `<i class="fa-solid fa-scale-balanced"></i><div><strong>Seguirá debiendo ${formatCurrency(queda)}</strong><span>Saldo después del abono</span></div>${enviar}`; }
+  const nuevo = document.getElementById('mc-pg-enviar');
+  if (nuevo && estabaMarcado !== null) nuevo.checked = estabaMarcado;
+  const tot = monto && Math.abs(queda) <= 0.5;
+  document.querySelectorAll('#mc-pg-tipo button').forEach(b => b.classList.toggle('on', b.dataset.tipo === (tot ? 'total' : 'abono')));
+}
+async function mcGuardarPago() {
+  clearErrors();
+  const p = mcPersona(mcPg.id);
+  if (!p) { showError('mc-pg-persona', 'Elige quién te pagó'); return; }
+  const r = mcResumen(p), monto = leerMoneda('mc-pg-monto'), fecha = document.getElementById('mc-pg-fecha').value, metodo = document.getElementById('mc-pg-metodo').value;
+  if (monto <= 0) { showError('mc-pg-monto', 'Escribe cuánto pagó'); return; }
+  if (monto > r.saldo + 0.5) { showError('mc-pg-monto', `No puede ser más de lo que debe (${formatCurrency(r.saldo)})`); return; }
+  if (!fecha || fecha > todayLocal()) { showError('mc-pg-fecha', 'Elige una fecha válida'); return; }
+  // La ventana de WhatsApp se abre con el clic (los navegadores bloquean las que se abren después)
+  const enviar = document.getElementById('mc-pg-enviar')?.checked;
+  const ventana = enviar ? window.open('', '_blank') : null;
+  const btn = document.getElementById('btn-mc-pago');
+  btn.classList.add('btn-loading');
+  const { error } = await sb.from('mc_movimientos').insert({ usuario_id: currentUser.id, persona_id: p.id, tipo: 'abono', monto, fecha, metodo_pago: metodo, concepto: document.getElementById('mc-pg-nota').value.trim() || null });
+  btn.classList.remove('btn-loading');
+  if (error) { ventana?.close(); toast('No se pudo registrar el pago: ' + error.message, 'error'); return; }
+  closeModal('modal-mc-pago');
+  await mcRecargarTodo();
+  const r2 = mcResumen(mcPersona(p.id));
+  toast(r2.saldo <= 0.5 ? `${escHTML(p.nombre)} quedó a paz y salvo 🎉` : `Abono registrado. Ahora debe ${formatCurrency(r2.saldo)}`, 'success');
+  if (enviar) mcAbrirWhatsApp(p, mcMensajeComprobante(r2, monto, metodo, fecha), ventana);
+}
+
+// ── Historial / estado de cuenta ──
+function mcAbrirHistorial(id) { mcHistId = id; mcPintarHistorial(); openModal('modal-mc-hist'); }
+function mcPintarHistorial() {
+  const p = mcPersona(mcHistId);
+  if (!p) { closeModal('modal-mc-hist'); return; }
+  const r = mcResumen(p), [estTxt, estCls] = mcTextoEstado(r);
+  document.getElementById('mc-h-cab').innerHTML = `<span class="mc-av" style="--c:${mcColor(p.nombre)}">${escHTML(mcIniciales(p.nombre))}</span>
+    <div><h3>${escHTML(p.nombre)}${r.cliente ? '<span class="mc-tag-ent"><i class="fa-solid fa-tv"></i> Cliente</span>' : ''}</h3><span>${escHTML([p.telefono, p.nota, r.cliente?.ciudad].filter(Boolean).join(' · ') || 'Sin teléfono')}</span></div>`;
+  // ¿Coincide con un cliente de Entretenimiento sin enlazar?
+  const enl = document.getElementById('mc-h-enlace');
+  const enlazados = new Set(mcPersonas.map(x => String(x.cliente_id || '')));
+  const coincide = !p.cliente_id && mcUlt10(p.telefono).length === 10 && mcClientes.find(c => !enlazados.has(String(c.id)) && mcUlt10(c.whatsapp) === mcUlt10(p.telefono));
+  enl.innerHTML = coincide ? `<div class="mc-enlace"><i class="fa-solid fa-link"></i><span>Este número coincide con <strong>${escHTML(coincide.nombre)}</strong>, cliente de Entretenimiento.</span>
+    <button class="btn-secondary btn-xs" onclick="mcEnlazar('${escJS(String(coincide.id))}')"><i class="fa-solid fa-link"></i> Enlazar</button></div>` : '';
+  document.getElementById('mc-h-res').innerHTML = `<div><small>Le presté</small><b>${formatCurrency(r.prestado)}</b>${r.intereses ? `<small>+ ${formatCurrency(r.intereses)} de interés</small>` : ''}</div>
+    <div><small>Me ha pagado</small><b style="color:#12A150">${formatCurrency(r.pagado)}</b>${r.perdonado ? `<small>${formatCurrency(r.perdonado)} perdonado</small>` : ''}</div>
+    <div><small>Me debe</small><b style="color:${r.saldo > 0.5 ? '#E5383B' : 'inherit'}">${formatCurrency(r.saldo)}</b></div>
+    <div><small>Estado</small><span class="mc-est ${estCls}">${estTxt}</span>${r.fechaLimite && r.saldo > 0.5 ? `<small>Límite ${formatDate(r.fechaLimite)}</small>` : ''}</div>`;
+  // Interés sugerido (solo si está habilitado y el crédito tiene %)
+  const int = document.getElementById('mc-h-interes');
+  int.innerHTML = !mcConfig?.intereses ? '' : r.pendientes.filter(c => c.m.tipo === 'credito' && Number(c.m.interes_pct) > 0).map(c => {
+    const valor = Math.round(c.pendiente * Number(c.m.interes_pct) / 100);
+    return `<div class="mc-interes"><i class="fa-solid fa-percent"></i><span>Interés sugerido de <strong>${escHTML(c.m.concepto || 'crédito')}</strong>: ${Number(c.m.interes_pct)}% de ${formatCurrency(c.pendiente)} = <strong>${formatCurrency(valor)}</strong></span>
+      <button class="btn-secondary btn-xs" onclick="mcAplicarInteres('${c.m.id}', ${valor})">Aplicar interés</button></div>`;
+  }).join('');
+  // Línea de tiempo (más reciente arriba) con el saldo que quedó después de cada movimiento
+  const todos = mcMovs.filter(m => m.persona_id === p.id).sort(mcOrdenMov);
+  let saldo = 0; const saldoTras = {};
+  todos.forEach(m => { if (!m.anulado) saldo += (m.tipo === 'credito' || m.tipo === 'interes' ? 1 : -1) * Number(m.monto); saldoTras[m.id] = saldo; });
+  const nombres = { credito: 'Crédito', interes: 'Interés', abono: 'Abono', perdon: 'Saldo perdonado' };
+  const iconos = { credito: 'fa-arrow-up', interes: 'fa-percent', abono: 'fa-arrow-down', perdon: 'fa-hand-holding-heart' };
+  document.getElementById('mc-h-lista').innerHTML = todos.length ? todos.slice().reverse().map(m => {
+    const suma = m.tipo === 'credito' || m.tipo === 'interes';
+    const det = [formatDate(m.fecha), m.tipo === 'credito' && m.fecha_limite ? `Límite de pago ${formatDate(m.fecha_limite)}` : '', m.tipo === 'credito' && Number(m.interes_pct) > 0 ? `${Number(m.interes_pct)}% mensual` : '',
+      m.tipo !== 'credito' && m.concepto ? `"${m.concepto}"` : '', m.anulado ? `Anulado${m.anulado_motivo ? ': ' + m.anulado_motivo : ''}` : ''].filter(Boolean).join(' · ');
+    const titulo = `${nombres[m.tipo]}${m.tipo === 'credito' && m.concepto ? ' · ' + m.concepto : ''}${m.tipo === 'abono' && m.metodo_pago ? ' · ' + (MC_METODOS[m.metodo_pago] || m.metodo_pago) : ''}`;
+    return `<div class="mh-it ${m.tipo}${m.anulado ? ' anulado' : ''}"><span class="dot"><i class="fa-solid ${iconos[m.tipo]}"></i></span>
+      <div><strong>${escHTML(titulo)}</strong><span>${escHTML(det)}</span></div>
+      <em>${suma ? '+' : '−'}${formatCurrency(m.monto)}</em><small>${m.anulado ? '—' : 'Debe ' + formatCurrency(Math.max(0, saldoTras[m.id]))}</small>
+      ${m.anulado ? '<span></span>' : `<button class="mh-anular" data-tip="Anular" aria-label="Anular movimiento" onclick="mcAnular('${m.id}')"><i class="fa-solid fa-ban"></i></button>`}</div>`;
+  }).join('') : '<p class="form-hint">Sin movimientos todavía.</p>';
+  document.getElementById('mc-h-perdonar').hidden = r.saldo <= 0.5;
+  document.getElementById('mc-h-abonar').hidden = r.saldo <= 0.5;
+}
+
+// Confirmación propia (con motivo opcional)
+function mcConfirmar({ titulo, texto, boton, peligro = false, campo = null, alAceptar }) {
+  document.getElementById('mc-cf2-titulo').textContent = titulo;
+  document.getElementById('mc-cf2-texto').innerHTML = texto;
+  document.getElementById('mc-cf2-campo').style.display = campo ? '' : 'none';
+  if (campo) { document.getElementById('mc-cf2-label').textContent = campo; document.getElementById('mc-cf2-motivo').value = ''; }
+  const b = document.getElementById('btn-mc-confirmar');
+  b.innerHTML = boton; b.style.background = peligro ? '#E5383B' : ''; b.style.borderColor = peligro ? '#E5383B' : '';
+  b.onclick = async () => { b.classList.add('btn-loading'); try { await alAceptar(document.getElementById('mc-cf2-motivo').value.trim()); } finally { b.classList.remove('btn-loading'); } };
+  openModal('modal-mc-confirmar');
+  if (campo) setTimeout(() => document.getElementById('mc-cf2-motivo').focus(), 60);
+}
+function mcAnular(movId) {
+  const m = mcMovs.find(x => x.id === movId); if (!m) return;
+  const nombres = { credito: 'el crédito', interes: 'el interés', abono: 'el abono', perdon: 'el saldo perdonado' };
+  mcConfirmar({ titulo: 'Anular movimiento', boton: '<i class="fa-solid fa-ban"></i> Anular', peligro: true, campo: 'Motivo (opcional)',
+    texto: `Se anulará ${nombres[m.tipo]} de <strong>${formatCurrency(m.monto)}</strong> del ${formatDate(m.fecha)}. Deja de contar en el saldo, pero seguirá visible en el historial como anulado.`,
+    alAceptar: async motivo => {
+      const { error } = await sb.from('mc_movimientos').update({ anulado: true, anulado_motivo: motivo || null }).eq('id', movId).eq('usuario_id', currentUser.id);
+      if (error) { toast('No se pudo anular: ' + error.message, 'error'); return; }
+      closeModal('modal-mc-confirmar'); toast('Movimiento anulado', 'success'); await mcRecargarTodo();
+    } });
+}
+function mcPerdonar() {
+  const p = mcPersona(mcHistId); if (!p) return;
+  const r = mcResumen(p);
+  mcConfirmar({ titulo: 'Perdonar saldo', boton: '<i class="fa-solid fa-hand-holding-heart"></i> Perdonar', campo: 'Motivo (opcional)',
+    texto: `Vas a dejar de cobrarle <strong>${formatCurrency(r.saldo)}</strong> a ${escHTML(p.nombre)}. Su saldo quedará en $0 y en el historial quedará registrado como "Saldo perdonado".`,
+    alAceptar: async motivo => {
+      const { error } = await sb.from('mc_movimientos').insert({ usuario_id: currentUser.id, persona_id: p.id, tipo: 'perdon', monto: r.saldo, fecha: todayLocal(), concepto: motivo || null });
+      if (error) { toast('No se pudo registrar: ' + error.message, 'error'); return; }
+      closeModal('modal-mc-confirmar'); toast('Saldo perdonado', 'success'); await mcRecargarTodo();
+    } });
+}
+async function mcAplicarInteres(creditoId, valor) {
+  const c = mcMovs.find(m => m.id === creditoId); if (!c || valor <= 0) return;
+  const mesTxt = MESES_NOMBRE[new Date().getMonth()].toLowerCase();
+  const { error } = await sb.from('mc_movimientos').insert({ usuario_id: currentUser.id, persona_id: c.persona_id, tipo: 'interes', monto: valor, fecha: todayLocal(), credito_id: c.id, concepto: `${c.concepto || 'Crédito'} · ${mesTxt}` });
+  if (error) { toast('No se pudo aplicar el interés: ' + error.message, 'error'); return; }
+  toast(`Interés de ${formatCurrency(valor)} aplicado`, 'success');
+  await mcRecargarTodo();
+}
+async function mcEnlazar(clienteId) {
+  const { error } = await sb.from('mc_personas').update({ cliente_id: String(clienteId) }).eq('id', mcHistId).eq('usuario_id', currentUser.id);
+  if (error) { toast('No se pudo enlazar: ' + error.message, 'error'); return; }
+  toast('Enlazado con el cliente de Entretenimiento', 'success');
+  await mcRecargarTodo();
+}
+
+// ── Editar persona ──
+function mcAbrirPersona() {
+  const p = mcPersona(mcHistId); if (!p) return;
+  document.getElementById('mc-pe-nombre').value = p.nombre;
+  document.getElementById('mc-pe-telefono').value = p.telefono || '';
+  document.getElementById('mc-pe-nota').value = p.nota || '';
+  const usados = new Set(mcPersonas.filter(x => x.id !== p.id).map(x => String(x.cliente_id || '')));
+  document.getElementById('mc-pe-cliente').innerHTML = '<option value="">Sin enlazar</option>' + mcClientes.filter(c => !usados.has(String(c.id)))
+    .map(c => `<option value="${escHTML(String(c.id))}" ${String(c.id) === String(p.cliente_id) ? 'selected' : ''}>${escHTML(c.nombre)}${c.whatsapp ? ' · ' + escHTML(c.whatsapp) : ''}</option>`).join('');
+  clearErrors();
+  openModal('modal-mc-persona');
+}
+async function mcGuardarPersona() {
+  clearErrors();
+  const nombre = document.getElementById('mc-pe-nombre').value.trim();
+  if (!nombre) { showError('mc-pe-nombre', 'Escribe el nombre'); return; }
+  const btn = document.getElementById('btn-mc-persona'); btn.classList.add('btn-loading');
+  const { error } = await sb.from('mc_personas').update({ nombre, telefono: document.getElementById('mc-pe-telefono').value.trim() || null,
+    nota: document.getElementById('mc-pe-nota').value.trim() || null, cliente_id: document.getElementById('mc-pe-cliente').value || null }).eq('id', mcHistId).eq('usuario_id', currentUser.id);
+  btn.classList.remove('btn-loading');
+  if (error) { toast('No se pudo guardar: ' + error.message, 'error'); return; }
+  closeModal('modal-mc-persona'); toast('Datos actualizados', 'success'); await mcRecargarTodo();
+}
+function mcEliminarPersona() {
+  const p = mcPersona(mcHistId); if (!p) return;
+  const n = mcMovs.filter(m => m.persona_id === p.id).length;
+  mcConfirmar({ titulo: 'Eliminar persona', boton: '<i class="fa-solid fa-trash"></i> Eliminar', peligro: true,
+    texto: `Se eliminará a <strong>${escHTML(p.nombre)}</strong>${n ? ` y sus <strong>${n} movimiento(s)</strong> del historial. Esto no se puede deshacer.` : '.'}${mcResumen(p).saldo > 0.5 ? '<br><br>⚠️ Todavía tiene saldo pendiente. Si solo quieres dejar de cobrarle, usa "Perdonar saldo".' : ''}`,
+    alAceptar: async () => {
+      const { error } = await sb.from('mc_personas').delete().eq('id', p.id).eq('usuario_id', currentUser.id);
+      if (error) { toast('No se pudo eliminar: ' + error.message, 'error'); return; }
+      mcMovs = mcMovs.filter(m => m.persona_id !== p.id);
+      ['modal-mc-confirmar', 'modal-mc-persona', 'modal-mc-hist'].forEach(closeModal);
+      mcHistId = null; toast('Persona eliminada', 'success'); await mcRecargarTodo();
+    } });
+}
+
+// ── Estado de cuenta en PDF ──
+function mcEstadoCuentaPDF() {
+  const p = mcPersona(mcHistId); if (!p) return;
+  const r = mcResumen(p);
+  const base = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
+  const ahora = new Date();
+  const nombres = { credito: 'Crédito', interes: 'Interés', abono: 'Abono', perdon: 'Saldo perdonado' };
+  let saldo = 0;
+  const filas = r.movs.map(m => {
+    const suma = m.tipo === 'credito' || m.tipo === 'interes';
+    saldo += (suma ? 1 : -1) * Number(m.monto);
+    return `<tr><td>${formatDate(m.fecha)}</td><td>${nombres[m.tipo]}${m.concepto ? `<div class="muted">${escHTML(m.concepto)}</div>` : ''}${m.tipo === 'credito' && m.fecha_limite ? `<div class="muted">Límite ${formatDate(m.fecha_limite)}</div>` : ''}</td>
+      <td>${escHTML(MC_METODOS[m.metodo_pago] || m.metodo_pago || '')}</td><td class="r ${suma ? '' : 'v'}">${suma ? '' : '−'}${formatCurrency(m.monto)}</td><td class="r">${formatCurrency(Math.max(0, saldo))}</td></tr>`;
+  }).join('');
+  const pago = mcDatosPago().split('\n').map(l => escHTML(l).replace(/\*([^*]+)\*/g, '<b>$1</b>')).join('<br>');
+  const [estTxt] = mcTextoEstado(r);
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><title>Estado de cuenta · ${escHTML(p.nombre)}</title>
+<style>*{box-sizing:border-box;margin:0}body{font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#1B1740;background:#F4F2FB;padding:24px}
+.hoja{max-width:800px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -30px rgba(27,23,64,.5)}
+.cab{display:flex;justify-content:space-between;align-items:center;padding:26px 30px;background:#1B1740;color:#fff}.cab img{height:52px;background:#fff;border-radius:12px;padding:6px}
+.cab h1{font-size:22px}.cab small{color:#C9C4E8;font-size:12px}.cuerpo{padding:26px 30px}
+.persona{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}.persona h2{font-size:20px}.muted{color:#6E6A8E;font-size:12px}
+.est{display:inline-block;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;background:${r.estado === 'vencido' ? '#FDE2E2;color:#C9282B' : r.estado === 'pagado' ? '#DCF5E6;color:#0E8A44' : '#E6EEFC;color:#2F6FE0'}}
+.res{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}.res div{background:#F4F2FB;border-radius:12px;padding:12px}.res small{display:block;color:#6E6A8E;font-size:11px}.res b{font-size:17px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6E6A8E;border-bottom:2px solid #E4E0F5;padding:8px 6px}
+td{padding:9px 6px;border-bottom:1px solid #EEEAF8;vertical-align:top}.r{text-align:right;white-space:nowrap}.v{color:#0E8A44}
+.pago{margin-top:22px;padding:16px;border-radius:12px;border:1px dashed #5B3FD9;font-size:13px;line-height:1.6}.pie{padding:14px 30px;background:#F4F2FB;font-size:11px;color:#6E6A8E;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btns{max-width:800px;margin:0 auto 14px;display:flex;justify-content:flex-end}.btns button{border:0;background:#5B3FD9;color:#fff;font-weight:600;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer}
+@media print{body{background:#fff;padding:0}.hoja{box-shadow:none;border-radius:0}.btns{display:none}}</style></head><body>
+<div class="btns"><button onclick="window.print()">Imprimir o guardar PDF</button></div>
+<div class="hoja"><div class="cab"><div><h1>Estado de cuenta</h1><small>Emitido el ${ahora.toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })}</small></div><img src="${base}logo-redon.png" alt="" onerror="this.remove()"/></div>
+<div class="cuerpo"><div class="persona"><div><h2>${escHTML(p.nombre)}</h2><div class="muted">${escHTML([p.telefono, p.nota].filter(Boolean).join(' · '))}</div></div><div><span class="est">${estTxt}</span>${r.fechaLimite && r.saldo > 0.5 ? `<div class="muted" style="margin-top:4px">Fecha límite: ${formatDate(r.fechaLimite)}</div>` : ''}</div></div>
+<div class="res"><div><small>Total prestado</small><b>${formatCurrency(r.prestado)}</b></div><div><small>Intereses</small><b>${formatCurrency(r.intereses)}</b></div><div><small>Total abonado</small><b style="color:#0E8A44">${formatCurrency(r.pagado + r.perdonado)}</b></div><div><small>Saldo pendiente</small><b style="color:${r.saldo > 0.5 ? '#C9282B' : '#0E8A44'}">${formatCurrency(r.saldo)}</b></div></div>
+<table><thead><tr><th>Fecha</th><th>Detalle</th><th>Medio</th><th class="r">Valor</th><th class="r">Saldo</th></tr></thead><tbody>${filas || '<tr><td colspan="5">Sin movimientos</td></tr>'}</tbody></table>
+${r.saldo > 0.5 ? `<div class="pago"><b>Canales de pago</b><br>${pago}</div>` : ''}</div>
+<div class="pie"><span>${escHTML(mcFirma())}, siempre a tus servicios.</span><span>Documento informativo de control personal.</span></div></div></body></html>`;
+  const win = window.open('', '_blank');
+  if (!win) { toast('Permite las ventanas emergentes para ver el estado de cuenta', 'error'); return; }
+  win.document.write(html); win.document.close();
+}
+
+// ── Datos de pago y ajustes ──
+function mcAbrirConfig() {
+  if (!mcListo) { toast('Primero hay que activar el módulo en la base de datos (archivo 2026-10-mis-creditos.sql).', 'error'); return; }
+  document.getElementById('mc-cf-datos').value = mcDatosPago();
+  document.getElementById('mc-cf-firma').value = mcFirma();
+  document.getElementById('mc-cf-intereses').checked = !!mcConfig?.intereses;
+  mcPintarVistaPrevia();
+  openModal('modal-mc-config');
+}
+function mcPintarVistaPrevia() {
+  const cfg = mcConfig; // vista previa con lo que se está escribiendo
+  mcConfig = { ...(cfg || {}), datos_pago: document.getElementById('mc-cf-datos').value, firma: document.getElementById('mc-cf-firma').value };
+  const r = { p: { nombre: 'Camilo' }, saldo: 10000, total: 10000, pagado: 0, pendientes: [{ m: { tipo: 'credito', concepto: 'Préstamo personal' }, pendiente: 10000 }], fechaLimite: mcSumarDias(todayLocal(), 10), diasVencido: 0 };
+  document.getElementById('mc-cf-prev').innerHTML = mcWaHTML(mcMensajeRecordatorio(r));
+  mcConfig = cfg;
+}
+async function mcGuardarConfig() {
+  const fila = { datos_pago: document.getElementById('mc-cf-datos').value.trim() || null, firma: document.getElementById('mc-cf-firma').value.trim() || null,
+    intereses: document.getElementById('mc-cf-intereses').checked, updated_at: new Date().toISOString() };
+  const btn = document.getElementById('btn-mc-config'); btn.classList.add('btn-loading');
+  const { error } = mcConfig
+    ? await sb.from('mc_config').update(fila).eq('usuario_id', currentUser.id)
+    : await sb.from('mc_config').insert({ ...fila, usuario_id: currentUser.id });
+  btn.classList.remove('btn-loading');
+  if (error) { toast('No se pudo guardar: ' + error.message, 'error'); return; }
+  closeModal('modal-mc-config'); toast('Ajustes guardados', 'success'); await mcRecargarTodo();
+}
+
+// ── Exportar ──
+function mcExportar() {
+  const res = mcPersonas.map(mcResumen);
+  const personas = res.map(r => ({ Persona: r.p.nombre, Teléfono: r.p.telefono || '', 'Cliente de Entretenimiento': r.cliente?.nombre || '', Prestado: r.prestado, Intereses: r.intereses,
+    Abonado: r.pagado, Perdonado: r.perdonado, Saldo: r.saldo, Estado: mcTextoEstado(r)[0], 'Fecha límite': r.fechaLimite || '' }));
+  const nombres = { credito: 'Crédito', interes: 'Interés', abono: 'Abono', perdon: 'Saldo perdonado' };
+  const movs = mcMovs.slice().sort(mcOrdenMov).map(m => ({ Fecha: m.fecha, Persona: mcPersona(m.persona_id)?.nombre || '', Tipo: nombres[m.tipo], Concepto: m.concepto || '',
+    Medio: MC_METODOS[m.metodo_pago] || m.metodo_pago || '', 'Fecha límite': m.fecha_limite || '', Valor: Number(m.monto), Anulado: m.anulado ? 'Sí' : '' }));
+  if (descargarExcel([{ nombre: 'Personas', filas: personas }, { nombre: 'Movimientos', filas: movs }], `Mis_creditos_${todayLocal()}.xlsx`)) toast('Excel descargado', 'success');
+}
+
+// ── Eventos de los buscadores ──
+document.addEventListener('DOMContentLoaded', () => {
+  const cr = document.getElementById('mc-cr-persona'), pg = document.getElementById('mc-pg-persona');
+  if (cr) {
+    cr.addEventListener('input', () => mcPintarSug('mc-cr-sug', 'mc-cr-persona', false, mcElegirCredito));
+    cr.addEventListener('focus', () => { if (cr.value.trim()) mcPintarSug('mc-cr-sug', 'mc-cr-persona', false, mcElegirCredito); });
+    cr.addEventListener('keydown', e => mcTeclasSug(e, 'mc-cr-sug', mcElegirCredito));
+  }
+  if (pg) {
+    const elegir = it => mcElegirPago(it.id);
+    pg.addEventListener('input', () => mcPintarSug('mc-pg-sug', 'mc-pg-persona', true, elegir));
+    pg.addEventListener('focus', () => mcPintarSug('mc-pg-sug', 'mc-pg-persona', true, elegir));
+    pg.addEventListener('keydown', e => mcTeclasSug(e, 'mc-pg-sug', elegir));
+  }
+});
+
+// ── Integración: sección privada y enlace con Clientes de Entretenimiento ──
+Object.assign(sectionMap, { 'mis-creditos': { id: 'sec-mis-creditos', title: 'Mis créditos', sub: 'Préstamos personales (privado)', load: () => mcCargar() } });
+Object.assign(SECTION_GROUP_MAP, { 'mis-creditos': 'streaming' });
+const _goSectionSinMisCreditos = goSection;
+goSection = function (key) {
+  if (key === 'mis-creditos' && !esAdmin()) { toast('Acceso restringido', 'error'); return _goSectionSinMisCreditos(currentProfile ? 'op-inicio' : 'dashboard'); }
+  return _goSectionSinMisCreditos(key);
+};
+// Abrir desde la lista de Clientes de Entretenimiento
+async function mcAbrirDesdeCliente(clienteId) {
+  goSection('mis-creditos');
+  await window._lastSectionLoad;
+  const p2 = mcPersonas.find(x => String(x.cliente_id) === String(clienteId));
+  if (p2) mcAbrirHistorial(p2.id); else mcAbrirCredito(null, clienteId);
+}
+const _loadStreamingClientesSinCreditos = loadStreamingClientes;
+loadStreamingClientes = async function () {
+  if (esAdmin()) await mcCargarDatos().catch(() => {});
+  return _loadStreamingClientesSinCreditos();
+};
+const _renderStreamingClientesSinCreditos = renderStreamingClientes;
+renderStreamingClientes = function (susCount = {}, filter = '') {
+  const listo = esAdmin() && mcCargado && mcListo;
+  // Filtro "Con crédito pendiente"
+  const barra = document.getElementById('st-cli-solo-deuda')?.closest('label');
+  if (listo && barra && !document.getElementById('st-cli-solo-credito'))
+    barra.insertAdjacentHTML('afterend', '<label class="check-pill"><input type="checkbox" id="st-cli-solo-credito" onchange="filterStreamingClientes()"/> Con crédito pendiente</label>');
+  const deuda = {};
+  if (listo) mcPersonas.forEach(p => { if (p.cliente_id) { const r = mcResumen(p); if (r.saldo > 0.5) deuda[String(p.cliente_id)] = r; } });
+  const solo = listo && document.getElementById('st-cli-solo-credito')?.checked;
+  const original = allStClientes;
+  if (solo) allStClientes = original.filter(c => deuda[String(c.id)]);
+  try { _renderStreamingClientesSinCreditos(susCount, filter); } finally { allStClientes = original; }
+  if (!listo) return;
+  document.querySelectorAll('#st-cli-tbody tr').forEach(tr => {
+    const btn = tr.querySelector('button[onclick^="openModalStreamingCliente"]');
+    const id = btn?.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+    if (!id || tr.querySelector('.mc-cli-badge, .mc-cli-btn')) return;
+    const r = deuda[String(id)];
+    const celdaNombre = tr.querySelector('td > div > div:last-child');
+    if (r && celdaNombre) celdaNombre.insertAdjacentHTML('beforeend', `<button type="button" class="mc-cli-badge ${r.estado === 'vencido' ? 'venc' : ''}" onclick="mcAbrirDesdeCliente('${escJS(id)}')" data-tip="Ver en Mis créditos"><i class="fa-solid fa-hand-holding-dollar"></i> Crédito ${formatCurrency(r.saldo)}${r.estado === 'vencido' ? ' · vencido' : ''}</button>`);
+    btn.insertAdjacentHTML('beforebegin', `<button class="btn-edit mc-cli-btn" data-tip="Mis créditos" onclick="mcAbrirDesdeCliente('${escJS(id)}')"><i class="fa-solid fa-file-invoice-dollar"></i></button>`);
+  });
 };
 </script>
 </body>
