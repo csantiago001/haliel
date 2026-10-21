@@ -1067,6 +1067,22 @@
   .cal-accion-on { box-shadow: 0 0 0 2px var(--primary) !important; }
   @media (max-width: 520px) { .cal-cliente-top { flex-wrap: wrap; } .cal-cliente-fecha { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; } .cal-venta-fila { flex-direction: column; align-items: stretch; } }
 
+
+  /* ════════ V6 · Autollenado de productos ════════ */
+  .autollenado { display: flex; align-items: center; gap: 0.7rem; padding: 0.65rem 0.8rem; border-radius: 12px; border: 1px solid var(--card-border); background: var(--input-bg); font-size: 0.82rem; }
+  .autollenado[hidden] { display: none; }
+  .autollenado > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+  .autollenado span { color: var(--text-muted); font-size: 0.78rem; }
+  .autollenado > i { font-size: 1.05rem; width: 22px; text-align: center; }
+  .autollenado img { width: 44px; height: 44px; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--card-border); flex-shrink: 0; }
+  .autollenado.ok { background: rgba(18,161,80,0.08); border-color: rgba(18,161,80,0.3); } .autollenado.ok > i { color: #12A150; }
+  .autollenado.aviso { background: #FEF3C7; border-color: rgba(245,183,10,0.45); } .autollenado.aviso > i { color: #B7791F; }
+  html.dark .autollenado.aviso { background: rgba(245,183,10,0.12); }
+  .autollenado.vacio > i { color: var(--text-muted); }
+  .autollenado-spin { border-color: var(--card-border) !important; border-top-color: var(--primary) !important; }
+  .autollenado-campo { animation: campoLleno 1.5s ease; }
+  @keyframes campoLleno { 0%, 40% { background-color: rgba(18,161,80,0.16); border-color: #12A150; } 100% { background-color: var(--card-bg); } }
+
 </style>
 </head>
 <body>
@@ -2470,8 +2486,9 @@
       <div><label class="field-label" for="prod-codigo">Código interno</label><input type="text" id="prod-codigo" class="field-input" readonly placeholder="Se asigna automáticamente" style="background:var(--input-bg);"/></div>
       <div><label class="field-label" for="prod-barras">Código de barras</label>
         <div class="input-accion"><input type="text" id="prod-barras" class="field-input" maxlength="48" placeholder="Escanéalo o escríbelo" autocomplete="off"/>
-        <button type="button" class="icon-btn" data-tip="Escanear con la cámara" onclick="escanearConCamara(c => { document.getElementById('prod-barras').value = c; })"><i class="fa-solid fa-camera"></i></button></div>
+        <button type="button" class="icon-btn" data-tip="Escanear con la cámara" onclick="escanearConCamara(c => { document.getElementById('prod-barras').value = c; autollenarProducto(true); })"><i class="fa-solid fa-camera"></i></button></div>
       </div>
+      <div class="span-2 autollenado" id="prod-autollenado" hidden></div>
       <div><label class="field-label" for="prod-categoria">Categoría</label><input type="text" id="prod-categoria" class="field-input" list="prod-categorias" maxlength="60" placeholder="Ej: Cuadernos"/><datalist id="prod-categorias"></datalist></div>
       <div><label class="field-label" for="prod-unidad">Unidad</label>
         <select id="prod-unidad" class="field-input"><option value="unidad">Unidad</option><option value="paquete">Paquete</option><option value="caja">Caja</option><option value="resma">Resma</option><option value="metro">Metro</option><option value="docena">Docena</option></select>
@@ -13842,6 +13859,179 @@ construirIndiceBusqueda = async function () {
     abrir: () => irConBusqueda('ventas', 'ventas-search', '#' + v.numero, () => { document.getElementById('ventas-estado').value = ''; renderVentas(); }) }));
   return items;
 };
+</script>
+
+<script>
+// =====================================================================
+// AUTOLLENADO DE PRODUCTOS POR CÓDIGO DE BARRAS
+// Busca el código en bases de datos públicas y gratuitas (Open Food Facts y
+// sus bases hermanas de productos y belleza) y llena nombre y categoría.
+// Costo, precio y stock nunca vienen de afuera: son datos del negocio.
+// =====================================================================
+const BASES_PRODUCTOS = [
+  { nombre: 'Open Food Facts', url: 'https://world.openfoodfacts.org' },
+  { nombre: 'Open Products Facts', url: 'https://world.openproductsfacts.org' },
+  { nombre: 'Open Beauty Facts', url: 'https://world.openbeautyfacts.org' },
+];
+const CAMPOS_OFF = 'code,product_name,product_name_es,generic_name_es,generic_name,brands,quantity,categories_tags,image_front_small_url,image_small_url';
+const _cacheProductosPublicos = {};
+
+// Categorías públicas (en inglés) → nombres cortos en español para el inventario
+const MAPA_CATEGORIAS = [
+  [/cocoa|chocolate-powder|instant-beverage|beverage-preparation|powdered-drink/, 'Bebidas en polvo'],
+  [/coffee/, 'Café'], [/tea(s)?$|infusion/, 'Té e infusiones'],
+  [/milk|dair|yogurt|cheese/, 'Lácteos'],
+  [/water|soda|soft-drink|juice|beverage|drink/, 'Bebidas'],
+  [/biscuit|cookie|cracker|wafer/, 'Galletas'],
+  [/chocolate|candy|confection|sweet|gum|lollipop|candies/, 'Dulces y chocolates'],
+  [/chip|crisp|snack|popcorn|nut|peanut/, 'Snacks'],
+  [/cereal|oat|granola/, 'Cereales'],
+  [/bread|bakery|cake|pastr/, 'Panadería'],
+  [/pasta|rice|grain|flour|legume|bean/, 'Granos y abarrotes'],
+  [/oil|sauce|condiment|spice|salt|sugar|ketchup|mayonnaise/, 'Despensa'],
+  [/canned|preserve/, 'Enlatados'],
+  [/frozen|ice-cream/, 'Congelados'],
+  [/meat|sausage|fish|tuna/, 'Carnes y embutidos'],
+  [/baby/, 'Bebés'],
+  [/shampoo|soap|toothpaste|deodorant|cosmetic|hygiene|beauty|skin|hair/, 'Cuidado personal'],
+  [/clean|detergent|household|dish/, 'Aseo del hogar'],
+  [/pet|dog|cat-food/, 'Mascotas'],
+  [/pen|pencil|notebook|paper|stationer|office|school/, 'Papelería'],
+];
+
+function categoriaDesdeTags(tags) {
+  if (!Array.isArray(tags) || !tags.length) return '';
+  // Las etiquetas vienen de general a específica: se revisa de la más específica a la más general
+  for (const t of [...tags].reverse()) {
+    const limpio = String(t).replace(/^[a-z]{2}:/, '');
+    for (const [re, cat] of MAPA_CATEGORIAS) if (re.test(limpio)) return cat;
+  }
+  return '';
+}
+
+function nombreDesdeProducto(p) {
+  const base = (p.product_name_es || p.product_name || p.generic_name_es || p.generic_name || '').trim();
+  if (!base) return '';
+  const marca = (p.brands || '').split(',')[0].trim();
+  const cant = (p.quantity || '').trim();
+  let nombre = base;
+  if (cant && !nombre.toLowerCase().includes(cant.toLowerCase())) nombre += ' ' + cant;
+  if (marca && !nombre.toLowerCase().includes(marca.toLowerCase())) nombre += ' · ' + marca;
+  return nombre.replace(/\s+/g, ' ').slice(0, 120);
+}
+
+async function consultarBase(base, codigo) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 7000);
+  try {
+    const r = await fetch(`${base.url}/api/v2/product/${encodeURIComponent(codigo)}.json?fields=${CAMPOS_OFF}&lc=es`, { signal: ctrl.signal });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (j.status !== 1 || !j.product) return null;
+    const p = j.product;
+    const nombre = nombreDesdeProducto(p);
+    if (!nombre) return null;
+    return { nombre, categoria: categoriaDesdeTags(p.categories_tags), imagen: p.image_front_small_url || p.image_small_url || '', fuente: base.nombre,
+             enlace: `${base.url}/product/${encodeURIComponent(codigo)}` };
+  } catch (_) {
+    return undefined;   // sin conexión o la base no respondió
+  } finally { clearTimeout(t); }
+}
+
+// Devuelve { nombre, categoria, imagen, fuente } | null (no encontrado) | undefined (sin conexión)
+async function buscarProductoPublico(codigo) {
+  codigo = String(codigo || '').replace(/\s+/g, '');
+  if (!/^\d{8,14}$/.test(codigo)) return null;          // solo códigos comerciales (EAN/UPC)
+  if (codigo in _cacheProductosPublicos) return _cacheProductosPublicos[codigo];
+  let sinConexion = false;
+  for (const base of BASES_PRODUCTOS) {
+    const res = await consultarBase(base, codigo);
+    if (res) { _cacheProductosPublicos[codigo] = res; return res; }
+    if (res === undefined) sinConexion = true;
+  }
+  if (!sinConexion) _cacheProductosPublicos[codigo] = null;
+  return sinConexion ? undefined : null;
+}
+
+// ── Integración con el formulario "Nuevo producto" ──
+let _autollenadoCodigo = '';
+function avisoAutollenado(html, tipo) {
+  const el = document.getElementById('prod-autollenado');
+  if (!el) return;
+  el.hidden = !html;
+  el.className = 'span-2 autollenado ' + (tipo || '');
+  el.innerHTML = html || '';
+}
+
+async function autollenarProducto(forzar = false) {
+  const input = document.getElementById('prod-barras');
+  const codigo = (input?.value || '').replace(/\s+/g, '');
+  if (!codigo || (!forzar && codigo === _autollenadoCodigo)) return;
+  _autollenadoCodigo = codigo;
+
+  // 1) ¿Ya está en el inventario?
+  const existente = allProductos.find(p => p.id !== editingProductoId && (p.codigo_barras === codigo || p.codigo === codigo));
+  if (existente) {
+    avisoAutollenado(`<i class="fa-solid fa-circle-exclamation"></i><div><strong>Este código ya está registrado</strong><span>Pertenece a "${escHTML(existente.nombre)}".</span></div>
+      <button type="button" class="btn-secondary btn-xs" onclick="abrirModalProducto('${existente.id}')">Ver producto</button>`, 'aviso');
+    return;
+  }
+  if (!/^\d{8,14}$/.test(codigo)) { avisoAutollenado(''); return; }
+
+  // 2) Buscar en las bases públicas
+  avisoAutollenado(`<span class="spinner autollenado-spin"></span><div><strong>Buscando el producto…</strong><span>Código ${escHTML(codigo)}</span></div>`, 'cargando');
+  const res = await buscarProductoPublico(codigo);
+  if (document.getElementById('prod-barras').value.replace(/\s+/g, '') !== codigo) return;   // cambió mientras buscaba
+
+  if (res === undefined) {
+    avisoAutollenado(`<i class="fa-solid fa-wifi"></i><div><strong>No se pudo consultar la base de productos</strong><span>Revisa tu conexión. Puedes llenar los datos a mano.</span></div>
+      <button type="button" class="btn-secondary btn-xs" onclick="autollenarProducto(true)">Reintentar</button>`, 'aviso');
+    return;
+  }
+  if (!res) {
+    avisoAutollenado(`<i class="fa-solid fa-magnifying-glass"></i><div><strong>No encontramos este código en la base pública</strong><span>Escribe el nombre y la categoría; quedará guardado para la próxima vez.</span></div>`, 'vacio');
+    document.getElementById('prod-nombre').focus();
+    return;
+  }
+  const nom = document.getElementById('prod-nombre'), cat = document.getElementById('prod-categoria');
+  const llenados = [];
+  if (!nom.value.trim()) { nom.value = res.nombre; llenados.push('nombre'); }
+  if (!cat.value.trim() && res.categoria) { cat.value = res.categoria; llenados.push('categoría'); }
+  [nom, cat].forEach(el => { if (llenados.length) { el.classList.add('autollenado-campo'); setTimeout(() => el.classList.remove('autollenado-campo'), 1600); } });
+  avisoAutollenado(`${res.imagen ? `<img src="${escHTML(res.imagen)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()"/>` : '<i class="fa-solid fa-circle-check"></i>'}
+    <div><strong>${escHTML(res.nombre)}</strong>
+    <span>${llenados.length ? `Se llenó ${llenados.join(' y ')} con datos de ${escHTML(res.fuente)}. Revísalos y completa costo, precio y cantidad.` : `Encontrado en ${escHTML(res.fuente)}. Tus datos escritos no se cambiaron.`}</span></div>
+    ${!llenados.includes('nombre') && nom.value.trim() !== res.nombre ? `<button type="button" class="btn-secondary btn-xs" onclick="document.getElementById('prod-nombre').value=${escHTML(JSON.stringify(res.nombre))}">Usar este nombre</button>` : ''}`, 'ok');
+  pitido(true);
+  const siguiente = document.getElementById('prod-costo');
+  if (siguiente && !siguiente.value) setTimeout(() => siguiente.focus(), 60);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('prod-barras');
+  if (!input) return;
+  // Lector USB/Bluetooth: escribe el código y presiona Enter
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); autollenarProducto(); } });
+  // Escrito a mano: cuando el número queda completo (8, 12, 13 o 14 dígitos) se busca tras una pausa.
+  // No se usa el evento "change" porque al salir del campo movería el botón Guardar justo al tocarlo.
+  let espera = null;
+  input.addEventListener('input', () => {
+    clearTimeout(espera);
+    const v = input.value.replace(/\s+/g, '');
+    if (!v) { _autollenadoCodigo = ''; avisoAutollenado(''); return; }
+    if (/^(\d{8}|\d{12,14})$/.test(v)) espera = setTimeout(() => autollenarProducto(), 700);
+  });
+});
+
+// Al abrir el formulario: limpiar el aviso y, si llegó un código (desde el punto de venta), buscarlo
+const _origAbrirModalProducto = abrirModalProducto;
+abrirModalProducto = function (id = null) {
+  _autollenadoCodigo = '';
+  avisoAutollenado('');
+  _origAbrirModalProducto(id);
+  if (!id && document.getElementById('prod-barras').value) autollenarProducto();
+};
+
 </script>
 
 </body>
