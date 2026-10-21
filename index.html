@@ -2,6 +2,10 @@
 <html lang="es" class="light">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="haliel-version" content="2026.10.21.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B1740"/>
 <meta name="color-scheme" content="light dark"/>
@@ -4274,6 +4278,172 @@
 </div>
 
 <div id="toast-container"></div>
+<script>
+// =====================================================================
+// VERSIÓN DE LA APP Y AJUSTES EN LA NUBE
+// · La página revisa sola si hay una versión nueva y se actualiza.
+// · Las preferencias y la configuración del sistema viven en Supabase.
+// =====================================================================
+const APP_VERSION = '2026.10.21.1';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
+
+// ── 1. Actualización automática ──
+let _versionNueva = null, _verEspera = null, _verRevisando = false;
+async function revisarVersion() {
+  if (_verRevisando || !navigator.onLine) return;
+  _verRevisando = true;
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j && j.version && j.version !== APP_VERSION) { _versionNueva = j.version; intentarActualizar(); }
+  } catch (_) { /* sin conexión: se intenta en la próxima revisión */ }
+  finally { _verRevisando = false; }
+}
+// ¿Hay algo a medio hacer que se perdería al recargar? (ventana abierta o texto escrito)
+function hayTrabajoAbierto() {
+  if ([...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex')) return true;
+  const a = document.activeElement;
+  return !!(a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && a.value && !a.closest('.search-wrap, .filter-bar, #login-page, #modal-busqueda') && a.type !== 'search');
+}
+function avisoVersion(esperando) {
+  let el = document.getElementById('aviso-version');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'aviso-version'; el.setAttribute('role', 'status');
+    el.style.cssText = 'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100000;display:flex;align-items:center;gap:.75rem;max-width:calc(100vw - 32px);padding:.7rem .8rem .7rem 1rem;border-radius:14px;background:#1B1740;color:#fff;font:600 .86rem Figtree,system-ui,sans-serif;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = esperando
+    ? `<i class="fa-solid fa-cloud-arrow-down" style="color:#F5B70A"></i><span>Hay una versión nueva. Se actualizará apenas cierres lo que estás haciendo.</span>
+       <button type="button" onclick="recargarVersion()" style="border:0;border-radius:10px;padding:.45rem .8rem;background:#F5B70A;color:#1B1740;font:700 .8rem inherit;cursor:pointer;white-space:nowrap;">Actualizar ahora</button>`
+    : `<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span><span>Actualizando a la versión más reciente…</span>`;
+}
+function intentarActualizar() {
+  if (!_versionNueva) return;
+  clearInterval(_verEspera);
+  if (!hayTrabajoAbierto()) { avisoVersion(false); setTimeout(recargarVersion, 400); return; }
+  avisoVersion(true);
+  _verEspera = setInterval(() => { if (!hayTrabajoAbierto()) { clearInterval(_verEspera); avisoVersion(false); setTimeout(recargarVersion, 400); } }, 2000);
+}
+// Recarga con una dirección nueva (?v=) para saltarse cualquier copia guardada en el camino
+function recargarVersion() {
+  const u = new URL(location.href);
+  const intento = u.searchParams.get('v') === _versionNueva ? Number(u.searchParams.get('r') || 0) + 1 : 0;
+  if (intento > 3) { document.getElementById('aviso-version')?.remove(); return; }   // GitHub aún publicando: reintenta en la próxima revisión
+  u.searchParams.set('v', _versionNueva || Date.now());
+  if (intento) u.searchParams.set('r', intento); else u.searchParams.delete('r');
+  location.replace(u.toString());
+}
+(function () {
+  // Quitar ?v= y ?r= de la dirección una vez cargada la versión correcta
+  const u = new URL(location.href);
+  if (u.searchParams.get('v') === APP_VERSION) { u.searchParams.delete('v'); u.searchParams.delete('r'); history.replaceState(null, '', u.toString()); }
+  revisarVersion();                                             // al abrir
+  setInterval(revisarVersion, 60 * 1000);                       // cada minuto
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') revisarVersion(); });
+  window.addEventListener('focus', revisarVersion);
+  window.addEventListener('online', revisarVersion);
+})();
+
+// ── 2. Preferencias del usuario y configuración del sistema (Supabase) ──
+// Si el archivo SQL aún no se ha ejecutado, todo sigue funcionando con el equipo como antes.
+let _prefs = {}, _prefsExiste = false, _config = {}, _configClaves = new Set(), _ajustesNube = false, _ajustesListos = false, _prefsTimer = null;
+const PREF_LOCAL = { dark: 'dark', sidebarPinned: 'sidebarPinned', openGroup: 'haliel-open-group', dashTab: 'haliel-dash-tab' };
+const _uid = () => (typeof currentUser !== 'undefined' && currentUser) ? currentUser.id : null;
+const prefLocalKey = k => k === 'pwdChangedAt' ? (_uid() ? `haliel-pwd-${_uid()}` : null) : PREF_LOCAL[k];
+const cfgLocalKey = k => k === 'inactividad' ? 'haliel-inactividad' : k === 'metas-global' ? 'haliel-config' : k.startsWith('metas-') ? 'haliel-config-' + k.slice(6) : null;
+const lsGet = k => { try { return k ? localStorage.getItem(k) : null; } catch (_) { return null; } };
+const lsSet = (k, v) => { try { if (k) localStorage.setItem(k, v); } catch (_) {} };
+const lsDel = k => { try { if (k) localStorage.removeItem(k); } catch (_) {} };
+
+function prefGet(k, def = null) {
+  if (k in _prefs) return _prefs[k];
+  // Antes de iniciar sesión (o sin el SQL) se usa lo último conocido en este equipo
+  if (!(_ajustesListos && _ajustesNube) || k === 'dark') { const v = lsGet(prefLocalKey(k)); if (v !== null) return v; }
+  return def;
+}
+function prefSet(k, v) {
+  _prefs[k] = v;
+  // El modo oscuro se recuerda también en el equipo para pintar bien la pantalla de ingreso
+  if (k === 'dark' || !_ajustesNube) lsSet(prefLocalKey(k), v);
+  clearTimeout(_prefsTimer);
+  _prefsTimer = setTimeout(guardarPreferencias, 500);
+}
+async function guardarPreferencias() {
+  clearTimeout(_prefsTimer);
+  if (!_uid() || !_ajustesListos || !_ajustesNube) return;
+  const fila = { prefs: _prefs, updated_at: new Date().toISOString() };
+  const r = _prefsExiste
+    ? await sb.from('usuario_preferencias').update(fila).eq('usuario_id', _uid())
+    : await sb.from('usuario_preferencias').insert({ ...fila, usuario_id: _uid() });
+  if (!r.error) _prefsExiste = true;
+}
+function cfgGet(k, def = null) {
+  if (_ajustesNube && _ajustesListos) return k in _config ? _config[k] : def;
+  const v = lsGet(cfgLocalKey(k));
+  if (v === null) return def;
+  try { return JSON.parse(v); } catch (_) { return v; }
+}
+// Devuelve null si se guardó, o un mensaje de error
+async function cfgSet(k, v) {
+  if (!_ajustesNube) { lsSet(cfgLocalKey(k), JSON.stringify(v)); _config[k] = v; return null; }
+  if (typeof esAdmin === 'function' && !esAdmin()) return 'Solo un administrador puede cambiar la configuración del sistema.';
+  const fila = { valor: v, updated_at: new Date().toISOString(), updated_by: _uid() };
+  const r = _configClaves.has(k)
+    ? await sb.from('haliel_configuracion').update(fila).eq('clave', k)
+    : await sb.from('haliel_configuracion').insert({ clave: k, ...fila });
+  if (r.error) return r.error.message;
+  _config[k] = v; _configClaves.add(k);
+  return null;
+}
+
+// Se llama al iniciar sesión, antes de pintar la app
+async function halielCargarAjustes(user) {
+  _prefs = {}; _prefsExiste = false; _config = {}; _configClaves = new Set(); _ajustesListos = false;
+  try {
+    const [rp, rc] = await Promise.all([
+      sb.from('usuario_preferencias').select('*').eq('usuario_id', user.id).maybeSingle(),
+      sb.from('haliel_configuracion').select('*'),
+    ]);
+    _ajustesNube = !faltaTabla(rp.error) && !faltaTabla(rc.error) && !rp.error && !rc.error;
+    if (_ajustesNube) {
+      if (rp.data) { _prefs = { ...(rp.data.prefs || {}) }; _prefsExiste = true; }
+      (rc.data || []).forEach(f => { _config[f.clave] = f.valor; _configClaves.add(f.clave); });
+    }
+  } catch (_) { _ajustesNube = false; }
+  _ajustesListos = true;
+  if (!_ajustesNube) return;
+
+  // Migración única: lo que estaba guardado en este equipo se sube a Supabase y se borra del equipo
+  let subir = false;
+  ['sidebarPinned', 'openGroup', 'dashTab', 'pwdChangedAt', 'dark'].forEach(k => {
+    const lk = k === 'pwdChangedAt' ? `haliel-pwd-${user.id}` : PREF_LOCAL[k];
+    const v = lsGet(lk);
+    if (v !== null && !(k in _prefs)) { _prefs[k] = v; subir = true; }
+    if (k !== 'dark') lsDel(lk);
+  });
+  if (subir) await guardarPreferencias();
+  const { data: perfil } = await sb.from('usuarios').select('rol').eq('id', user.id).maybeSingle();
+  if (perfil?.rol === 'administrador') {
+    const locales = [];
+    try { for (let i = 0; i < localStorage.length; i++) { const lk = localStorage.key(i); if (lk === 'haliel-inactividad' || lk === 'haliel-config' || lk?.startsWith('haliel-config-')) locales.push(lk); } } catch (_) {}
+    for (const lk of locales) {
+      const clave = lk === 'haliel-inactividad' ? 'inactividad' : lk === 'haliel-config' ? 'metas-global' : 'metas-' + lk.slice('haliel-config-'.length);
+      let valor = lsGet(lk); try { valor = JSON.parse(valor); } catch (_) {}
+      if (!_configClaves.has(clave)) {
+        const fila = { clave, valor, updated_at: new Date().toISOString(), updated_by: user.id };
+        const { error } = await sb.from('haliel_configuracion').insert(fila);
+        if (!error) { _config[clave] = valor; _configClaves.add(clave); lsDel(lk); }
+      } else lsDel(lk);
+    }
+  }
+  // Aplicar el modo oscuro guardado en la nube
+  const oscuro = prefGet('dark') === '1';
+  document.documentElement.classList.toggle('dark', oscuro);
+  lsSet('dark', oscuro ? '1' : '0');
+  ['dark-toggle', 'profile-dark-toggle'].forEach(id => document.getElementById(id)?.classList.toggle('on', oscuro));
+}
+</script>
 
 <script>
 // =====================================================
@@ -4740,7 +4910,7 @@ function resetInactivityTimer() {
   clearTimeout(inactivityTimer);
   clearInterval(countdownTimer);
   if (!currentUser) return;
-  const mins = parseInt(localStorage.getItem('haliel-inactividad') || '30');
+  const mins = parseInt(cfgGet('inactividad') || '30');
   inactivityTimer = setTimeout(showInactivityWarning, mins * 60 * 1000);
 }
 
@@ -4763,9 +4933,10 @@ function initInactivityTracking() {
   resetInactivityTimer();
 }
 
-function saveInactivityConfig() {
+async function saveInactivityConfig() {
   const mins = document.getElementById('cfg-inactividad')?.value || '30';
-  localStorage.setItem('haliel-inactividad', mins);
+  const errCfg = await cfgSet('inactividad', parseInt(mins));
+  if (errCfg) { toast(errCfg, 'error'); return; }
   INACTIVIDAD_MINUTOS = parseInt(mins);
   resetInactivityTimer();
   toast('Tiempo de inactividad guardado', 'success');
@@ -4890,8 +5061,7 @@ function getClasificacion(mov, sucursal = null) {
     // Si se pasa sucursal, usar sus umbrales específicos, sino usar globales
     let opt = OPTIMO, ace = ACEPTABLE;
     if (sucursal && sucursal !== 'global') {
-        const key = `haliel-config-${sucursal}`;
-        const cfg = JSON.parse(localStorage.getItem(key) || '{}');
+        const cfg = cfgGet('metas-' + sucursal) || {};
         if (cfg.optimo) opt = cfg.optimo;
         if (cfg.aceptable) ace = cfg.aceptable;
     }
@@ -4942,11 +5112,11 @@ function toggleDark() {
     const btn = document.getElementById(id);
     if (btn) on ? btn.classList.add('on') : btn.classList.remove('on');
   });
-  localStorage.setItem('dark', on ? '1' : '0');
+  prefSet('dark', on ? '1' : '0');
   setTimeout(() => Object.values(charts).forEach(c => c && c.update()), 300);
 }
 function initDark() {
-  if (localStorage.getItem('dark') === '1') {
+  if (prefGet('dark') === '1') {
     document.documentElement.classList.add('dark');
     ['dark-toggle','profile-dark-toggle'].forEach(id => { const b=document.getElementById(id); if(b) b.classList.add('on'); });
   }
@@ -4997,11 +5167,11 @@ function toggleSidebarPin() {
   document.querySelectorAll('.sidebar .nav-item').forEach(n => {
     if (sidebarPinned) delete n.dataset.tip; else n.dataset.tip = n.dataset.tooltip || n.textContent.trim();
   });
-  localStorage.setItem('sidebarPinned', sidebarPinned ? '1' : '0');
+  prefSet('sidebarPinned', sidebarPinned ? '1' : '0');
 }
 
 function initSidebarState() {
-  const saved = localStorage.getItem('sidebarPinned');
+  const saved = prefGet('sidebarPinned');
   if (saved === '0') {
     sidebarPinned = true;
     toggleSidebarPin();
@@ -5291,6 +5461,8 @@ async function initApp(user) {
         setTimeout(() => window.location.reload(), 1500);
     }, 12000);
     window._initAppTimeout = initTimeout;
+    await halielCargarAjustes(user);
+    loadConfig();
     
     // 👉 Cargar perfil del usuario
     const { data: prof, error } = await sb.from('usuarios')
@@ -5405,6 +5577,7 @@ async function initApp(user) {
     initSidebarState();
 	initStreamingNav();
     initNavGroups();
+    { const t = prefGet('dashTab'); if (t && document.querySelector(`.dash-tabs [data-dtab="${t}"]`)) dashTab(t); }
 	window._navReady = true;
 	clearTimeout(window._initAppTimeout);
     hideSplash();
@@ -6824,15 +6997,14 @@ async function loadAuditoria() {
 // CONFIG
 // =====================================================
 function loadConfig(sucursal = 'global') {
-    const key = sucursal === 'global' ? 'haliel-config' : `haliel-config-${sucursal}`;
-    const cfg = JSON.parse(localStorage.getItem(key) || '{}');
+    const cfg = cfgGet(sucursal === 'global' ? 'metas-global' : 'metas-' + sucursal) || {};
     const defaults = { optimo: 120, aceptable: 90, metaDiaria: 120, metaMensual: 3600 };
     
     OPTIMO = cfg.optimo ?? (sucursal !== 'global' ? loadConfig('global').optimo : defaults.optimo);
     ACEPTABLE = cfg.aceptable ?? (sucursal !== 'global' ? loadConfig('global').aceptable : defaults.aceptable);
     META_DIARIA = cfg.metaDiaria ?? (sucursal !== 'global' ? loadConfig('global').metaDiaria : defaults.metaDiaria);
     META_MENSUAL = cfg.metaMensual ?? (sucursal !== 'global' ? loadConfig('global').metaMensual : defaults.metaMensual);
-    const inac = localStorage.getItem('haliel-inactividad');
+    const inac = cfgGet('inactividad');
     if (inac) INACTIVIDAD_MINUTOS = parseInt(inac);
 
     ['cfg-optimo','cfg-aceptable','cfg-meta-diaria','cfg-meta-mensual'].forEach(id => {
@@ -6843,6 +7015,7 @@ function loadConfig(sucursal = 'global') {
         if (id === 'cfg-meta-mensual') el.value = META_MENSUAL;
     });
     const inacSel = document.getElementById('cfg-inactividad'); if (inacSel) inacSel.value = String(INACTIVIDAD_MINUTOS);
+    return { optimo: OPTIMO, aceptable: ACEPTABLE, metaDiaria: META_DIARIA, metaMensual: META_MENSUAL };
 }
 
 // Función auxiliar para cambiar de sucursal en la UI
@@ -6851,16 +7024,16 @@ function loadConfigBySucursal() {
     loadConfig(sucursal);
 }
 
-function saveConfig() {
+async function saveConfig() {
     const sucursal = document.getElementById('cfg-sucursal-meta')?.value || 'global';
-    const key = sucursal === 'global' ? 'haliel-config' : `haliel-config-${sucursal}`;
     
     OPTIMO = parseInt(document.getElementById('cfg-optimo').value);
     ACEPTABLE = parseInt(document.getElementById('cfg-aceptable').value);
     META_DIARIA = parseInt(document.getElementById('cfg-meta-diaria').value);
     META_MENSUAL = parseInt(document.getElementById('cfg-meta-mensual').value);
     
-    localStorage.setItem(key, JSON.stringify({ optimo: OPTIMO, aceptable: ACEPTABLE, metaDiaria: META_DIARIA, metaMensual: META_MENSUAL, updatedAt: new Date().toISOString() }));
+    const errCfg = await cfgSet(sucursal === 'global' ? 'metas-global' : 'metas-' + sucursal, { optimo: OPTIMO, aceptable: ACEPTABLE, metaDiaria: META_DIARIA, metaMensual: META_MENSUAL, updatedAt: new Date().toISOString() });
+    if (errCfg) { toast('No se pudo guardar la configuración: ' + errCfg, 'error'); loadConfig(sucursal); return; }
     
     if (currentProfile?.rol === 'administrador') {
         logAuditoria('editar', `Configuración de metas ${sucursal === 'global' ? 'global' : `para sucursal ${sucursal}`} actualizada.`);
@@ -7251,8 +7424,7 @@ function getPwdCooldown() {
     }
     
     // 👉 OPERADORES: VALIDAR COOLDOWN DE 30 DÍAS
-    const key = `haliel-pwd-${currentUser.id}`;
-    const lastChange = localStorage.getItem(key);
+    const lastChange = prefGet('pwdChangedAt');
     
     if (!lastChange) return { allowed: true };
     
@@ -7330,7 +7502,8 @@ async function submitPasswordChange() {
         
         // 👉 5. ÉXITO: Guardar fecha de cambio SOLO para operadores
         if (currentProfile?.rol !== 'administrador') {
-            localStorage.setItem(`haliel-pwd-${currentUser.id}`, new Date().toISOString());
+            prefSet('pwdChangedAt', new Date().toISOString());
+            await guardarPreferencias();
         }
         
         toast('✅ Contraseña actualizada correctamente. Por seguridad, tu sesión se cerrará.', 'success');
@@ -8749,7 +8922,7 @@ if('serviceWorker' in navigator){
 
   // Ruta relativa: en GitHub Pages el sitio vive en /haliel/, así que '/sw.js' daba 404
   const _swHabiaControl = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('sw.js', { scope: './' }).then(reg => {
+  navigator.serviceWorker.register('sw.js', { scope: './', updateViaCache: 'none' }).then(reg => {
     reg.update(); // busca versión nueva al arrancar
     reg.addEventListener('updatefound', () => {
       const nuevo = reg.installing;
@@ -11148,7 +11321,7 @@ function openGroupForSection(key) {
   if (!g) return;
   ALL_GROUPS.forEach(x => closeNavGroup(x));
   openNavGroup(g);
-  localStorage.setItem('haliel-open-group', g);
+  prefSet('openGroup', g);
 }
 
 window.addEventListener('beforeunload', () => {
@@ -11157,7 +11330,7 @@ window.addEventListener('beforeunload', () => {
     } catch(e) {}
 });
 function initNavGroups() {
-  const saved = localStorage.getItem('haliel-open-group');
+  const saved = prefGet('openGroup');
   if (saved) openNavGroup(saved);
 }
 
@@ -12779,7 +12952,7 @@ function dashTab(nombre) {
   });
   document.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.dataset.dpanel !== nombre; });
   requestAnimationFrame(() => Object.values(charts).forEach(c => { try { c && c.resize(); } catch (_) {} }));
-  try { localStorage.setItem('haliel-dash-tab', nombre); } catch (_) {}
+  prefSet('dashTab', nombre);
 }
 
 // Marca activo el acceso del menú que corresponde a la sección (y a la pestaña de caja)
@@ -12829,7 +13002,7 @@ document.addEventListener('DOMContentLoaded', () => {
   prepararNavTeclado();
   prepararTablasMoviles();
   try {
-    const t = localStorage.getItem('haliel-dash-tab');
+    const t = prefGet('dashTab');
     if (t && document.querySelector(`.dash-tabs [data-dtab="${t}"]`)) dashTab(t);
   } catch (_) {}
 });
