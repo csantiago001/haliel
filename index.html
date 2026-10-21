@@ -1087,6 +1087,84 @@
   .noenc-publico { margin-top: 0.85rem; text-align: left; }
   #modal-no-encontrado { z-index: 1200 !important; }
 
+
+
+
+  /* ════════ V7 · Carrito del punto de venta como ventana independiente ════════ */
+  .pos-grid.pos-grid-full { grid-template-columns: 1fr; }
+  #sec-pos { padding-bottom: 96px; }
+  #sec-pos .pos-productos { max-height: none; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  body.sin-scroll { overflow: hidden; }
+
+  /* Barra inferior */
+  .pos-barra { position: fixed; z-index: 60; bottom: 16px; left: calc(248px + 2rem); right: 2rem; display: flex; align-items: center; gap: 0.9rem;
+    padding: 0.6rem 0.65rem 0.6rem 0.75rem; border-radius: 18px; background: var(--ink); color: #fff;
+    box-shadow: 0 18px 40px -16px rgba(17,15,30,0.6), 0 0 0 1px rgba(255,255,255,0.06) inset; transition: left 0.3s; }
+  .main-content.sidebar-collapsed .pos-barra { left: calc(68px + 2rem); }
+  html.dark .pos-barra { background: #26223F; }
+  .pos-barra.pulso { animation: barraPulso 0.55s ease; }
+  @keyframes barraPulso { 0% { transform: translateY(0); } 30% { transform: translateY(-5px); box-shadow: 0 0 0 4px rgba(18,161,80,0.45), 0 18px 40px -16px rgba(17,15,30,0.6); } 100% { transform: none; } }
+  .pos-barra-info { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; border: 0; background: none; color: inherit; text-align: left; padding: 0.2rem; border-radius: 12px; }
+  .pos-barra-info:hover { background: rgba(255,255,255,0.06); }
+  .pos-barra-ico { position: relative; width: 44px; height: 44px; border-radius: 13px; background: rgba(255,255,255,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; }
+  .pos-barra-num { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; background: #F5B70A; color: #1B1740; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--ink); }
+  .pos-barra.vacia .pos-barra-num { background: rgba(255,255,255,0.25); color: #fff; }
+  .pos-barra-txt { display: flex; flex-direction: column; min-width: 0; }
+  .pos-barra-txt strong { font-size: 0.92rem; }
+  .pos-barra-txt small { font-size: 0.78rem; color: rgba(236,234,247,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pos-barra-total { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; letter-spacing: -0.02em; white-space: nowrap; }
+  .pos-barra-btn { padding: 0.8rem 1.2rem !important; font-size: 0.95rem !important; border-radius: 13px !important; background: #F5B70A !important; color: #1B1740 !important; box-shadow: none !important; }
+  .pos-barra-btn:hover { background: #FFC93A !important; }
+  .pos-barra-btn:disabled { background: rgba(255,255,255,0.14) !important; color: rgba(255,255,255,0.55) !important; }
+  .pos-barra-btn kbd { background: rgba(27,23,64,0.12); border-color: rgba(27,23,64,0.2); color: #1B1740; }
+
+  /* Ventana del carrito: panel lateral en computador */
+  #modal-carrito.pos-drawer { padding: 0 !important; align-items: stretch !important; justify-content: flex-end !important; overflow: hidden; z-index: 1050; }
+  #modal-carrito .pos-cart { position: relative; top: auto; width: min(460px, 100vw); height: 100vh; height: 100dvh; max-height: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; background: var(--card-bg); color: var(--text); border-radius: 24px 0 0 24px; border: 1px solid var(--card-border); border-right: 0;
+    box-shadow: -30px 0 70px -30px rgba(17,15,30,0.55); animation: carritoLateral 0.32s cubic-bezier(0.22,1,0.36,1) both; overflow: hidden; }
+  @keyframes carritoLateral { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  #modal-carrito .pos-cart::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--dots); }
+  .pos-cart-asa { display: none; }
+  #modal-carrito .pos-cart-head { padding: 1.25rem 1.25rem 0.85rem; margin: 0; border-bottom: 1px solid var(--card-border); align-items: flex-start; }
+  .pos-cart-titulo { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.5rem; }
+  .pos-cart-fecha { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; text-transform: capitalize; }
+  .pos-cart-cuerpo { flex: 1; overflow-y: auto; padding: 0.4rem 1.25rem 1rem; overscroll-behavior: contain; }
+  #modal-carrito .pos-items { overflow: visible; min-height: 0; margin: 0; padding: 0; }
+  .pos-seguir { width: 100%; margin: 0.75rem 0 0.25rem; padding: 0.6rem; border-radius: 12px; border: 1.5px dashed var(--line-strong); background: transparent; color: var(--primary-text); font-weight: 600; font-size: 0.86rem; }
+  .pos-seguir:hover { background: var(--primary-soft); border-color: var(--primary); }
+  .pos-cart-pie { padding: 0.85rem 1.25rem calc(1rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--card-border); background: var(--input-bg); }
+  .pos-cart-pie .pos-totales { margin-top: 0; }
+  .pos-cart-pie .pos-cobrar { margin-top: 0.6rem; }
+
+  /* Celular: hoja que sube desde abajo */
+  @media (max-width: 768px) {
+    #sec-pos { padding-bottom: 92px; }
+    .pos-barra, .main-content.sidebar-collapsed .pos-barra { left: 0.6rem; right: 0.6rem; bottom: calc(0.6rem + env(safe-area-inset-bottom)); padding: 0.5rem 0.5rem 0.5rem 0.55rem; gap: 0.55rem; border-radius: 16px; }
+    .pos-barra-ico { width: 40px; height: 40px; }
+    .pos-barra-txt strong { font-size: 0.85rem; }
+    .pos-barra-total { font-size: 1.15rem; }
+    .pos-barra-btn { padding: 0.75rem 0.9rem !important; }
+    #sec-pos .pos-productos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #modal-carrito.pos-drawer { align-items: flex-end !important; justify-content: stretch !important; }
+    #modal-carrito .pos-cart { width: 100%; height: auto; max-height: 94dvh; border-radius: 24px 24px 0 0; border-right: 1px solid var(--card-border); border-bottom: 0;
+      box-shadow: 0 -24px 60px -24px rgba(17,15,30,0.55); animation: carritoHoja 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+    @keyframes carritoHoja { from { transform: translateY(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .pos-cart-asa { display: block; width: 44px; height: 5px; border-radius: 99px; background: var(--line-strong); margin: 0.6rem auto 0; }
+    #modal-carrito .pos-cart::before { display: none; }
+    #modal-carrito .pos-cart-head { padding: 0.6rem 1rem 0.7rem; }
+    .pos-cart-cuerpo { padding: 0.3rem 1rem 0.8rem; }
+    .pos-cart-pie { padding: 0.75rem 1rem calc(0.9rem + env(safe-area-inset-bottom)); }
+    .pos-cart-titulo { font-size: 1.15rem; }
+  }
+  @media (max-width: 380px) { .pos-barra-txt { display: none; } .pos-barra-info { flex: 0 0 auto; } .pos-barra-total { flex: 1; text-align: right; } }
+  .pos-barra { display: none; }
+  body.en-pos #app .pos-barra { display: flex; }
+  .main-content.sidebar-collapsed ~ .pos-barra { left: calc(68px + 2rem); }
+  @media (max-width: 768px) { .main-content.sidebar-collapsed ~ .pos-barra { left: 0.6rem; } }
+  body.en-pos #toast-container { bottom: 104px; }
+  @media (max-width: 768px) { body.en-pos #toast-container { bottom: 96px; } }
+
 </style>
 </head>
 <body>
@@ -1225,6 +1303,7 @@
             <a href="mailto:papeleriahaliel@gmail.com"><i class="fa-regular fa-envelope"></i>papeleriahaliel@gmail.com</a>
         </div>
     </main>
+
     </div>
 </div>
 
@@ -1689,7 +1768,7 @@
     <!-- ══════════ OPERACIONES: PUNTO DE VENTA ══════════ -->
     <div class="section" id="sec-pos">
       <div class="modulo-aviso" id="pos-aviso" hidden></div>
-      <div class="pos-grid">
+      <div class="pos-grid pos-grid-full">
         <!-- Productos -->
         <div class="pos-left">
           <div class="glass-card pos-scan-card">
@@ -1707,45 +1786,6 @@
             <div class="pos-cats" id="pos-cats"></div>
             <div class="pos-productos" id="pos-productos"></div>
           </div>
-        </div>
-
-        <!-- Carrito -->
-        <div class="glass-card pos-cart">
-          <div class="pos-cart-head">
-            <h3 class="card-title" style="margin:0;"><i class="fa-solid fa-cart-shopping"></i>Venta actual <span class="badge badge-blue" id="pos-count">0</span></h3>
-            <button type="button" class="btn-secondary btn-xs" onclick="posVaciar()" data-tip="Vaciar venta"><i class="fa-solid fa-trash-can"></i> Vaciar</button>
-          </div>
-          <div class="pos-items" id="pos-items"></div>
-
-          <div class="pos-campos">
-            <div class="pos-fila2">
-              <div><label class="field-label" for="pos-cliente">Cliente (opcional)</label><input type="text" id="pos-cliente" class="field-input" maxlength="80" placeholder="Nombre"/></div>
-              <div><label class="field-label" for="pos-descuento">Descuento</label><div class="input-money"><span>$</span><input type="text" id="pos-descuento" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);posRender()"/></div></div>
-            </div>
-            <label class="field-label" style="margin-top:0.65rem;">Método de pago</label>
-            <div class="seg pos-metodos" role="radiogroup">
-              <button type="button" class="seg-btn active" data-metodo="efectivo" onclick="posMetodo('efectivo')"><i class="fa-solid fa-money-bill-wave"></i> Efectivo</button>
-              <button type="button" class="seg-btn" data-metodo="transferencia" onclick="posMetodo('transferencia')"><i class="fa-solid fa-building-columns"></i> Transf.</button>
-              <button type="button" class="seg-btn" data-metodo="nequi" onclick="posMetodo('nequi')"><i class="fa-solid fa-mobile-screen"></i> Nequi</button>
-              <button type="button" class="seg-btn" data-metodo="tarjeta" onclick="posMetodo('tarjeta')"><i class="fa-regular fa-credit-card"></i> Tarjeta</button>
-            </div>
-            <div id="pos-efectivo">
-              <div class="pos-fila2">
-                <div><label class="field-label" for="pos-recibido">Recibido</label><div class="input-money"><span>$</span><input type="text" id="pos-recibido" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);posRender()"/></div></div>
-                <div><label class="field-label">Cambio</label><div class="pos-cambio" id="pos-cambio">$0</div></div>
-              </div>
-              <div class="pos-billetes" id="pos-billetes"></div>
-            </div>
-          </div>
-
-          <div class="pos-totales">
-            <div><span>Subtotal</span><span id="pos-subtotal">$0</span></div>
-            <div id="pos-desc-row" hidden><span>Descuento</span><span id="pos-desc-val">−$0</span></div>
-            <div class="pos-total"><span>Total</span><span id="pos-total">$0</span></div>
-          </div>
-          <button type="button" class="btn-primary pos-cobrar" id="pos-btn-cobrar" onclick="posCobrar()" disabled>
-            <i class="fa-solid fa-cash-register"></i> Cobrar <kbd>F2</kbd>
-          </button>
         </div>
       </div>
     </div>
@@ -2262,6 +2302,19 @@
       </div>
     </div>
   </main>
+
+  <!-- Barra de la venta actual (abre el carrito) -->
+  <div class="pos-barra" id="pos-barra">
+    <button type="button" class="pos-barra-info" onclick="posAbrirCarrito()" aria-label="Ver la venta actual">
+      <span class="pos-barra-ico"><i class="fa-solid fa-cart-shopping"></i><span class="pos-barra-num" id="pos-barra-num">0</span></span>
+      <span class="pos-barra-txt"><strong id="pos-barra-titulo">Venta vacía</strong><small id="pos-barra-sub">Escanea o toca un producto</small></span>
+    </button>
+    <span class="pos-barra-total" id="pos-barra-total">$0</span>
+    <button type="button" class="btn-primary pos-barra-btn" id="pos-barra-btn" onclick="posAbrirCarrito(true)" disabled>
+      <i class="fa-solid fa-cash-register"></i><span>Cobrar</span><kbd class="hide-sm">F2</kbd>
+    </button>
+  </div>
+
 </div>
 
 <!-- MODALS -->
@@ -2341,6 +2394,59 @@
     </div>
     <p class="form-hint" style="margin:-0.5rem 0 0.75rem;">Este cliente tiene varias ventas. Elige sobre cuál quieres actuar.</p>
     <div id="cal-ventas-body"></div>
+  </div>
+</div>
+
+<!-- ══════════ VENTANA: VENTA ACTUAL (CARRITO DEL PUNTO DE VENTA) ══════════ -->
+<div id="modal-carrito" class="modal-overlay pos-drawer" style="display:none;">
+  <div class="pos-cart" role="dialog" aria-modal="true" aria-labelledby="pos-cart-titulo">
+          <div class="pos-cart-asa" aria-hidden="true"></div>
+          <div class="pos-cart-head">
+            <div>
+              <h3 id="pos-cart-titulo" class="pos-cart-titulo">Venta actual <span class="badge badge-blue" id="pos-count">0</span></h3>
+              <div class="pos-cart-fecha" id="pos-cart-fecha"></div>
+            </div>
+            <div style="display:flex;gap:0.35rem;">
+              <button type="button" class="btn-secondary btn-xs" onclick="posVaciar()" data-tip="Vaciar venta"><i class="fa-solid fa-trash-can"></i><span class="hide-sm"> Vaciar</span></button>
+              <button type="button" class="icon-btn" onclick="posCerrarCarrito()" aria-label="Cerrar y seguir agregando" data-tip="Seguir agregando (Esc)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+          <div class="pos-cart-cuerpo">
+          <div class="pos-items" id="pos-items"></div>
+          <button type="button" class="pos-seguir" onclick="posCerrarCarrito()"><i class="fa-solid fa-plus"></i> Agregar más productos</button>
+
+          <div class="pos-campos">
+            <div class="pos-fila2">
+              <div><label class="field-label" for="pos-cliente">Cliente (opcional)</label><input type="text" id="pos-cliente" class="field-input" maxlength="80" placeholder="Nombre"/></div>
+              <div><label class="field-label" for="pos-descuento">Descuento</label><div class="input-money"><span>$</span><input type="text" id="pos-descuento" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);posRender()"/></div></div>
+            </div>
+            <label class="field-label" style="margin-top:0.65rem;">Método de pago</label>
+            <div class="seg pos-metodos" role="radiogroup">
+              <button type="button" class="seg-btn active" data-metodo="efectivo" onclick="posMetodo('efectivo')"><i class="fa-solid fa-money-bill-wave"></i> Efectivo</button>
+              <button type="button" class="seg-btn" data-metodo="transferencia" onclick="posMetodo('transferencia')"><i class="fa-solid fa-building-columns"></i> Transf.</button>
+              <button type="button" class="seg-btn" data-metodo="nequi" onclick="posMetodo('nequi')"><i class="fa-solid fa-mobile-screen"></i> Nequi</button>
+              <button type="button" class="seg-btn" data-metodo="tarjeta" onclick="posMetodo('tarjeta')"><i class="fa-regular fa-credit-card"></i> Tarjeta</button>
+            </div>
+            <div id="pos-efectivo">
+              <div class="pos-fila2">
+                <div><label class="field-label" for="pos-recibido">Recibido</label><div class="input-money"><span>$</span><input type="text" id="pos-recibido" class="field-input" inputmode="numeric" placeholder="0" oninput="formatoMoneda(this);posRender()"/></div></div>
+                <div><label class="field-label">Cambio</label><div class="pos-cambio" id="pos-cambio">$0</div></div>
+              </div>
+              <div class="pos-billetes" id="pos-billetes"></div>
+            </div>
+          </div>
+
+          </div>
+          <div class="pos-cart-pie">
+          <div class="pos-totales">
+            <div><span>Subtotal</span><span id="pos-subtotal">$0</span></div>
+            <div id="pos-desc-row" hidden><span>Descuento</span><span id="pos-desc-val">−$0</span></div>
+            <div class="pos-total"><span>Total</span><span id="pos-total">$0</span></div>
+          </div>
+          <button type="button" class="btn-primary pos-cobrar" id="pos-btn-cobrar" onclick="posCobrar()" disabled>
+            <i class="fa-solid fa-cash-register"></i> Cobrar <kbd>F2</kbd>
+          </button>
+          </div>
   </div>
 </div>
 
@@ -4840,6 +4946,7 @@ function goSection(key) {
     if (psEl) psEl.textContent = sec.sub;
     
     marcarNavActiva(key);
+    document.body.classList.toggle('en-pos', key === 'pos');
 
     // 🎬 FONDO STREAMING
     const _bg = document.getElementById('streaming-bg-overlay');
@@ -13201,7 +13308,7 @@ function posTeclaScan(e) {
   else if (e.key === 'Enter') {
     e.preventDefault();
     const v = e.target.value.trim();
-    if (!v) { if (posCarrito.length) posCobrar(); return; }
+    if (!v) { if (posCarrito.length) posAbrirCarrito(true); return; }
     // 1) código exacto (lector o digitado)  2) resultado seleccionado
     if (!posAgregarPorCodigo(v, true)) {
       if (posResultados[posSel]) posAgregarId(posResultados[posSel].id);
@@ -13315,6 +13422,7 @@ function posVaciar() {
   if (!posCarrito.length) return;
   if (!confirm('¿Vaciar la venta actual?')) return;
   posLimpiar();
+  closeModal('modal-carrito');
 }
 function posLimpiar() {
   posCarrito = [];
@@ -13378,7 +13486,45 @@ function posRender(resaltarId = null, sinItems = false) {
     `<button type="button" class="pos-billete" onclick="ponerMoneda('pos-recibido', ${b});posRender()">${i === 0 ? 'Exacto' : formatCurrency(b)}</button>`).join('') : '';
   const btn = document.getElementById('pos-btn-cobrar');
   btn.disabled = !posCarrito.length || posProcesando || (posMetodoActual === 'efectivo' && t.recibido > 0 && t.cambio < 0);
+  posRenderBarra(unidades, t.total, resaltarId);
 }
+
+// Barra inferior del punto de venta: resumen de la venta y acceso al carrito
+function posRenderBarra(unidades, total, resaltar) {
+  const barra = document.getElementById('pos-barra');
+  if (!barra) return;
+  const lineas = posCarrito.length;
+  document.getElementById('pos-barra-num').textContent = unidades;
+  document.getElementById('pos-barra-total').textContent = formatCurrency(total);
+  document.getElementById('pos-barra-titulo').textContent = lineas ? `${unidades} artículo${unidades === 1 ? '' : 's'} en la venta` : 'Venta vacía';
+  const ult = posCarrito[0];
+  document.getElementById('pos-barra-sub').textContent = lineas ? `Último: ${ult.nombre}` : 'Escanea o toca un producto';
+  document.getElementById('pos-barra-btn').disabled = !lineas;
+  barra.classList.toggle('vacia', !lineas);
+  if (resaltar) { barra.classList.remove('pulso'); void barra.offsetWidth; barra.classList.add('pulso'); }
+}
+
+const carritoAbierto = () => document.getElementById('modal-carrito')?.style.display === 'flex';
+function posAbrirCarrito(irAPagar = false) {
+  const f = new Date();
+  document.getElementById('pos-cart-fecha').textContent = f.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + f.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  openModal('modal-carrito');
+  document.body.classList.add('sin-scroll');
+  if (irAPagar && posCarrito.length && !esPantallaTactil()) {
+    setTimeout(() => document.getElementById(posMetodoActual === 'efectivo' ? 'pos-recibido' : 'pos-btn-cobrar')?.focus(), 250);
+  }
+}
+function posCerrarCarrito() {
+  closeModal('modal-carrito');
+  posFoco();
+}
+// Al cerrar el carrito de cualquier forma (X, fondo, Esc) se libera el desplazamiento de la página
+const _closeModalCarrito = closeModal;
+closeModal = function (id) { if (id === 'modal-carrito') document.body.classList.remove('sin-scroll'); return _closeModalCarrito(id); };
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && carritoAbierto() && !document.querySelector('.modal-overlay:not(#modal-carrito)[style*="flex"]')) { e.preventDefault(); posCerrarCarrito(); }
+  if (e.key === 'F4' && posActivo()) { e.preventDefault(); carritoAbierto() ? posCerrarCarrito() : posAbrirCarrito(); }
+});
 
 async function posCobrar() {
   if (!posCarrito.length || posProcesando) return;
@@ -13406,6 +13552,7 @@ async function posCobrar() {
   document.getElementById('venta-ok-cambio').innerHTML = cambio != null ? `Cambio: <strong>${formatCurrency(cambio)}</strong>` : METODOS[posMetodoActual];
   document.getElementById('venta-ok-imprimir').onclick = () => imprimirComprobante(venta.id);
   const vendidos = posCarrito.map(l => l.id);
+  closeModal('modal-carrito');
   posLimpiar();
   openModal('modal-venta-ok');
   setTimeout(() => document.querySelector('#modal-venta-ok .btn-primary')?.focus(), 50);
@@ -13421,8 +13568,14 @@ async function posCobrar() {
 let _scanBuf = '', _scanUlt = 0;
 document.addEventListener('keydown', e => {
   if (!posActivo() || !currentUser) return;
-  const abierto = [...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex');
-  if (e.key === 'F2') { e.preventDefault(); if (!abierto) posCobrar(); return; }
+  // El carrito no bloquea el lector: con él abierto se puede seguir escaneando
+  const abierto = [...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex' && m.id !== 'modal-carrito');
+  if (e.key === 'F2') {
+    e.preventDefault();
+    if (abierto) return;
+    if (carritoAbierto()) posCobrar(); else if (posCarrito.length) posAbrirCarrito(true);
+    return;
+  }
   if (abierto) return;
   const t = e.target;
   if (t.id === 'pos-scan' || /INPUT|TEXTAREA|SELECT/.test(t.tagName)) return;
