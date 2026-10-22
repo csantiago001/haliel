@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="haliel-version" content="2026.10.21.1"/>
+<meta name="haliel-version" content="2026.10.22.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B1740"/>
 <meta name="color-scheme" content="light dark"/>
@@ -1377,6 +1377,7 @@
   html.dark .mc-wa-prev { background: #0B141A; }
   .mc-burbuja { background: #D9FDD3; color: #111B21; border-radius: 12px 12px 4px 12px; padding: 0.7rem 0.8rem; font-size: 0.84rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }
   html.dark .mc-burbuja { background: #005C4B; color: #E9EDEF; }
+  .mc-nt-si { background: #128C4A !important; border-color: #128C4A !important; }
   .mc-cli-badge { display: flex; width: max-content; white-space: nowrap; align-items: center; gap: 0.3rem; margin-top: 0.25rem; border: 0; cursor: pointer; font: inherit; font-size: 0.7rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 99px;
     background: color-mix(in srgb, #D69E06 16%, transparent); color: #A16207; }
   .mc-cli-badge.venc { background: color-mix(in srgb, var(--red) 13%, transparent); color: var(--red); }
@@ -3088,6 +3089,20 @@
   </div>
 </div>
 
+<!-- ══════════ MODAL: MIS CRÉDITOS · ¿NOTIFICAR EL PAGO POR WHATSAPP? ══════════ -->
+<div id="modal-mc-notificar" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-head"><h3><i class="fa-solid fa-circle-check" style="color:#12A150;"></i> Pago registrado</h3>
+      <button class="icon-btn" onclick="closeModal('modal-mc-notificar')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+    <p class="form-hint" id="mc-nt-texto" style="font-size:0.88rem;line-height:1.5;margin:0 0 0.8rem;"></p>
+    <div class="mc-wa-prev"><div class="mc-burbuja" id="mc-nt-prev"></div></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="btn-mc-nt-no" onclick="closeModal('modal-mc-notificar')">No, solo registrar</button>
+      <button class="btn-primary mc-nt-si" id="btn-mc-nt-si"><i class="fa-brands fa-whatsapp"></i> Sí, enviar por WhatsApp</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: MIS CRÉDITOS · CONFIRMAR (anular, perdonar, eliminar) ══════════ -->
 <div id="modal-mc-confirmar" class="modal-overlay" style="display:none;">
   <div class="modal-box" style="max-width:420px;">
@@ -4284,7 +4299,7 @@
 // · La página revisa sola si hay una versión nueva y se actualiza.
 // · Las preferencias y la configuración del sistema viven en Supabase.
 // =====================================================================
-const APP_VERSION = '2026.10.21.1';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
+const APP_VERSION = '2026.10.22.1';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
 
 // ── 1. Actualización automática ──
 let _versionNueva = null, _verEspera = null, _verRevisando = false;
@@ -15660,11 +15675,9 @@ function mcMensajeRecordatorio(r) {
   return L.join('\n');
 }
 function mcMensajeComprobante(r, monto, metodo, fecha) {
-  const L = [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '', `Recibí tu ${r.saldo <= 0.5 ? 'pago' : 'abono'} de *${mcPesos(monto)}*${metodo ? ' por ' + (MC_METODOS[metodo] || metodo) : ''} el ${formatDate(fecha)} ✅`, ''];
-  if (r.saldo <= 0.5) L.push('🎉 Quedas a *paz y salvo*. ¡Muchas gracias por cumplir!');
-  else { L.push(`💵 *Tu nuevo saldo es:* ${mcPesos(r.saldo)}`); if (r.fechaLimite) L.push(`📅 *Fecha de pago:* ${formatDate(r.fechaLimite)}`); }
-  L.push('', `¡Gracias! *${mcFirma()}*, siempre a tus servicios 🤝`);
-  return L.join('\n');
+  return [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '',
+    `Recibí tu pago de *${mcPesos(monto)}*${metodo ? ' por ' + (MC_METODOS[metodo] || metodo) : ''} el ${formatDate(fecha)} ✅`, '',
+    `¡Gracias! *${mcFirma()}*, siempre a tus servicios 🤝`].join('\n');
 }
 function mcMensajePazYSalvo(r) {
   return [`Hola *${mcPrimerNombre(r.p.nombre)}* 👋`, '', `Te confirmo que estás a *paz y salvo* conmigo ✅`, `Pagaste en total ${mcPesos(r.pagado)}. No tienes saldos pendientes.`, '', '¡Gracias por cumplir!', `*${mcFirma()}*, siempre a tus servicios 🤝`].join('\n');
@@ -15868,15 +15881,10 @@ function mcPintarResultadoPago() {
   const p = mcPersona(mcPg.id); if (!p) return;
   const r = mcResumen(p), monto = leerMoneda('mc-pg-monto'), queda = r.saldo - monto;
   const box = document.getElementById('mc-pg-resultado');
-  const enviar = `<label class="mg-check"><input type="checkbox" id="mc-pg-enviar" ${mcDigitos(p.telefono) ? 'checked' : ''}/> Enviar comprobante por WhatsApp</label>`;
-  const marcado = document.getElementById('mc-pg-enviar');
-  const estabaMarcado = marcado ? marcado.checked : null;
   if (!monto) { box.className = 'span-2 mc-queda'; box.innerHTML = `<i class="fa-solid fa-circle-info"></i><div><strong>Escribe cuánto pagó</strong><span>Debe ${formatCurrency(r.saldo)}</span></div>`; }
   else if (queda < -0.5) { box.className = 'span-2 mc-queda mal'; box.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>Es más de lo que debe</strong><span>El máximo es ${formatCurrency(r.saldo)}</span></div>`; }
-  else if (queda <= 0.5) { box.className = 'span-2 mc-queda ok'; box.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>Queda a paz y salvo</strong><span>Saldo después del pago: $0</span></div>${enviar}`; }
-  else { box.className = 'span-2 mc-queda'; box.innerHTML = `<i class="fa-solid fa-scale-balanced"></i><div><strong>Seguirá debiendo ${formatCurrency(queda)}</strong><span>Saldo después del abono</span></div>${enviar}`; }
-  const nuevo = document.getElementById('mc-pg-enviar');
-  if (nuevo && estabaMarcado !== null) nuevo.checked = estabaMarcado;
+  else if (queda <= 0.5) { box.className = 'span-2 mc-queda ok'; box.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>Queda a paz y salvo</strong><span>Saldo después del pago: $0</span></div>`; }
+  else { box.className = 'span-2 mc-queda'; box.innerHTML = `<i class="fa-solid fa-scale-balanced"></i><div><strong>Seguirá debiendo ${formatCurrency(queda)}</strong><span>Saldo después del abono</span></div>`; }
   const tot = monto && Math.abs(queda) <= 0.5;
   document.querySelectorAll('#mc-pg-tipo button').forEach(b => b.classList.toggle('on', b.dataset.tipo === (tot ? 'total' : 'abono')));
 }
@@ -15888,19 +15896,25 @@ async function mcGuardarPago() {
   if (monto <= 0) { showError('mc-pg-monto', 'Escribe cuánto pagó'); return; }
   if (monto > r.saldo + 0.5) { showError('mc-pg-monto', `No puede ser más de lo que debe (${formatCurrency(r.saldo)})`); return; }
   if (!fecha || fecha > todayLocal()) { showError('mc-pg-fecha', 'Elige una fecha válida'); return; }
-  // La ventana de WhatsApp se abre con el clic (los navegadores bloquean las que se abren después)
-  const enviar = document.getElementById('mc-pg-enviar')?.checked;
-  const ventana = enviar ? window.open('', '_blank') : null;
   const btn = document.getElementById('btn-mc-pago');
   btn.classList.add('btn-loading');
   const { error } = await sb.from('mc_movimientos').insert({ usuario_id: currentUser.id, persona_id: p.id, tipo: 'abono', monto, fecha, metodo_pago: metodo, concepto: document.getElementById('mc-pg-nota').value.trim() || null });
   btn.classList.remove('btn-loading');
-  if (error) { ventana?.close(); toast('No se pudo registrar el pago: ' + error.message, 'error'); return; }
+  if (error) { toast('No se pudo registrar el pago: ' + error.message, 'error'); return; }
   closeModal('modal-mc-pago');
   await mcRecargarTodo();
   const r2 = mcResumen(mcPersona(p.id));
   toast(r2.saldo <= 0.5 ? `${escHTML(p.nombre)} quedó a paz y salvo 🎉` : `Abono registrado. Ahora debe ${formatCurrency(r2.saldo)}`, 'success');
-  if (enviar) mcAbrirWhatsApp(p, mcMensajeComprobante(r2, monto, metodo, fecha), ventana);
+  mcPreguntarNotificar(p, mcMensajeComprobante(r2, monto, metodo, fecha), r2);
+}
+// Después de registrar el pago se pregunta si se avisa por WhatsApp (nunca se abre solo)
+function mcPreguntarNotificar(p, texto, r) {
+  document.getElementById('mc-nt-texto').innerHTML = `El pago de <strong>${escHTML(p.nombre)}</strong> quedó guardado${r.saldo <= 0.5 ? ' y está a paz y salvo' : `. Ahora debe ${formatCurrency(r.saldo)}`}. ¿Quieres enviarle el comprobante por WhatsApp?`
+    + (mcDigitos(p.telefono) ? '' : '<br><small>No tiene teléfono guardado: podrás elegir el contacto en WhatsApp.</small>');
+  document.getElementById('mc-nt-prev').innerHTML = mcWaHTML(texto);
+  document.getElementById('btn-mc-nt-si').onclick = () => { closeModal('modal-mc-notificar'); mcAbrirWhatsApp(p, texto); };
+  openModal('modal-mc-notificar');
+  setTimeout(() => document.getElementById('btn-mc-nt-no')?.focus(), 60);
 }
 
 // ── Historial / estado de cuenta ──
