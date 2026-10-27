@@ -5,14 +5,14 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="haliel-version" content="2026.10.27.2"/>
+<meta name="haliel-version" content="2026.10.27.3"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B1740"/>
 <meta name="color-scheme" content="light dark"/>
 <meta name="description" content="Haliel Papelería — Sistema administrativo para gestión de ventas, caja, clientes, streaming y más. Bucaramanga, Colombia."/>
 <meta name="robots" content="index, follow, max-snippet:160"/>
 <link rel="icon" type="image/png" sizes="32x32" href="https://csantiago001.github.io/haliel/logo-redon.png?v=20261027"/>
-<link rel="icon" type="image/png" sizes="192x192" href="https://csantiago001.github.io/haliel/icono-192.png?v=20261027"/>
+<link rel="icon" type="image/png" sizes="192x192" href="https://csantiago001.github.io/haliel/icono-192.png?v=20261027b"/>
 <link rel="shortcut icon" href="https://csantiago001.github.io/haliel/logo-redon.png?v=20261027"/>
 <title>Haliel Papelería | Sistema Administrativo</title>
 
@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://csantiago001.github.io/haliel/logo-redon.png?v=20261027"/>
 
 <link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" href="icono-192.png?v=20261027"/>
+<link rel="apple-touch-icon" href="icono-apple-180.png?v=20261027"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -472,7 +472,8 @@
   #splash-screen.hide { opacity: 0; visibility: hidden; }
   #splash-screen > div:not(#splash-bar) { color: var(--text) !important; font-family: var(--font-display) !important; }
   #splash-screen > div:nth-of-type(2) { color: var(--text-muted) !important; font-family: var(--font-body) !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 0.85rem !important; }
-  #splash-logo { width: 112px; height: 112px; border-radius: 50%; object-fit: contain; animation: splashPulse 1.6s ease-in-out infinite; box-shadow: 0 18px 40px -18px rgba(27,23,64,0.45); }
+  #splash-logo { width: 220px; height: auto; object-fit: contain; animation: splashPulse 1.6s ease-in-out infinite; }
+  html.dark #splash-logo { background: #fff; border-radius: 18px; padding: 10px 14px; box-sizing: content-box; }
   @keyframes splashPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
   #splash-bar { width: 180px; height: 4px; background: var(--card-border); border-radius: 99px; margin-top: 1.75rem; overflow: hidden; }
   #splash-bar-fill { height: 100%; background: var(--dots); border-radius: 99px; animation: splashLoad 1.6s ease-in-out forwards; }
@@ -598,7 +599,7 @@
     .btn-primary, .btn-secondary { font-size: 0.82rem !important; padding: 0.6rem 0.875rem !important; }
     .premium-table { font-size: 0.78rem !important; }
     .login-card { padding: 1.4rem 1rem; border-radius: 18px; }
-    #splash-logo { width: 90px; height: 90px; }
+    #splash-logo { width: 190px; height: auto; }
     #st-sus-all-kpis { grid-template-columns: 1fr 1fr !important; }
   }
   @media (pointer: coarse) {
@@ -1456,7 +1457,7 @@
   };
   window.terminarIntro = terminar;
   // Al terminar la animación, el logo se queda quieto unos segundos más antes de entrar a la página
-  const PAUSA_FINAL = 3000;
+  const PAUSA_FINAL = 1000;
   v.addEventListener('ended', () => setTimeout(terminar, PAUSA_FINAL));
   // Si un formato no sirve el navegador prueba el siguiente; solo se omite si fallan todos
   const fuentes = v.querySelectorAll('source');
@@ -1478,7 +1479,7 @@
 })();
 </script>
 <div id="splash-screen">
-  <img src="logo-redon.png?v=20261027" id="splash-logo" alt="Haliel"/>
+  <img src="logo.png?v=20261027" id="splash-logo" alt="Haliel Papelería"/>
   <div style="font-weight:700;font-size:1.25rem;margin-top:1.25rem;letter-spacing:-0.02em;">Haliel Papelería</div>
   <div style="margin-top:0.2rem;">Preparando tu espacio de trabajo…</div>
   <div id="splash-bar"><div id="splash-bar-fill"></div></div>
@@ -4374,7 +4375,7 @@
 // · La página revisa sola si hay una versión nueva y se actualiza.
 // · Las preferencias y la configuración del sistema viven en Supabase.
 // =====================================================================
-const APP_VERSION = '2026.10.27.2';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
+const APP_VERSION = '2026.10.27.3';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
 
 // ── 1. Actualización automática ──
 let _versionNueva = null, _verEspera = null, _verRevisando = false;
