@@ -1,6 +1,6 @@
 // sw.js — Haliel PWA
 // La versión la cambia tools/nueva-version.py en cada publicación (junto con index.html y version.json)
-const VERSION = 'haliel-2026.10.27.3';
+const VERSION = 'haliel-2026.10.27.4';
 
 // Librerías externas con versión fija (nunca cambian): se guardan para que la app cargue rápido.
 // El código de la app (index.html) SIEMPRE se pide a internet sin copias; la copia guardada

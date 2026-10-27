@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="haliel-version" content="2026.10.27.3"/>
+<meta name="haliel-version" content="2026.10.27.4"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B1740"/>
 <meta name="color-scheme" content="light dark"/>
@@ -1413,6 +1413,8 @@
   .intro-btn { display: inline-flex; align-items: center; gap: 0.45rem; border: 0; border-radius: 99px; padding: 0.6rem 1rem; cursor: pointer;
     font: 600 0.85rem Figtree, system-ui, sans-serif; color: #fff; background: rgba(27, 23, 64, 0.72); backdrop-filter: blur(8px); box-shadow: 0 10px 24px -12px rgba(0,0,0,0.5); }
   .intro-btn:hover { background: rgba(27, 23, 64, 0.9); }
+  .intro-btn-destacado { background: #F5B70A !important; color: #1B1740 !important; animation: introLlamar 1.2s ease-in-out infinite; }
+  @keyframes introLlamar { 50% { transform: scale(1.06); } }
   .intro-btn:focus-visible { outline: 3px solid #F5B70A; outline-offset: 2px; }
   html.con-intro, html.con-intro body { overflow: hidden; }
   @media (max-width: 560px) { .intro-btn span { display: none; } .intro-btn#intro-saltar { padding: 0.6rem 0.9rem; } }
@@ -1428,13 +1430,13 @@
 <!-- SPLASH SCREEN -->
 <!-- ══════════ INTRO EN VIDEO (16:9) ══════════ -->
 <div id="intro" class="intro" role="dialog" aria-label="Presentación de Haliel Papelería" hidden>
-  <video id="intro-video" playsinline muted preload="auto" poster="intro-poster.jpg?v=20261027" aria-hidden="true">
+  <video id="intro-video" playsinline preload="auto" poster="intro-poster.jpg?v=20261027" aria-hidden="true">
     <source src="intro-haliel-720.mp4?v=20261027" type="video/mp4" media="(max-width: 900px)"/>
     <source src="intro-haliel.mp4?v=20261027" type="video/mp4"/>
     <source src="intro-haliel.webm?v=20261027" type="video/webm"/>
   </video>
   <div class="intro-botones">
-    <button type="button" class="intro-btn" id="intro-sonido" aria-label="Activar sonido"><i class="fa-solid fa-volume-xmark"></i> <span>Activar sonido</span></button>
+    <button type="button" class="intro-btn" id="intro-sonido" aria-label="Silenciar"><i class="fa-solid fa-volume-high"></i> <span>Silenciar</span></button>
     <button type="button" class="intro-btn" id="intro-saltar">Saltar intro <i class="fa-solid fa-forward"></i></button>
   </div>
 </div>
@@ -1467,14 +1469,29 @@
   const espera = setTimeout(() => { if (v.currentTime < 0.1) terminar(); }, 3000);
   v.addEventListener('playing', () => clearTimeout(espera), { once: true });
   setTimeout(terminar, 15000);                       // tope de seguridad
-  const p = v.play(); if (p && p.catch) p.catch(() => setTimeout(terminar, 1500));
-  document.getElementById('intro-saltar').onclick = terminar;
-  document.getElementById('intro-sonido').onclick = e => {
-    v.muted = !v.muted;
-    const b = e.currentTarget;
-    b.innerHTML = v.muted ? '<i class="fa-solid fa-volume-xmark"></i> <span>Activar sonido</span>' : '<i class="fa-solid fa-volume-high"></i> <span>Silenciar</span>';
-    b.setAttribute('aria-label', v.muted ? 'Activar sonido' : 'Silenciar');
+  // Sonido activado por defecto. Si el navegador no deja sonar sin un toque previo,
+  // arranca en silencio y el sonido se activa con el primer toque o tecla.
+  const btnSonido = document.getElementById('intro-sonido');
+  const pintarSonido = () => {
+    btnSonido.innerHTML = v.muted ? '<i class="fa-solid fa-volume-xmark"></i> <span>Activar sonido</span>' : '<i class="fa-solid fa-volume-high"></i> <span>Silenciar</span>';
+    btnSonido.setAttribute('aria-label', v.muted ? 'Activar sonido' : 'Silenciar');
+    btnSonido.classList.toggle('intro-btn-destacado', v.muted);
   };
+  v.muted = false; v.volume = 1;
+  const p = v.play();
+  if (p && p.catch) p.catch(() => {
+    v.muted = true; pintarSonido();
+    v.play().catch(() => setTimeout(terminar, 1500));
+    const activar = e => {
+      if (e.target.closest && e.target.closest('#intro-saltar, #intro-sonido')) return;
+      if (e.key === 'Escape' || e.key === 'Enter') return;
+      v.muted = false; pintarSonido();
+      ['pointerdown', 'keydown'].forEach(t => document.removeEventListener(t, activar, true));
+    };
+    ['pointerdown', 'keydown'].forEach(t => document.addEventListener(t, activar, true));
+  });
+  document.getElementById('intro-saltar').onclick = terminar;
+  btnSonido.onclick = e => { e.stopPropagation(); v.muted = !v.muted; pintarSonido(); };
   document.addEventListener('keydown', function k(e) { if (e.key === 'Escape' || e.key === 'Enter') { terminar(); document.removeEventListener('keydown', k); } });
 })();
 </script>
@@ -4375,7 +4392,7 @@
 // · La página revisa sola si hay una versión nueva y se actualiza.
 // · Las preferencias y la configuración del sistema viven en Supabase.
 // =====================================================================
-const APP_VERSION = '2026.10.27.3';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
+const APP_VERSION = '2026.10.27.4';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
 
 // ── 1. Actualización automática ──
 let _versionNueva = null, _verEspera = null, _verRevisando = false;
