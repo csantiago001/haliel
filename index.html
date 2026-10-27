@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="haliel-version" content="2026.10.27.1"/>
+<meta name="haliel-version" content="2026.10.27.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B1740"/>
 <meta name="color-scheme" content="light dark"/>
@@ -1438,15 +1438,13 @@
   </div>
 </div>
 <script>
-// Se muestra al abrir la página (una vez por pestaña). No se repite al recargar ni cuando
-// la página se actualiza sola a una versión nueva. Si el video no carga rápido, se omite.
+// Se muestra cada vez que se abre o se recarga la página. No sale cuando la página se
+// actualiza sola a una versión nueva. Si el video no carga rápido, se omite.
 (function () {
   const el = document.getElementById('intro'), v = document.getElementById('intro-video');
   const q = new URLSearchParams(location.search);
-  let visto = false; try { visto = sessionStorage.getItem('haliel-intro') === '1'; } catch (_) {}
   const ahorro = navigator.connection && (navigator.connection.saveData || /(^|-)2g$/.test(navigator.connection.effectiveType || ''));
-  if (visto || q.has('v') || q.has('nointro') || ahorro) { el.remove(); return; }
-  try { sessionStorage.setItem('haliel-intro', '1'); } catch (_) {}
+  if (q.has('v') || q.has('nointro') || window.__sinIntro || ahorro) { el.remove(); return; }
   el.hidden = false;
   document.documentElement.classList.add('con-intro');
   let terminado = false;
@@ -1457,7 +1455,9 @@
     setTimeout(() => { try { v.pause(); } catch (_) {} el.remove(); }, 650);
   };
   window.terminarIntro = terminar;
-  v.addEventListener('ended', terminar);
+  // Al terminar la animación, el logo se queda quieto unos segundos más antes de entrar a la página
+  const PAUSA_FINAL = 3000;
+  v.addEventListener('ended', () => setTimeout(terminar, PAUSA_FINAL));
   // Si un formato no sirve el navegador prueba el siguiente; solo se omite si fallan todos
   const fuentes = v.querySelectorAll('source');
   if (fuentes.length) fuentes[fuentes.length - 1].addEventListener('error', terminar);
@@ -1465,7 +1465,7 @@
   // Si en 3 s no ha empezado a reproducirse (internet lento), se pasa directo a la app
   const espera = setTimeout(() => { if (v.currentTime < 0.1) terminar(); }, 3000);
   v.addEventListener('playing', () => clearTimeout(espera), { once: true });
-  setTimeout(terminar, 12000);                       // tope de seguridad
+  setTimeout(terminar, 15000);                       // tope de seguridad
   const p = v.play(); if (p && p.catch) p.catch(() => setTimeout(terminar, 1500));
   document.getElementById('intro-saltar').onclick = terminar;
   document.getElementById('intro-sonido').onclick = e => {
@@ -4374,7 +4374,7 @@
 // · La página revisa sola si hay una versión nueva y se actualiza.
 // · Las preferencias y la configuración del sistema viven en Supabase.
 // =====================================================================
-const APP_VERSION = '2026.10.27.1';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
+const APP_VERSION = '2026.10.27.2';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
 
 // ── 1. Actualización automática ──
 let _versionNueva = null, _verEspera = null, _verRevisando = false;
