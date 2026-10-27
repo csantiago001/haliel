@@ -1,6 +1,6 @@
 // sw.js — Haliel PWA
 // La versión la cambia tools/nueva-version.py en cada publicación (junto con index.html y version.json)
-const VERSION = 'haliel-2026.10.22.1';
+const VERSION = 'haliel-2026.10.27.1';
 
 // Librerías externas con versión fija (nunca cambian): se guardan para que la app cargue rápido.
 // El código de la app (index.html) SIEMPRE se pide a internet sin copias; la copia guardada
@@ -30,6 +30,7 @@ const sinCopias = req => fetch(new Request(req.url, { method: 'GET', cache: 'no-
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;                       // POST/PATCH/DELETE: directo a la red
+  if (req.headers.has('range') || req.destination === 'video' || req.destination === 'audio') return; // el video de la intro lo maneja el navegador
   const url = new URL(req.url);
   const mismoOrigen = url.origin === self.location.origin;
   if (!mismoOrigen && !CDN_ESTATICOS.includes(url.hostname)) return; // Supabase, Telegram, etc.
