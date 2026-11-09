@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="haliel-version" content="2026.10.27.4"/>
+<meta name="haliel-version" content="2026.11.08.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B1740"/>
 <meta name="color-scheme" content="light dark"/>
@@ -1419,6 +1419,22 @@
   html.con-intro, html.con-intro body { overflow: hidden; }
   @media (max-width: 560px) { .intro-btn span { display: none; } .intro-btn#intro-saltar { padding: 0.6rem 0.9rem; } }
   @media (prefers-reduced-motion: reduce) { .intro { transition: opacity 0.2s; } .intro.fuera { transform: none; } }
+
+  /* ════════ V11 · Entretenimiento: papelera y números corregidos ════════ */
+  .st-papelera-box { max-width: 760px; }
+  .st-pap-tabs { margin-bottom: 0.9rem; }
+  .st-pap-body { max-height: 62vh; overflow-y: auto; display: grid; gap: 0.6rem; }
+  .st-pap-item { display: flex; gap: 0.8rem; align-items: center; padding: 0.75rem 0.9rem; border: 1px solid var(--card-border); border-radius: 14px; background: var(--card-bg); }
+  .st-pap-item > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.84rem; }
+  .st-pap-item strong { font-family: var(--font-display); }
+  .st-pap-item span { font-size: 0.76rem; color: var(--text-muted); }
+  .st-pap-cod { color: #5B3FD9; font-weight: 800; }
+  .st-pap-flecha { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-family: var(--font-display); }
+  .st-pap-flecha s { color: var(--text-muted); font-weight: 600; }
+  .st-pap-flecha b { color: #12A150; }
+  .st-aviso-migracion[hidden] { display: none !important; }
+  /* Las confirmaciones (eliminar, archivar, anular) siempre quedan encima de la ventana que las abrió */
+  #modal-mc-confirmar { z-index: 1500 !important; }
 </style>
 </head>
 <body>
@@ -2499,6 +2515,7 @@
 		  <input type="text" id="st-cli-search" class="search-input" style="width:100%;" placeholder="Buscar cliente..." oninput="filterStreamingClientes()"/>
 		</div>
 		<label class="check-pill"><input type="checkbox" id="st-cli-solo-deuda" onchange="filterStreamingClientes()"/> Solo con saldo pendiente</label>
+		<label class="check-pill"><input type="checkbox" id="st-cli-ver-archivados" onchange="filterStreamingClientes()"/> Ver archivados</label>
 	  </div>
 
 	  <!-- KPIs -->
@@ -2547,7 +2564,12 @@
 		<button class="btn-secondary" onclick="openModalCalendarioCobros()">
 		  <i class="fa-solid fa-calendar-days"></i> Calendario
 		</button>
+		<button class="btn-secondary" onclick="stAbrirPapelera()" data-tip="Ventas eliminadas y números corregidos">
+		  <i class="fa-solid fa-trash-arrow-up"></i> Papelera
+		</button>
 	  </div>
+	  <div class="modulo-aviso st-aviso-migracion" hidden><i class="fa-solid fa-database"></i><div><strong>Falta un paso para proteger tus ventas.</strong>
+	    <span>Ejecuta <code>supabase/2026-11-reconstruccion-entretenimiento.sql</code> en el editor SQL de Supabase y recarga. Mientras tanto puedes consultar, pero no registrar, renovar ni eliminar ventas.</span></div></div>
 
 	  <!-- TARJETAS COMPACTAS UNIFICADAS: KPIs + Analytics -->
 	  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.65rem;margin-bottom:1.25rem;" id="st-sus-all-kpis"></div>
@@ -3207,6 +3229,21 @@
       <button class="btn-secondary" onclick="closeModal('modal-mc-confirmar')">Cancelar</button>
       <button class="btn-primary" id="btn-mc-confirmar"></button>
     </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: ENTRETENIMIENTO · PAPELERA Y NÚMEROS CORREGIDOS ══════════ -->
+<div id="modal-st-papelera" class="modal-overlay" style="display:none;">
+  <div class="modal-box st-papelera-box">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-trash-arrow-up" style="color:#5B3FD9;"></i> Papelera de ventas</h3>
+      <button class="icon-btn" onclick="closeModal('modal-st-papelera')" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mc-tabs st-pap-tabs" role="tablist">
+      <button type="button" data-tab="ventas" onclick="stPapeleraTab('ventas')">Ventas eliminadas</button>
+      <button type="button" data-tab="numeros" onclick="stPapeleraTab('numeros')">Números corregidos</button>
+    </div>
+    <div id="st-pap-body" class="st-pap-body"></div>
   </div>
 </div>
 
@@ -4392,7 +4429,7 @@
 // · La página revisa sola si hay una versión nueva y se actualiza.
 // · Las preferencias y la configuración del sistema viven en Supabase.
 // =====================================================================
-const APP_VERSION = '2026.10.27.4';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
+const APP_VERSION = '2026.11.08.1';   // ⬅️ se cambia en cada publicación (tools/nueva-version.py)
 
 // ── 1. Actualización automática ──
 let _versionNueva = null, _verEspera = null, _verRevisando = false;
@@ -9411,10 +9448,54 @@ function estadoDeVenta(items) {
   const prio = ['vencido', 'por_vencer', 'activo'];
   return vivas.map(s => calcEstadoSus(s.fecha_vencimiento)).sort((a, b) => prio.indexOf(a) - prio.indexOf(b))[0];
 }
-// Agrupa las suscripciones por venta (id_venta + cliente), igual que la tabla
+// ════════════════════════════════════════════════════
+// IDENTIDAD DE LA VENTA (reconstrucción nov-2026)
+// Cada venta se identifica por su venta_id interno (único en la base de datos),
+// nunca solo por el número visible. Si la base aún no está migrada se usa
+// número + cliente, que es lo más seguro con los datos antiguos.
+// ════════════════════════════════════════════════════
+let stModeloNuevo = false;          // true cuando existe la tabla streaming_ventas
+const claveVenta = s => s.venta_id || `${s.id_venta || s.id}__${s.cliente_id}`;
+function itemsDeVenta(ref, clienteId = null) {
+  if (!ref) return [];
+  let it = allStSuscripciones.filter(s => claveVenta(s) === ref);
+  if (it.length) return it;
+  it = allStSuscripciones.filter(s => (s.id_venta || s.id) === ref && (!clienteId || String(s.cliente_id) === String(clienteId)));
+  if (new Set(it.map(s => String(s.cliente_id))).size > 1) {
+    toast('Ese número de venta lo tienen varios clientes. Ábrela desde la fila de su cliente.', 'error');
+    return [];
+  }
+  return it;
+}
+const codigoDeVenta = ref => itemsDeVenta(ref)[0]?.id_venta || ref;
+// Solo filas vigentes (las de la papelera no se muestran ni se cuentan)
+const stSoloVivas = q => stModeloNuevo ? q.is('eliminado_en', null) : q;
+// Lee todas las filas en bloques de 1000 (Supabase devuelve máximo 1000 por consulta)
+async function stLeerTodo(construir) {
+  const todo = [];
+  for (let desde = 0; desde < 100000; desde += 1000) {
+    const { data, error } = await construir().range(desde, desde + 999);
+    if (error) return { data: todo.length ? todo : null, error };
+    todo.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return { data: todo, error: null };
+}
+async function stDetectarModelo() {
+  const { error } = await sb.from('streaming_ventas').select('id').limit(1);
+  stModeloNuevo = !error;
+  document.querySelectorAll('.st-aviso-migracion').forEach(el => { el.hidden = stModeloNuevo; });
+  return stModeloNuevo;
+}
+function stRequiereModelo() {
+  if (stModeloNuevo) return true;
+  toast('Para registrar, renovar o eliminar ventas primero ejecuta en Supabase el archivo 2026-11-reconstruccion-entretenimiento.sql', 'error');
+  return false;
+}
+// Agrupa las suscripciones por venta, igual que la tabla
 function gruposDeVentas(lista = allStSuscripciones) {
   const g = {};
-  lista.forEach(s => { const k = `${s.id_venta || s.id}__${s.cliente_id}`; (g[k] = g[k] || []).push(s); });
+  lista.forEach(s => { const k = claveVenta(s); (g[k] = g[k] || []).push(s); });
   return g;
 }
 
@@ -9526,10 +9607,11 @@ async function loadStreamingClientes() {
   const _bg = document.getElementById('streaming-bg-overlay');
   if (_bg) _bg.style.opacity = '0.50';
   if (!allStPlataformas.length) await loadStPlataformas();
-  const { data } = await sb.from('streaming_clientes').select('*').order('nombre');
+  await stDetectarModelo();
+  const { data } = await stLeerTodo(() => sb.from('streaming_clientes').select('*').order('nombre'));
   allStClientes = data || [];
   // Cargar conteo de suscripciones activas por cliente
-  const { data: susList } = await sb.from('streaming_suscripciones').select('cliente_id, estado');
+  const { data: susList } = await stLeerTodo(() => stSoloVivas(sb.from('streaming_suscripciones').select('cliente_id, estado')));
   const susCount = {};
   (susList || []).forEach(s => {
     if (!susCount[s.cliente_id]) susCount[s.cliente_id] = 0;
@@ -9542,10 +9624,11 @@ async function loadStreamingClientes() {
 
 function renderStreamingClientes(susCount = {}, filter = '') {
   const tbody = document.getElementById('st-cli-tbody');
-  let list = allStClientes;
+  const verArchivados = document.getElementById('st-cli-ver-archivados')?.checked;
+  let list = allStClientes.filter(c => verArchivados ? !!c.archivado_en : !c.archivado_en);
   if (filter) list = list.filter(c =>
-    c.nombre.toLowerCase().includes(filter) ||
-    c.whatsapp.includes(filter) ||
+    (c.nombre || '').toLowerCase().includes(filter) ||
+    (c.whatsapp || '').includes(filter) ||
     (c.ciudad || '').toLowerCase().includes(filter)
   );
   if (!list.length) {
@@ -9585,7 +9668,9 @@ function renderStreamingClientes(susCount = {}, filter = '') {
           <button class="btn-edit" data-tip="Historial de pagos" onclick="openHistorialCliente('${c.id}')"><i class="fa-solid fa-money-bill-wave"></i></button>
           <button class="btn-edit" data-tip="Editar" onclick="openModalStreamingCliente('${c.id}')"><i class="fa-solid fa-pen"></i></button>
           <button class="btn-secondary" style="padding:0.45rem 0.65rem;" data-tip="Historial de suscripciones" onclick="verHistorialCliente('${c.id}', (allStClientes.find(x => x.id === '${c.id}') || {}).nombre || '')"><i class="fa-solid fa-clock-rotate-left"></i></button>
-          <button class="btn-danger" onclick="deleteStreamingCliente('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+          ${c.archivado_en
+            ? `<button class="btn-secondary" style="padding:0.45rem 0.65rem;" data-tip="Restaurar cliente" onclick="restaurarStreamingCliente('${c.id}')"><i class="fa-solid fa-box-open"></i></button>`
+            : `<button class="btn-danger" data-tip="Archivar cliente" onclick="deleteStreamingCliente('${c.id}')"><i class="fa-solid fa-box-archive"></i></button>`}
         </div>
       </td>
     </tr>`;
@@ -9593,8 +9678,9 @@ function renderStreamingClientes(susCount = {}, filter = '') {
 }
 
 function renderStCliKpis() {
-  const total    = allStClientes.length;
-  const activos  = allStClientes.filter(c => c.estado === 'activo').length;
+  const vigentes = allStClientes.filter(c => !c.archivado_en);
+  const total    = vigentes.length;
+  const activos  = vigentes.filter(c => c.estado === 'activo').length;
   const inactivos = total - activos;
   const container = document.getElementById('st-cli-kpis');
   if (!container) return;
@@ -9662,13 +9748,24 @@ async function saveStreamingCliente() {
   await loadStreamingClientes();
 }
 
+// Los clientes nunca se borran: se archivan (sus ventas, pagos y abonos se conservan)
 function deleteStreamingCliente(id) {
-  confirmarEliminar('¿Eliminar este cliente? Se eliminarán también todas sus suscripciones e historial.', async () => {
-    const { error } = await sb.from('streaming_clientes').delete().eq('id', id);
-    if (error) { toast('Error al eliminar: ' + error.message, 'error'); return; }
-    toast('Cliente eliminado', 'success');
-    await loadStreamingClientes();
-  });
+  if (!stRequiereModelo()) return;
+  const c = allStClientes.find(x => x.id === id);
+  mcConfirmar({ titulo: 'Archivar cliente', boton: '<i class="fa-solid fa-box-archive"></i> Archivar', campo: 'Motivo (opcional)',
+    texto: `<strong>${escHTML(c?.nombre || 'Este cliente')}</strong> dejará de aparecer en la lista y en "Nueva venta". Sus ventas, pagos y abonos se conservan, y puedes restaurarlo cuando quieras desde "Ver archivados".`,
+    alAceptar: async motivo => {
+      const { error } = await sb.rpc('haliel_archivar_cliente_streaming', { p_cliente_id: id, p_motivo: motivo || null });
+      if (error) { toast('No se pudo archivar: ' + error.message, 'error'); return; }
+      closeModal('modal-mc-confirmar'); toast('Cliente archivado', 'success');
+      await loadStreamingClientes();
+    } });
+}
+async function restaurarStreamingCliente(id) {
+  const { error } = await sb.rpc('haliel_restaurar_cliente_streaming', { p_cliente_id: id });
+  if (error) { toast('No se pudo restaurar: ' + error.message, 'error'); return; }
+  toast('Cliente restaurado', 'success');
+  await loadStreamingClientes();
 }
 
 // ── SUSCRIPCIONES ─────────────────────────────────────────────────────
@@ -9678,9 +9775,11 @@ async function loadStreamingSuscripciones() {
   if (_bg) _bg.style.opacity = '0.50';
   if (!allStPlataformas.length) await loadStPlataformas();
   if (!allStClientes.length)    await loadStreamingClientes();
-  const { data } = await sb.from('streaming_suscripciones').select('*')
-  .order('id_venta', { ascending: true })       // orden por número de venta (000001, 000002, …)
-  .order('fecha_vencimiento', { ascending: true }); // orden secundario dentro de cada venta
+  await stDetectarModelo();
+  const { data } = await stLeerTodo(() => stSoloVivas(sb.from('streaming_suscripciones').select('*'))
+    .order('id_venta', { ascending: true })        // orden por número de venta (000001, 000002, …)
+    .order('fecha_vencimiento', { ascending: true }) // orden secundario dentro de cada venta
+    .order('id', { ascending: true }));              // orden estable para leer por bloques
   allStSuscripciones = data || [];
   for (const s of allStSuscripciones) {
     if (s.estado === 'cancelado') continue;
@@ -9792,8 +9891,7 @@ function renderStreamingSuscripciones() {
   // queden mezcladas en el mismo grupo y se editen registros cruzados.
   const grupos = {};
   list.forEach(s => {
-    const idV = s.id_venta || s.id;
-    const key = `${idV}__${s.cliente_id}`;
+    const key = claveVenta(s);
     if (!grupos[key]) grupos[key] = [];
     grupos[key].push(s);
   });
@@ -9836,7 +9934,8 @@ function renderStreamingSuscripciones() {
   gruposArr.forEach((items, grpIdx) => {
     // Tomar datos comunes del primer item
     const s0 = items[0];
-    const idVenta = s0.id_venta || s0.id;           // id de venta "limpio" para mostrar
+    const idVenta = s0.id_venta || s0.id;           // número visible
+    const ref = claveVenta(s0);                     // identidad única de la venta
     const cli = allStClientes.find(c => c.id === s0.cliente_id);
     const totalMonto = items.reduce((a, s) => a + (s.precio_venta || 0), 0);
     // Estado global: solo es 'cancelado' si TODAS lo están; si no, el peor
@@ -9883,10 +9982,10 @@ function renderStreamingSuscripciones() {
       <td>${badgeEstadoSus(estadoGlobal, s0.fecha_vencimiento)}</td>
       <td>
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-          ${estadoGlobal !== 'cancelado' ? `<button class=\"btn-primary\" style=\"padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;\" onclick=\"event.stopPropagation();abrirModalCobro('${idVenta}','${s0.cliente_id}')\"><i class=\"fa-brands fa-whatsapp\"></i> Cobro</button>` : ''}
-          ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#12A150;border-color:rgba(18,161,80,0.3);" data-tip="Renovar" onclick="event.stopPropagation();renovarVenta('${idVenta}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
-          <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${idVenta}')" style="background:rgba(229,56,59,0.1);color:#C9282B;border-color:rgba(229,56,59,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
-          <button class="btn-danger" onclick="event.stopPropagation();confirmarEliminar('¿Eliminar la venta ${idVenta} y todas sus plataformas?',()=>deleteStreamingSusGrupo('${idVenta}'))"><i class="fa-solid fa-trash"></i></button>
+          ${estadoGlobal !== 'cancelado' ? `<button class=\"btn-primary\" style=\"padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;\" onclick=\"event.stopPropagation();abrirModalCobro('${ref}','${s0.cliente_id}')\"><i class=\"fa-brands fa-whatsapp\"></i> Cobro</button>` : ''}
+          ${(estadoGlobal === 'vencido' || estadoGlobal === 'por_vencer') ? `<button class="btn-secondary" style="padding:0.4rem 0.65rem;font-size:0.75rem;white-space:nowrap;color:#12A150;border-color:rgba(18,161,80,0.3);" data-tip="Renovar" onclick="event.stopPropagation();renovarVenta('${ref}')"><i class="fa-solid fa-rotate"></i> Renovar</button>` : ''}
+          <button class="btn-edit" title="Factura PDF" onclick="event.stopPropagation();generarFacturaPDF('${ref}')" style="background:rgba(229,56,59,0.1);color:#C9282B;border-color:rgba(229,56,59,0.2);"><i class="fa-solid fa-file-pdf"></i></button>
+          <button class="btn-danger" data-tip="Enviar a la papelera" onclick="event.stopPropagation();stEliminarVenta('${ref}')"><i class="fa-solid fa-trash"></i></button>
         </div>
       </td>
     </tr>`;
@@ -9999,16 +10098,26 @@ function cerrarBannerCtx() {
   });
 }
 
-async function deleteStreamingSusGrupo(idVenta) {
-  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+// Eliminar una venta = enviarla a la papelera (se puede restaurar). Nunca se borra.
+async function deleteStreamingSusGrupo(ref, motivo = null) {
+  if (!stRequiereModelo()) return false;
+  const items = itemsDeVenta(ref);
+  if (!items.length || !items[0].venta_id) { toast('No se encontró la venta', 'error'); return false; }
+  const { error } = await sb.rpc('haliel_eliminar_venta_streaming', { p_venta_id: items[0].venta_id, p_motivo: motivo || null });
+  if (error) { toast('No se pudo eliminar: ' + error.message, 'error'); return false; }
+  toast(`Venta ${items[0].id_venta} enviada a la papelera`, 'success');
+  await loadStreamingSuscripciones();
+  return true;
+}
+function stEliminarVenta(ref, despues = null) {
+  if (!stRequiereModelo()) return;
+  const items = itemsDeVenta(ref);
   if (!items.length) return;
   const cli = allStClientes.find(c => c.id === items[0].cliente_id);
-  for (const s of items) {
-    await sb.from('streaming_suscripciones').delete().eq('id', s.id);
-  }
-  logAuditoria('eliminar', `Venta de streaming ${idVenta} eliminada (${cli?.nombre||'cliente'}, ${items.length} plataforma${items.length>1?'s':''})`);
-  toast(`Venta ${idVenta} eliminada`, 'success');
-  await loadStreamingSuscripciones();
+  const plats = items.map(s => allStPlataformas.find(p => p.id === s.plataforma_id)?.nombre || 'Plataforma').join(', ');
+  mcConfirmar({ titulo: 'Eliminar venta', boton: '<i class="fa-solid fa-trash"></i> Enviar a la papelera', peligro: true, campo: 'Motivo (opcional)',
+    texto: `La venta <strong>${escHTML(items[0].id_venta)}</strong> de <strong>${escHTML(cli?.nombre || 'cliente')}</strong> (${escHTML(plats)}) irá a la papelera. No se borra: puedes restaurarla desde "Papelera". Su número nunca se vuelve a usar.`,
+    alAceptar: async motivo => { if (await deleteStreamingSusGrupo(ref, motivo)) { closeModal('modal-mc-confirmar'); if (despues) despues(); } } });
 }
 
 function renderStRentabilidad() {
@@ -10140,25 +10249,23 @@ function openModalStreamingSus(id = null) {
 }
 
 function deleteStreamingSus(id) {
-  confirmarEliminar('¿Eliminar esta suscripción?', async () => {
-    const { error } = await sb.from('streaming_suscripciones').delete().eq('id', id);
-    if (error) { toast('Error: ' + error.message, 'error'); return; }
-    toast('Suscripción eliminada', 'success');
-    await loadStreamingSuscripciones();
-  });
+  if (!stRequiereModelo()) return;
+  const s = allStSuscripciones.find(x => x.id === id);
+  const plat = allStPlataformas.find(p => p.id === s?.plataforma_id)?.nombre || 'esta plataforma';
+  mcConfirmar({ titulo: 'Quitar plataforma', boton: '<i class="fa-solid fa-trash"></i> Enviar a la papelera', peligro: true, campo: 'Motivo (opcional)',
+    texto: `Se quitará <strong>${escHTML(plat)}</strong> de la venta <strong>${escHTML(s?.id_venta || '')}</strong>. Si era la única plataforma, la venta completa va a la papelera. Se puede restaurar.`,
+    alAceptar: async motivo => {
+      const { error } = await sb.rpc('haliel_eliminar_suscripcion_streaming', { p_suscripcion_id: id, p_motivo: motivo || null });
+      if (error) { toast('No se pudo eliminar: ' + error.message, 'error'); return; }
+      closeModal('modal-mc-confirmar'); toast('Plataforma enviada a la papelera', 'success');
+      await loadStreamingSuscripciones();
+    } });
 }
 
 // ── COBRO WHATSAPP ────────────────────────────────────────────────────
 function abrirModalCobro(idVenta, clienteId = null) {
-  // Reunir las suscripciones del grupo. Se filtra por id_venta Y cliente_id
-  // para evitar que dos ventas distintas con el mismo id_venta (clientes
-  // diferentes) se mezclen y se cobre/notifique al cliente equivocado.
-  const items = allStSuscripciones.filter(s => {
-    const idV = s.id_venta || s.id;
-    const matchVenta   = idV === idVenta;
-    const matchCliente = clienteId == null || s.cliente_id === clienteId;
-    return matchVenta && matchCliente;
-  });
+  // Las plataformas de ESA venta (identidad única), nunca las de otro cliente
+  const items = itemsDeVenta(idVenta, clienteId);
   if (!items.length) return;
 
   // ── DISCRIMINACIÓN AUTOMÁTICA POR ESTADO ────────────────────────────
@@ -10465,7 +10572,8 @@ async function checkStreamingAlertas() {
   if (!allStPlataformas.length) await loadStPlataformas();
   if (!allStClientes.length)    await loadStreamingClientes();
   if (!allStSuscripciones.length) {
-    const { data } = await sb.from('streaming_suscripciones').select('*');
+    await stDetectarModelo();
+    const { data } = await stLeerTodo(() => stSoloVivas(sb.from('streaming_suscripciones').select('*')).order('id'));
     allStSuscripciones = data || [];
   }
   const hoy = todayLocal();
@@ -10571,9 +10679,9 @@ function filtrarClientesSus(valor) {
 
   const v = valor.toLowerCase();
   const resultados = allStClientes.filter(c =>
-    c.estado === 'activo' &&
-    (c.nombre.toLowerCase().includes(v) || c.whatsapp.includes(v) || (c.ciudad || '').toLowerCase().includes(v))
-  ).slice(0, 8);
+    !c.archivado_en &&
+    ((c.nombre || '').toLowerCase().includes(v) || (c.whatsapp || '').includes(v) || (c.ciudad || '').toLowerCase().includes(v))
+  ).sort((a, b) => (a.estado === 'activo' ? 0 : 1) - (b.estado === 'activo' ? 0 : 1)).slice(0, 8);
 
   if (!resultados.length) {
     dropdown.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--text-muted);font-size:0.82rem;">Sin resultados para "${valor}"</div>`;
@@ -10588,9 +10696,9 @@ function filtrarClientesSus(valor) {
          onmouseout="this.style.background='transparent'">
       <div class="avatar" style="width:32px;height:32px;font-size:0.72rem;flex-shrink:0;">${getInitials(c.nombre)}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:0.875rem;">${c.nombre}</div>
+        <div style="font-weight:700;font-size:0.875rem;">${escHTML(c.nombre)}${c.estado !== 'activo' ? ' <span class="badge badge-red" style="font-size:0.62rem;">Inactivo</span>' : ''}</div>
         <div style="font-size:0.72rem;color:var(--text-muted);">
-          <i class="fa-brands fa-whatsapp" style="color:#12A150;margin-right:0.25rem;"></i>${c.whatsapp}
+          <i class="fa-brands fa-whatsapp" style="color:#12A150;margin-right:0.25rem;"></i>${escHTML(c.whatsapp || 'sin WhatsApp')}
           ${c.ciudad ? ` · ${c.ciudad}` : ''}
         </div>
       </div>
@@ -10817,32 +10925,19 @@ async function saveStreamingSusCombo() {
       return;
     }
 
-    const idVenta = await generarIdVentaUnico();
-    
-    // Guardar un registro por cada plataforma
-    for (const platId of stSusComboSeleccionadas) {
-      const precioInput = document.querySelector(`[data-plat="${platId}"].st-precio-combo`);
-      const perfilInput = document.querySelector(`[data-plat="${platId}"].st-perfil-combo`);
-      const precio = getPrecioComboCOP(precioInput);
-      const perfil = perfilInput?.value || 'Perfil 1';
-
-      const estado = calcEstadoSus(vence);
-      const payload = {
-        id_venta: idVenta,
-        cliente_id: clienteId,
-        plataforma_id: platId,
-        perfil,
-        precio_venta: precio,
-        duracion_meses: meses,
-        fecha_inicio: inicio,
-        fecha_vencimiento: vence,
-        estado,
-        notas: notas || null
-      };
-
-      const { error } = await sb.from('streaming_suscripciones').insert(payload);
-      if (error) throw error;
-    }
+    // La base de datos asigna el número (único, nunca reutilizado) y guarda
+    // todas las plataformas juntas: o se guarda la venta completa o nada.
+    if (!stRequiereModelo()) return;
+    const itemsVenta = Array.from(stSusComboSeleccionadas).map(platId => ({
+      plataforma_id: platId,
+      perfil: document.querySelector(`[data-plat="${platId}"].st-perfil-combo`)?.value || 'Perfil 1',
+      precio: getPrecioComboCOP(document.querySelector(`[data-plat="${platId}"].st-precio-combo`)),
+    }));
+    const { data: nueva, error: errVenta } = await sb.rpc('haliel_crear_venta_streaming', {
+      p_cliente_id: clienteId, p_items: itemsVenta, p_fecha_inicio: inicio, p_fecha_vencimiento: vence,
+      p_duracion: meses, p_notas: notas || null });
+    if (errVenta) throw errVenta;
+    const idVenta = nueva.codigo;
 
     // 📧 Construir info ANTES de limpiar
     const cli = allStClientes.find(c => c.id === clienteId);
@@ -10877,7 +10972,8 @@ async function saveStreamingSusCombo() {
   }
 }
 
-// 🆔 GENERAR ID VENTA ÚNICO — Formato profesional NPE-YYYY-XXXXXX
+// 🆔 (OBSOLETO) Calculaba el número leyendo la última venta: causaba números
+// repetidos y reutilizados. Ya no se usa: el número lo asigna la base de datos.
 async function generarIdVentaUnico() {
   const año = new Date().getFullYear();
   try {
@@ -10928,7 +11024,8 @@ function numeroALetras(n) {
 }
 
 function generarFacturaPDF(idVenta) {
-  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
+  const items = itemsDeVenta(idVenta);
+  if (items.length) idVenta = items[0].id_venta || idVenta;
   if (!items.length) { toast('No se encontraron datos de la venta', 'error'); return; }
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const s0 = items[0];
@@ -11128,7 +11225,7 @@ async function loadStreamingCalendarioModal(filtro = 'semana') {
   lista.forEach(s => { (porCliente[s.cliente_id] = porCliente[s.cliente_id] || []).push(s); });
   const clientes = Object.entries(porCliente).map(([clienteId, items]) => {
     items.sort((a, b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
-    return { clienteId, items, primera: items[0].fecha_vencimiento, ventas: [...new Set(items.map(s => s.id_venta || s.id))] };
+    return { clienteId, items, primera: items[0].fecha_vencimiento, ventas: [...new Set(items.map(claveVenta))] };
   }).sort((a, b) => a.primera.localeCompare(b.primera));
   window._calClientes = clientes;
 
@@ -11233,33 +11330,26 @@ Escribe un *SI* en el evento de continuar, para lo cual puedes realizar tus pago
   openModal('modal-st-cobro');
 }
 
-function eliminarVentaCalendario(idVenta) {
-  const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === idVenta);
-  const cli = allStClientes.find(c => c.id === items[0]?.cliente_id);
-  const nom = (cli?.nombre || 'este cliente').replace(/['"<>]/g, '');
-  confirmarEliminar(`¿Eliminar la venta ${idVenta} de ${nom}? Se eliminan todas sus plataformas.`, async () => {
-    closeModal('modal-cal-ventas');
-    await deleteStreamingSusGrupo(idVenta);
-    loadStreamingCalendarioModal(window._calFiltro || 'semana');
-  });
+function eliminarVentaCalendario(ref) {
+  stEliminarVenta(ref, () => { closeModal('modal-cal-ventas'); loadStreamingCalendarioModal(window._calFiltro || 'semana'); });
 }
 
 // Cliente con varias ventas: elegir sobre cuál renovar, facturar o eliminar
 function elegirVentaCliente(ref, accion) {
   const g = typeof ref === 'number' ? (window._calClientes || [])[ref] : null;
   const clienteId = g ? g.clienteId : ref.clienteId;
-  const ventas = g ? g.ventas : [...new Set(allStSuscripciones.filter(s => String(s.cliente_id) === String(clienteId) && s.estado !== 'cancelado').map(s => s.id_venta || s.id))];
+  const ventas = g ? g.ventas : [...new Set(allStSuscripciones.filter(s => String(s.cliente_id) === String(clienteId) && s.estado !== 'cancelado').map(claveVenta))];
   const cli = allStClientes.find(c => c.id === clienteId);
   const titulos = { renovar: 'Renovar', factura: 'Factura', eliminar: 'Eliminar' };
   document.getElementById('cal-ventas-titulo').textContent = `${titulos[accion] || 'Ventas'} · ${cli?.nombre || 'Cliente'}`;
   document.getElementById('cal-ventas-body').innerHTML = ventas.map(v => {
-    const items = allStSuscripciones.filter(s => (s.id_venta || s.id) === v && String(s.cliente_id) === String(clienteId));
+    const items = itemsDeVenta(v, clienteId);
     const total = items.reduce((a, s) => a + (Number(s.precio_venta) || 0), 0);
     const vence = items.map(s => s.fecha_vencimiento).filter(Boolean).sort()[0];
     const plats = items.map(s => allStPlataformas.find(p => p.id === s.plataforma_id)?.nombre || 'Plataforma').join(', ');
     const vEsc = String(v).replace(/'/g, '');
     return `<div class="cal-venta-fila">
-      <div style="min-width:0;flex:1;"><strong>${vEsc}</strong><div class="cal-cliente-sub">${plats} · ${formatCurrency(total)} · vence ${vence ? formatDate(vence) : '—'}</div></div>
+      <div style="min-width:0;flex:1;"><strong>${escHTML(items[0]?.id_venta || '')}</strong><div class="cal-cliente-sub">${plats} · ${formatCurrency(total)} · vence ${vence ? formatDate(vence) : '—'}</div></div>
       <div class="cal-acciones" style="margin:0;">
         <button class="btn-secondary cal-renovar${accion === 'renovar' ? ' cal-accion-on' : ''}" onclick="closeModal('modal-cal-ventas');closeModal('modal-calendario-cobros');closeModal('modal-st-cobro');renovarVenta('${vEsc}')"><i class="fa-solid fa-rotate"></i> Renovar</button>
         <button class="btn-edit${accion === 'factura' ? ' cal-accion-on' : ''}" data-tip="Factura PDF" onclick="generarFacturaPDF('${vEsc}')"><i class="fa-solid fa-file-invoice"></i></button>
@@ -11888,7 +11978,7 @@ async function verHistorialCliente(clienteId, nombre) {
     `<div style="text-align:center;padding:2rem;color:var(--text-muted);"><span class="spinner" style="border-color:rgba(91,63,217,0.3);border-top-color:#5B3FD9;"></span></div>`;
   openModal('modal-cli-historial');
 
-  const { data: sus } = await sb.from('streaming_suscripciones').select('*').eq('cliente_id', clienteId).order('created_at', {ascending:false});
+  const { data: sus } = await stSoloVivas(sb.from('streaming_suscripciones').select('*').eq('cliente_id', clienteId)).order('created_at', {ascending:false});
   if (!sus?.length) {
     document.getElementById('modal-cli-hist-body').innerHTML =
       '<div style="text-align:center;padding:2rem;color:var(--text-muted);">Este cliente no tiene ventas registradas.</div>';
@@ -11932,6 +12022,7 @@ async function verHistorialCliente(clienteId, nombre) {
 // Conserva el mismo id_venta (sin ventas nuevas ni duplicados).
 // ════════════════════════════════════════════════════
 let renovIdVenta = null;
+let renovVentaId = null;
 let renovClienteId = null;
 let renovItems = [];
 let renovSeleccionadas = new Set();
@@ -11943,12 +12034,10 @@ function abrirModalRenovar(idVenta) {
   // ── FIX: filtrar SOLO por id_venta (campo de negocio), nunca por s.id
   // Si la suscripción no tiene id_venta todavía, solo se incluye si su
   // propio id coincide con idVenta Y su cliente_id coincide — doble guarda.
-  const items = allStSuscripciones.filter(s => {
-    if (s.id_venta) return s.id_venta === idVenta;          // caso normal
-    return s.id === idVenta;                                 // caso legado: solo si el propio id coincide
-  });
-
+  const items = itemsDeVenta(idVenta);
   if (!items.length) { toast('No se encontró la venta', 'error'); return; }
+  renovVentaId = items[0].venta_id || null;
+  idVenta = items[0].id_venta || idVenta;                    // número visible
 
   // Seguridad extra: todos los items deben ser del mismo cliente
   const clienteIdBase = items[0].cliente_id;
@@ -12187,81 +12276,29 @@ async function confirmarRenovacion() {
   if (!inicio) { toast('Define la fecha de inicio de la renovación', 'error'); return; }
   if (renovSeleccionadas.size === 0) { toast('El combo debe tener al menos una plataforma', 'error'); return; }
   if (!vence) { toast('No se pudo calcular el vencimiento', 'error'); return; }
+  if (!stRequiereModelo() || !renovVentaId) { if (stModeloNuevo) toast('No se encontró la venta', 'error'); return; }
 
   const btn = document.getElementById('btn-confirmar-renov');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Renovando...'; }
 
   try {
-    const estado = calcEstadoSus(vence);
-    const existentesPorPlat = {};
-    renovItems.forEach(s => { existentesPorPlat[s.plataforma_id] = s; });
-
-    // 1) Plataformas seleccionadas: actualizar las existentes o crear las nuevas (mismo id_venta)
-    for (const platId of renovSeleccionadas) {
+    // Todo en un solo paso en la base de datos: conserva el número de la venta,
+    // registra los pagos y manda a la papelera las plataformas que salen del combo.
+    const itemsRenov = Array.from(renovSeleccionadas).map(platId => {
       const plat = allStPlataformas.find(p => p.id === platId);
       const v = renovValores[platId] || { precio: plat?.costo_real || 0, perfil: 'Perfil 1' };
-      const precio = v.precio || 0;
-      const perfil = v.perfil || 'Perfil 1';
-      const fila = existentesPorPlat[platId];
-
-      let suscripcionId;
-      if (fila) {
-        const { error } = await sb.from('streaming_suscripciones').update({
-          fecha_inicio: inicio, fecha_vencimiento: vence, duracion_meses: meses,
-          precio_venta: precio, perfil, estado, notas: notas || null
-        }).eq('id', fila.id);
-        if (error) throw error;
-        suscripcionId = fila.id;
-      } else {
-        const { data, error } = await sb.from('streaming_suscripciones').insert({
-          id_venta: renovIdVenta, cliente_id: renovClienteId, plataforma_id: platId,
-          perfil, precio_venta: precio, duracion_meses: meses,
-          fecha_inicio: inicio, fecha_vencimiento: vence, estado, notas: notas || null
-        }).select('id').single();
-        if (error) throw error;
-        suscripcionId = data?.id;
-      }
-
-      // Registrar el pago en el historial (continuidad de la cuenta)
-      await sb.from('streaming_pagos').insert({
-        suscripcion_id: suscripcionId, cliente_id: renovClienteId, plataforma_id: platId,
-        monto: precio, costo_real: plat?.costo_real || 0, duracion_meses: meses,
-        ganancia: (precio || 0) - ((plat?.costo_real || 0) * (meses || 1)),
-        fecha_pago: todayLocal(), notas: `Renovación combo ${renovIdVenta}`
-      });
-    }
-
-    // 2) Plataformas quitadas del combo: eliminar su fila (los pagos quedan en el historial).
-    //    BLINDAJE TRIPLE:
-    //    a) Solo se procesan filas que pertenecen a este cliente (cliente_id)
-    //    b) Solo se procesan filas que pertenecen a esta venta (id_venta o id)
-    //    c) Nunca se elimina una plataforma ACTIVA
-    for (const fila of renovItems) {
-      // Guarda a: verificar que la fila pertenece al cliente correcto
-      if (fila.cliente_id !== renovClienteId) {
-        console.warn('⚠️ confirmarRenovacion: fila de cliente ajeno detectada, se omite', fila);
-        continue;
-      }
-      // Guarda b: verificar que la fila pertenece a esta venta
-      const ventaFila = fila.id_venta || fila.id;
-      if (ventaFila !== renovIdVenta) {
-        console.warn('⚠️ confirmarRenovacion: fila de venta ajena detectada, se omite', fila);
-        continue;
-      }
-      if (!renovSeleccionadas.has(fila.plataforma_id)) {
-        // Guarda c: no eliminar plataformas activas
-        const estFila = calcEstadoSus(fila.fecha_vencimiento);
-        if (estFila === 'activo') continue;
-        await sb.from('streaming_suscripciones').delete().eq('id', fila.id);
-      }
-    }
+      return { plataforma_id: platId, precio: v.precio || 0, perfil: v.perfil || 'Perfil 1' };
+    });
+    const { error: errRenov } = await sb.rpc('haliel_renovar_venta_streaming', {
+      p_venta_id: renovVentaId, p_items: itemsRenov, p_fecha_inicio: inicio, p_fecha_vencimiento: vence,
+      p_duracion: meses, p_notas: notas || null });
+    if (errRenov) throw errRenov;
 
     const cli = allStClientes.find(c => c.id === renovClienteId);
     const platNames = Array.from(renovSeleccionadas)
       .map(id => allStPlataformas.find(p => p.id === id)?.nombre).filter(Boolean).join(', ');
 
     toast(`✅ Renovado hasta ${formatDate(vence)}`, 'success');
-    await logAuditoria('editar', `Renovación venta ${renovIdVenta} — inicio ${inicio}, vence ${vence}, plataformas: ${platNames}`);
     closeModal('modal-st-renovar');
     try { await loadStreamingSuscripciones(); } catch (e) { console.warn('⚠️ Reload streaming falló (la renovación ya se guardó):', e); }
 
@@ -12274,7 +12311,7 @@ async function confirmarRenovacion() {
 🕐 <b>Hora:</b> ${new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}
 ━━━━━━━━━━━━━━━━━━`);
 
-    renovItems = []; renovSeleccionadas = new Set(); renovValores = {}; renovIdVenta = null;
+    renovItems = []; renovSeleccionadas = new Set(); renovValores = {}; renovIdVenta = null; renovVentaId = null;
   } catch (err) {
     toast('Error: ' + err.message, 'error');
   } finally {
@@ -13855,7 +13892,7 @@ async function construirIndiceBusqueda() {
     tareas.push(sb.from('streaming_clientes').select('id,nombre,whatsapp,ciudad').then(({ data }) => (data || []).forEach(c => items.push({
       tipo: 'Clientes', id: c.id, icono: 'fa-solid fa-address-book', titulo: c.nombre, sub: [c.whatsapp, c.ciudad].filter(Boolean).join(' · '),
       extra: c.whatsapp, abrir: () => irConBusqueda('streaming-cartera', 'st-cli-search', c.nombre, filterStreamingClientes) }))));
-    tareas.push(sb.from('streaming_suscripciones').select('id_venta,cliente_id,fecha_vencimiento,estado').then(({ data }) => {
+    tareas.push(stSoloVivas(sb.from('streaming_suscripciones').select('id_venta,cliente_id,fecha_vencimiento,estado')).then(({ data }) => {
       const vistos = new Set();
       (data || []).forEach(s => { if (!s.id_venta || vistos.has(s.id_venta)) return; vistos.add(s.id_venta);
         items.push({ tipo: 'Ventas', icono: 'fa-solid fa-receipt', titulo: s.id_venta, sub: `Vence ${formatDate(s.fecha_vencimiento)} · ${s.estado}`, clienteId: s.cliente_id,
@@ -16281,6 +16318,66 @@ renderStreamingClientes = function (susCount = {}, filter = '') {
     btn.insertAdjacentHTML('beforebegin', `<button class="btn-edit mc-cli-btn" data-tip="Mis créditos" onclick="mcAbrirDesdeCliente('${escJS(id)}')"><i class="fa-solid fa-file-invoice-dollar"></i></button>`);
   });
 };
+</script>
+<script>
+// =====================================================================
+// ENTRETENIMIENTO · PAPELERA (ventas eliminadas) Y NÚMEROS CORREGIDOS
+// Nada se borra: las ventas eliminadas se pueden restaurar con todo su historial.
+// =====================================================================
+let stPapTab = 'ventas';
+function stAbrirPapelera(tab = 'ventas') { openModal('modal-st-papelera'); stPapeleraTab(tab); }
+async function stPapeleraTab(tab) {
+  stPapTab = tab;
+  document.querySelectorAll('.st-pap-tabs button').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
+  const body = document.getElementById('st-pap-body');
+  body.innerHTML = '<div style="text-align:center;padding:2rem;"><span class="spinner"></span></div>';
+  if (!stModeloNuevo && !(await stDetectarModelo())) {
+    body.innerHTML = `<div class="modulo-aviso"><i class="fa-solid fa-database"></i><div><strong>La papelera se activa con la reconstrucción.</strong><span>Ejecuta <code>supabase/2026-11-reconstruccion-entretenimiento.sql</code> en Supabase.</span></div></div>`;
+    return;
+  }
+  if (!allStPlataformas.length) await loadStPlataformas();
+  if (tab === 'numeros') {
+    const { data, error } = await sb.from('streaming_ids_reasignados').select('*').order('en', { ascending: true }).order('codigo_nuevo', { ascending: true });
+    if (error) { body.innerHTML = `<p class="form-hint">No se pudo cargar: ${escHTML(error.message)}</p>`; return; }
+    body.innerHTML = (data || []).length
+      ? `<p class="form-hint" style="margin:0 0 0.3rem;">Estos números estaban repetidos entre clientes. El cliente que compró primero conservó el número; los siguientes recibieron uno nuevo y único. Plataformas, fechas, precios, pagos y abonos se conservaron.</p>`
+        + data.map(r => `<div class="st-pap-item"><i class="fa-solid fa-right-left" style="color:#5B3FD9;"></i><div>
+            <span class="st-pap-flecha"><s>${escHTML(r.codigo_anterior || 'sin número')}</s> → <b>${escHTML(r.codigo_nuevo)}</b></span>
+            <span><strong>${escHTML(r.cliente_nombre || '')}</strong> · ${r.filas} plataforma${r.filas === 1 ? '' : 's'} · ${formatDate(String(r.en).slice(0, 10))}</span>
+            <span>${escHTML(r.motivo || '')}</span></div></div>`).join('')
+      : emptyState('fa-circle-check', 'Sin correcciones', 'No hubo números de venta repetidos.');
+    return;
+  }
+  const { data: ventas, error } = await sb.from('streaming_ventas').select('*').eq('estado', 'eliminada').order('eliminada_en', { ascending: false });
+  if (error) { body.innerHTML = `<p class="form-hint">No se pudo cargar: ${escHTML(error.message)}</p>`; return; }
+  if (!ventas?.length) { body.innerHTML = emptyState('fa-trash-can', 'La papelera está vacía', 'Las ventas que elimines aparecerán aquí y podrás restaurarlas.'); return; }
+  const filas = [];
+  const ids = ventas.map(v => v.id);
+  for (let i = 0; i < ids.length; i += 150) {
+    const { data } = await sb.from('streaming_suscripciones').select('*').in('venta_id', ids.slice(i, i + 150));
+    filas.push(...(data || []));
+  }
+  const admin = esAdmin();
+  body.innerHTML = ventas.map(v => {
+    const items = filas.filter(f => f.venta_id === v.id);
+    const cli = allStClientes.find(c => c.id === v.cliente_id);
+    const plats = items.map(f => allStPlataformas.find(p => p.id === f.plataforma_id)?.nombre || 'Plataforma').join(', ') || '—';
+    const total = items.reduce((a, f) => a + (Number(f.precio_venta) || 0), 0);
+    return `<div class="st-pap-item"><i class="fa-solid fa-receipt" style="color:var(--text-muted);"></i><div>
+        <strong><span class="st-pap-cod">${escHTML(v.codigo)}</span> · ${escHTML(cli?.nombre || 'Cliente')}</strong>
+        <span>${escHTML(plats)} · ${formatCurrency(total)}</span>
+        <span>Eliminada el ${formatDate(String(v.eliminada_en).slice(0, 10))}${v.eliminada_motivo ? ' · ' + escHTML(v.eliminada_motivo) : ''}</span></div>
+      ${admin ? `<button class="btn-secondary btn-xs" onclick="stRestaurarVenta('${v.id}')"><i class="fa-solid fa-rotate-left"></i> Restaurar</button>` : ''}</div>`;
+  }).join('');
+}
+async function stRestaurarVenta(id) {
+  const { error } = await sb.rpc('haliel_restaurar_venta_streaming', { p_venta_id: id });
+  if (error) { toast('No se pudo restaurar: ' + error.message, 'error'); return; }
+  toast('Venta restaurada', 'success');
+  await loadStreamingSuscripciones();
+  if (typeof loadStreamingClientes === 'function' && allStClientes.some(c => c.archivado_en)) await loadStreamingClientes();
+  stPapeleraTab('ventas');
+}
 </script>
 </body>
 </html>
