@@ -392,9 +392,9 @@ begin
               (it->>'precio')::numeric, v_meses, p_fecha_inicio, p_fecha_vencimiento, v_estado, nullif(p_notas, ''))
       returning id into v_id;
     end if;
-    insert into streaming_pagos (suscripcion_id, cliente_id, plataforma_id, monto, costo_real, duracion_meses, ganancia, fecha_pago, notas)
+    insert into streaming_pagos (suscripcion_id, cliente_id, plataforma_id, monto, costo_real, duracion_meses, fecha_pago, notas)
     values (v_id, v_venta.cliente_id, (it->>'plataforma_id')::uuid, (it->>'precio')::numeric, v_costo, v_meses,
-            (it->>'precio')::numeric - v_costo * v_meses, (now() at time zone 'America/Bogota')::date, 'Renovación combo ' || v_venta.codigo);
+            (now() at time zone 'America/Bogota')::date, 'Renovación combo ' || v_venta.codigo);
   end loop;
 
   -- Plataformas que salen del combo: a la papelera (nunca las que siguen activas)
